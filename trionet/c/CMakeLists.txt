@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8)
 
 #
 # studio project name
-project(TRION_SDK_C)
+project(TRIONET_SDK_C)
 
 #
 # common settings
@@ -165,10 +165,5 @@ macro(TRIONET_SampleBuildSettings SAMPLE)
 endmacro()
 
 
-add_subdirectory(lib)
 add_subdirectory(analog)
-add_subdirectory(counter)
-add_subdirectory(discret)
 add_subdirectory(misc)
-
-add_subdirectory(../../trionet/c trionet)
