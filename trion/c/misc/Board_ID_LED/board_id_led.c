@@ -10,7 +10,7 @@
 #include "dewepxi_apicore.h"
 #include "dewepxi_apiutil.h"
 #include "dewepxi_types.h"
-#include "TRION_SDK_Util/trion_sdk_util.h"
+#include "trion_sdk_util.h"
 
 //Escape - Key
 static const char KEY_ESC = 27;

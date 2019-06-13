@@ -36,3 +36,7 @@
 
 # vscode projects
 **/.vscode
+
+# build directories
+**/build
+**/build64
