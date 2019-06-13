@@ -9,7 +9,7 @@ project(TRION_SDK_C)
 
 #
 # common settings
-get_filename_component(TRION_SDK_ROOT .. ABSOLUTE)
+get_filename_component(TRION_SDK_ROOT ../.. ABSOLUTE)
 
 #
 # Enable target folders in IDEs
@@ -73,8 +73,8 @@ endif()
 
 
 
-if (EXISTS ${TRION_SDK_ROOT}/sdk/trion_api/inc)
-  add_subdirectory(${TRION_SDK_ROOT}/sdk/trion_api/inc trion_api)
+if (EXISTS ${TRION_SDK_ROOT}/trion_api/c/inc)
+  add_subdirectory(${TRION_SDK_ROOT}/trion_api/c/inc trion_api)
 else()
   message(status "${TRION_SDK_ROOT}/sdk/trion_api/inc not found")
 endif()
