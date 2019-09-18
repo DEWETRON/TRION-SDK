@@ -27,39 +27,41 @@ This directory contains examples for accessing TRIONET devices.
 
 # Building the examples
 
-## C
+## Examples in C 
 Building the C examples require CMAKE (https://cmake.org/).
-
+```cmd
 cd trion\C
 mkdir build
 cd build
-
+```
 For a Visual Studio 2019 run:
+```cmd
 cmake -G "Visual Studio 16 2019" ..
-
+```
 Other generators are listed when calling "cmake -G"
 
 Open the generated solution:
-
+```cmd
 start TION_SDK_C.sln
+```
 
-
-## C#
+## Examples in C#
 Building the C# examples also require CMAKE (https://cmake.org/).
-
+```cmd
 cd trionet\CS
 mkdir build
 cd build
-
+```
 For a Visual Studio 2019 run:
+```cmd
 cmake -G "Visual Studio 16 2019" ..
-
+```
 Other generators are listed when calling "cmake -G"
 
 Open the generated solution:
-
+```cmd
 start TION_SDK_CSHARP.sln
-
+```
 
 # License
 MIT License
