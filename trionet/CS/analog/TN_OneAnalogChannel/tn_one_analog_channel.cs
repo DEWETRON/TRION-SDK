@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 
 //using trion_api = Trion;
-using trion_api = Trion_x64;
+//using trion_api = Trion_x64;
 //using trion_api = TrionNET;
 //using trion_api = TrionNET_x64;
+using trion_api = Trion;
+
 
 namespace Examples
 {
@@ -40,7 +42,9 @@ namespace Examples
 
         static int Main(string[] args)
         {
-            Int32 nNoOfBoards;
+            Int32 nNoOfBoards = 0;
+
+            trion_api.API.DeWeConfigure(trion_api.API.Backend.TRIONET);
 
             // get access to TRIONET devices
             configureNetwork();

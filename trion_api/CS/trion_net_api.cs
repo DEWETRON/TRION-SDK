@@ -6,25 +6,431 @@ using System.Runtime.InteropServices;
 
 namespace Trion
 {
+
+    public class API
+    {
+        public enum Backend
+        {
+            TRION,
+            TRIONET
+        };
+
+
+        public static Trion.TrionError DeWeConfigure(Backend backend)
+        {
+            bool is64bit = System.Environment.Is64BitProcess;
+
+            if (is64bit)
+            {
+                if (backend == Backend.TRION)
+                {
+                    _dewe_driver_init = Trion_x64.API.DeWeDriverInit;
+                    _dewe_driver_deinit = Trion_x64.API.DeWeDriverDeInit;
+                    _dewe_get_param_i32 = Trion_x64.API.DeWeGetParam_i32;
+                    _dewe_set_param_i32 = Trion_x64.API.DeWeSetParam_i32;
+                    _dewe_get_param_i64 = Trion_x64.API.DeWeGetParam_i64;
+                    _dewe_set_param_i64 = Trion_x64.API.DeWeSetParam_i64;
+                    _dewe_set_param_struct_str = Trion_x64.API.DeWeSetParamStruct_str;
+                    _dewe_get_param_struct_str = Trion_x64.API.DeWeGetParamStruct_str;
+                    _dewe_get_param_struct_str_len = Trion_x64.API.DeWeGetParamStruct_strLEN;
+                    _dewe_set_param_xml_str = Trion_x64.API.DeWeSetParamXML_str;
+                    _dewe_get_param_xml_str = Trion_x64.API.DeWeGetParamXML_str;
+                    _dewe_get_param_xml_str_len = Trion_x64.API.DeWeGetParamXML_strLEN;
+
+                    //_dewe_open_can;
+                    //_dewe_close_can;
+                    //_dewe_start_can;
+                    //_dewe_stop_can;
+                    //_dewe_error_cnt_can;
+
+                    //_dewe_open_dma_uart;
+                    //_dewe_close_dma_uart;
+                    //_dewe_start_dma_uart;
+                    //_dewe_stop_dma_uart;
+                    //_dewe_free_dma_uart_raw_frame;
+
+                    _dewe_error_constant_to_string = Trion_x64.API.DeWeErrorConstantToString;
+
+                    return Trion.TrionError.NONE;
+
+                }
+                else if (backend == Backend.TRIONET)
+                {
+                    _dewe_driver_init = TrionNET_x64.API.DeWeDriverInit;
+                    _dewe_driver_deinit = TrionNET_x64.API.DeWeDriverDeInit;
+                    _dewe_get_param_i32 = TrionNET_x64.API.DeWeGetParam_i32;
+                    _dewe_set_param_i32 = TrionNET_x64.API.DeWeSetParam_i32;
+                    _dewe_get_param_i64 = TrionNET_x64.API.DeWeGetParam_i64;
+                    _dewe_set_param_i64 = TrionNET_x64.API.DeWeSetParam_i64;
+                    _dewe_set_param_struct_str = TrionNET_x64.API.DeWeSetParamStruct_str;
+                    _dewe_get_param_struct_str = TrionNET_x64.API.DeWeGetParamStruct_str;
+                    _dewe_get_param_struct_str_len = TrionNET_x64.API.DeWeGetParamStruct_strLEN;
+                    _dewe_set_param_xml_str = TrionNET_x64.API.DeWeSetParamXML_str;
+                    _dewe_get_param_xml_str = TrionNET_x64.API.DeWeGetParamXML_str;
+                    _dewe_get_param_xml_str_len = TrionNET_x64.API.DeWeGetParamXML_strLEN;
+
+                    _dewe_error_constant_to_string = TrionNET_x64.API.DeWeErrorConstantToString;
+
+                    return Trion.TrionError.NONE;
+                }
+            }
+            else
+            {
+                if (backend == Backend.TRION)
+                {
+                    _dewe_driver_init = Trion_x86.API.DeWeDriverInit;
+                    _dewe_driver_deinit = Trion_x86.API.DeWeDriverDeInit;
+                    _dewe_get_param_i32 = Trion_x86.API.DeWeGetParam_i32;
+                    _dewe_set_param_i32 = Trion_x86.API.DeWeSetParam_i32;
+                    _dewe_get_param_i64 = Trion_x86.API.DeWeGetParam_i64;
+                    _dewe_set_param_i64 = Trion_x86.API.DeWeSetParam_i64;
+                    _dewe_set_param_struct_str = Trion_x86.API.DeWeSetParamStruct_str;
+                    _dewe_get_param_struct_str = Trion_x86.API.DeWeGetParamStruct_str;
+                    _dewe_get_param_struct_str_len = Trion_x86.API.DeWeGetParamStruct_strLEN;
+                    _dewe_set_param_xml_str = Trion_x86.API.DeWeSetParamXML_str;
+                    _dewe_get_param_xml_str = Trion_x86.API.DeWeGetParamXML_str;
+                    _dewe_get_param_xml_str_len = Trion_x86.API.DeWeGetParamXML_strLEN;
+
+                    _dewe_error_constant_to_string = Trion_x86.API.DeWeErrorConstantToString;
+
+                    return Trion.TrionError.NONE;
+                }
+                else if (backend == Backend.TRIONET)
+                {
+                    _dewe_driver_init = TrionNET_x86.API.DeWeDriverInit;
+                    _dewe_driver_deinit = TrionNET_x86.API.DeWeDriverDeInit;
+                    _dewe_get_param_i32 = TrionNET_x86.API.DeWeGetParam_i32;
+                    _dewe_set_param_i32 = TrionNET_x86.API.DeWeSetParam_i32;
+                    _dewe_get_param_i64 = TrionNET_x86.API.DeWeGetParam_i64;
+                    _dewe_set_param_i64 = TrionNET_x86.API.DeWeSetParam_i64;
+                    _dewe_set_param_struct_str = TrionNET_x86.API.DeWeSetParamStruct_str;
+                    _dewe_get_param_struct_str = TrionNET_x86.API.DeWeGetParamStruct_str;
+                    _dewe_get_param_struct_str_len = TrionNET_x86.API.DeWeGetParamStruct_strLEN;
+                    _dewe_set_param_xml_str = TrionNET_x86.API.DeWeSetParamXML_str;
+                    _dewe_get_param_xml_str = TrionNET_x86.API.DeWeGetParamXML_str;
+                    _dewe_get_param_xml_str_len = TrionNET_x86.API.DeWeGetParamXML_strLEN;
+
+                    _dewe_error_constant_to_string = TrionNET_x86.API.DeWeErrorConstantToString;
+
+                    return Trion.TrionError.NONE;
+                }
+            }
+
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+
+        public static Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard)
+        {
+            nNumOfBoard = 0;
+            if (_dewe_driver_init != null)
+            {
+                return _dewe_driver_init(out nNumOfBoard);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeDriverDeInit()
+        {
+            if (_dewe_driver_deinit != null)
+            {
+                return _dewe_driver_deinit();
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, Trion.TrionCommand nCommandId, out Int32 pVal)
+        {
+            pVal = 0;
+            if (_dewe_get_param_i32 != null)
+            {
+                return _dewe_get_param_i32(nBoardNo, nCommandId, out pVal);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int32 nVal)
+        {
+            if (_dewe_set_param_i32 != null)
+            {
+                return _dewe_set_param_i32(nBoardNo, nCommandId, nVal);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeGetParam_i64(Int32 nBoardNo, Trion.TrionCommand nCommandId, out Int64 pVal)
+        {
+            pVal = 0;
+            if (_dewe_get_param_i64 != null)
+            {
+                return _dewe_get_param_i64(nBoardNo, nCommandId, out pVal);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+
+        public static Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int64 nVal)
+        {
+            if (_dewe_set_param_i64 != null)
+            {
+                return _dewe_set_param_i64(nBoardNo, nCommandId, nVal);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeSetParamStruct_str(string Target, string Item, string Var)
+        {
+            if (_dewe_set_param_struct_str != null)
+            {
+                return _dewe_set_param_struct_str(Target, Item, Var);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+
+        public static Trion.TrionError DeWeGetParamStruct_str(string Target, string Item, byte[] Var, UInt32 num)
+        {
+            if (_dewe_get_param_struct_str != null)
+            {
+                return _dewe_get_param_struct_str(Target, Item, Var, num);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeGetParamStructEx_str(string Target, string Item, string Arg, byte[] Var, UInt32 num)
+        {
+            if (_dewe_get_param_struct_ex_str != null)
+            {
+                return _dewe_get_param_struct_ex_str(Target, Item, Arg, Var, num);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeGetParamStruct_strLEN(string Target, string Item, out UInt32 Len)
+        {
+            Len = 0;
+            if (_dewe_get_param_struct_str_len != null)
+            {
+                return _dewe_get_param_struct_str_len(Target, Item, out Len);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeSetParamXML_str(string Target, string Item, string Var)
+        {
+            if (_dewe_set_param_xml_str != null)
+            {
+                return _dewe_set_param_xml_str(Target, Item, Var);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeGetParamXML_str(string Target, string Item, byte[] Var, UInt32 num)
+        {
+            if (_dewe_get_param_xml_str != null)
+            {
+                return _dewe_get_param_xml_str(Target, Item, Var, num);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeGetParamXML_strLEN(string Target, string Item, out UInt32 Len)
+        {
+            Len = 0;
+            if (_dewe_get_param_xml_str_len != null)
+            {
+                return _dewe_get_param_xml_str_len(Target, Item, out Len);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+
+        public static Trion.TrionError DeWeOpenCAN(Int32 nBoardNo)
+        {
+            if (_dewe_open_can != null)
+            {
+                return _dewe_open_can(nBoardNo);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeCloseCAN(Int32 nBoardNo)
+        {
+            if (_dewe_close_can != null)
+            {
+                return _dewe_close_can(nBoardNo);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeStartCAN(Int32 nBoardNo, Int32 nChannelNo)
+        {
+            if (_dewe_start_can != null)
+            {
+                return _dewe_start_can(nBoardNo, nChannelNo);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeStopCAN(Int32 nBoardNo, Int32 nChannelNo)
+        {
+            if (_dewe_stop_can != null)
+            {
+                return _dewe_stop_can(nBoardNo, nChannelNo);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        //public static Trion.TrionError DeWeReadCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
+        //public static Trion.TrionError DeWeReadCANRawFrame(Int32 nBoardNo, PBOARD_CAN_RAW_FRAME* pCanFrames, out Int32 nRealFrameCount);
+        //public static Trion.TrionError DeWeWriteCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
+        public static Trion.TrionError DeWeErrorCntCAN(Int32 nBoardNo, Int32 nChannelNo, out Int32 nErrorCount)
+        {
+            nErrorCount = 0;
+            if (_dewe_error_cnt_can != null)
+            {
+                return _dewe_error_cnt_can(nBoardNo, nChannelNo, out nErrorCount);
+            }
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeFreeFramesCAN(Int32 nBoardNo, Int32 num)
+        {
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+
+
+
+        public static Trion.TrionError DeWeOpenDmaUart(Int32 nBoardNo)
+        {
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeCloseDmaUart(Int32 nBoardNo)
+        {
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeStartDmaUart(Int32 nBoardNo, Int32 nChannelNo)
+        {
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        public static Trion.TrionError DeWeStopDmaUart(Int32 nBoardNo, Int32 nChannelNo)
+        {
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        //public static Trion.TrionError DeWeReadDmaUart(Int32 nBoardNo, PBOARD_UART_FRAME pUartFrames, Int32 nMaxFrameCount, Int32* nRealFrameCount);
+        //public static Trion.TrionError DeWeReadDmaUartRawFrame(Int32 nBoardNo, PBOARD_UART_RAW_FRAME* pUartFrames, Int32* nRealFrameCount);
+        public static Trion.TrionError DeWeFreeDmaUartRawFrame(Int32 nBoardNo, Int32 framestofree)
+        {
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+        //public static Trion.TrionError DeWeWriteDmaUart(Int32 nBoardNo, PBOARD_UART_FRAME pUartFrames, Int32 nFrameCount, Int32* nRealFrameCount);
+
+
+
+        public static string DeWeErrorConstantToString(Trion.TrionError nErrorCode)
+        {
+            if (_dewe_error_constant_to_string != null)
+            {
+                return _dewe_error_constant_to_string(nErrorCode);
+            }
+            return "API_NOT_LOADED";
+        }
+
+        public delegate Trion.TrionError DeWeDriverInitType(out Int32 nNumOfBoard);
+        static DeWeDriverInitType _dewe_driver_init = null;
+        public delegate Trion.TrionError DeWeDriverDeInitType();
+        static DeWeDriverDeInitType _dewe_driver_deinit = null;
+
+        public delegate Trion.TrionError DeWeGetParam_i32Type(Int32 nBoardNo, Trion.TrionCommand nCommandId, out Int32 pVal);
+        static DeWeGetParam_i32Type _dewe_get_param_i32 = null;
+        public delegate Trion.TrionError DeWeSetParam_i32Type(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int32 pVal);
+        static DeWeSetParam_i32Type _dewe_set_param_i32 = null;
+
+        public delegate Trion.TrionError DeWeGetParam_i64Type(Int32 nBoardNo, Trion.TrionCommand nCommandId, out Int64 pVal);
+        static DeWeGetParam_i64Type _dewe_get_param_i64 = null;
+        public delegate Trion.TrionError DeWeSetParam_i64Type(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int64 pVal);
+        static DeWeSetParam_i64Type _dewe_set_param_i64 = null;
+
+        public delegate Trion.TrionError DeWeSetParamStruct_strType(string Target, string Command, string Var);
+        static DeWeSetParamStruct_strType _dewe_set_param_struct_str = null;
+        public delegate Trion.TrionError DeWeGetParamStruct_strType(string Target, string Item, byte[] Var, UInt32 num);
+        static DeWeGetParamStruct_strType _dewe_get_param_struct_str = null;
+        public delegate Trion.TrionError DeWeGetParamStructEx_strType(string Target, string Item, string Arg, byte[] val, UInt32 num);
+        static DeWeGetParamStructEx_strType _dewe_get_param_struct_ex_str = null;
+        public delegate Trion.TrionError DeWeGetParamStruct_strLENType(string Target, string Item, out UInt32 Len);
+        static DeWeGetParamStruct_strLENType _dewe_get_param_struct_str_len = null;
+
+        public delegate Trion.TrionError DeWeSetParamXML_strType(string Target, string Command, string Var);
+        static DeWeSetParamXML_strType _dewe_set_param_xml_str = null;
+        public delegate Trion.TrionError DeWeGetParamXML_strType(string Target, string Item, byte[] Var, UInt32 num);
+        static DeWeGetParamXML_strType _dewe_get_param_xml_str = null;
+        public delegate Trion.TrionError DeWeGetParamXML_strLENType(string Target, string Item, out UInt32 Len);
+        static DeWeGetParamXML_strLENType _dewe_get_param_xml_str_len = null;
+
+        public delegate Trion.TrionError DeWeOpenCANType(Int32 nBoardNo);
+        static DeWeOpenCANType _dewe_open_can = null;
+        public delegate Trion.TrionError DeWeCloseCANType(Int32 nBoardNo);
+        static DeWeCloseCANType _dewe_close_can = null;
+        public delegate Trion.TrionError DeWeStartCANType(Int32 nBoardNo, Int32 nChannelNo);
+        static DeWeStartCANType _dewe_start_can = null;
+        public delegate Trion.TrionError DeWeStopCANType(Int32 nBoardNo, Int32 nChannelNo);
+        static DeWeStopCANType _dewe_stop_can = null;
+        //public delegate Trion.TrionError DeWeReadCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
+        //public delegate Trion.TrionError DeWeReadCANRawFrame(Int32 nBoardNo, PBOARD_CAN_RAW_FRAME* pCanFrames, out Int32 nRealFrameCount);
+        //public delegate Trion.TrionError DeWeWriteCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
+        public delegate Trion.TrionError DeWeErrorCntCANType(Int32 nBoardNo, Int32 nChannelNo, out Int32 nErrorCount);
+        static DeWeErrorCntCANType _dewe_error_cnt_can = null;
+
+        public delegate Trion.TrionError DeWeOpenDmaUartType(Int32 nBoardNo);
+        static DeWeOpenDmaUartType _dewe_open_dma_uart = null;
+        public delegate Trion.TrionError DeWeCloseDmaUartType(Int32 nBoardNo);
+        static DeWeCloseDmaUartType _dewe_close_dma_uart = null;
+        public delegate Trion.TrionError DeWeStartDmaUartType(Int32 nBoardNo, Int32 nChannelNo);
+        static DeWeStartDmaUartType _dewe_start_dma_uart = null;
+        public delegate Trion.TrionError DeWeStopDmaUartType(Int32 nBoardNo, Int32 nChannelNo);
+        static DeWeStopDmaUartType _dewe_stop_dma_uart = null;
+        //public delegate Trion.TrionError DeWeReadDmaUart(Int32 nBoardNo, PBOARD_UART_FRAME pUartFrames, Int32 nMaxFrameCount, Int32* nRealFrameCount);
+        //public delegate Trion.TrionError DeWeReadDmaUartRawFrame(Int32 nBoardNo, PBOARD_UART_RAW_FRAME* pUartFrames, Int32* nRealFrameCount);
+        public delegate Trion.TrionError DeWeFreeDmaUartRawFrameType(Int32 nBoardNo, Int32 framestofree);
+        static DeWeFreeDmaUartRawFrameType _dewe_free_dma_uart_raw_frame = null;
+        //public delegate Trion.TrionError DeWeWriteDmaUart(Int32 nBoardNo, PBOARD_UART_FRAME pUartFrames, Int32 nFrameCount, Int32* nRealFrameCount);
+
+
+        public delegate string DeWeErrorConstantToStringType(Trion.TrionError nErrorCode);
+        static DeWeErrorConstantToStringType _dewe_error_constant_to_string = null;
+    }
+
+}
+
+namespace Trion_x86
+{
+
     // TRION 32bit
     public class API
     {
         [DllImport("dwpxi_api.dll")] 
         public static extern Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard);
+        [DllImport("dwpxi_api.dll")]
+        public static extern Trion.TrionError DeWeDriverDeInit();
 
         [DllImport("dwpxi_api.dll")]
-        public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] TrionCommand nCommandId, out Int32 pVal); 
+        public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal); 
         [DllImport("dwpxi_api.dll")]
-        public static extern Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] TrionCommand nCommandId, Int32 nVal); 
+        public static extern Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int32 nVal); 
 
         [DllImport("dwpxi_api.dll")]
-        public static extern Trion.TrionError DeWeGetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] TrionCommand nCommandId, out Int64 pVal); 
+        public static extern Trion.TrionError DeWeGetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int64 pVal); 
         [DllImport("dwpxi_api.dll")]
-        public static extern Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] TrionCommand nCommandId, Int64 nVal); 
+        public static extern Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int64 nVal); 
 
         [DllImport("dwpxi_api.dll")]
         public static extern Trion.TrionError DeWeSetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
-
         [DllImport("dwpxi_api.dll")]
         public static extern Trion.TrionError DeWeGetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
         [DllImport("dwpxi_api.dll")]
@@ -46,7 +452,7 @@ namespace Trion
 
         [DllImport("dwpxi_api.dll")]
         [return: MarshalAs(UnmanagedType.LPStr)]
-        public static extern string DeWeErrorConstantToString([MarshalAs(UnmanagedType.I4)] TrionError error_code);
+        public static extern string DeWeErrorConstantToString([MarshalAs(UnmanagedType.I4)] Trion.TrionError error_code);
 
     }
 }
@@ -58,6 +464,8 @@ namespace Trion_x64
     {
         [DllImport("dwpxi_api_x64.dll")]
         public static extern Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard);
+        [DllImport("dwpxi_api_x64.dll")]
+        public static extern Trion.TrionError DeWeDriverDeInit();
 
         [DllImport("dwpxi_api_x64.dll")]
         public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal);
@@ -99,13 +507,15 @@ namespace Trion_x64
 }
 
 
-namespace TrionNET
+namespace TrionNET_x86
 {
     // TRIONET 32bit
     public class API
     {
         [DllImport("dwpxi_netapi.dll")]
         public static extern Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard);
+        [DllImport("dwpxi_netapi.dll")]
+        public static extern Trion.TrionError DeWeDriverDeInit();
 
         [DllImport("dwpxi_netapi.dll")]
         public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal);
@@ -154,6 +564,8 @@ namespace TrionNET_x64
     {
         [DllImport("dwpxi_netapi_x64.dll")]
         public static extern Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard);
+        [DllImport("dwpxi_netapi_x64.dll")]
+        public static extern Trion.TrionError DeWeDriverDeInit();
 
         [DllImport("dwpxi_netapi_x64.dll")]
         public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal);
