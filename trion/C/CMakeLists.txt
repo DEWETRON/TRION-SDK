@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8)
 
 #
 # studio project name
-project(TRIONET_SDK_C)
+project(TRION_SDK_C)
 
 #
 # common settings
@@ -73,21 +73,19 @@ endif()
 
 
 
-if (EXISTS ${TRION_SDK_ROOT}/trion_api/c/inc)
+if (EXISTS ${TRION_SDK_ROOT}/trion_api/C/inc)
   if (NOT TARGET trion_api_inc)
-    add_subdirectory(${TRION_SDK_ROOT}/trion_api/c/inc trion_api)
+    add_subdirectory(${TRION_SDK_ROOT}/trion_api/C/inc trion_api)
   endif()
 else()
-  message(status "${TRION_SDK_ROOT}/sdk/trion_api/inc not found")
+  message(status "${TRION_SDK_ROOT}/trion_api/C/inc not found")
 endif()
 
 
 include_directories(
   ${TRION_SDK_INCLUDE_DIR}
   ${TRIONET_SDK_INCLUDE_DIR}
-  /TRION_SDK_DIR        # fake path used in sdk releases
-  lib/TRION_SDK_Util
-  lib
+  ${TRION_SDK_ROOT}/trion_sdk_util/C/
 )
 
 if(MSVC)
@@ -107,7 +105,7 @@ macro(SampleBuildSettings SAMPLE FOLDER)
   set_target_properties(${SAMPLE} PROPERTIES FOLDER ${FOLDER})
   target_link_libraries(${SAMPLE}
     trion_api_inc
-    trion_sdk_util
+    trion_sdk_util_C
     )
   if(UNIX)
     target_link_libraries(${SAMPLE}
@@ -135,7 +133,7 @@ macro(TRIONET_SampleBuildSettings SAMPLE)
   set_target_properties(${SAMPLE} PROPERTIES FOLDER "Examples TRIONET")
   target_link_libraries(${SAMPLE}
     trion_api_inc
-    trionet_sdk_util
+    trion_sdk_util_C
     )
   if(UNIX)
     target_link_libraries(${SAMPLE}
@@ -164,6 +162,13 @@ macro(TRIONET_SampleBuildSettings SAMPLE)
   )
 endmacro()
 
+if (NOT TARGET trion_sdk_util_C)
+  add_subdirectory(${TRION_SDK_ROOT}/trion_sdk_util/C trion_sdk_util)
+endif()
 
 add_subdirectory(analog)
+add_subdirectory(counter)
+add_subdirectory(discret)
 add_subdirectory(misc)
+
+#add_subdirectory(${TRION_SDK_ROOT}/trionet/C trionet)

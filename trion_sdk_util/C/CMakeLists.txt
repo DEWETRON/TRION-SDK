@@ -4,7 +4,7 @@
 #
 # TRION API Util
 #
-set(LIBNAME trion_sdk_util)
+set(LIBNAME trion_sdk_util_C)
 
 add_library(${LIBNAME} STATIC
   trion_sdk_util.h
@@ -52,6 +52,10 @@ set_property(TARGET ${LIBNAME}
   APPEND
   PROPERTY COMPILE_DEFINITIONS
   USE_TRIONET_API
+)
+
+target_include_directories(${LIBNAME}
+  PUBLIC ${CMAKE_CURRENT_LIST_DIR}
 )
 
 set_target_properties(${LIBNAME} PROPERTIES FOLDER "lib")
