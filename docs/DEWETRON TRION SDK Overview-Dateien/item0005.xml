@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?><ct:contentTypeSchema ct:_="" ma:_="" ma:contentTypeName="Document" ma:contentTypeID="0x01010082B47A240C76C542B5FE0D86F1E8BEB9" ma:contentTypeVersion="0" ma:contentTypeDescription="Create a new document." ma:contentTypeScope="" ma:versionID="89cc899902c8c5e203b76780c1e23852" xmlns:ct="http://schemas.microsoft.com/office/2006/metadata/contentType" xmlns:ma="http://schemas.microsoft.com/office/2006/metadata/properties/metaAttributes">
+<xsd:schema targetNamespace="http://schemas.microsoft.com/office/2006/metadata/properties" ma:root="true" ma:fieldsID="4aeb20c0e3442673af7ee10786458764" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:p="http://schemas.microsoft.com/office/2006/metadata/properties">
+<xsd:element name="properties">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element name="documentManagement">
+<xsd:complexType>
+<xsd:all/>
+</xsd:complexType>
+</xsd:element>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+</xsd:schema>
+<xsd:schema targetNamespace="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" elementFormDefault="qualified" attributeFormDefault="unqualified" blockDefault="#all" xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:odoc="http://schemas.microsoft.com/office/internal/2005/internalDocumentation">
+<xsd:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="http://dublincore.org/schemas/xmls/qdc/2003/04/02/dc.xsd"/>
+<xsd:import namespace="http://purl.org/dc/terms/" schemaLocation="http://dublincore.org/schemas/xmls/qdc/2003/04/02/dcterms.xsd"/>
+<xsd:element name="coreProperties" type="CT_coreProperties"/>
+<xsd:complexType name="CT_coreProperties">
+<xsd:all>
+<xsd:element ref="dc:creator" minOccurs="0" maxOccurs="1"/>
+<xsd:element ref="dcterms:created" minOccurs="0" maxOccurs="1"/>
+<xsd:element ref="dc:identifier" minOccurs="0" maxOccurs="1"/>
+<xsd:element name="contentType" minOccurs="0" maxOccurs="1" type="xsd:string" ma:index="0" ma:displayName="Content Type" ma:readOnly="true"/>
+<xsd:element ref="dc:title" minOccurs="0" maxOccurs="1" ma:index="4" ma:displayName="Title"/>
+<xsd:element ref="dc:subject" minOccurs="0" maxOccurs="1"/>
+<xsd:element ref="dc:description" minOccurs="0" maxOccurs="1"/>
+<xsd:element name="keywords" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+<xsd:element ref="dc:language" minOccurs="0" maxOccurs="1"/>
+<xsd:element name="category" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+<xsd:element name="version" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+<xsd:element name="revision" minOccurs="0" maxOccurs="1" type="xsd:string">
+<xsd:annotation>
+<xsd:documentation>
+                        This value indicates the number of saves or revisions. The application is responsible for updating this value after each revision.
+                    </xsd:documentation>
+</xsd:annotation>
+</xsd:element>
+<xsd:element name="lastModifiedBy" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+<xsd:element ref="dcterms:modified" minOccurs="0" maxOccurs="1"/>
+<xsd:element name="lastPrinted" minOccurs="0" maxOccurs="1" type="xsd:dateTime"/>
+<xsd:element name="contentStatus" minOccurs="0" maxOccurs="1" type="xsd:string"/>
+</xsd:all>
+</xsd:complexType>
+</xsd:schema>
+</ct:contentTypeSchema>
