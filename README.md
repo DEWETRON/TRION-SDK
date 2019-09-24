@@ -9,6 +9,13 @@ The TRION Application installer is available on DEWETRON's customer care center:
 https://ccc.dewetron.com
 
 
+# Documentation
+
+An online verion of the TRION SDK documentaion is hosted here:
+
+https://dewetron.github.io/TRION-SDK/
+
+The docs directory contains pdf and html versions of the complete documentation.
 
 # Directory structure
 
