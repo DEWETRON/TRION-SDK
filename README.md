@@ -11,7 +11,7 @@ https://ccc.dewetron.com
 
 # Documentation
 
-An online verion of the TRION SDK documentaion is hosted here:
+An online version of the TRION SDK documentaion is hosted here:
 
 https://dewetron.github.io/TRION-SDK/
 
@@ -49,7 +49,7 @@ Other generators are listed when calling "cmake -G"
 
 Open the generated solution:
 ```cmd
-start TION_SDK_C.sln
+start TRION_SDK_C.sln
 ```
 
 ## Examples in C#
@@ -67,7 +67,7 @@ Other generators are listed when calling "cmake -G"
 
 Open the generated solution:
 ```cmd
-start TION_SDK_CSHARP.sln
+start TRION_SDK_CSHARP.sln
 ```
 
 # License
