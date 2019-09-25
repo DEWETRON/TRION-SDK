@@ -129,8 +129,8 @@ macro(SampleBuildSettings SAMPLE FOLDER)
   endif()
 endmacro()
 
-macro(TRIONET_SampleBuildSettings SAMPLE)
-  set_target_properties(${SAMPLE} PROPERTIES FOLDER "Examples TRIONET")
+macro(TRIONET_SampleBuildSettings SAMPLE FOLDER)
+  set_target_properties(${SAMPLE} PROPERTIES FOLDER ${FOLDER})
   target_link_libraries(${SAMPLE}
     trion_api_inc
     trion_sdk_util_C
@@ -164,7 +164,14 @@ endmacro()
 
 if (NOT TARGET trion_sdk_util_C)
   add_subdirectory(${TRION_SDK_ROOT}/trion_sdk_util/C trion_sdk_util)
+  # load trionet wrapper api
+  set_property(TARGET trion_sdk_util_C
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    USE_TRIONET_API
+  )
 endif()
 
 add_subdirectory(analog)
 add_subdirectory(misc)
+add_subdirectory(error)

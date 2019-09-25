@@ -1,6 +1,6 @@
 # DEWETRON TRION SDK
 
-TRION SDK examples using the C programming language.
+TRIONET SDK examples using the C programming language.
 
 
 # Examples for using analog channels
@@ -9,32 +9,13 @@ TRION SDK examples using the C programming language.
 
 # Examples for using counter channels
 
-## OneCounterChannel
-
-# Examples for using discret channels
-
-## OneDigitalChannel
-
-# Examples for using CAN channels
-
-## CANChannelDecoded
-
-## CANChannelRaw
-
-## CANComplexExample
-
-## CANWriteFrame
-
 # Misceallaneous examples
-
-## Bord_ID_LED
 
 ## ListBoards
 
 # Error handling
 
 ## DataLostHandling
-
 
 # How to build the examples
 

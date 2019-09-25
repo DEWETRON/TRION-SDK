@@ -171,5 +171,6 @@ add_subdirectory(counter)
 add_subdirectory(discret)
 add_subdirectory(misc)
 add_subdirectory(can)
+add_subdirectory(error)
 
 #add_subdirectory(${TRION_SDK_ROOT}/trionet/C trionet)

@@ -5,4 +5,4 @@
 add_executable(TN_ListBoards
   TN_ListBoards/tn_list_boards.c
   )
-SampleBuildSettings(TN_ListBoards "misc")
+TRIONET_SampleBuildSettings(TN_ListBoards "misc")

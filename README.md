@@ -11,7 +11,7 @@ https://ccc.dewetron.com
 
 # Documentation
 
-An online version of the TRION SDK documentaion is hosted here:
+An online version of the TRION SDK documentation is hosted here:
 
 https://dewetron.github.io/TRION-SDK/
 

@@ -5,5 +5,5 @@
 add_executable(TN_OneAnalogChannel
   TN_OneAnalogChannel/tn_one_analog_channel.c
   )
-SampleBuildSettings(TN_OneAnalogChannel "analog")
+  TRIONET_SampleBuildSettings(TN_OneAnalogChannel "analog")
 
