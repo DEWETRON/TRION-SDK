@@ -2,6 +2,7 @@
 DEWETRON TRION SDK. TRION API SDK description and example sources. 
 
 
+
 # Prerequisites
 To use the DEWETRION TRION SDK you need a current TRION API installation.
 The TRION Application installer is available on DEWETRON's customer care center:
@@ -69,6 +70,30 @@ Open the generated solution:
 ```cmd
 start TRION_SDK_CSHARP.sln
 ```
+
+
+# Contact
+
+**Company information**
+
+[www.dewetron.com](https://www.dewetron.com)
+
+**For general questions please contact:**
+
+support@dewetron.com
+
+
+**For technical questions please contact:**
+
+Michael Oberhofer 
+
+michael.oberhofer@dewetron.com
+
+Gunther Laure
+
+gunther.laure@dewetron.com
+
+
 
 # License
 MIT License
