@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     nErrorCode = DeWeSetParamStruct_str( sChannelStr, "ExtClk", "False");
     CheckError(nErrorCode);
 
-    // configure the BoardCoutner-channel
+    // configure the BoardCounter-channel
     // for HW - timestamping to work it is necessary to have
     // at least one synchronous channel active. All TRION
     // boardtypes support a channel called Board-Counter (BoardCNT)

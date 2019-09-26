@@ -76,4 +76,5 @@ macro(TRIONET_SampleBuildSettings SAMPLE)
 endmacro()
 
 add_subdirectory(analog)
+add_subdirectory(can)
 #add_subdirectory(misc)

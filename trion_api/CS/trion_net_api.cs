@@ -7,6 +7,24 @@ using System.Runtime.InteropServices;
 namespace Trion
 {
 
+    [StructLayout(LayoutKind.Sequential), Serializable]
+    public struct BOARD_CAN_FRAME
+    {
+        public byte CanNo;
+        public byte reserved0;
+        public byte reserved1;
+        public byte reserved2;
+        public uint MessageId;          // Arbitration ID
+        public uint DataLength;         // DLC
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
+        public byte[] CanData;
+        public uint StandardExtended;   // Identifier Type : Standard ID or Extended ID
+        public uint FrameType;          // Frame Type : Normal Frame or Remote Frame
+        public uint SyncCounter;        // Depending on Config: Sample CNT or 10MHz CNT (will be used)
+        public uint ErrorCounter;       // reseted at start of acquisition?
+        public ulong SyncCounterEx;     //64 Bit timestamp with internal roll-over handling
+    };
+
     public class API
     {
         public enum Backend
@@ -37,10 +55,11 @@ namespace Trion
                     _dewe_get_param_xml_str = Trion_x64.API.DeWeGetParamXML_str;
                     _dewe_get_param_xml_str_len = Trion_x64.API.DeWeGetParamXML_strLEN;
 
-                    //_dewe_open_can;
-                    //_dewe_close_can;
-                    //_dewe_start_can;
-                    //_dewe_stop_can;
+                    _dewe_open_can = Trion_x64.API.DeWeOpenCAN;
+                    _dewe_close_can = Trion_x64.API.DeWeCloseCAN;
+                    _dewe_start_can = Trion_x64.API.DeWeStartCAN;
+                    _dewe_stop_can = Trion_x64.API.DeWeStopCAN;
+                    _dewe_read_can = Trion_x64.API.DeWeReadCAN;
                     //_dewe_error_cnt_can;
 
                     //_dewe_open_dma_uart;
@@ -69,6 +88,12 @@ namespace Trion
                     _dewe_get_param_xml_str = TrionNET_x64.API.DeWeGetParamXML_str;
                     _dewe_get_param_xml_str_len = TrionNET_x64.API.DeWeGetParamXML_strLEN;
 
+                    _dewe_open_can = TrionNET_x64.API.DeWeOpenCAN;
+                    _dewe_close_can = TrionNET_x64.API.DeWeCloseCAN;
+                    _dewe_start_can = TrionNET_x64.API.DeWeStartCAN;
+                    _dewe_stop_can = TrionNET_x64.API.DeWeStopCAN;
+                    _dewe_read_can = TrionNET_x64.API.DeWeReadCAN;
+
                     _dewe_error_constant_to_string = TrionNET_x64.API.DeWeErrorConstantToString;
 
                     return Trion.TrionError.NONE;
@@ -91,6 +116,12 @@ namespace Trion
                     _dewe_get_param_xml_str = Trion_x86.API.DeWeGetParamXML_str;
                     _dewe_get_param_xml_str_len = Trion_x86.API.DeWeGetParamXML_strLEN;
 
+                    _dewe_open_can = Trion_x86.API.DeWeOpenCAN;
+                    _dewe_close_can = Trion_x86.API.DeWeCloseCAN;
+                    _dewe_start_can = Trion_x86.API.DeWeStartCAN;
+                    _dewe_stop_can = Trion_x86.API.DeWeStopCAN;
+                    _dewe_read_can = Trion_x86.API.DeWeReadCAN;
+
                     _dewe_error_constant_to_string = Trion_x86.API.DeWeErrorConstantToString;
 
                     return Trion.TrionError.NONE;
@@ -109,6 +140,12 @@ namespace Trion
                     _dewe_set_param_xml_str = TrionNET_x86.API.DeWeSetParamXML_str;
                     _dewe_get_param_xml_str = TrionNET_x86.API.DeWeGetParamXML_str;
                     _dewe_get_param_xml_str_len = TrionNET_x86.API.DeWeGetParamXML_strLEN;
+
+                    _dewe_open_can = TrionNET_x86.API.DeWeOpenCAN;
+                    _dewe_close_can = TrionNET_x86.API.DeWeCloseCAN;
+                    _dewe_start_can = TrionNET_x86.API.DeWeStartCAN;
+                    _dewe_stop_can = TrionNET_x86.API.DeWeStopCAN;
+                    _dewe_read_can = TrionNET_x86.API.DeWeReadCAN;
 
                     _dewe_error_constant_to_string = TrionNET_x86.API.DeWeErrorConstantToString;
 
@@ -281,7 +318,20 @@ namespace Trion
             return Trion.TrionError.API_NOT_LOADED;
         }
 
-        //public static Trion.TrionError DeWeReadCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
+        public static Trion.TrionError DeWeReadCAN(Int32 nBoardNo, ref BOARD_CAN_FRAME[] pCanFrames, Int32 nMaxFrameCount, ref Int32 nRealFrameCount)
+        {
+            nRealFrameCount = 0;
+            if (_dewe_read_can != null)
+            {
+                Trion.TrionError error = Trion.TrionError.NONE;
+                error = _dewe_read_can(nBoardNo, pCanFrames, nMaxFrameCount, out nRealFrameCount);
+                return error;
+            }
+
+            return Trion.TrionError.API_NOT_LOADED;
+        }
+
+
         //public static Trion.TrionError DeWeReadCANRawFrame(Int32 nBoardNo, PBOARD_CAN_RAW_FRAME* pCanFrames, out Int32 nRealFrameCount);
         //public static Trion.TrionError DeWeWriteCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
         public static Trion.TrionError DeWeErrorCntCAN(Int32 nBoardNo, Int32 nChannelNo, out Int32 nErrorCount)
@@ -342,6 +392,17 @@ namespace Trion
             return "API_NOT_LOADED";
         }
 
+
+        public static bool CheckError(Trion.TrionError nErrorCode)
+        {
+            if (nErrorCode > 0)
+            {
+                System.Console.WriteLine(nErrorCode.ToString());
+                return true;
+            }
+            return false;
+        }
+
         public delegate Trion.TrionError DeWeDriverInitType(out Int32 nNumOfBoard);
         static DeWeDriverInitType _dewe_driver_init = null;
         public delegate Trion.TrionError DeWeDriverDeInitType();
@@ -381,7 +442,9 @@ namespace Trion
         static DeWeStartCANType _dewe_start_can = null;
         public delegate Trion.TrionError DeWeStopCANType(Int32 nBoardNo, Int32 nChannelNo);
         static DeWeStopCANType _dewe_stop_can = null;
-        //public delegate Trion.TrionError DeWeReadCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
+        public delegate Trion.TrionError DeWeReadCANType(Int32 nBoardNo, Trion.BOARD_CAN_FRAME[] pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
+        static DeWeReadCANType _dewe_read_can = null;
+
         //public delegate Trion.TrionError DeWeReadCANRawFrame(Int32 nBoardNo, PBOARD_CAN_RAW_FRAME* pCanFrames, out Int32 nRealFrameCount);
         //public delegate Trion.TrionError DeWeWriteCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
         public delegate Trion.TrionError DeWeErrorCntCANType(Int32 nBoardNo, Int32 nChannelNo, out Int32 nErrorCount);
@@ -414,43 +477,58 @@ namespace Trion_x86
     // TRION 32bit
     public class API
     {
-        [DllImport("dwpxi_api.dll")] 
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard);
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeDriverDeInit();
 
-        [DllImport("dwpxi_api.dll")]
-        public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal); 
-        [DllImport("dwpxi_api.dll")]
-        public static extern Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int32 nVal); 
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal);
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int32 nVal);
 
-        [DllImport("dwpxi_api.dll")]
-        public static extern Trion.TrionError DeWeGetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int64 pVal); 
-        [DllImport("dwpxi_api.dll")]
-        public static extern Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int64 nVal); 
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeGetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int64 pVal);
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int64 nVal);
 
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStruct_strLEN([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, out UInt32 Len);
-
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParamXML_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamXML_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamXML_strLEN([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, out UInt32 Len);
 
-        [DllImport("dwpxi_api.dll")]
+
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeOpenCAN(Int32 nBoardNo);
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeCloseCAN(Int32 nBoardNo);
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeStartCAN(Int32 nBoardNo, Int32 nChannelNo);
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeStopCAN(Int32 nBoardNo, Int32 nChannelNo);
+        [DllImport("dwpxi_api.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeReadCAN(Int32 nBoardNo,
+            [Out] Trion.BOARD_CAN_FRAME[] pCanFrames,
+            Int32 nMaxFrameCount,
+            [Out] out Int32 nRealFrameCount);
+
+
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeFreeFramesCAN(Int32 nBoardNo, Int32 num);
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeFreeDmaUartRawFrame(Int32 nBoardNo, Int32 num);
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStructEx_str([MarshalAs(UnmanagedType.LPStr)] string target, [MarshalAs(UnmanagedType.LPStr)] string command, [MarshalAs(UnmanagedType.LPStr)] string arg, [MarshalAs(UnmanagedType.LPArray)]  byte[] val, UInt32 num);
 
-        [DllImport("dwpxi_api.dll")]
+        [DllImport("dwpxi_api.dll", CallingConvention=CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.LPStr)]
         public static extern string DeWeErrorConstantToString([MarshalAs(UnmanagedType.I4)] Trion.TrionError error_code);
 
@@ -462,44 +540,60 @@ namespace Trion_x64
     // TRION 64bit
     public class API
     {
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard);
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeDriverDeInit();
 
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal);
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int32 nVal);
 
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int64 pVal);
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int64 nVal);
 
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
 
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStruct_strLEN([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, out UInt32 Len);
 
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParamXML_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamXML_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamXML_strLEN([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, out UInt32 Len);
 
-        [DllImport("dwpxi_api_x64.dll")]
+
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeOpenCAN(Int32 nBoardNo);
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeCloseCAN(Int32 nBoardNo);
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeStartCAN(Int32 nBoardNo, Int32 nChannelNo);
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeStopCAN(Int32 nBoardNo, Int32 nChannelNo);
+        [DllImport("dwpxi_api_x64.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeReadCAN(Int32 nBoardNo,
+            [Out] Trion.BOARD_CAN_FRAME[] pCanFrames,
+            Int32 nMaxFrameCount,
+            [Out] out Int32 nRealFrameCount);
+
+
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeFreeFramesCAN(Int32 nBoardNo, Int32 num);
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeFreeDmaUartRawFrame(Int32 nBoardNo, Int32 num);
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStructEx_str([MarshalAs(UnmanagedType.LPStr)] string target, [MarshalAs(UnmanagedType.LPStr)] string command, [MarshalAs(UnmanagedType.LPStr)] string arg, [MarshalAs(UnmanagedType.LPArray)]  byte[] val, UInt32 num);
 
-        [DllImport("dwpxi_api_x64.dll")]
+        [DllImport("dwpxi_api_x64.dll", CallingConvention=CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.LPStr)]
         public static extern string DeWeErrorConstantToString([MarshalAs(UnmanagedType.I4)] Trion.TrionError error_code);
 
@@ -512,44 +606,59 @@ namespace TrionNET_x86
     // TRIONET 32bit
     public class API
     {
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard);
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeDriverDeInit();
 
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal);
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int32 nVal);
 
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int64 pVal);
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int64 nVal);
 
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
 
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStruct_strLEN([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, out UInt32 Len);
 
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParamXML_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamXML_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamXML_strLEN([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, out UInt32 Len);
 
-        [DllImport("dwpxi_netapi.dll")]
+
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeOpenCAN(Int32 nBoardNo);
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeCloseCAN(Int32 nBoardNo);
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeStartCAN(Int32 nBoardNo, Int32 nChannelNo);
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeStopCAN(Int32 nBoardNo, Int32 nChannelNo);
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeReadCAN(Int32 nBoardNo,
+            [Out] Trion.BOARD_CAN_FRAME[] pCanFrames,
+            Int32 nMaxFrameCount,
+            [Out] out Int32 nRealFrameCount);
+
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeFreeFramesCAN(Int32 nBoardNo, Int32 num);
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeFreeDmaUartRawFrame(Int32 nBoardNo, Int32 num);
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStructEx_str([MarshalAs(UnmanagedType.LPStr)] string target, [MarshalAs(UnmanagedType.LPStr)] string command, [MarshalAs(UnmanagedType.LPStr)] string arg, [MarshalAs(UnmanagedType.LPArray)]  byte[] val, UInt32 num);
 
-        [DllImport("dwpxi_netapi.dll")]
+        [DllImport("dwpxi_netapi.dll", CallingConvention=CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.LPStr)]
         public static extern string DeWeErrorConstantToString([MarshalAs(UnmanagedType.I4)] Trion.TrionError error_code);
 
@@ -562,44 +671,59 @@ namespace TrionNET_x64
     // TRIONET 64bit
     public class API
     {
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard);
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeDriverDeInit();
 
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int32 pVal);
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int32 nVal);
 
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, out Int64 pVal);
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, [MarshalAs(UnmanagedType.I4)] Trion.TrionCommand nCommandId, Int64 nVal);
 
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
 
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStruct_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStruct_strLEN([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, out UInt32 Len);
 
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeSetParamXML_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Command, [MarshalAs(UnmanagedType.LPStr)] string Var);
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamXML_str([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, [MarshalAs(UnmanagedType.LPArray)]  byte[] Var, UInt32 num);
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamXML_strLEN([MarshalAs(UnmanagedType.LPStr)] string Target, [MarshalAs(UnmanagedType.LPStr)] string Item, out UInt32 Len);
 
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeOpenCAN(Int32 nBoardNo);
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeCloseCAN(Int32 nBoardNo);
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeStartCAN(Int32 nBoardNo, Int32 nChannelNo);
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeStopCAN(Int32 nBoardNo, Int32 nChannelNo);
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern Trion.TrionError DeWeReadCAN(Int32 nBoardNo,
+            [Out] Trion.BOARD_CAN_FRAME[] pCanFrames,
+            Int32 nMaxFrameCount,
+            [Out] out Int32 nRealFrameCount);
+
+
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeFreeFramesCAN(Int32 nBoardNo, Int32 num);
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeFreeDmaUartRawFrame(Int32 nBoardNo, Int32 num);
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         public static extern Trion.TrionError DeWeGetParamStructEx_str([MarshalAs(UnmanagedType.LPStr)] string target, [MarshalAs(UnmanagedType.LPStr)] string command, [MarshalAs(UnmanagedType.LPStr)] string arg, [MarshalAs(UnmanagedType.LPArray)]  byte[] val, UInt32 num);
 
-        [DllImport("dwpxi_netapi_x64.dll")]
+        [DllImport("dwpxi_netapi_x64.dll", CallingConvention=CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.LPStr)]
         public static extern string DeWeErrorConstantToString([MarshalAs(UnmanagedType.I4)] Trion.TrionError error_code);
 

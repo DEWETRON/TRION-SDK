@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-//using trion_api = Trion;
-//using trion_api = Trion_x64;
-//using trion_api = TrionNET;
-//using trion_api = TrionNET_x64;
+
 using trion_api = Trion;
 
 
@@ -30,20 +27,21 @@ namespace Examples
         {
             //
             // Enter the local IP here (not the one of the TRIONET device!)
-            String address = "169.254.220.141";
-            String netmask = "255.255.0.0";
+            String address = "127.0.0.1";
+            String netmask = "255.255.255.0";
 
             // Configure the network interface to access TRIONET devices
             Trion.TrionError nErrorCode = trion_api.API.DeWeSetParamStruct_str("trionetapi/config", "Network/IPV4/LocalIP", address);
-            //System.Console.WriteLine(nErrorCode.ToString());
+            trion_api.API.CheckError(nErrorCode);
             nErrorCode = trion_api.API.DeWeSetParamStruct_str("trionetapi/config", "Network/IPV4/NetMask", netmask);
-            //System.Console.WriteLine(nErrorCode.ToString());
+            trion_api.API.CheckError(nErrorCode);
         }
 
         static int Main(string[] args)
         {
             Int32 nNoOfBoards = 0;
 
+            // select TRIONET backend
             trion_api.API.DeWeConfigure(trion_api.API.Backend.TRIONET);
 
             // get access to TRIONET devices
@@ -75,65 +73,91 @@ namespace Examples
 
             // Open & Reset the board
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.OPEN_BOARD, 0);
+            trion_api.API.CheckError(nErrorCode);
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.RESET_BOARD, 0);
+            trion_api.API.CheckError(nErrorCode);
 
             // Set configuration to use one board in standalone operation
             string sTarget = "BoardID" + nBoardId + "/AcqProp";
 
             nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "OperationMode", "Slave");
+            trion_api.API.CheckError(nErrorCode);
             nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "ExtTrigger", "False");
+            trion_api.API.CheckError(nErrorCode);
             nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "ExtClk", "False");
-            nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "SampleRate", "2000");
+            trion_api.API.CheckError(nErrorCode);
 
-            string sample_rate;
-            nErrorCode = ReadSR(sTarget, out sample_rate);
-
-
-            sTarget = "BoardID" + nBoardId + "/AI0";
+            // configure the BoardCounter-channel
+            // for HW - timestamping to work it is necessary to have
+            // at least one synchronous channel active. All TRION
+            // boardtypes support a channel called Board-Counter (BoardCNT)
+            // this is a basic counter channel, that usually has no
+            // possibility to feed an external signal, and is usually
+            // used to route internal signals to its input
+            sTarget = "BoardID" + nBoardId + "/BoardCNT0";
             nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "Used", "True");
-            if (nErrorCode > 0)
-            {
-                Console.WriteLine("Could not enable AI channel on board {0}: {1}\n", nBoardId, trion_api.API.DeWeErrorConstantToString(nErrorCode));
-                return 1;
-            }
-
-
-            // Set 10V range
-            nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "Range", "10 V");
-
+            trion_api.API.CheckError(nErrorCode);
 
             // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
             // For the default samplerate 2000 samples per second, 200 is a buffer for
             // 0.1 seconds
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_BLOCK_SIZE, 200);
+            trion_api.API.CheckError(nErrorCode);
             // Set the ring buffer size to 50 blocks. So ring buffer can store samples
             // for 5 seconds
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_BLOCK_COUNT, 50);
+            trion_api.API.CheckError(nErrorCode);
+
+            // configure the CAN-channel 0
+            // only two properties that need to be changed for this example are
+            // SyncCounter: set it to 10Mhz, so the CAN Data will have timestamps with
+            // Used: enable the channel for usage
+            sTarget = "BoardID" + nBoardId + "/CANAll";
+            nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "SyncCounter", "10 MHzCount");
+            trion_api.API.CheckError(nErrorCode);
+
+            nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "Termination", "True");
+            trion_api.API.CheckError(nErrorCode);
+
+            nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "ListenOnly", "False");
+            trion_api.API.CheckError(nErrorCode);
+
+            nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "BaudRate", "500000");
+            trion_api.API.CheckError(nErrorCode);
+
+            nErrorCode = trion_api.API.DeWeSetParamStruct_str(sTarget, "Used", "True");
+            trion_api.API.CheckError(nErrorCode);
+
+
+            // Open the CAN - Interface to this Board
+            nErrorCode = trion_api.API.DeWeOpenCAN(nBoardId);
+            trion_api.API.CheckError(nErrorCode);
+
+            
+            // Configure the ASYNC-Polling Time to 100ms
+            nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.ASYNC_POLLING_TIME, 100);
+            trion_api.API.CheckError(nErrorCode);
 
             // Update the hardware with settings
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
+            trion_api.API.CheckError(nErrorCode);
 
-            // Get the ADC delay. The typical conversion time of the ADC.
-            // The ADCDelay is the offset of analog samples to digital or counter samples.
-            // It is measured in number of samples,
-            Int32 nADCDelay = 0;
-            nErrorCode = trion_api.API.DeWeGetParam_i32(nBoardId, Trion.TrionCommand.BOARD_ADC_DELAY, out nADCDelay);
+
+            // Start CAN capture, before start sync-acquisition
+            // the sync - acquisition will synchronize the async data
+            nErrorCode = trion_api.API.DeWeStartCAN(nBoardId, -1);
+            trion_api.API.CheckError(nErrorCode);
+
 
             // Data Acquisition - stopped with any key
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.START_ACQUISITION, 0);
+            trion_api.API.CheckError(nErrorCode);
+
 
             if (nErrorCode <= 0)
             {
-                Int64 nBufStartPos;         // First position in the ring buffer
-                Int64 nBufEndPos;          // Last position in the ring buffer
-                Int32 nBufSize;              // Total buffer size
-                float fVal;
-
-                // Get detailed information about the ring buffer
-                // to be able to handle the wrap around
-                nErrorCode = trion_api.API.DeWeGetParam_i64(nBoardId, Trion.TrionCommand.BUFFER_START_POINTER, out nBufStartPos);
-                nErrorCode = trion_api.API.DeWeGetParam_i64(nBoardId, Trion.TrionCommand.BUFFER_END_POINTER, out nBufEndPos);
-                nErrorCode = trion_api.API.DeWeGetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_TOTAL_MEM_SIZE, out nBufSize);
+                int CANBUFFER = 1000;
+                trion_api.BOARD_CAN_FRAME[] aDecodedFrame = new trion_api.BOARD_CAN_FRAME[CANBUFFER];
 
                 while (true)
                 {
@@ -141,65 +165,56 @@ namespace Examples
                     {
                         break;
                     }
-                    Int64 nReadPos;       // Pointer to the ring buffer read pointer
-                    Int32 nAvailSamples;
-                    Int32 i;
-                    
+
+                    Int32 nAvailSamples = 0;
+                    Int32 nRealFrameCount = 0;
+
                     // wait for 100ms
-                    System.Threading.Thread.Sleep(10);
+                    System.Threading.Thread.Sleep(100);
 
                     // Get the number of samples already stored in the ring buffer
                     nErrorCode = trion_api.API.DeWeGetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_AVAIL_NO_SAMPLE, out nAvailSamples);
-                    if (Trion.TrionError.BUFFER_OVERWRITE == nErrorCode)
-                    {
-                        Console.WriteLine("Measurement Buffer Overflow happened - stopping measurement");
-                        break;
-                    }
-
-                    // Available samples has to be recalculated according to the ADC delay
-                    nAvailSamples = nAvailSamples - nADCDelay;
-
-                    // skip if number of samples is smaller than the current ADC delay
-                    if (nAvailSamples <= 0)
-                    {
-                        continue;
-                    }
-
-                    // Get the current read pointer
-                    nErrorCode = trion_api.API.DeWeGetParam_i64(nBoardId, Trion.TrionCommand.BUFFER_ACT_SAMPLE_POS, out nReadPos);
-
-                    // recalculate nReadPos to handle ADC delay
-                    nReadPos = nReadPos + nADCDelay * sizeof(UInt32);
-
-                    // Read the current samples from the ring buffer
-                    for (i = 0; i < nAvailSamples; ++i)
-                    {
-                        // Handle the ring buffer wrap around
-                        if (nReadPos >= nBufEndPos)
-                        {
-                            nReadPos -= nBufSize;
-                        }
-
-                        Int32 nRawData = GetDataAtPos(nReadPos);
-                        
-
-                        fVal = (float)((float)nRawData / 0x7FFFFF00 * 10.0);
-
-                        // Print the sample value:
-                        string out_str = String.Format("Raw {0,12} {1,17:#.000000000000}", nRawData, fVal);
-                        Console.WriteLine(out_str);
-                        
-                        // Increment the read pointer
-                        nReadPos += sizeof(UInt32);
-
-                    }
-
+                    trion_api.API.CheckError(nErrorCode);
 
                     // Free the ring buffer after read of all values
                     nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_FREE_NO_SAMPLE, nAvailSamples);
-                    Console.WriteLine("CMD_BUFFER_FREE_NO_SAMPLE {0}  (err={1})", nAvailSamples, nErrorCode);
+                    trion_api.API.CheckError(nErrorCode);
+
+                    // now obtain all CAN - frames that have been collected in this timespan
+                    do
+                    {
+                        nRealFrameCount = 0;
+                        aDecodedFrame[0].CanNo = 42;
+                        nErrorCode = trion_api.API.DeWeReadCAN(nBoardId, ref aDecodedFrame, CANBUFFER, ref nRealFrameCount);
+                        trion_api.API.CheckError(nErrorCode);
+
+                        for (int i = 0; i < nRealFrameCount; ++i)
+                        {
+                            //Timestamp in 100ns re-formated to seconds
+                            float timestamp = (float)(aDecodedFrame[i].SyncCounter / 10000000.0);
+
+                            // note here: with a 10Mhz counter @ 32Bit width, the timestamp will wrap
+                            // around after roughly 7 minutes. This Warp around has to be handled by the
+                            // application on raw data
+                            System.Console.WriteLine("[{0:f7}] MSGID: {1:X8}   Port: {2:D}   Errorcount: {3:D}   DataLen: {4:D}   Data: {5:X2} {6:X2} {7:X2} {8:X2}   {9:X2} {10:X2} {11:X2} {12:X2}\n",
+                                    timestamp,
+                                    aDecodedFrame[i].MessageId,
+                                    aDecodedFrame[i].CanNo,
+                                    aDecodedFrame[i].ErrorCounter,
+                                    aDecodedFrame[i].DataLength,
+                                    aDecodedFrame[i].CanData[0], aDecodedFrame[i].CanData[1], aDecodedFrame[i].CanData[2], aDecodedFrame[i].CanData[3],
+                                    aDecodedFrame[i].CanData[4], aDecodedFrame[i].CanData[5], aDecodedFrame[i].CanData[6], aDecodedFrame[i].CanData[7]
+                            );
+                        }
+                    }
+                    while (nRealFrameCount > (CANBUFFER / 2));
+
                 }
             }
+
+            // Stop CAN capture
+            nErrorCode = trion_api.API.DeWeStopCAN(nBoardId, -1);
+            trion_api.API.CheckError(nErrorCode);
 
             // Stop data acquisition
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.STOP_ACQUISITION, 0);
