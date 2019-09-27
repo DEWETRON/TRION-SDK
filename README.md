@@ -1,14 +1,24 @@
 # DEWETRON TRION SDK
 DEWETRON TRION SDK. TRION API SDK description and example sources. 
 
+# NEWS
 
+New DEWETRON TRION API package:
+
+* 2019-09-27 Release of TRION API R3.7.0 
+* 2019-09-27 Release of TRIONET FIRMWARE R3.7.0 
+
+Get those for optimal results.
 
 # Prerequisites
 To use the DEWETRION TRION SDK you need a current TRION API installation.
 The TRION Application installer is available on DEWETRON's customer care center:
 
-https://ccc.dewetron.com
+TRION Application Installer:
+https://ccc.dewetron.com/pl/dewe2-series
 
+TRIONET Firmware:
+https://ccc.dewetron.com/pr/trionet
 
 # Documentation
 
