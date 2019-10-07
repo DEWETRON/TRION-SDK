@@ -10,27 +10,27 @@ import platform
 import sys
 
 if '64' in platform.architecture()[0]:
-    #if sys.platform == 'nt':
     if sys.platform.startswith('win'):
         TRION_DLL_NAME = "dwpxi_api_x64.dll"
-    #if sys.platform == 'linux2':
+        TRIONET_DLL_NAME = "dwpxi_netapi_x64.dll"
     elif sys.platform.startswith('linux'):
         TRION_DLL_NAME = "libdwpxi_api_x64.so"
+        TRIONET_DLL_NAME = "libdwpxi_netapi_x64.so"
     elif sys.platform == 'darwin':
         TRION_DLL_NAME = "libdwpxi_api_x64.dylib"
+        TRIONET_DLL_NAME = "libdwpxi_netapi_x64.dylib"
     else:
       raise Exception('Unknown OS')
 else:
-    #if sys.platform == 'nt':
     if sys.platform.startswith('win'):
         TRION_DLL_NAME = "dwpxi_api.dll"
-    #if sys.platform == 'linux2':
+        TRIONET_DLL_NAME = "dwpxi_netapi.dll"
     elif sys.platform.startswith('linux'):
         TRION_DLL_NAME = "libdwpxi_api.so"
+        TRIONET_DLL_NAME = "libdwpxi_netapi.so"
     elif sys.platform == 'darwin':
         TRION_DLL_NAME = "libdwpxi_api.dylib"
-    elif sys.platform == 'cygwin':
-        TRION_DLL_NAME = "dwpxi_api.dll"
+        TRIONET_DLL_NAME = "libdwpxi_netapi.dylib"
     else:
       raise Exception('Unknown OS')
 
@@ -38,33 +38,38 @@ else:
 g_trion_api_dll = None
 
 
-def DeWePxiLoad():
+def DeWePxiLoad(lib="TRION"):
     """
     Load the trion API dll and bind its public functions
+    lib can be "TRION" or "TRIONET"
     """
     try:
         global g_trion_api_dll
+
+        backend = "TRION"
+        if lib == "TRION":
+            dll_file = TRION_DLL_NAME
+        elif lib == "TRIONET":
+            dll_file = TRIONET_DLL_NAME
 
         if os.name == 'nt':
             try:
                 scriptName = sys.argv[0]
                 pathName = os.path.dirname(scriptName)
-                dllFile = TRION_DLL_NAME
-                locatedAt = (pathName + "/" + dllFile).replace("\\","/")
+                locatedAt = (pathName + "/" + dll_file).replace("\\","/")
                 g_trion_api_dll = windll.LoadLibrary(locatedAt)
             except:
-                g_trion_api_dll = windll.LoadLibrary(TRION_DLL_NAME)
+                g_trion_api_dll = windll.LoadLibrary(dll_file)
         elif TRION_DLL_NAME.endswith('.dll'):
             try:
                 scriptName = sys.argv[0]
                 pathName = os.path.dirname(scriptName)
-                dllFile = TRION_DLL_NAME
-                locatedAt = (pathName + "/" + dllFile).replace("\\","/")
+                locatedAt = (pathName + "/" + dll_file).replace("\\","/")
                 g_trion_api_dll = cdll.LoadLibrary(locatedAt)
             except:
-                g_trion_api_dll = cdll.LoadLibrary(TRION_DLL_NAME)
+                g_trion_api_dll = cdll.LoadLibrary(dll_file)
         else:
-            g_trion_api_dll = cdll.LoadLibrary(TRION_DLL_NAME)
+            g_trion_api_dll = cdll.LoadLibrary(dll_file)
 
         # load dll functions
 
