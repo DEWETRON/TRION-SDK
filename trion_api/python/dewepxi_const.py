@@ -62,40 +62,51 @@ CMD_ACQ_STATE                     = CMD_START_ACQUISITION	# Get
 CMD_PXI_LINE_STATE                = 0x0040    #  Get
 
 # Command ID for i32's read function
-CMD_BUFFER_START_POINTER		= 0x0020		# Get
-CMD_BUFFER_END_POINTER			= 0x0021		# Get
-CMD_BUFFER_CLEAR_ERROR			= 0x0022		# Set
+CMD_BUFFER_START_POINTER		  = 0x0020		# Get
+CMD_BUFFER_END_POINTER			  = 0x0021		# Get
+CMD_BUFFER_CLEAR_ERROR			  = 0x0022		# Set
 
-CMD_BUFFER_AVAIL_NO_SAMPLE		= 0x0025		# Get
-CMD_BUFFER_ACT_SAMPLE_POS		= 0x0026		# Get
-CMD_BUFFER_FREE_NO_SAMPLE		= 0x0027		# Set
+CMD_BUFFER_AVAIL_NO_SAMPLE		  = 0x0025		# Get
+CMD_BUFFER_ACT_SAMPLE_POS		  = 0x0026		# Get
+CMD_BUFFER_FREE_NO_SAMPLE		  = 0x0027		# Set
 # for buffer handling and Wrap Around
-CMD_BUFFER_TOTAL_MEM_SIZE		= 0x0028		# Get
-CMD_BUFFER_ONE_BLOCK_SIZE		= 0x0029		# Get
-CMD_BUFFER_ONE_SCAN_SIZE		= 0x002A		# Get
+CMD_BUFFER_TOTAL_MEM_SIZE		  = 0x0028		# Get
+CMD_BUFFER_ONE_BLOCK_SIZE		  = 0x0029		# Get
+CMD_BUFFER_ONE_SCAN_SIZE		  = 0x002A		# Get
 
-CMD_BUFFER_BLOCK_SIZE              = 0x0102      # Set
-CMD_BUFFER_BLOCK_COUNT             = 0x0107      # max 64
-CMD_GETDATA_TIME_OUT		   = 0x0a01      # Get
+CMD_BUFFER_BLOCK_SIZE             = 0x0102      # Set
+CMD_BUFFER_BLOCK_COUNT            = 0x0107      # max 64
+CMD_GETDATA_TIME_OUT		      = 0x0a01      # Get
 
-CMD_UPDATE_PARAM_ACQ_ROUTE         = 0x0103  # Set
+CMD_UPDATE_PARAM_ACQ_ROUTE        = 0x0103  # Set
 
 #for setting/Getting the internal calibration source
 #depreciated - use string access functions instead
-CMD_INT_REF_VAL				 = 0x0201		#	Set / Get
-CMD_REF_MODE				 = 0x0202		#	Set / Get
-CMD_UPDATE_PARAM_INTCAL			 = 0x0205		#	Set
+CMD_INT_REF_VAL				      = 0x0201		#	Set / Get
+CMD_REF_MODE				      = 0x0202		#	Set / Get
+CMD_UPDATE_PARAM_INTCAL			  = 0x0205		#	Set
 
 #
-CMD_BOARD_ACT_SAMPLE_POS		 = 0x0301		# R		Read Register ADC_SCNT
-CMD_BOARD_ADC_DELAY			 = 0x0302		# R		Obtain ADC-Delay (valid only AFTER setting a samplerate)
-CMD_BOARD_AFSPAN			 = 0x0303		# R		Query %of Samplerate that is alias free
-CMD_CHANNEL_AMPBALLANCE			 = 0x0304		# W		Perform Balancing
+CMD_BOARD_ACT_SAMPLE_POS		  = 0x0301		# R		Read Register ADC_SCNT
+CMD_BOARD_ADC_DELAY			      = 0x0302		# R		Obtain ADC-Delay (valid only AFTER setting a samplerate)
+CMD_BOARD_AFSPAN			      = 0x0303		# R		Query %of Samplerate that is alias free
+CMD_CHANNEL_AMPBALLANCE			  = 0x0304		# W		Perform Balancing
+CMD_BOARD_RESET_SELFCAL           = 0x0305
 
 #for E2PROM - Access
-CMD_BOARD_BASEEEPROM_WRITE		 = 0x0401		# W		Write the BaseEEprom-File to EEProm
-CMD_BOARD_CONEEPROM_WRITE		 = 0x0402		# W		Write the ConectorEEprom-File to EEProm
+CMD_BOARD_BASEEEPROM_WRITE		  = 0x0401		# W		Write the BaseEEprom-File to EEProm
+CMD_BOARD_CONEEPROM_WRITE		  = 0x0402		# W		Write the ConectorEEprom-File to EEProm
+CMD_BOARD_BASEEEPROM_SELFCAL_WRITE  = 0x0403
+CMD_BOARD_BASEEEPROM_RESTORE_BACKUP = 0x0404
+CMD_BOARD_CONEEPROM_RESTORE_BACKUP  = 0x0405
+CMD_BOARD_AITEDSEX_READ           = 0x0406
+CMD_BOARD_AITEDSEX_WRITE          = 0x0407
+CMD_BOARD_AITEDSEX_SYNCHRONIZE    = 0x0408
 
+CMD_BOARD_REINIT                  = 0x420
+CMD_OPEN_BOARD_ALL                = 0x450
+CMD_CLOSE_BOARD_ALL               = 0x451
+CMD_RESET_BOARD_ALL               = 0x452
 
 
 PARAM_NOT_USED  			 = 0x7FFFFC00
