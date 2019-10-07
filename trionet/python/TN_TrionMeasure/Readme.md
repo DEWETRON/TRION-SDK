@@ -2,6 +2,9 @@
 
 A graphical application measuring with TRION boards.
 
+The example expects python 3.6 or better.
+
+
 # Prerequisites
 pip3 install pyside2
 
