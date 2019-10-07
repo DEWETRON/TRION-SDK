@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# Copyright DEWETRON GmbH 2019
 #
 # Short example to describe how a digital counter channel is read.
 #
