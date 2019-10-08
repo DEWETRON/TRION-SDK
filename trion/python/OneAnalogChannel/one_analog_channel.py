@@ -121,10 +121,10 @@ def main(argv):
                 sys.stdout.flush()
 
                 # Increment the read pointer
-                nReadPos = nReadPos + 4;
+                nReadPos = nReadPos + 4
                 # Handle the ring buffer wrap around
                 if nReadPos > nBufEndPos:
-                    nReadPos -= nBufSize;
+                    nReadPos -= nBufSize
 
             # Free the ring buffer after read of all values
             nErrorCode = DeWeSetParam_i32( 0, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples)
