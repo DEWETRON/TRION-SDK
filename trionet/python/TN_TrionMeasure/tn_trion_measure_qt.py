@@ -2,10 +2,11 @@
 # Copyright DEWETRON GmbH 2019
 
 import sys
+import time
 sys.path.append('../../../trion_api/python')
 
 # Import the core and GUI elements of Qt
-from PySide2.QtCore import Qt, QPointF, QTimer
+from PySide2.QtCore import Qt, QObject, QPointF, QTimer, Slot, Signal, QThread
 from PySide2 import QtGui
 from PySide2.QtWidgets import *
 from PySide2.QtCharts import *
@@ -15,17 +16,24 @@ from dewepxi_apicore import *
 
 from xml.etree import ElementTree as et
 
+
+
 class MainDialog(QWidget):
     """
     Sample main window
     """
     def __init__(self, parent=None):
         super(MainDialog, self).__init__(parent)
-        self.is_api_loaded = False
         self.chart = QtCharts.QChart()
         self.chart.setAnimationOptions(QtCharts.QChart.NoAnimation)
 
+        self.worker = TrionMeasurementWorker(self)
+        self.worker.signal_show_message.connect(self.showStatus, Qt.QueuedConnection)
+
+        self.chart_series = dict()
+
         self.setupGUI()
+        self.redrawChart()
 
 
     def setupGUI(self):
@@ -79,9 +87,9 @@ class MainDialog(QWidget):
 
         def onApiChanged():
             if self.api_trion_api.isChecked():
-                self.selectAPI("TRION")
+                self.worker.selectAPI("TRION")
             elif self.api_trionet_api.isChecked():
-                self.selectAPI("TRIONET")
+                self.worker.selectAPI("TRIONET")
 
         self.api_trion_api.toggled.connect(onApiChanged)
         self.api_trion_api.setChecked(True)
@@ -95,6 +103,8 @@ class MainDialog(QWidget):
         main_layout.addWidget(self.statusbar)
         self.setLayout(main_layout)
 
+    
+    @Slot(str, str)
     def showStatus(self, text, style = "color:black"):
         """
         show text in status bar
@@ -102,10 +112,112 @@ class MainDialog(QWidget):
         self.statuslabel.setText(text)
         self.statuslabel.setStyleSheet(style)
 
+
+
+
+    def initChart(self):
+        self.chart.removeAllSeries()
+        for axis in self.chart.axes(Qt.Horizontal): self.chart.removeAxis(axis)
+        for axis in self.chart.axes(Qt.Vertical): self.chart.removeAxis(axis)
+
+    def redrawChart(self):
+        self.initChart()
+        self.chart_series = dict()
+
+        series = QtCharts.QLineSeries()
+        series.append(0, 6)
+        series.append(2, 4)
+        series.append(3, 8)
+        series.append(7, 4)
+        series.append(10, 5)
+
+        self.chart.addSeries(series)
+
+
+class TrionMeasurementWorker(QThread):
+    """
+    Measurement worker thread
+    """
+    signal_show_message = Signal(str, str)
+
+    def __init__(self, parent=None):
+        """
+        constructor
+        """
+        QThread.__init__(self, parent)
+        self.gui = parent
+        self.exiting = False
+        self.is_api_loaded = False
+        self.board_id = 0
+
+    def run(self):
+        """
+        ACQ loop
+        """
+
+        self.configureChannel()
+        self.configureAcquisition()
+
+        nReadPos      = 0
+        nAvailSamples = 0
+        nRawData      = 0
+
+        # Get detailed information about the ring buffer
+        # to be able to handle the wrap around
+        [nErrorCode, nBufEndPos] = DeWeGetParam_i64( self.board_id, CMD_BUFFER_END_POINTER)
+        [nErrorCode, nBufSize]   = DeWeGetParam_i32( self.board_id, CMD_BUFFER_TOTAL_MEM_SIZE)
+
+        nErrorCode = DeWeSetParam_i32( self.board_id, CMD_START_ACQUISITION, 0)
+        while self.exiting==False:
+            # Get the number of samples already stored in the ring buffer
+            [nErrorCode, nAvailSamples] = DeWeGetParam_i32( self.board_id, CMD_BUFFER_AVAIL_NO_SAMPLE)
+
+            if nAvailSamples > 0:
+                # Get the current read pointer
+                [nErrorCode, nReadPos] = DeWeGetParam_i64( self.board_id, CMD_BUFFER_ACT_SAMPLE_POS)
+                # Read the current samples from the ring buffer
+                for i in range(0, nAvailSamples):
+                    # Get the sample value at the read pointer of the ring buffer
+                    nRawData = DeWeGetSampleData(nReadPos)
+                    # Print the sample value
+                    print(nRawData)
+                    sys.stdout.flush()
+
+                    # Increment the read pointer
+                    nReadPos = nReadPos + 4
+                    # Handle the ring buffer wrap around
+                    if nReadPos > nBufEndPos:
+                        nReadPos -= nBufSize
+                    # Free the ring buffer after read of all values
+
+                nErrorCode = DeWeSetParam_i32( self.board_id, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples)
+                # wait for 100ms
+                time.sleep(0.1)
+
+        nErrorCode = DeWeSetParam_i32( self.board_id, CMD_STOP_ACQUISITION, 0)
+
+    def startWorker(self):
+        """
+        Start worker thread
+        """
+        if not self.isRunning():
+            self.start()
+
+    def stopWorker(self):
+        """
+        Stop worker thread
+        """
+        if self.isRunning():
+            self.exiting = True
+            self.terminate()
+
     def selectAPI(self, api_name):
         """
         Select and load TRION or TRIONET api.
         """
+
+        self.stopWorker()
+
         if self.is_api_loaded:
             DeWeSetParam_i32(0, CMD_CLOSE_BOARD_ALL, 0)
             DeWeDriverDeInit()
@@ -123,11 +235,17 @@ class MainDialog(QWidget):
         self.api_backend_name = api_name
         self.initTrion()
 
+        self.startWorker()
+
 
     def initTrion(self):
         """
-        Initialize TRION (or TRIONET)
+        Initialize TRION (or TRIONET)       
         """
+        if self.isRunning():
+            self.showStatus("initTrion not possible with active worker thread")
+            return
+
         [nErrorCode, nNoOfBoards] = DeWeDriverInit()
         if abs(nNoOfBoards) == 0:
             self.showStatus("No Trion cards found")
@@ -136,8 +254,8 @@ class MainDialog(QWidget):
         else:
             self.showStatus("%d Trion cards found" % nNoOfBoards)
 
-        self.cb_trion_board.clear()
-        self.cb_channel.clear()
+        self.gui.cb_trion_board.clear()
+        self.gui.cb_channel.clear()
 
         num_boards = abs(nNoOfBoards)
 
@@ -149,22 +267,52 @@ class MainDialog(QWidget):
                 [nErrorCode, board_name] = DeWeGetParamStruct_str("BoardID%d" % i, "BoardName")
                 if len(board_name) == 0:
                     board_name = "Unknown board"
-                self.cb_trion_board.addItem("%d: %s " % ( i, board_name))
+                self.gui.cb_trion_board.addItem("%d: %s " % ( i, board_name))
                 [nErrorCode, board_prop_xml] = DeWeGetParamStruct_str("BoardID%d" % i, "BoardProperties")
 
                 prop_doc = et.fromstring(board_prop_xml)
                 elem_list = prop_doc.findall("ChannelProperties/*")
                 for elem in elem_list:
                     if elem.tag != "XMLVersion":
-                        self.cb_channel.addItem(elem.tag)
+                        # add channel names
+                        self.gui.cb_channel.addItem(elem.tag)
 
 
-        
+    def configureAcquisition(self):
+        """
+        configure Acquisition setup
+        """
+        # Set configuration to use one board in standalone operation
+        target = "BoardID%d/AcqProp" % self.board_id
+        nErrorCode = DeWeSetParamStruct_str( target, "OperationMode", "Slave")
+        nErrorCode = DeWeSetParamStruct_str( target, "ExtTrigger", "False")
+        nErrorCode = DeWeSetParamStruct_str( target, "ExtClk", "False")
+
+        nErrorCode = DeWeSetParam_i32(self.board_id, CMD_BUFFER_BLOCK_SIZE, 200)
+        nErrorCode = DeWeSetParam_i32(self.board_id, CMD_BUFFER_BLOCK_COUNT, 50)
+        nErrorCode = DeWeSetParam_i32(self.board_id, CMD_UPDATE_PARAM_ALL, 0)
+
+
+    def configureChannel(self):
+        """
+        configureChannel
+        (has to be called before configureAcquisition)
+        """
+        nErrorCode = DeWeSetParamStruct_str( "BoardID0/AIAll", "Used", "False")
+        nErrorCode = DeWeSetParamStruct_str( "BoardID0/AI0", "Used", "True")
+
+
+    def showStatus(self, text, style = "color:black"):
+        """
+        show text in status bar
+        """
+        self.signal_show_message.emit(text, style)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
     widget = MainDialog()
     widget.show()
-    sys.exit(app.exec_())
+    ret = app.exec_()
+    widget.worker.stopWorker()
+    sys.exit(ret)
