@@ -29,6 +29,7 @@ class MainDialog(QWidget):
 
         self.worker = TrionMeasurementWorker(self)
         self.worker.signal_show_message.connect(self.showStatus, Qt.QueuedConnection)
+        self.worker.add_channel_data.connect(self.addChannelData, Qt.QueuedConnection)
 
         self.chart_series = dict()
 
@@ -113,24 +114,23 @@ class MainDialog(QWidget):
         self.statuslabel.setStyleSheet(style)
 
 
-
-
     def initChart(self):
         self.chart.removeAllSeries()
         for axis in self.chart.axes(Qt.Horizontal): self.chart.removeAxis(axis)
         for axis in self.chart.axes(Qt.Vertical): self.chart.removeAxis(axis)
 
+
     def redrawChart(self):
         self.initChart()
-        self.chart_series = dict()
 
+
+    def addChannelData(self, channel_data_list):
+        """
+        Add new sample block
+        """
+        self.chart.removeAllSeries()
         series = QtCharts.QLineSeries()
-        series.append(0, 6)
-        series.append(2, 4)
-        series.append(3, 8)
-        series.append(7, 4)
-        series.append(10, 5)
-
+        series.append(channel_data_list)
         self.chart.addSeries(series)
 
 
@@ -139,6 +139,7 @@ class TrionMeasurementWorker(QThread):
     Measurement worker thread
     """
     signal_show_message = Signal(str, str)
+    add_channel_data = Signal(list)
 
     def __init__(self, parent=None):
         """
@@ -161,6 +162,7 @@ class TrionMeasurementWorker(QThread):
         nReadPos      = 0
         nAvailSamples = 0
         nRawData      = 0
+        sample_index  = 0
 
         # Get detailed information about the ring buffer
         # to be able to handle the wrap around
@@ -175,13 +177,20 @@ class TrionMeasurementWorker(QThread):
             if nAvailSamples > 0:
                 # Get the current read pointer
                 [nErrorCode, nReadPos] = DeWeGetParam_i64( self.board_id, CMD_BUFFER_ACT_SAMPLE_POS)
+
+                channel_data = []
+
                 # Read the current samples from the ring buffer
                 for i in range(0, nAvailSamples):
                     # Get the sample value at the read pointer of the ring buffer
                     nRawData = DeWeGetSampleData(nReadPos)
+
                     # Print the sample value
-                    print(nRawData)
-                    sys.stdout.flush()
+                    # print(nRawData)
+                    # sys.stdout.flush()
+
+                    channel_data.append(QPointF(sample_index, nRawData))
+                    sample_index += 1
 
                     # Increment the read pointer
                     nReadPos = nReadPos + 4
@@ -191,6 +200,9 @@ class TrionMeasurementWorker(QThread):
                     # Free the ring buffer after read of all values
 
                 nErrorCode = DeWeSetParam_i32( self.board_id, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples)
+
+                self.addChannelData(channel_data)
+
                 # wait for 100ms
                 time.sleep(0.1)
 
@@ -307,6 +319,12 @@ class TrionMeasurementWorker(QThread):
         show text in status bar
         """
         self.signal_show_message.emit(text, style)
+
+    def addChannelData(self, channel_data):
+        """
+        add samples to graph
+        """
+        self.add_channel_data.emit(channel_data)
 
 
 if __name__ == "__main__":
