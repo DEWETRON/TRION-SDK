@@ -11,6 +11,11 @@ add_library(${LIBNAME} STATIC
   trion_sdk_util.c
   )
 
+if (USECXX)
+  set_source_files_properties(trion_sdk_util.c
+    PROPERTIES LANGUAGE CXX)
+endif()
+
 target_link_libraries(${LIBNAME}
   trion_api_inc
   )
@@ -23,8 +28,12 @@ if (TRION_STATIC_LIB)
     )
 endif()
 
+target_include_directories(${LIBNAME}
+  PUBLIC ${CMAKE_CURRENT_LIST_DIR}
+)
 
 set_target_properties(${LIBNAME} PROPERTIES FOLDER "lib")
+
 
 #
 # TRIONET API Util - only difference is to load and use dwpxi_netapi_x64.dll
@@ -35,6 +44,12 @@ add_library(${LIBNAME} STATIC
   trion_sdk_util.h
   trion_sdk_util.c
   )
+
+if (USE_CXX)
+  set_source_files_properties(trion_sdk_util.c
+    PROPERTIES LANGUAGE CXX)
+endif()
+
 
 target_link_libraries(${LIBNAME}
   trion_api_inc

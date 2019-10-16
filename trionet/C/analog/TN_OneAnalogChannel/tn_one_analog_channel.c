@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // get access to trionet
+    // configure trionet client
     configureNetwork();
 
     // Attention:

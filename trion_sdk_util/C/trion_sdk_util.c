@@ -17,6 +17,7 @@
 #else
 #include <stdio.h>
 #endif
+#include <assert.h>
 
 // out-comment the undef, to get warnings reported to console
 #define REVEAL_WARNINGS
@@ -71,6 +72,7 @@ BOOL CheckError(int nErrorCode)
     {
         fprintf(stderr, "Error: %s\n", DeWeErrorConstantToString(nErrorCode));
         fflush(stderr);
+        assert(0);
         return TRUE;
     }
     else
