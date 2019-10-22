@@ -32,3 +32,11 @@ target_link_libraries(${LIBNAME_CXX}
 target_include_directories(${LIBNAME_CXX}
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
+
+
+
+#
+# add utility libraries
+if (NOT TARGET uni_base)
+  add_subdirectory(../lib/uni_base uni_base)
+endif()

@@ -24,6 +24,12 @@
 //#undef REVEAL_WARNINGS
 
 
+#ifndef dw_min
+#define dw_min(a,b) (((a) < (b)) ? (a) : (b))
+#define dw_max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
+
 
 /**
 * Load TRION dynamic library at the begin of the examples
@@ -33,7 +39,7 @@ int LoadTrionApi()
 {
     if (!DeWePxiLoad())
     {
-        printf("pxi_api.dll could not be found. Exiting...\n");
+        printf("%s could not be found. Exiting...\n", DEWE_TRION_DLL_NAME);
         return 1;
     }
     return 0;
@@ -77,13 +83,14 @@ BOOL CheckError(int nErrorCode)
     }
     else
     {
-#ifdef REVEAL_WARNINGS
+
         if ( nErrorCode != 0 )
         {
             fprintf(stderr, "Error: %s\n", DeWeErrorConstantToString(nErrorCode));
             fflush(stderr);
+            assert(0);
         }
-#endif
+
         return FALSE;
     }
 }
@@ -251,7 +258,7 @@ BOOL TestBoardType( int nBoardID, const char **sBoardNameNeeded )
 
     for ( i = 0; NULL != sBoardNameNeeded[i]; ++i )
     {
-        if( strncmp(sBoardName, sBoardNameNeeded[i], min(sizeof(sBoardName), strlen(sBoardNameNeeded[i]))) == 0 )
+        if( strncmp(sBoardName, sBoardNameNeeded[i], dw_min(sizeof(sBoardName), strlen(sBoardNameNeeded[i]))) == 0 )
         {
             fprintf( stderr, "Found a %s board with BoardID %d\n", sBoardName, nBoardID);
             fflush(stderr);
@@ -514,7 +521,7 @@ double GetMaxARef( int nBoardID, const char *sBoardID, const char **sBoardNameNe
 
     for ( i = 0; NULL != sBoardNameNeeded[i]; ++i )
     {
-        if( strncmp(sBoardName, sBoardNameNeeded[i], min(sizeof(sBoardName), strlen(sBoardNameNeeded[i]))) == 0 )
+        if( strncmp(sBoardName, sBoardNameNeeded[i], dw_min(sizeof(sBoardName), strlen(sBoardNameNeeded[i]))) == 0 )
         {
             return maxArefVal[i];
         }

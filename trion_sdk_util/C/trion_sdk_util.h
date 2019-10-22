@@ -8,12 +8,6 @@
 #define TRION_SDK_UTIL_FILE
 
 
-#ifndef min
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
-
-
 
 /**
  * Load TRION dynamic library ar the begin of the examples

@@ -9,4 +9,10 @@
 /**
  * DeWeSetParamStruct_str overload for std::string
  */
-int DeWeSetParamStruct_str_s(const std::string& target, const std::string& item, const std::string& value );
+int DeWeSetParamStruct_str_s(const std::string& target, const std::string& item, const std::string& value);
+
+
+/**
+ * DeWeGetParamStruct_str overload for std::string
+ */
+int DeWeGetParamStruct_str_s(const std::string& target, const std::string& item, std::string& value);

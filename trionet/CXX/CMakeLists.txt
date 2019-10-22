@@ -60,6 +60,15 @@ if (NOT TARGET trionet_sdk_util)
   add_subdirectory(${TRION_SDK_ROOT}/trion_sdk_util/C trion_sdk_util)
 endif()
 
+# Add XML processing library
+if (NOT TARGET pugixml)
+  add_subdirectory(${TRION_SDK_ROOT}/3rdparty/pugixml-1.9 pugixml)
+endif()
+
+# Add XML processing utility library
+if (NOT TARGET xpugixml)
+  add_subdirectory(${TRION_SDK_ROOT}/trion_api/CXX/lib/xpugixml xpugixml)
+endif()
 
 # macro for standars sample project definition
 macro(TRIONET_SampleBuildSettings SAMPLE FOLDER)
@@ -68,6 +77,8 @@ macro(TRIONET_SampleBuildSettings SAMPLE FOLDER)
     trion_api_inc
     trion_api_cxx
     trionet_sdk_util
+    xpugixml
+    pugixml
     )
   if(UNIX)
     target_link_libraries(${SAMPLE}

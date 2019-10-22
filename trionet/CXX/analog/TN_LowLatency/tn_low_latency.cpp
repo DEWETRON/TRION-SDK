@@ -1,10 +1,11 @@
 // Copyright (c) Dewetron 2019
 
+#include "dewepxi_apicxx.h"
+#include "trion_sdk_util.h"
+#include "xpugixml.h"
 #include <string>
 #include <sstream>
 #include <iostream>
-#include "dewepxi_apicxx.h"
-#include "trion_sdk_util.h"
 
 
 void configureNetwork();
@@ -15,6 +16,8 @@ int main(int argc, char* argv[])
     int nErrorCode  = 0;
     int nNoOfBoards = 0;
     int nBoardId = 0;
+    int nBlockSize = 20;
+    int nBlockCount = 10000;
 
     // Load pxi_api.dll (the TRIONET Wrapper API)
     if ( 0 != LoadTrionApi() )
@@ -42,7 +45,7 @@ int main(int argc, char* argv[])
     nErrorCode = DeWeSetParam_i32( 0, CMD_RESET_BOARD_ALL, 0 );
     CheckError(nErrorCode);
 
-    // Configure Acquisition properties
+    // Configure Acquisition properties - standalone for every board
     for (int nBoardId = 0; nBoardId < nNoOfBoards; ++nBoardId)
     {
         std::stringstream sTarget;
@@ -54,7 +57,7 @@ int main(int argc, char* argv[])
         CheckError(nErrorCode);
         nErrorCode = DeWeSetParamStruct_str_s( target, "ExtClk", "False");
         CheckError(nErrorCode);
-        nErrorCode = DeWeSetParamStruct_str_s( target, "SampleRate", "10000");
+        nErrorCode = DeWeSetParamStruct_str_s( target, "SampleRate", "200000");
     }
 
     // Enable analog channels on all boards
@@ -71,11 +74,11 @@ int main(int argc, char* argv[])
     for (int nBoardId = 0; nBoardId < nNoOfBoards; ++nBoardId)
     {
         // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
-        nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_SIZE, 200);
+        nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_SIZE, nBlockSize);
         CheckError(nErrorCode);
         // Set the ring buffer size to 50 blocks. So ring buffer can store samples
         // for 5 seconds
-        nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_COUNT, 50);
+        nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_COUNT, nBlockCount);
         CheckError(nErrorCode);
 
         // Update the hardware with settings
@@ -94,7 +97,11 @@ int main(int argc, char* argv[])
 
     if (nErrorCode <= 0)
     {
-        while(true)
+        bool stop_on_error = false;
+        int nAvailSamplesMax = 0;
+        int max_after = 40;
+
+        while(!stop_on_error)
         {
             for (int nBoardId = 0; nBoardId < nNoOfBoards; ++nBoardId)
             {
@@ -102,24 +109,45 @@ int main(int argc, char* argv[])
                 int nAvailSamples=0;
 
                 nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
-                CheckError(nErrorCode);
-                if (ERR_BUFFER_OVERWRITE == nErrorCode)
+                if (CheckError(nErrorCode))
                 {
-                    printf("Measurement Buffer Overflow happened - stopping measurement\n");
+                    stop_on_error = true;
                     break;
                 }
 
-                if (nAvailSamples > 0)
+                if (nAvailSamples > nBlockSize)
                 {
-                    std::cout << nBoardId << ": samples = " << nAvailSamples << std::endl;
+                    if (max_after <= 0)
+                    {
+                        nAvailSamplesMax = std::max(nAvailSamplesMax, nAvailSamples);
+                    }
+                    else 
+                    {
+                        --max_after;
+                    }
+
+
+
+                    //if (--stop_output_after > 0)
+                    {
+                        std::cout << nBoardId << ": samples = " << nAvailSamples << ", max = " << nAvailSamplesMax << std::endl;
+                    }
 
                     // Get the current read pointer
                     nErrorCode = DeWeGetParam_i64( nBoardId, CMD_BUFFER_ACT_SAMPLE_POS, &nReadPos );
-                    CheckError(nErrorCode);
+                    if (CheckError(nErrorCode)) 
+                    {
+                        stop_on_error = true;
+                        break;
+                    }
 
                     // Free the ring buffer after read of all values
                     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
-                    CheckError(nErrorCode);
+                    if (CheckError(nErrorCode)) 
+                    {
+                        stop_on_error = true;
+                        break;
+                    }
                 }
             }
         }
@@ -149,14 +177,66 @@ int main(int argc, char* argv[])
 void configureNetwork()
 {
     int nErrorCode;
+    std::string address;
+    std::string ll_address;
+    std::string mask;
+    std::string network_interfaces_xml;
 
-    const char* address = "169.254.109.242";
-    const char* netmask = "255.255.0.0";
-    printf("Example is listening for TRIONET devices on: %s (%s)\n", address, netmask);
-
-    // TODO: Configure the network interface to access TRIONET devices
-    nErrorCode = DeWeSetParamStruct_str("trionetapi/config", "Network/IPV4/LocalIP", address);
+    nErrorCode = DeWeGetParamStruct_str_s("trionetapi", "Network/Enumerate", network_interfaces_xml);
     CheckError(nErrorCode);
-    nErrorCode = DeWeSetParamStruct_str("trionetapi/config", "Network/IPV4/NetMask", netmask);
+
+    //std::cerr << xpugi::xmlPrettyPrint(network_interfaces_xml) << std::endl;
+
+    pugi::xml_document if_doc;
+    if (pugi::status_ok == if_doc.load_string(network_interfaces_xml.c_str()).status)
+    {
+        auto interfaces = if_doc.document_element().select_nodes("Enumerate/Interface");
+        for (auto itfx : interfaces)
+        {
+            auto itf = itfx.node();
+
+            // ignore loopback, look for a LL address
+            if (std::string("lo") != itf.attribute("name").value())
+            {
+                auto addresses = itf.select_nodes("Address");
+                for (auto addrx : addresses)
+                {
+                    auto addr = addrx.node();
+                    // IPv4 only, prefer link local
+                    if (std::string("1") == addr.attribute("family").value())
+                    {
+                        address = addr.attribute("address").value();
+                        mask = addr.attribute("mask").value();
+                        if (address.find("169.254.") != std::string::npos)
+                        {
+                            // link local found
+                            ll_address = address;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!ll_address.empty())
+        {
+            address = ll_address;
+            mask = "255.255.0.0";
+        }
+
+    }
+    else
+    {
+        // localhost fallback
+        address = "127.0.0.1";
+        mask = "255.255.255.0";
+    }
+    
+
+    std::cout << "Example is listening for TRIONET devices on:\n" << address << "," << mask << std::endl;
+
+    // Configure the network interface to access TRIONET devices
+    nErrorCode = DeWeSetParamStruct_str_s("trionetapi/config", "Network/IPV4/LocalIP", address);
+    CheckError(nErrorCode);
+    nErrorCode = DeWeSetParamStruct_str_s("trionetapi/config", "Network/IPV4/NetMask", mask);
     CheckError(nErrorCode);
 }
