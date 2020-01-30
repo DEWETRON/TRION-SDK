@@ -2,6 +2,11 @@
 # Project DEWETRON TRION SDK - analog examples
 #
 
+add_executable(MinimalExample
+  MinimalExample/minimal_example.c
+  )
+SampleBuildSettings(MinimalExample "minimal")
+
 add_executable(OneAnalogChannel
   OneAnalogChannel/one_analog_channel.c
   )
