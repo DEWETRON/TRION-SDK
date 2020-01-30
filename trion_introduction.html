@@ -1,0 +1,291 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction to TRION Measurement Systems &mdash; TRION SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TRION and TRIONet System Overview" href="trion_system_overview.html" />
+    <link rel="prev" title="Preface" href="preface.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TRION SDK
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to TRION Measurement Systems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#high-precision-signal-conditioning-amplifiers">High precision signal conditioning amplifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multifunctional-high-speed-modules">Multifunctional High-speed Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#isolated-highspeed-data-acquisition-for-every-sensor-every-application">Isolated highspeed data acquisition for every sensor &amp; every application</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#power-high-speed-modules">Power High-speed Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#high-speed-trion-trion3-power-modules">High-speed TRION™/TRION3™ Power Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#trion-amplifier-modules">TRION™ Amplifier Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multi-channel-trion-modules-with-a-d-converter">Multi channel TRION™ modules with A/D converter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trion_system_overview.html">TRION and TRIONet System Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_sdk_build_instructions.html">TRION SDK Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_sdk_minimal_example.html">TRION SDK Minimal Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_c_interface.html">TRION API C Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_details.html">TRION API in Depth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_xml.html">TRION API XML Documents</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRION SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Introduction to TRION Measurement Systems</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction-to-trion-measurement-systems">
+<h1>Introduction to TRION Measurement Systems<a class="headerlink" href="#introduction-to-trion-measurement-systems" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://www.dewetron.com/products/signal-conditioning-amplifiers">https://www.dewetron.com/products/signal-conditioning-amplifiers</a></p>
+<div class="section" id="high-precision-signal-conditioning-amplifiers">
+<h2>High precision signal conditioning amplifiers<a class="headerlink" href="#high-precision-signal-conditioning-amplifiers" title="Permalink to this headline">¶</a></h2>
+<p>DEWETRON offers a wide range of analog, isolated signal conditioning amplifiers, suitable for a wide variety of sensors, including strain gauges, accelerometers, force sensors, pressure, load and flow sensors, thermocouples, as well as voltages and currents.</p>
+</div>
+<div class="section" id="multifunctional-high-speed-modules">
+<h2>Multifunctional High-speed Modules<a class="headerlink" href="#multifunctional-high-speed-modules" title="Permalink to this headline">¶</a></h2>
+<p>Enjoy the full flexibility of DEWETRON multifunctional high-speed modules to maximize channel density, practicability and speed. Choose from different models that are compatible with our brand-new DEWE3 or DEWE2 series.</p>
+<div class="section" id="isolated-highspeed-data-acquisition-for-every-sensor-every-application">
+<h3>Isolated highspeed data acquisition for every sensor &amp; every application<a class="headerlink" href="#isolated-highspeed-data-acquisition-for-every-sensor-every-application" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-center" id="id1">
+<img alt="_images/TRION-MULTI_group-768x576.png" src="_images/TRION-MULTI_group-768x576.png" />
+<p class="caption"><span class="caption-text">TRION and TRION3-18XX-MULTI</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>It can primarily be used, where precision, speed and dynamic is needed, like mechanical structure analysis, vibration and shock testing as well as any other measurement task.</p>
+<p>Compatible with our brand new DEWE3-series to achieve the highest performance of 5 MS/s or with DEWE2 series for highspeed applications with a limited number of inputs.</p>
+<p>10+ measurement modes for almost every sensor and application:</p>
+<ul class="simple">
+<li><p>9 native modes: bridge, voltage, current, IEPE, resistance, potentiometer, temperature (RTD), counter and CAN</p></li>
+<li><p>MSI compatibility for charge, thermocouple and LVDT input</p></li>
+</ul>
+<p>The most user friendly data acquisition software OXYGEN will lead you to very quick and reliable measurement results.</p>
+</div>
+</div>
+<div class="section" id="power-high-speed-modules">
+<h2>Power High-speed Modules<a class="headerlink" href="#power-high-speed-modules" title="Permalink to this headline">¶</a></h2>
+<p>High-speed power modules of the TRION™/TRION3™ series for 4-phase power analysis. These user-exchangeable signal conditioning modules provide analog-digital conversion on each channel.</p>
+<div class="figure align-center" id="id2">
+<img alt="_images/trion_power_modules_group.png" src="_images/trion_power_modules_group.png" />
+<p class="caption"><span class="caption-text">TRION and TRION3-18XX-POWER</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p>Key facts</p>
+<ul class="simple">
+<li><p>Simultaneous sampling for all analog inputs</p></li>
+<li><p>Separate ADC on each channel up to 10 MS/s</p></li>
+<li><p>High resolution up to 18-bit, with anti-aliasing filters</p></li>
+<li><p>High voltage and current inputs</p></li>
+</ul>
+<div class="section" id="high-speed-trion-trion3-power-modules">
+<h3>High-speed TRION™/TRION3™ Power Modules<a class="headerlink" href="#high-speed-trion-trion3-power-modules" title="Permalink to this headline">¶</a></h3>
+<p>High-speed power modules of the TRION™/TRION3™ series for 4-phase power analysis. These user-exchangeable signal conditioning modules provide analog-digital conversion on each channel.</p>
+</div>
+</div>
+<div class="section" id="trion-amplifier-modules">
+<h2>TRION™ Amplifier Modules<a class="headerlink" href="#trion-amplifier-modules" title="Permalink to this headline">¶</a></h2>
+<p>The user exchangeable, multichannel TRION™ modules provide analog-digital conversion on each channel.</p>
+<div class="figure align-center" id="id3">
+<img alt="_images/TRION-series-modules-with-high-voltage-560x388.jpg" src="_images/TRION-series-modules-with-high-voltage-560x388.jpg" />
+<p class="caption"><span class="caption-text">Multi channel TRION modules</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="multi-channel-trion-modules-with-a-d-converter">
+<h3>Multi channel TRION™ modules with A/D converter<a class="headerlink" href="#multi-channel-trion-modules-with-a-d-converter" title="Permalink to this headline">¶</a></h3>
+<p>Multi channel TRION™  signal conditioning modules provide analog-digital conversion on each channel and are user exhangeable.</p>
+<p>TRION™ modules are usable in DEWE2 and DEWE3 systems.</p>
+<p>Key facts</p>
+<ul class="simple">
+<li><p>Simultaneous sampling for all analog input modules</p></li>
+<li><p>Separate ADC on each channel</p></li>
+<li><p>24 bit resolution, with anti-aliasing filters</p></li>
+<li><p>Synchronous counter/encoder inputs and digital I/O lines</p></li>
+<li><p>CAN, counter, digital I/O and timing modules</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="trion_system_overview.html" class="btn btn-neutral float-right" title="TRION and TRIONet System Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="preface.html" class="btn btn-neutral float-left" title="Preface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, DEWETRON GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

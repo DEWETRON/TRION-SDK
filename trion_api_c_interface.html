@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TRION API C Interface &mdash; TRION SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TRION API in Depth" href="trion_api_details.html" />
+    <link rel="prev" title="TRION SDK Minimal Example" href="trion_sdk_minimal_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TRION SDK
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_introduction.html">Introduction to TRION Measurement Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_system_overview.html">TRION and TRIONet System Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_sdk_build_instructions.html">TRION SDK Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_sdk_minimal_example.html">TRION SDK Minimal Example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TRION API C Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#return-code-convention">Return Code Convention</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-header-dewepxi-load-h">The header <em>dewepxi_load.h</em></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#loading-the-library">Loading the library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unloading-the-library">Unloading the library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-header-dewepxi-apicore-h">The header <em>dewepxi_apicore.h</em></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initializing-the-library">Initializing the library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uninitializing-the-library">Uninitializing the library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integer-based-functions">Integer based functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#addressing-targets-with-integer-commands">Addressing Targets with Integer Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#string-based-functions">String based functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#addressing-targets-with-string-commands">Addressing Targets with String Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xml-string-based-functions">XML String based functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#addressing-targets-with-xml-string-commands">Addressing Targets with XML String Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#can-functions">CAN functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uart-functions">UART functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#decoding-error-codes">Decoding error codes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-header-dewepxi-const-h">The header <em>dewepxi_const.h</em></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_details.html">TRION API in Depth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_xml.html">TRION API XML Documents</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TRION SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>TRION API C Interface</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="trion-api-c-interface">
+<h1>TRION API C Interface<a class="headerlink" href="#trion-api-c-interface" title="Permalink to this headline">¶</a></h1>
+<p>All functions and data types are available for Windows and Linux development environments.</p>
+<div class="section" id="return-code-convention">
+<h2>Return Code Convention<a class="headerlink" href="#return-code-convention" title="Permalink to this headline">¶</a></h2>
+<p>A return code of 0 indicates on all API-interface-functions success.</p>
+<p>A negative error code indicates a warning. As a general rule it is safe
+to assume that the operation requested has been performed.</p>
+<p>A typical example of a warning would be for example requesting a
+low-pass-filter-frequency which cannot be set exactly to hardware. In
+this example the next lower possible frequency would be chosen by the
+API and the API would inform the application by issuing a corresponding
+warning.</p>
+<p>A positive error code indicates an error. As a general rule this means
+that the requested operation could not be performed.</p>
+<p>A typical example would be trying to set a property of a non-existing
+channel on a board.</p>
+</div>
+<div class="section" id="the-header-dewepxi-load-h">
+<h2>The header <em>dewepxi_load.h</em><a class="headerlink" href="#the-header-dewepxi-load-h" title="Permalink to this headline">¶</a></h2>
+<p>This header provides the functions to dynamically load and unload the TRION library.</p>
+<div class="section" id="loading-the-library">
+<h3>Loading the library<a class="headerlink" href="#loading-the-library" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">DeWePxiLoad</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>DeWePxiLoad() loads TRION API library into process memory.
+The return value must be greater zero. Positive numbers of the return code signal the loaded API interface revision.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The current API interface revision is 5.</p>
+</div>
+</div>
+<div class="section" id="unloading-the-library">
+<h3>Unloading the library<a class="headerlink" href="#unloading-the-library" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="n">DeWePxiUnload</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>DeWePxiUnload() unloads TRION API library from process memory.</p>
+</div>
+</div>
+<div class="section" id="the-header-dewepxi-apicore-h">
+<h2>The header <em>dewepxi_apicore.h</em><a class="headerlink" href="#the-header-dewepxi-apicore-h" title="Permalink to this headline">¶</a></h2>
+<p>All TRION API functions return an error code. All error codes are defined in the files
+dewepxi_err.h and dewepxi_err.inc.</p>
+<div class="section" id="initializing-the-library">
+<h3>Initializing the library<a class="headerlink" href="#initializing-the-library" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Driver Init</span>
+<span class="kt">int</span> <span class="nf">DeWeDriverInit</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">num_boards</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Initializes the API and returns the number of detected boards.
+A return value of zero signals success.</p>
+</div>
+<div class="section" id="uninitializing-the-library">
+<h3>Uninitializing the library<a class="headerlink" href="#uninitializing-the-library" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">DeWeDriverDeInit</span><span class="p">(</span> <span class="kt">void</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>Uninitializes the API. This function frees all allocated resources.
+DeWePxiUnload() automatically calls this function, if the applications does not do it.</p>
+</div>
+<div class="section" id="integer-based-functions">
+<h3>Integer based functions<a class="headerlink" href="#integer-based-functions" title="Permalink to this headline">¶</a></h3>
+<p>This set of functions serves various purposes.</p>
+<p>One example for its usage is to trigger a specific action on the
+hardware, like updating the hardware settings to match the logical
+settings.</p>
+<p>Another possible use case of these functions is in places, where only
+information that is easily expressible as integers is passed to or from
+the API and a low latency is desired. So taking the sidestep of
+string-conversion inside the API and re-conversion on application level
+is avoided.</p>
+<p>An example of this use case would be the polling for the actual number
+of acquired samples. This information clearly can be expressed as an
+integer value. As it is frequently used during acquisition, it should be
+as fast as possible.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// _i32 functions</span>
+<span class="kt">int</span> <span class="o">*</span><span class="nf">DeWeGetParam_i32</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">command_id</span><span class="p">,</span> <span class="n">sint32</span> <span class="o">*</span><span class="n">val</span><span class="p">);</span>
+<span class="kt">int</span> <span class="o">*</span><span class="nf">DeWeSetParam_i32</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">command_id</span><span class="p">,</span> <span class="n">sint32</span> <span class="n">val</span><span class="p">);</span>
+
+<span class="c1">// _i64 functions</span>
+<span class="kt">int</span> <span class="nf">DeWeGetParam_i64</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">command_id</span><span class="p">,</span> <span class="n">sint64</span> <span class="o">*</span><span class="n">val</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeSetParam_i64</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">command_id</span><span class="p">,</span> <span class="n">sint64</span> <span class="n">val</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="addressing-targets-with-integer-commands">
+<h3>Addressing Targets with Integer Commands<a class="headerlink" href="#addressing-targets-with-integer-commands" title="Permalink to this headline">¶</a></h3>
+<p>nBoardNo is the logical board-number. This parameter is used in all
+commands as the target is always a board.</p>
+<p>nCommandID is the command to be executed like:</p>
+<ul class="simple">
+<li><p>CMD_OPEN_BOARD</p></li>
+<li><p>CMD_START_ACQUISITION</p></li>
+<li><p>CMD_RESET_BOARD</p></li>
+</ul>
+<p>nVal is depending on the Command-ID. Some commands don’t take a
+parameter at all. In this case the parameter is N/A.</p>
+<p>The possible command identifiers are specified in <a class="reference internal" href="#the-header-dewepxi-const-h">The header dewepxi_const.h</a>.</p>
+</div>
+<div class="section" id="string-based-functions">
+<h3>String based functions<a class="headerlink" href="#string-based-functions" title="Permalink to this headline">¶</a></h3>
+<p>This set of functions covers the complete part of the logical
+configuration of the data acquisition system.</p>
+<p>These functions are mainly used in not speed-critical parts of the API,
+e.g. when setting up the logical configuration of the measurement
+system.</p>
+<p>The set consists of the following functions:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// string based functions</span>
+<span class="kt">int</span> <span class="nf">DeWeSetParamStruct_str</span><span class="p">(</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">val</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeGetParamStruct_str</span><span class="p">(</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">val</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">val_size</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeGetParamStruct_strLEN</span><span class="p">(</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span><span class="p">,</span> <span class="n">uint32</span> <span class="o">*</span><span class="n">val_size</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeGetParamStructEx_str</span><span class="p">(</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">val</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">val_size</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="addressing-targets-with-string-commands">
+<h3>Addressing Targets with String Commands<a class="headerlink" href="#addressing-targets-with-string-commands" title="Permalink to this headline">¶</a></h3>
+<p>Target:</p>
+<p>Usually either a board or a specific subsystem of a board is addressed
+with these types of commands. The target is expressed as a string like
+“BoardID0”</p>
+<p>Command (or Item):</p>
+<p>This indicates the item that is intended to be set or get. Most valid
+items can be identified by looking at the XML description.</p>
+<p>For some special items it is possible to use a shorthand (Alias) target.</p>
+<p>A typical item would be for example “BoardName” for human readable name
+of the board-type. (e.g. TRION-2402-dACC)</p>
+<p>Var:</p>
+<p>For the set-function this is the actual value to set expressed as
+string.</p>
+<p>For the get-function this is a pointer to the buffer where the result
+will be returned.</p>
+<p>Target and Command string are not case sensitive. So “BoardID0” is the
+same as “boardid0”.</p>
+<p>Typical targets:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Target</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“BoardID0”</p></td>
+<td><p>Accessing items of the logical board 0</p></td>
+</tr>
+<tr class="row-odd"><td><p>“BoardID0/AI1”</p></td>
+<td><p>Accessing properties for the analogue
+channel 1 on board 0</p></td>
+</tr>
+<tr class="row-even"><td><p>“BoardID1/CNT0”</p></td>
+<td><p>Accessing counter channel 0 on board 1</p></td>
+</tr>
+<tr class="row-odd"><td><p>“BoardID0/AcqProp”</p></td>
+<td><p>Accessing the acquisition properties
+for board 0</p></td>
+</tr>
+<tr class="row-even"><td><p>“BoardID1/AcqProp/Timing”</p></td>
+<td><p>Accessing the timing-properties for
+board 1</p></td>
+</tr>
+</tbody>
+</table>
+<p>Typical combination of Target and Item:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 21%" />
+<col style="width: 48%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Target</p></th>
+<th class="head"><p>Item</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“BoardID1/AI1”</p></td>
+<td><p>“Mode”</p></td>
+<td><p>Operation mode for analogue
+channel 1 on board 1</p></td>
+</tr>
+<tr class="row-odd"><td><p>“BoardID0/AcqProp”</p></td>
+<td><p>“SampleRate”</p></td>
+<td><p>Sample rate for board 0</p></td>
+</tr>
+<tr class="row-even"><td><p>“BoardID1/CN2”</p></td>
+<td><p>“Used”</p></td>
+<td><p>Enabled status for counter
+channel 2 on board 1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="xml-string-based-functions">
+<h3>XML String based functions<a class="headerlink" href="#xml-string-based-functions" title="Permalink to this headline">¶</a></h3>
+<p>This set of functions allows to read and modify various XML based documents
+used by the API.</p>
+<p>These functions are mainly used in not speed-critical parts of the API.</p>
+<p>The set consists of the following functions:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// xml string based functions</span>
+<span class="kt">int</span> <span class="nf">DeWeSetParamXML_str</span><span class="p">(</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">val</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeGetParamXML_str</span><span class="p">(</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">val</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">val_size</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeGetParamXML_strLEN</span><span class="p">(</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">command</span><span class="p">,</span> <span class="n">uint32</span> <span class="o">*</span><span class="n">val_size</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="addressing-targets-with-xml-string-commands">
+<h3>Addressing Targets with XML String Commands<a class="headerlink" href="#addressing-targets-with-xml-string-commands" title="Permalink to this headline">¶</a></h3>
+<p>Target:</p>
+</div>
+<div class="section" id="can-functions">
+<h3>CAN functions<a class="headerlink" href="#can-functions" title="Permalink to this headline">¶</a></h3>
+<p>These functions are used with TRION boards that provide a CAN channel.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// CAN functions</span>
+<span class="kt">int</span> <span class="nf">DeWeOpenCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeCloseCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeGetChannelPropCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">,</span> <span class="n">PBOARD_CAN_CHANNEL_PROP</span> <span class="n">pProp</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeSetChannelPropCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">,</span> <span class="n">BOARD_CAN_CHANNEL_PROP</span> <span class="n">rProp</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeStartCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeStopCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeReadCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="n">PBOARD_CAN_FRAME</span> <span class="n">pCanFrames</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nMaxFrameCount</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">nRealFrameCount</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeFreeFramesCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nFrameCount</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeReadCANRawFrame</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="n">PBOARD_CAN_RAW_FRAME</span> <span class="o">*</span><span class="n">pCanFrames</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">nRealFrameCount</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeWriteCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="n">PBOARD_CAN_FRAME</span> <span class="n">pCanFrames</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nMaxFrameCount</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">nRealFrameCount</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeErrorCntCAN</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">nErrorCount</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="uart-functions">
+<h3>UART functions<a class="headerlink" href="#uart-functions" title="Permalink to this headline">¶</a></h3>
+<p>These functions are used with TRION boards that provide a UART channel (GPS, RS485).</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Asynchronous channel(UART) functions</span>
+<span class="kt">int</span> <span class="nf">DeWeOpenDmaUart</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeCloseDmaUart</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeGetChannelPropDmaUart</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">,</span> <span class="n">PBOARD_UART_CHANNEL_PROP</span> <span class="n">pProp</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeSetChannelPropDmaUart</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">,</span> <span class="n">BOARD_UART_CHANNEL_PROP</span> <span class="n">rProp</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeStartDmaUart</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeStopDmaUart</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nChannelNo</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeReadDmaUart</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="n">PBOARD_UART_FRAME</span> <span class="n">pUartFrames</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nMaxFrameCount</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">nRealFrameCount</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeReadDmaUartRawFrame</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="n">PBOARD_UART_RAW_FRAME</span> <span class="o">*</span><span class="n">pUartFrames</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">nRealFrameCount</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeFreeDmaUartRawFrame</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="kt">int</span> <span class="n">framestofree</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">DeWeWriteDmaUart</span><span class="p">(</span><span class="kt">int</span> <span class="n">board_no</span><span class="p">,</span> <span class="n">PBOARD_UART_FRAME</span> <span class="n">pUartFrames</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nFrameCount</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">nRealFrameCount</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="decoding-error-codes">
+<h3>Decoding error codes<a class="headerlink" href="#decoding-error-codes" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Obtain readable ErrorMessage from ErrorCode</span>
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="nf">DeWeErrorConstantToString</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>DeWeErrorConstantToString converts the numerical error code to a human readable string.</p>
+<p>All error codes are defined in dewepxi_err.h and dewepxi_err.inc.</p>
+</div>
+</div>
+<div class="section" id="the-header-dewepxi-const-h">
+<h2>The header <em>dewepxi_const.h</em><a class="headerlink" href="#the-header-dewepxi-const-h" title="Permalink to this headline">¶</a></h2>
+<p>This header contains all public command codes for the integer based functions.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="p">{</span>
+    <span class="n">CMD_OPEN_BOARD</span> <span class="o">=</span> <span class="mh">0x0001</span><span class="p">,</span>
+    <span class="n">CMD_CLOSE_BOARD</span> <span class="o">=</span> <span class="mh">0x0002</span><span class="p">,</span>
+    <span class="n">CMD_RESET_BOARD</span> <span class="o">=</span> <span class="mh">0x0003</span><span class="p">,</span>
+    <span class="n">CMD_START_ACQUISITION</span> <span class="o">=</span> <span class="mh">0x0004</span><span class="p">,</span>
+    <span class="n">CMD_STOP_ACQUISITION</span> <span class="o">=</span> <span class="mh">0x0005</span><span class="p">,</span>
+    <span class="n">CMD_ACT_SAMPLE_COUNT</span> <span class="o">=</span> <span class="mh">0x000A</span><span class="p">,</span>
+
+    <span class="n">CMD_UPDATE_PARAM_ALL</span> <span class="o">=</span> <span class="mh">0x0010</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_ACQ_ALL</span> <span class="o">=</span> <span class="mh">0x0011</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_CHN_ALL</span> <span class="o">=</span> <span class="mh">0x0012</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_ACQ</span> <span class="o">=</span> <span class="mh">0x0013</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_ACQ_SR</span> <span class="o">=</span> <span class="mh">0x0041</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_MUX</span> <span class="o">=</span> <span class="mh">0x0014</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_INTSIG0</span> <span class="o">=</span> <span class="mh">0x0015</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_INTSIG1</span> <span class="o">=</span> <span class="mh">0x0016</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_AI</span> <span class="o">=</span> <span class="mh">0x0017</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_CNT</span> <span class="o">=</span> <span class="mh">0x0018</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_DI</span> <span class="o">=</span> <span class="mh">0x0019</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_BOARD_CNT</span> <span class="o">=</span> <span class="mh">0x001A</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_CAN</span> <span class="o">=</span> <span class="mh">0x001B</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_UART</span> <span class="o">=</span> <span class="mh">0x0052</span><span class="p">,</span>
+    <span class="n">CMD_ASYNC_POLLING_TIME</span> <span class="o">=</span> <span class="mh">0x001C</span><span class="p">,</span>
+    <span class="n">CMD_ASYNC_FRAME_SIZE</span> <span class="o">=</span> <span class="mh">0x001D</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_ACQ_TIMING</span> <span class="o">=</span> <span class="mh">0x001E</span><span class="p">,</span>
+    <span class="n">CMD_TIMING_STATE</span> <span class="o">=</span> <span class="mh">0x001F</span><span class="p">,</span>
+
+    <span class="n">CMD_BUFFER_START_POINTER</span> <span class="o">=</span> <span class="mh">0x0020</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_END_POINTER</span> <span class="o">=</span> <span class="mh">0x0021</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_CLEAR_ERROR</span> <span class="o">=</span> <span class="mh">0x0022</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_AVAIL_NO_SAMPLE</span> <span class="o">=</span> <span class="mh">0x0025</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_ACT_SAMPLE_POS</span> <span class="o">=</span> <span class="mh">0x0026</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_FREE_NO_SAMPLE</span> <span class="o">=</span> <span class="mh">0x0027</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_TOTAL_MEM_SIZE</span> <span class="o">=</span> <span class="mh">0x0028</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_ONE_BLOCK_SIZE</span> <span class="o">=</span> <span class="mh">0x0029</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_ONE_SCAN_SIZE</span> <span class="o">=</span> <span class="mh">0x002A</span><span class="p">,</span>
+
+    <span class="n">CMD_GET_UART_STATUS</span> <span class="o">=</span> <span class="mh">0x0030</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE</span> <span class="o">=</span> <span class="mh">0x0031</span><span class="p">,</span>
+    <span class="n">CMD_ACQ_STATE</span> <span class="o">=</span> <span class="mh">0x0032</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_AREF</span> <span class="o">=</span> <span class="mh">0x0033</span><span class="p">,</span>
+    <span class="n">CMD_TIMING_TIME</span> <span class="o">=</span> <span class="mh">0x0034</span><span class="p">,</span>
+    <span class="n">CMD_GPS_RECEIVER_RESET</span> <span class="o">=</span> <span class="mh">0x0035</span><span class="p">,</span>
+
+    <span class="n">CMD_PXI_LINE_STATE</span> <span class="o">=</span> <span class="mh">0x0040</span><span class="p">,</span>
+
+    <span class="n">CMD_DISCRET_STATE_SET</span> <span class="o">=</span> <span class="mh">0x0050</span><span class="p">,</span>
+    <span class="n">CMD_DISCRET_STATE_CLEAR</span> <span class="o">=</span> <span class="mh">0x0051</span><span class="p">,</span>
+
+    <span class="n">CMD_DISCRET_GROUP32_SET</span> <span class="o">=</span> <span class="mh">0x0060</span><span class="p">,</span>
+
+    <span class="n">CMD_IDLED_BOARD_ON</span> <span class="o">=</span> <span class="mh">0x0070</span><span class="p">,</span>
+    <span class="n">CMD_IDLED_BOARD_OFF</span> <span class="o">=</span> <span class="mh">0x0071</span><span class="p">,</span>
+    <span class="n">CMD_IDLED_CHANNEL_ON</span> <span class="o">=</span> <span class="mh">0x0072</span><span class="p">,</span>
+    <span class="n">CMD_IDLED_CHANNEL_OFF</span> <span class="o">=</span> <span class="mh">0x0073</span><span class="p">,</span>
+
+
+    <span class="n">CMD_BUFFER_BLOCK_SIZE</span> <span class="o">=</span> <span class="mh">0x0102</span><span class="p">,</span>
+    <span class="n">CMD_BUFFER_BLOCK_COUNT</span> <span class="o">=</span> <span class="mh">0x0107</span><span class="p">,</span>
+    <span class="n">CMD_GETDATA_TIME_OUT</span> <span class="o">=</span> <span class="mh">0x0A01</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_ACQ_ROUTE</span> <span class="o">=</span> <span class="mh">0x0103</span><span class="p">,</span>
+    <span class="n">CMD_INT_REF_VAL</span> <span class="o">=</span> <span class="mh">0x0201</span><span class="p">,</span>
+    <span class="n">CMD_REF_MODE</span> <span class="o">=</span> <span class="mh">0x0202</span><span class="p">,</span>
+    <span class="n">CMD_UPDATE_PARAM_INTCAL</span> <span class="o">=</span> <span class="mh">0x0205</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_ACT_SAMPLE_COUNT</span> <span class="o">=</span> <span class="mh">0x0301</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_ADC_DELAY</span> <span class="o">=</span> <span class="mh">0x0302</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_AFSPAN</span> <span class="o">=</span> <span class="mh">0x0303</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_RESET_SELFCAL</span> <span class="o">=</span> <span class="mh">0x0305</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_BASEEEPROM_WRITE</span> <span class="o">=</span> <span class="mh">0x0401</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_CONEEPROM_WRITE</span> <span class="o">=</span> <span class="mh">0x0402</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_BASEEEPROM_SELFCAL_WRITE</span> <span class="o">=</span> <span class="mh">0x0403</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_BASEEEPROM_RESTORE_BACKUP</span> <span class="o">=</span> <span class="mh">0x0404</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_CONEEPROM_RESTORE_BACKUP</span> <span class="o">=</span> <span class="mh">0x0405</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_AITEDSEX_READ</span> <span class="o">=</span> <span class="mh">0x0406</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_AITEDSEX_WRITE</span> <span class="o">=</span> <span class="mh">0x0407</span><span class="p">,</span>
+    <span class="n">CMD_BOARD_AITEDSEX_SYNCHRONIZE</span> <span class="o">=</span> <span class="mh">0x0408</span><span class="p">,</span>
+
+
+    <span class="n">CMD_BOARD_PERIPHERAL_EEPROM_WRITE</span> <span class="o">=</span> <span class="mh">0x350</span><span class="p">,</span>
+
+
+    <span class="n">CMD_BOARD_REINIT</span> <span class="o">=</span> <span class="mh">0x0420</span><span class="p">,</span>
+
+    <span class="n">CMD_OPEN_BOARD_ALL</span> <span class="o">=</span> <span class="mh">0x0450</span><span class="p">,</span>
+    <span class="n">CMD_CLOSE_BOARD_ALL</span> <span class="o">=</span> <span class="mh">0x0451</span><span class="p">,</span>
+    <span class="n">CMD_RESET_BOARD_ALL</span> <span class="o">=</span> <span class="mh">0x0452</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="trion_api_details.html" class="btn btn-neutral float-right" title="TRION API in Depth" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="trion_sdk_minimal_example.html" class="btn btn-neutral float-left" title="TRION SDK Minimal Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, DEWETRON GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
