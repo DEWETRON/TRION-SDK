@@ -25,7 +25,6 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -36,6 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TRION API Command Glossary" href="trion_api_command_glossary.html" />
     <link rel="prev" title="TRION API in Depth" href="trion_api_details.html" /> 
 </head>
 
@@ -115,6 +115,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_command_glossary.html">TRION API Command Glossary</a></li>
 </ul>
 
             
@@ -493,6 +494,8 @@ examples.</p>
 <p>While the examples provided here will look awfully complicated on first
 sight, the procedure itself is generic enough to become natural to the
 application developer very quickly.</p>
+<div class="section" id="example-how-to-setup-retrieve-the-samplerate-with-the-string-based-functions">
+<h5>Example: How to setup/retrieve the SampleRate with the string based functions<a class="headerlink" href="#example-how-to-setup-retrieve-the-samplerate-with-the-string-based-functions" title="Permalink to this headline">¶</a></h5>
 <p>Path within the XML-File: AcquisitionProperties/AcqProp/SampleRate</p>
 <p>Derived target and item-string for the string based functions:</p>
 <ul class="simple">
@@ -503,9 +506,12 @@ application developer very quickly.</p>
 complete Target string is: “BoardID0/AcqProp”</p></li>
 </ul>
 <p>So the final function call looks like:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>DeweSetParamStruct_Str( “BoardID0/AcqProp”, “SampleRate”, “20000” );
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeweSetParamStruct_str</span><span class="p">(</span> <span class="s">&quot;BoardID0/AcqProp&quot;</span><span class="p">,</span> <span class="s">&quot;SampleRate&quot;</span><span class="p">,</span> <span class="s">&quot;20000&quot;</span> <span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="example-how-to-setup-the-resolutionai">
+<h5>Example: How to setup the ResolutionAI<a class="headerlink" href="#example-how-to-setup-the-resolutionai" title="Permalink to this headline">¶</a></h5>
 <p>Path within XML-File: AcquisitionProperties/AcqProp/ResolutionAI</p>
 <p>Derived target- and item-string:</p>
 <ul class="simple">
@@ -513,8 +519,9 @@ complete Target string is: “BoardID0/AcqProp”</p></li>
 <li><p>Item: “ResolutionAI”</p></li>
 </ul>
 <p>Final function call:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>DeweSetParamStruct_Str( “BoardID0/AcqProp”, “ResolutionAI”, “16” );
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeweSetParamStruct_str</span><span class="p">(</span> <span class="s">&quot;BoardID0/AcqProp&quot;</span><span class="p">,</span> <span class="s">&quot;ResolutionAI&quot;</span><span class="p">,</span> <span class="s">&quot;16&quot;</span> <span class="p">);</span>
 </pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="channel-properties">
@@ -528,6 +535,8 @@ meaningful for the given mode.</p>
 <li><p>When addressing any property the mode-node is omitted within the
 target</p></li>
 </ol>
+<div class="section" id="example-how-to-set-the-mode-of-an-analogue-channel-to-resistance">
+<h5>Example: How to set the mode of an analogue channel to Resistance<a class="headerlink" href="#example-how-to-set-the-mode-of-an-analogue-channel-to-resistance" title="Permalink to this headline">¶</a></h5>
 <p>Path within XML-File: ChannelProperties/AI0/Mode
 Derived target- and item-string:</p>
 <ul class="simple">
@@ -535,9 +544,12 @@ Derived target- and item-string:</p>
 <li><p>Item: “Mode”</p></li>
 </ul>
 <p>Final function call:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>DeweSetParmaStruct_Str( “BoardID0/AI0”, “Mode”, “Resistance” );
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeweSetParmaStruct_str</span><span class="p">(</span> <span class="s">&quot;BoardID0/AI0&quot;</span><span class="p">,</span> <span class="s">&quot;Mode&quot;</span><span class="p">,</span> <span class="s">&quot;Resistance&quot;</span> <span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="example-how-to-set-the-range-of-an-analogue-channel-in-resistance-mode">
+<h5>Example: How to set the Range of an analogue channel in Resistance-mode<a class="headerlink" href="#example-how-to-set-the-range-of-an-analogue-channel-in-resistance-mode" title="Permalink to this headline">¶</a></h5>
 <p>Path within XML-File: ChannelProperties/AI0/Mode/Range</p>
 <p>Derived target- and item-string:</p>
 <ul class="simple">
@@ -545,8 +557,9 @@ Derived target- and item-string:</p>
 <li><p>Item: “Range”</p></li>
 </ul>
 <p>Final function call:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>DeweSetParmaStruct_Str( “BoardID0/AI0”, “Range”, “3000” );
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeweSetParmaStruct_str</span><span class="p">(</span> <span class="s">&quot;BoardID0/AI0&quot;</span><span class="p">,</span> <span class="s">&quot;Range&quot;</span><span class="p">,</span> <span class="s">&quot;3000&quot;</span> <span class="p">);</span>
 </pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -560,6 +573,8 @@ Derived target- and item-string:</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="trion_api_command_glossary.html" class="btn btn-neutral float-right" title="TRION API Command Glossary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="trion_api_details.html" class="btn btn-neutral float-left" title="TRION API in Depth" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -25,7 +25,6 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -137,9 +136,17 @@
 <li class="toctree-l3"><a class="reference internal" href="#id2">Buffer Readout from Application Point of View</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#directories-and-files">Directories and Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dewetron-trion">Dewetron/Trion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dewetron-trion-systemxml">Dewetron/Trion/SystemXML</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dewetron-trion-logfiles">Dewetron/Trion/LogFiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dewetron-trion-backup">Dewetron/Trion/Backup</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="trion_api_xml.html">TRION API XML Documents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_command_glossary.html">TRION API Command Glossary</a></li>
 </ul>
 
             
@@ -219,7 +226,7 @@ this fact. Each step will be explained with a few sentences.</p>
 </div>
 <div class="section" id="initializing-the-api">
 <h3>Initializing the API<a class="headerlink" href="#initializing-the-api" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>int DeweDriverInit( [out] int\* nNumOfboards );
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">DeweDriverInit</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span> <span class="n">nNumOfboards</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>Requirement: Mandatory</p>
@@ -250,7 +257,7 @@ the API usage.</p>
 <li><p>Basic hardware initialization</p></li>
 </ul>
 <p>To open all boards CMD_OPEN_BOARD_ALL can be used:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeweSetParm_i32</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">CMD_OPEN_BOARD_ALL</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">DeweSetParm_i32</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">CMD_OPEN_BOARD_ALL</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>This is faster for systems with many boards installed.</p>
@@ -269,11 +276,13 @@ to a file.</p>
 the file to disk may help in understanding the concepts.</p>
 <p>To retrieve the XML-description into a buffer for application internal
 processing:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>int DeweGetParamStruct_Str( “BoardID0”, “BoardProperties”, Buf, sizeof(Buf) );
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+<span class="kt">int</span> <span class="nf">DeweGetParamstr</span><span class="p">(</span> <span class="s">&quot;BoardID0&quot;</span><span class="p">,</span> <span class="s">&quot;BoardProperties&quot;</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="mi">1024</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>To request the XML-description as a physical file on the hard-disk:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>int DeweGetParamStruct_Str( “BoardID0”, “BoardPropertiesFile”, “C:\Properties.XML”, 1 );
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span> <span class="n">filename</span><span class="o">=</span><span class="s">&quot;C:\Properties.XML&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">DeweGetParamStruct_str</span><span class="p">(</span> <span class="s">&quot;BoardID0&quot;</span><span class="p">,</span> <span class="s">&quot;BoardPropertiesFile&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">filename</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>The location can be any arbitrary valid path. Please make sure that the
@@ -523,7 +532,7 @@ about the layout.</p>
 <h3>Scan Descriptor Structure<a class="headerlink" href="#scan-descriptor-structure" title="Permalink to this headline">¶</a></h3>
 <p>The following API string command returns the scan information for a
 specific Board:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeweGetParamStruct_Str</span><span class="p">(</span> <span class="s">&quot;BoardId0&quot;</span><span class="p">,</span> <span class="s">&quot;ScanDescriptor_V2&quot;</span><span class="p">,</span> <span class="n">Buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Buf</span><span class="p">));</span>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeweGetParamStruct_str</span><span class="p">(</span> <span class="s">&quot;BoardId0&quot;</span><span class="p">,</span> <span class="s">&quot;ScanDescriptor_V2&quot;</span><span class="p">,</span> <span class="n">Buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Buf</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>The returned XML document correlates with the following hierarchy:</p>
@@ -742,6 +751,37 @@ to a specific type of asynchronous data.</p>
 retrieve already decoded frames are available.</p>
 <p>To allow the application for more granulated control in data-handling
 also functions to retrieve undecoded frames (raw frames) are available.</p>
+</div>
+</div>
+<div class="section" id="directories-and-files">
+<h2>Directories and Files<a class="headerlink" href="#directories-and-files" title="Permalink to this headline">¶</a></h2>
+<p>Base directories:</p>
+<p>Windows:</p>
+<ul class="simple">
+<li><p>C:\Users\All Users\Documents\Dewetron\Trion</p></li>
+</ul>
+<p>Linux:</p>
+<ul class="simple">
+<li><p>/var/opt/Dewetron/Trion</p></li>
+</ul>
+<div class="section" id="dewetron-trion">
+<h3>Dewetron/Trion<a class="headerlink" href="#dewetron-trion" title="Permalink to this headline">¶</a></h3>
+<p>Contains the file dwpxi_api_config.xml that is modified by the Dewetron
+EXPLORER application and read by TRION API during DeWeDriverInit().</p>
+<p>This is the way how API simulation is configured.</p>
+</div>
+<div class="section" id="dewetron-trion-systemxml">
+<h3>Dewetron/Trion/SystemXML<a class="headerlink" href="#dewetron-trion-systemxml" title="Permalink to this headline">¶</a></h3>
+<p>Contains the BoardX_Properties.xml files for each found TRION board.
+Other files are initialization artefacts and can be ignored.</p>
+</div>
+<div class="section" id="dewetron-trion-logfiles">
+<h3>Dewetron/Trion/LogFiles<a class="headerlink" href="#dewetron-trion-logfiles" title="Permalink to this headline">¶</a></h3>
+<p>Contains API specific temporary and log files.</p>
+</div>
+<div class="section" id="dewetron-trion-backup">
+<h3>Dewetron/Trion/Backup<a class="headerlink" href="#dewetron-trion-backup" title="Permalink to this headline">¶</a></h3>
+<p>Contains EEPROM backup files for each board found.</p>
 </div>
 </div>
 </div>
