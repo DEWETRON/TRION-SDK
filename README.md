@@ -5,8 +5,8 @@ DEWETRON TRION SDK. TRION API SDK description and example sources.
 
 New DEWETRON TRION API package:
 
-* 2019-09-27 Release of TRION API R5.0.0 
-* 2019-09-27 Release of TRIONET FIRMWARE R5.0.0 
+* 2020-09-30 Release of TRION API R5.3.0 
+* 2020-09-30 Release of TRIONET FIRMWARE R5.3.0 
 
 Get those for optimal results.
 
@@ -19,6 +19,8 @@ https://ccc.dewetron.com/pl/dewe2-series
 
 TRIONET Firmware:
 https://ccc.dewetron.com/pr/trionet
+
+Or get it from this projects Releases section.
 
 # Documentation
 
