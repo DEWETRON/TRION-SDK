@@ -1,6 +1,9 @@
 # DEWETRON TRION SDK
 DEWETRON TRION SDK. TRION API SDK description and example sources. 
 
+[![Github All Releases](https://img.shields.io/github/downloads/DEWETRON/TRION-SDK/total)]()
+
+
 # NEWS
 
 New DEWETRON TRION API package:
