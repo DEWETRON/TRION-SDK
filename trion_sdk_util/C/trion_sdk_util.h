@@ -8,6 +8,12 @@
 #define TRION_SDK_UTIL_FILE
 
 
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
+
 
 /**
  * Load TRION dynamic library ar the begin of the examples
@@ -237,5 +243,14 @@ int TRION_ChanProp_GetModeNameBoardCNT(int nBoardID, int chan_index, int mode_in
 // Generic Channel Property Accessors
 int TRION_ChanProp_GetNum(int nBoardID, int chan_index, const char* ch_name, const char* mode, const char* prop);
 int TRION_ChanProp_GetEntry(int nBoardID, int chan_index, const char* ch_name, const char* mode, const char* prop, int index, char* sBuffer, int len);
+
+
+typedef void* TRION_StopWatchHandle;
+void TRION_StopWatch_Create(TRION_StopWatchHandle* sw);
+void TRION_StopWatch_Destroy(TRION_StopWatchHandle* sw);
+void TRION_StopWatch_Start(TRION_StopWatchHandle* sw);
+void TRION_StopWatch_Stop(TRION_StopWatchHandle* sw);
+uint64 TRION_StopWatch_GetUS(TRION_StopWatchHandle* sw);
+uint64 TRION_StopWatch_GetMS(TRION_StopWatchHandle* sw);
 
 #endif

@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     // Check if TRION cards are in the system
     if (nNoOfBoards == 0)
     {
-       return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.");
+       return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using DEWETRON Explorer.");
     }
 
     // Build BoardId -> Either comming from command line (arg 1) or default "0"

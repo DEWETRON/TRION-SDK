@@ -17,17 +17,10 @@
 #else
 #include <stdio.h>
 #endif
-#include <assert.h>
 
 // out-comment the undef, to get warnings reported to console
 #define REVEAL_WARNINGS
 //#undef REVEAL_WARNINGS
-
-
-#ifndef dw_min
-#define dw_min(a,b) (((a) < (b)) ? (a) : (b))
-#define dw_max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
 
 
 
@@ -39,7 +32,7 @@ int LoadTrionApi()
 {
     if (!DeWePxiLoad())
     {
-        printf("%s could not be found. Exiting...\n", DEWE_TRION_DLL_NAME);
+        printf("pxi_api.dll could not be found. Exiting...\n");
         return 1;
     }
     return 0;
@@ -78,19 +71,17 @@ BOOL CheckError(int nErrorCode)
     {
         fprintf(stderr, "Error: %s\n", DeWeErrorConstantToString(nErrorCode));
         fflush(stderr);
-        assert(0);
         return TRUE;
     }
     else
     {
-
+#ifdef REVEAL_WARNINGS
         if ( nErrorCode != 0 )
         {
             fprintf(stderr, "Error: %s\n", DeWeErrorConstantToString(nErrorCode));
             fflush(stderr);
-            assert(0);
         }
-
+#endif
         return FALSE;
     }
 }
@@ -258,7 +249,7 @@ BOOL TestBoardType( int nBoardID, const char **sBoardNameNeeded )
 
     for ( i = 0; NULL != sBoardNameNeeded[i]; ++i )
     {
-        if( strncmp(sBoardName, sBoardNameNeeded[i], dw_min(sizeof(sBoardName), strlen(sBoardNameNeeded[i]))) == 0 )
+        if( strncmp(sBoardName, sBoardNameNeeded[i], min(sizeof(sBoardName), strlen(sBoardNameNeeded[i]))) == 0 )
         {
             fprintf( stderr, "Found a %s board with BoardID %d\n", sBoardName, nBoardID);
             fflush(stderr);
@@ -521,7 +512,7 @@ double GetMaxARef( int nBoardID, const char *sBoardID, const char **sBoardNameNe
 
     for ( i = 0; NULL != sBoardNameNeeded[i]; ++i )
     {
-        if( strncmp(sBoardName, sBoardNameNeeded[i], dw_min(sizeof(sBoardName), strlen(sBoardNameNeeded[i]))) == 0 )
+        if( strncmp(sBoardName, sBoardNameNeeded[i], min(sizeof(sBoardName), strlen(sBoardNameNeeded[i]))) == 0 )
         {
             return maxArefVal[i];
         }
@@ -1017,3 +1008,88 @@ int TRION_ChanProp_GetEntry(int nBoardID, int chan_index, const char* ch_name, c
     CheckError(nErrorCode);
     return nErrorCode;
 }
+
+#ifdef WIN32
+
+#define US_PER_SECOND 1000000
+
+typedef struct 
+{
+    LARGE_INTEGER m_time_start;
+    LARGE_INTEGER m_time_freq;
+    uint64 m_last_time;
+} TRION_StopWatchHandleImp;
+
+void TRION_StopWatch_Create(TRION_StopWatchHandle* sw)
+{
+    TRION_StopWatchHandleImp* handle_imp = malloc(sizeof(TRION_StopWatchHandleImp));
+    QueryPerformanceFrequency(&handle_imp->m_time_freq);
+    *sw = handle_imp;
+}
+
+void TRION_StopWatch_Destroy(TRION_StopWatchHandle* sw)
+{
+    TRION_StopWatchHandleImp* handle_imp = (TRION_StopWatchHandleImp * )*sw;
+    free(handle_imp);
+}
+
+void TRION_StopWatch_Start(TRION_StopWatchHandle* sw)
+{
+    TRION_StopWatchHandleImp* handle_imp = (TRION_StopWatchHandleImp*)(sw);
+    QueryPerformanceCounter(&handle_imp->m_time_start);
+}
+
+void TRION_StopWatch_Stop(TRION_StopWatchHandle* sw)
+{
+    TRION_StopWatchHandleImp* handle_imp = (TRION_StopWatchHandleImp*)(sw);
+    LARGE_INTEGER time_end;
+    QueryPerformanceCounter(&time_end);
+    if (handle_imp->m_time_freq.QuadPart != 0)
+    {
+        uint64 time_diff = time_end.QuadPart - handle_imp->m_time_start.QuadPart;
+        if (handle_imp->m_time_freq.QuadPart > US_PER_SECOND)
+        {
+            time_diff = (time_diff * US_PER_SECOND) / handle_imp->m_time_freq.QuadPart;
+        }
+        handle_imp->m_last_time = time_diff;
+    }
+}
+
+uint64 TRION_StopWatch_GetUS(TRION_StopWatchHandle* sw)
+{
+    TRION_StopWatchHandleImp* handle_imp = (TRION_StopWatchHandleImp*)(sw);
+    return handle_imp->m_last_time;
+}
+
+uint64 TRION_StopWatch_GetMS(TRION_StopWatchHandle* sw)
+{
+    TRION_StopWatchHandleImp* handle_imp = (TRION_StopWatchHandleImp*)(sw);
+    return handle_imp->m_last_time / 1000;
+}
+
+#else
+void TRION_StopWatch_Create(TRION_StopWatchHandle* sw)
+{
+}
+
+void TRION_StopWatch_Destroy(TRION_StopWatchHandle* sw)
+{
+}
+void TRION_StopWatch_Start(TRION_StopWatchHandle* sw)
+{
+}
+
+void TRION_StopWatch_Stop(TRION_StopWatchHandle* sw)
+{
+}
+
+uint64 TRION_StopWatch_GetUS(TRION_StopWatchHandle* sw)
+{
+    return 0;
+}
+
+uint64 TRION_StopWatch_GetMS(TRION_StopWatchHandle* sw)
+{
+    return 0;
+}
+#endif

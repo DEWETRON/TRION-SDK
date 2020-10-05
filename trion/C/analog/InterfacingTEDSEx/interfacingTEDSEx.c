@@ -205,6 +205,12 @@ int readSingleTEDS(int nBoardId, int nChannelIndex, const char* pszOutputFile)
         ////////////////////////////
         // Get TEDS Complete Data //
         ////////////////////////////
+
+        TRION_StopWatchHandle sw;
+        TRION_StopWatch_Create(&sw);
+        TRION_StopWatch_Start(sw);
+
+        // TedsReadEx fails if there are multiple 1wire devices
         nErrorCode = DeWeGetParamStruct_str( sTarget, "TedsReadEx", TEDS_DATA, sizeof(TEDS_DATA) );
         if (CheckError(nErrorCode))
         {
@@ -212,12 +218,40 @@ int readSingleTEDS(int nBoardId, int nChannelIndex, const char* pszOutputFile)
         }
         else
         {
-            printf("ROM CODE: %s\n\n",TEDS_DATA);
+            printf("TEDS XML:\n%s\n\n",TEDS_DATA);
             if (fOut)
             {
                 fputs(TEDS_DATA, fOut);
             }
         }
+        TRION_StopWatch_Stop(sw);
+        printf("TedsReadEx      %llu ms\n", TRION_StopWatch_GetMS(sw));
+        TRION_StopWatch_Destroy(&sw);
+
+        TRION_StopWatch_Create(&sw);
+        TRION_StopWatch_Start(sw);
+
+
+        // TedsReadExChain is slower but is capable of detecting all 1wire devices on a bus
+        nErrorCode = DeWeGetParamStruct_str(sTarget, "TedsReadExChain", TEDS_DATA, sizeof(TEDS_DATA));
+        if (CheckError(nErrorCode))
+        {
+            printf("ROM CODE DATA READ FAILED!!\n\n");
+        }
+        else
+        {
+            printf("TEDS XML (Chain):\n%s\n\n", TEDS_DATA);
+            if (fOut)
+            {
+                fputs(TEDS_DATA, fOut);
+            }
+        }
+
+        TRION_StopWatch_Stop(sw);
+        printf("TedsReadExChain %llu ms\n", TRION_StopWatch_GetMS(sw));
+        TRION_StopWatch_Destroy(&sw);
+
+
         if (fOut)
         {
             fclose(fOut);

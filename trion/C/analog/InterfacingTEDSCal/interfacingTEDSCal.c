@@ -77,7 +77,9 @@ int main(int argc, char* argv[])
     if (argc == 1)
     {
         printf("Usage example: interfacingTEDSCal ch=BoardId0/AI0 teds=TRION-POWER-SUB-CUR-20A-1 serial=1234 prop=AdcMinValue:-40.2 prop=AdcMaxValue:39.98\n");
-        printf("Supported TEDS types: TRION-POWER-SUB-CUR-20A-1, TRION-POWER-SUB-CUR-2A-1, TRION-POWER-SUB-CUR-1A-1, TRION-POWER-SUB-CUR-02A-1B\n\n");
+        printf("Supported TEDS types:\n");
+        printf("    TRION-POWER-SUB-CUR-20A-1, TRION-POWER-SUB-CUR-2A-1, TRION-POWER-SUB-CUR-1A-1, TRION-POWER-SUB-CUR-02A-1B\n");
+        printf("    TRION-POWER-SUB-dLV-1V, TRION-POWER-SUB-dLV-5V, TRION-SUB-5V, TRION-SUB-600V\n\n");
         printf("WARNING: All data on the specified channel is overwritten.\n");
         return EXIT_SUCCESS;
     }
@@ -119,7 +121,7 @@ int main(int argc, char* argv[])
     if (nNoOfBoards == 0)
     {
         cleanupSettings(&settings);
-        return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.");
+        return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWETRON Explorer.");
     }
 
     if (settings.selected_board < 0 || settings.selected_board >= nNoOfBoards)
@@ -361,7 +363,7 @@ int calibrateSingleTEDS(int nBoardId, int nChannelIndex, uint32 serial, struct C
         while (parameter_list)
         {
             printf("Setting %s = %s\n", parameter_list->name, parameter_list->value);
-            snprintf(sXPath, sizeof(sXPath), "TEDSInfo/Template/Property[@Name='%s']", parameter_list->name);
+            snprintf(sXPath, sizeof(sXPath), "TEDSData/TEDSInfo/Template/Property[@Name='%s']", parameter_list->name);
             nErrorCode = DeWeSetParamXML_str(sTarget, sXPath, parameter_list->value);
             if (CheckError(nErrorCode))
             {
