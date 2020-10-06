@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TEDS Interface" href="trion_api_teds.html" />
     <link rel="prev" title="TRION API XML Documents" href="trion_api_xml.html" /> 
 </head>
 
@@ -165,8 +166,16 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-commands">Advanced Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#store-and-retrieve-board-configuration">Store and retrieve board configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#auto-persisted-configuration">Auto-Persisted configuration</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_teds.html">TEDS Interface</a></li>
 </ul>
 
             
@@ -485,7 +494,7 @@ interface-functions is the level of granularity of the commands.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -534,7 +543,7 @@ prior checking of document-change)</p></li>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -574,7 +583,7 @@ This is faster for enclosures with many boards installed.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -612,7 +621,7 @@ This is significantly faster for enclosures with many boards installed.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>ACQ_STATE_XXXX</p></td>
 <td><p>Aliased by
 CMD_ACQ_STATE.
@@ -625,7 +634,7 @@ dropped in
 upcoming versions</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -661,7 +670,7 @@ the hardware) has been executed and finished.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -689,12 +698,12 @@ the hardware) has been executed and finished.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Currently set blocksize [in samples]</p></td>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Blocksize to set [in samples]</p></td>
 <td></td>
 </tr>
@@ -724,12 +733,12 @@ details.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Currently set block-count</p></td>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Block-count to set</p></td>
 <td></td>
 </tr>
@@ -768,7 +777,7 @@ details</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -818,7 +827,7 @@ didn’t.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Pointer to the start
 of the sample ring
 buffer</p></td>
@@ -855,7 +864,7 @@ acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Pointer to the last
 address within the
 sample ring buffer</p></td>
@@ -895,7 +904,7 @@ acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Total size of the
 ring buffer in bytes</p></td>
 <td></td>
@@ -934,7 +943,7 @@ acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Number of yet unprocessed scans</p></td>
 <td></td>
 </tr>
@@ -977,7 +986,7 @@ in an error code indicating that no acquisition is running.
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Pointer to the first unprocessed scan</p></td>
 <td></td>
 </tr>
@@ -1019,7 +1028,7 @@ indicating that no acquisition is running. (ERR_DAQ_NOT_STARTED)</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Number of scans that
 shall be considered
 as consumed</p></td>
@@ -1069,7 +1078,7 @@ the used hardware.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Number of samples
 acquired since start
 of acquisition.</p></td>
@@ -1125,7 +1134,7 @@ for any conclusion regarding any sample buffer information.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -1175,7 +1184,7 @@ ERR_COMMAND_NOT_ALLOWED.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -1209,7 +1218,7 @@ the given board to reflect the latest logical seting.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -1247,7 +1256,7 @@ cases)</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -1292,7 +1301,7 @@ acquisition from being stopped, if the external-trigger returns to low.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -1332,7 +1341,7 @@ MUX-settings during a running acquisition and can be ignored otherwise.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -1415,7 +1424,7 @@ the Used – state of the channel in question has been changed.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Natural channel
 number,
 UPDATE_ALL_CHANNELS,
@@ -1458,7 +1467,7 @@ running acquisition.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Natural channel
 number,
 UPDATE_ALL_CHANNELS,
@@ -1498,7 +1507,7 @@ this command on a running acquisition.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Natural channel
 number,
 UPDATE_ALL_CHANNELS,
@@ -1542,7 +1551,7 @@ acquisition)</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Natural channel
 number,
 UPDATE_ALL_CHANNELS,
@@ -1583,7 +1592,7 @@ acquisition)</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Natural channel
 number,
 UPDATE_ALL_CHANNELS,
@@ -1619,12 +1628,12 @@ or CAN acquisition)</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Currently set polling time [ms]</p></td>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Polling time to set to [ms]</p></td>
 <td></td>
 </tr>
@@ -1664,7 +1673,7 @@ or CAN acquisition)</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Currently set async
 frame-size [in
 multiples of 32Bit
@@ -1673,7 +1682,7 @@ bit</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Frame size to set to
 [in multiples of 32Bit
 words]. Eg.: 2 means 64
@@ -1709,7 +1718,7 @@ bit</p></td>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -1738,7 +1747,7 @@ related to the various timing-modes (eg.: IRIG, GPS-SYNC, PPS-Sync).</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Current timing-state</p></td>
 <td></td>
 </tr>
@@ -1789,7 +1798,7 @@ Timing-Modes</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -1832,7 +1841,7 @@ SDK example</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Current UART-FIFO-state</p></td>
 <td></td>
 </tr>
@@ -1873,7 +1882,7 @@ SDK example</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Number of samples to wait for</p></td>
 <td></td>
 </tr>
@@ -1912,7 +1921,7 @@ with CMD_BUFFER_AVAIL_NO_SAMPLE.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Current acquisition state</p></td>
 <td></td>
 </tr>
@@ -1963,7 +1972,7 @@ stay in ACQ_STATE_IDLE.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Natural channel
 number,
 UPDATE_ALL_CHANNELS,
@@ -1996,7 +2005,7 @@ analogue reference source to reflect the latest logical values.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -2039,7 +2048,7 @@ time-elements can be issued to obtain the information.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -2068,7 +2077,7 @@ low-level-reset on the receiver of the GPS-capable TRION™-board.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Current state of the PXI-lines</p></td>
 <td></td>
 </tr>
@@ -2108,7 +2117,7 @@ PXI_LINE_STATE_LBL12.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Logical channel
 number of discreet
 state to set</p></td>
@@ -2146,7 +2155,7 @@ to a logic ‘1’ value. (= High)</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Logical channel
 number of discreet
 state to set</p></td>
@@ -2184,7 +2193,7 @@ to a logic ‘0’ value. (= Low)</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Bit-pattern to set on group</p></td>
 <td></td>
 </tr>
@@ -2225,7 +2234,7 @@ the command ID by 1. (CMD_DISCRET_GROUP32_Set +1)</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>Color to set LED to</p></td>
 <td></td>
 </tr>
@@ -2267,7 +2276,7 @@ are depending on the specific TRION™-board.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -2306,7 +2315,7 @@ IDLED_COL_OFF.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Get</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>ADC delay, with
 current settings
 applied</p></td>
@@ -2352,7 +2361,7 @@ application to re-associate samples of different channel-types.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -2388,7 +2397,7 @@ baseeeprom-xml-file, there is no need to issue this command.</p>
 <td><p>Not supported</p></td>
 </tr>
 <tr class="row-odd"><td><p>Set</p></td>
-<td><p>valid board index</p></td>
+<td><p>Valid board index</p></td>
 <td><p>N/A</p></td>
 <td></td>
 </tr>
@@ -2401,6 +2410,47 @@ coneeprom-xml-file, there is no need to issue this command.</p>
 </div>
 </div>
 </div>
+<div class="section" id="advanced-commands">
+<h2>Advanced Commands<a class="headerlink" href="#advanced-commands" title="Permalink to this headline">¶</a></h2>
+<p>This chapter provides an overview over more advanced commands. These
+commands usually deal with a very specific aspect, either directly
+related to the hardware- or driver-architecture, or very specific to
+common tasks for measurement-systems in general.</p>
+<p>Opposed to the property-string-commands, that can be deduced from the
+BoardProperties XML-file by applying the simple rules described in
+XXX, these commands are not evident by themselves.</p>
+<div class="section" id="store-and-retrieve-board-configuration">
+<h3>Store and retrieve board configuration<a class="headerlink" href="#store-and-retrieve-board-configuration" title="Permalink to this headline">¶</a></h3>
+<p>The API offers the possibility to either export the complete logical
+configuration of a board as XML-Document, or to import a XML-Document
+that represents a valid Board configuration. This logical configuration
+consists of the sub-tree “Acquisition” and the sub-tree “Channel” within
+the configuration-document.</p>
+<p>The configuration can be imported and exported either to a file in the
+file-system, or the string-buffer.</p>
+<p>The import of a configuration-file is performed ‘greedy’. So each
+setting inside the configuration-document will be tried to be applied to
+the given board. As each single setting may end in an error or warning,
+a result-XML-document containing each WARNING or ERROR-state encountered
+during this process.</p>
+<p>The over-all-worst-case result will be returned as error-codes. If the
+most severe encountered problem was a WARING, the first WARNING
+encountered will be returned, if it was an ERROR, the corresponding
+error code will be returned. The safest approach for usage would be to
+examine the result-XML-file if an error-code unequal ERR_NONE is
+returned.</p>
+<div class="section" id="auto-persisted-configuration">
+<h4>Auto-Persisted configuration<a class="headerlink" href="#auto-persisted-configuration" title="Permalink to this headline">¶</a></h4>
+<p>On each CMD_CLOSE_BOARD call, the API will auto-persist the current
+logical configuration to the SystemXML-folder. A auto-generated filename
+with the following pattern will be used:</p>
+<p>BoardX_Config.xml</p>
+<p>This auto-persisted configuration will not be re-applied automatically.
+It can be loaded manually by either specifying the path/filename or by
+issuing the “lastconfig” command.</p>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -2410,6 +2460,8 @@ coneeprom-xml-file, there is no need to issue this command.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="trion_api_teds.html" class="btn btn-neutral float-right" title="TEDS Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="trion_api_xml.html" class="btn btn-neutral float-left" title="TRION API XML Documents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

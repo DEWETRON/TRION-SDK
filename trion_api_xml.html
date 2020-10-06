@@ -113,9 +113,15 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#boardconfig-xml-file">BoardConfig XML-File</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Purpose of the File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#command-set">Command Set</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="trion_api_command_glossary.html">TRION API Command Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trion_api_teds.html">TEDS Interface</a></li>
 </ul>
 
             
@@ -219,11 +225,10 @@ maintenance purposes.</p>
 <div class="section" id="relevant-sections-of-the-file">
 <h3>Relevant Sections of the File<a class="headerlink" href="#relevant-sections-of-the-file" title="Permalink to this headline">¶</a></h3>
 <p>The top-level nodes of the XMLfile are:</p>
-<div class="figure align-center" id="id1">
+<div class="figure align-center" id="id2">
 <img alt="_images/image6.png" src="_images/image6.png" />
-<p class="caption"><span class="caption-text">BoardProperties Root Node</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">BoardProperties Root Node</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
-<p>Illustration 5 - BoardProperties Root Node</p>
 <div class="section" id="version">
 <h4>Version<a class="headerlink" href="#version" title="Permalink to this headline">¶</a></h4>
 <p>This node holds detailed information about the API and the input-source
@@ -255,8 +260,8 @@ by the application directly.</p>
 <p>This section roughly describes the acquisition capabilities of the board
 at hand. This example shows a TRION-2402-dACC-6-BNC (analogue sampling
 board with six analogue channels)</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">BoardProperties - BoardFeatures Node</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">BoardProperties - BoardFeatures Node</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
 <div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;BoardFeatures&gt;</span>
     <span class="nt">&lt;AI&gt;</span>
         <span class="nt">&lt;Channels&gt;</span>6<span class="nt">&lt;/Channels&gt;</span>
@@ -312,9 +317,9 @@ scope of this document. So its contents are not fully shown here.</p>
 <h5>AcqProp<a class="headerlink" href="#acqprop" title="Permalink to this headline">¶</a></h5>
 <p>This node holds generic setup information about the acquisition
 parameters for this board.</p>
-<div class="figure align-center" id="id3">
+<div class="figure align-center" id="id4">
 <img alt="_images/image7.png" src="_images/image7.png" />
-<p class="caption"><span class="caption-text">BoardProperties - AcqProp Node</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">BoardProperties - AcqProp Node</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
 <p>Illustration 7 - BoardProperties - AcqProp Node</p>
 <p>The most interesting sub-elements within here probably are:</p>
@@ -326,9 +331,9 @@ parameters for this board.</p>
 </div>
 <div class="section" id="samplerate">
 <h5>SampleRate<a class="headerlink" href="#samplerate" title="Permalink to this headline">¶</a></h5>
-<div class="figure align-center" id="id4">
+<div class="figure align-center" id="id5">
 <img alt="_images/image8.png" src="_images/image8.png" />
-<p class="caption"><span class="caption-text">BoardProperties - SampleRate Node</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">BoardProperties - SampleRate Node</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
 </div>
 <p>This allows the application to know the upper and lower limits of the
 available sample-rates. In this case the range goes from 100
@@ -336,8 +341,8 @@ Samples/second up to 200 kSamples/second, 204800 Hz to be exact.</p>
 </div>
 <div class="section" id="operationmode">
 <h5>OperationMode<a class="headerlink" href="#operationmode" title="Permalink to this headline">¶</a></h5>
-<div class="literal-block-wrapper docutils container" id="id5">
-<div class="code-block-caption"><span class="caption-text">BoardProperties - OperationMode Node</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">BoardProperties - OperationMode Node</span><a class="headerlink" href="#id6" title="Permalink to this code">¶</a></div>
 <div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;OperationMode</span> <span class="na">Count =</span> <span class="s">&quot;2&quot;</span> <span class="na">Default =</span> <span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;ID0&gt;</span>Slave<span class="nt">&lt;/ID0&gt;</span>
     <span class="nt">&lt;ID1&gt;</span>Master<span class="nt">&lt;/ID1&gt;</span>
@@ -353,8 +358,8 @@ that is suited to make the board fulfill its desired role.</p>
 </div>
 <div class="section" id="resolutionai">
 <h5>ResolutionAI<a class="headerlink" href="#resolutionai" title="Permalink to this headline">¶</a></h5>
-<div class="literal-block-wrapper docutils container" id="id6">
-<div class="code-block-caption"><span class="caption-text">BoardProperties - ResolutionAI Node</span><a class="headerlink" href="#id6" title="Permalink to this code">¶</a></div>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">BoardProperties - ResolutionAI Node</span><a class="headerlink" href="#id7" title="Permalink to this code">¶</a></div>
 <div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;ResolutionAI</span> <span class="na">Count =</span> <span class="s">&quot;2&quot;</span> <span class="na">Default =</span> <span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;ID0&gt;</span>24<span class="nt">&lt;/ID0&gt;</span>
     <span class="nt">&lt;ID1&gt;</span>16<span class="nt">&lt;/ID1&gt;</span>
@@ -370,9 +375,9 @@ ADC-resolution.</p>
 <h4>ChannelProperties<a class="headerlink" href="#channelproperties" title="Permalink to this headline">¶</a></h4>
 <p>This node gives exhaustive information about all available acquisition
 channels and all their settable properties.</p>
-<div class="figure align-center" id="id7">
+<div class="figure align-center" id="id8">
 <img alt="_images/image9.png" src="_images/image9.png" />
-<p class="caption"><span class="caption-text">BoardProperties - ChannelProperties Node</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">BoardProperties - ChannelProperties Node</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </div>
 <p>In this case, the XML-File shows that:</p>
 <ul class="simple">
@@ -383,9 +388,9 @@ channels and all their settable properties.</p>
 <p>The basic layout for all the channel-types is always the same and allows
 for easy initial navigation within the node.</p>
 <p>The analogue channel 0 is used as example to explain this in more depth.</p>
-<div class="figure align-center" id="id8">
+<div class="figure align-center" id="id9">
 <img alt="_images/image10.png" src="_images/image10.png" />
-<p class="caption"><span class="caption-text">BoardProperties - AI0 Channel Node</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">BoardProperties - AI0 Channel Node</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </div>
 <p>The first layer always holds:</p>
 <ul class="simple">
@@ -413,15 +418,15 @@ mentioned in this mode but also support a “gated event counting” - that
 will take two distinct input-signals - and therefore has two separate
 sources settable.</p>
 <p>Taking the Voltage mode as an example:</p>
-<div class="figure align-center" id="id9">
+<div class="figure align-center" id="id10">
 <img alt="_images/image11.png" src="_images/image11.png" />
-<p class="caption"><span class="caption-text">BoardProperties - Voltage Mode</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">BoardProperties - Voltage Mode</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </div>
 <p>This is the exhaustive list of supported properties for an analogue
 channel in voltage mode.</p>
 <p>The most obvious property here is Range:</p>
-<div class="literal-block-wrapper docutils container" id="id10">
-<div class="code-block-caption"><span class="caption-text">BoardProperties - Range Node</span><a class="headerlink" href="#id10" title="Permalink to this code">¶</a></div>
+<div class="literal-block-wrapper docutils container" id="id11">
+<div class="code-block-caption"><span class="caption-text">BoardProperties - Range Node</span><a class="headerlink" href="#id11" title="Permalink to this code">¶</a></div>
 <div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Range</span>
     <span class="na">Unit =</span> <span class="s">&quot;V&quot;</span>
     <span class="na">Count =</span> <span class="s">&quot;7&quot;</span>
@@ -562,6 +567,189 @@ Derived target- and item-string:</p>
 </div>
 </div>
 </div>
+</div>
+</div>
+<div class="section" id="boardconfig-xml-file">
+<h2>BoardConfig XML-File<a class="headerlink" href="#boardconfig-xml-file" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Purpose of the File<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The detailed layout of the configuration-file is boar specific. It can
+be derived from the content of the BoardProperties XML-File.</p>
+<p>The file has three major sections:</p>
+<p>&lt;BoardInfo&gt;</p>
+<p>This section holds basic information about the board from which this
+configuration was generated from. This includes the BaseModel-Number and
+the human readable BoardName (BoardType, eg. TRION-BASE).</p>
+<p>&lt;Acquisition&gt;</p>
+<p>This is the counterpart to the Node &lt;AcquisitionProperties&gt; in the
+BoardProperties-XML-Document.</p>
+<p>Each property from the BoardProperties-XML-Document, that is not marked
+with the attribute “Config = ‘False’” is also present in the
+&lt;Acquisition&gt; Node in the configuration document.</p>
+<p>This includes some obvious information like for example the “SampleRate”
+as well, as for example detailed routing information for the
+PXI-trigger-lines or the Star-Hub.</p>
+<p>&lt;Channel&gt;</p>
+<p>This is the counterpart to the Node
+&lt;ChannelProperties&gt; in the BoardProperties-XML-document.</p>
+<p>Each single channel is present within this node, with each of the
+settable properties, that is not marked with the attribute “Config =
+‘False’” inside the BoardProperties-XML-document.</p>
+<div class="figure align-center" id="id12">
+<img alt="_images/image12.png" src="_images/image12.png" />
+<p class="caption"><span class="caption-text">Configuration-XML major sections</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="id13">
+<img alt="_images/image13.png" src="_images/image13.png" />
+<p class="caption"><span class="caption-text">Configuration XML Section: Acquisition</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
+</div>
+<div class="figure align-center" id="id14">
+<img alt="_images/image14.png" src="_images/image14.png" />
+<p class="caption"><span class="caption-text">Configuration XML Section: Channel</span><a class="headerlink" href="#id14" title="Permalink to this image">¶</a></p>
+</div>
+<p>The result xml-document has the same layout, as the configuration
+xml-document.</p>
+<p>It’s main purpose is to provide a fine granulated feedback about any
+set-configuration command. When loading (setting) a configuration, each
+property is applies one after the other. Every single setting-command
+(this means every set single property) ends up in a defined result
+state. Ideally the operation succeeds with ERR_NONE. However - as any
+arbitrary configuration can be presented to any board, this isnot
+guaranteed at all.</p>
+<p>To make diagnostics easier, this result-file offers the possibility to
+see the exact result of each single property.</p>
+<p>Depending on the API-configuration itself, either all results are
+returned, or only results &lt;&gt; ERR_NONE.</p>
+<p>The following figure shows an example for a result-file, when trying to
+apply a 8-AI-Channel-board configuration to a board, that only supports
+6 AI-channels.</p>
+<p>All settings are applied ok, except for the non-existing channels AI6
+and AI7.</p>
+<div class="literal-block-wrapper docutils container" id="id15">
+<div class="code-block-caption"><span class="caption-text">Configuration load result XML example</span><a class="headerlink" href="#id15" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;Results&gt;</span>
+    <span class="nt">&lt;Acquisition&gt;</span>
+        <span class="nt">&lt;AcqProp&gt;</span>
+            <span class="nt">&lt;StartCondition&gt;</span>Warning -190910, WARNING_STARTCONDITION_NOT_USED (-190910)<span class="nt">&lt;/StartCondition&gt;</span>
+        <span class="nt">&lt;/AcqProp&gt;</span>
+    <span class="nt">&lt;/Acquisition&gt;</span>
+    <span class="nt">&lt;Channel&gt;</span>
+        <span class="nt">&lt;AI6&gt;</span>
+            <span class="nt">&lt;Mode&gt;</span>Error 120012, ERROR_AI_CHANNEL_NOT_VALID (120012)<span class="nt">&lt;/Mode&gt;</span>
+        <span class="nt">&lt;/AI6&gt;</span>
+        <span class="nt">&lt;AI7&gt;</span>
+            <span class="nt">&lt;Mode&gt;</span>Error 120012, ERROR_AI_CHANNEL_NOT_VALID (120012)<span class="nt">&lt;/Mode&gt;</span>
+        <span class="nt">&lt;/AI7&gt;</span>
+    <span class="nt">&lt;/Channel&gt;</span>
+<span class="nt">&lt;/Results&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="command-set">
+<h3>Command Set<a class="headerlink" href="#command-set" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Related Command</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>DeWeGetParamStruct_Str</p></td>
+<td><p>Export the configuration-XML-document, or
+retrieve the result-XML-document</p></td>
+</tr>
+<tr class="row-odd"><td><p>DeWeSetParamStruct_str</p></td>
+<td><p>Import the configuration-XML-document</p></td>
+</tr>
+</tbody>
+</table>
+<p>..- ScanDescriptor
+..
+..    - Attributes: None
+..    - Note: An empty element. Always “ScanDescriptor”.
+..    - Value: None
+..
+..- BoardID
+..
+..    - Attributes: None
+..    - Note: An empty element, same as the api cll target. Eg “BoardID0”.
+..    - Value: None
+..
+..- ScanDescription
+..
+..    - Attributes: None
+..    - Note: Describes the scan for the requested board.
+..    - Value:
+..
+..        - version:
+..
+..            - Value: “1” or “2”
+..            - Note: Scan descriptor’s document version. For this API version always “2” when requested with “ScanDescriptor_V2”. Requesting “ScanDescriptor” will return version “1”.
+..
+..        - scan_size:
+..
+..            - Value: integer
+..            - Note: The size of the scan expressed in the unit, described via the attribute “unit”.
+..
+..        - byte_order:
+..
+..            - Value: little_endian
+..            - Note: Describes the byte order of the scan. Only little endian is supported with this API version.
+..
+..        - unit:
+..
+..            - Value: bit
+..            - Note: Describes the unit of “scan_size” attribute for the children attributes “offset” and “size”. Always “bit” for this API version.
+..
+..- Channel
+..
+..    - Attributes: None
+..    - Note:
+..    - Value:
+..
+..        - index:
+..
+..            - Value: integer
+..            - Note: The channel index on the specific board.
+..
+..        - name:
+..
+..            - Value: string
+..            - Note: e.g. name=”AI1”. The composite string “BoardID1/AI1” can be used as target for further API calls.
+..              For further details regarding the API targets please refer to the dedicated chapter.
+..
+..        - type:
+..
+..            - Value: string “Analog”, “Counter”, “Discrete”, “BoardCounter”
+..
+..        - Note: Discrete channels describe digital channels.
+..
+..    - Sample
+..
+..        - Attributes: None
+..        - Note: Describes an available sample of a specific channel.
+..        - Value:
+..
+..            - offset:
+..
+..                - Value: integer
+..                - Note: The sample offset within the whole scan. The unit is according the attribute “unit” of the “ScanDescription” element.
+..
+..            - size:
+..
+..                - Value: integer
+..                - Note: The sample size. The unit is according the attribute “unit” of the “ScanDescription” element.
+..
+..            - subChannel:
+..
+..                - Value: string “Counter/Sub”, “BoardCounter/Sub”
+..                - Note: Optional attribute. Only returned if a subchannel is enabled e.g. “BoardCounter/Sub”</p>
 </div>
 </div>
 </div>
