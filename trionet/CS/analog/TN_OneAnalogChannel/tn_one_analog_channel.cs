@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-//using trion_api = Trion;
-//using trion_api = Trion_x64;
-//using trion_api = TrionNET;
-//using trion_api = TrionNET_x64;
 using trion_api = Trion;
 
 
@@ -44,10 +40,20 @@ namespace Examples
         {
             Int32 nNoOfBoards = 0;
 
-            trion_api.API.DeWeConfigure(trion_api.API.Backend.TRIONET);
+            bool trionet_support = true;
 
-            // get access to TRIONET devices
-            configureNetwork();
+            // Select Backend.TRIONET or Backend.TRION
+            if (trionet_support)
+            {
+                trion_api.API.DeWeConfigure(trion_api.API.Backend.TRIONET);
+                // configure net to access TRIONET devices
+                configureNetwork();
+            }
+            else
+            {
+                trion_api.API.DeWeConfigure(trion_api.API.Backend.TRION);
+            }
+
 
             Trion.TrionError nErrorCode = trion_api.API.DeWeDriverInit(out nNoOfBoards);
             System.Console.WriteLine(nNoOfBoards.ToString() + " boards found. err = " + nErrorCode.ToString());

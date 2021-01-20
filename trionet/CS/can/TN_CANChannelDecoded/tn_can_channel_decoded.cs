@@ -41,8 +41,19 @@ namespace Examples
         {
             Int32 nNoOfBoards = 0;
 
-            // select TRIONET backend
-            trion_api.API.DeWeConfigure(trion_api.API.Backend.TRIONET);
+            bool trionet_support = true;
+
+            // Select Backend.TRIONET or Backend.TRION
+            if (trionet_support)
+            {
+                trion_api.API.DeWeConfigure(trion_api.API.Backend.TRIONET);
+                // configure net to access TRIONET devices
+                configureNetwork();
+            }
+            else
+            {
+                trion_api.API.DeWeConfigure(trion_api.API.Backend.TRION);
+            }
 
             // get access to TRIONET devices
             configureNetwork();
