@@ -57,7 +57,7 @@ CMD_ASYNC_POLLING_TIME            = 0x001C  # Set
 CMD_ASYNC_FRAME_SIZE              = 0x001D  # Set
 
 CMD_GET_UART_STATUS               = 0x0030  # Get
-CMD_ACQ_STATE                     = CMD_START_ACQUISITION	# Get
+CMD_ACQ_STATE                     = 0x0032	# Get
 
 CMD_PXI_LINE_STATE                = 0x0040    #  Get
 
