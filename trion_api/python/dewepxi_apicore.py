@@ -1,21 +1,22 @@
-# Copyright DEWETRON GmbH 2013
-#
-# dewepxi_api_core module
-#
+"""
+Copyright DEWETRON GmbH 2013
+
+dewepxi_api_core module
+"""
 
 
 from dewepxi_const import *
 from dewepxi_types import *
 from ctypes import *
 
-#
+
 # Functors
-f_dewe_driver_init    = None
-f_dewe_driver_deinit  = None
-f_dewe_set_param_i32  = None
-f_dewe_get_param_i32  = None
-f_dewe_set_param_i64  = None
-f_dewe_get_param_i64  = None
+f_dewe_driver_init = None
+f_dewe_driver_deinit = None
+f_dewe_set_param_i32 = None
+f_dewe_get_param_i32 = None
+f_dewe_set_param_i64 = None
+f_dewe_get_param_i64 = None
 f_dewe_set_param_struct_str = None
 f_dewe_get_param_struct_str = None
 f_dewe_get_param_struct_strlen = None
@@ -46,621 +47,595 @@ f_dewe_read_dma_uart = None
 f_dewe_read_dma_uart_raw_frame = None
 f_dewe_write_dma_uart = None
 
-f_dewe_error_ant_to_string = None
-
+f_dewe_error_constant_to_string = None
 
 __MAX_STRING_BUF = 256
 
-#
+
 # Setup functors
 def SetDeWeDriverInit(func):
-    """
-    """
+    """Set dewe driver init"""
     global f_dewe_driver_init
     f_dewe_driver_init = func
 
+
 def SetDeWeDriverDeInit(func):
-    """
-    """
+    """Set dewe driver de-init"""
     global f_dewe_driver_deinit
     f_dewe_driver_deinit = func
 
+
 def SetDeWeSetParam_i32(func):
-    """
-    """
+    """Set dewe set param i32"""
     global f_dewe_set_param_i32
     f_dewe_set_param_i32 = func
 
+
 def SetDeWeGetParam_i32(func):
-    """
-    """
+    """Set dewe get param i32"""
     global f_dewe_get_param_i32
     f_dewe_get_param_i32 = func
 
+
 def SetDeWeSetParam_i64(func):
-    """
-    """
+    """Set dewe set param i64"""
     global f_dewe_set_param_i64
     f_dewe_set_param_i64 = func
 
+
 def SetDeWeGetParam_i64(func):
-    """
-    """
+    """Set dewe get param i64"""
     global f_dewe_get_param_i64
     f_dewe_get_param_i64 = func
 
+
 def SetDeWeSetParamStruct_str(func):
-    """
-    """
+    """Set dewe set param struct str"""
     global f_dewe_set_param_struct_str
     f_dewe_set_param_struct_str = func
 
+
 def SetDeWeGetParamStruct_str(func):
-    """
-    """
+    """Set dewe get param struct str"""
     global f_dewe_get_param_struct_str
     f_dewe_get_param_struct_str = func
 
+
 def SetDeWeGetParamStruct_strLEN(func):
-    """
-    """
+    """Set dewe get param struct str len"""
     global f_dewe_get_param_struct_strlen
     f_dewe_get_param_struct_strlen = func
 
+
 def SetDeWeSetParamXML_str(func):
-    """
-    """
+    """Set dewe set param XML str"""
     global f_dewe_set_param_xml_str
     f_dewe_set_param_xml_str = func
 
+
 def SetDeWeGetParamXML_str(func):
-    """
-    """
+    """Set dewe get param XML str"""
     global f_dewe_get_param_xml_str
     f_dewe_get_param_xml_str = func
 
+
 def SetDeWeGetParamXML_strLEN(func):
-    """
-    """
+    """Set dewe get param XML str len"""
     global f_dewe_get_param_xml_strlen
     f_dewe_get_param_xml_strlen = func
 
+
 def SetDeWeOpenCAN(func):
-    """
-    """
+    """Set dewe open CAN"""
     global f_dewe_open_can
     f_dewe_open_can = func
 
+
 def SetDeWeCloseCAN(func):
-    """
-    """
+    """Set dewe close CAN"""
     global f_dewe_close_can
     f_dewe_close_can = func
 
+
 def SetDeWeGetChannelPropCAN(func):
-    """
-    """
+    """Set dewe get channel prop CAN"""
     global f_dewe_get_channel_prop_can
     f_dewe_get_channel_prop_can = func
 
+
 def SetDeWeSetChannelPropCAN(func):
-    """
-    """
+    """Set dewe set channel prop CAN"""
     global f_dewe_set_channel_prop_can
     f_dewe_set_channel_prop_can = func
 
+
 def SetDeWeStartCAN(func):
-    """
-    """
+    """Set dewe start CAN"""
     global f_dewe_start_can
     f_dewe_start_can = func
 
+
 def SetDeWeStopCAN(func):
-    """
-    """
+    """Set dewe stop CAN"""
     global f_dewe_stop_can
     f_dewe_stop_can = func
 
+
 def SetDeWeReadCAN(func):
-    """
-    """
+    """Set dewe read CAN"""
     global f_dewe_read_can
     f_dewe_read_can = func
 
+
 def SetDeWeReadCANRawFrame(func):
-    """
-    """
+    """Set dewe read CAN raw frame"""
     global f_dewe_read_can_raw_frame
     f_dewe_read_can_raw_frame = func
 
+
 def SetDeWeFreeFramesCAN(func):
-    """
-    """
+    """Set dewe free frames CAN"""
     global f_dewe_free_can_frames
     f_dewe_free_can_frames = func
 
 
 def SetDeWeWriteCAN(func):
-    """
-    """
+    """Set dewe write CAN"""
     global f_dewe_write_can
     f_dewe_write_can = func
 
+
 def SetDeWeErrorCntCAN(func):
-    """
-    """
+    """Set dewe error cnt CAN"""
     global f_dewe_error_cnt_can
     f_dewe_error_cnt_can = func
 
+
 def SetDeWeOpenDmaUart(func):
-    """
-    """
+    """Set dewe Open dma uart"""
     global f_dewe_open_dma_uart
     f_dewe_open_dma_uart = func
 
+
 def SetDeWeCloseDmaUart(func):
-    """
-    """
+    """Set dewe close dma uart"""
     global f_dewe_close_dma_uart
     f_dewe_close_dma_uart = func
 
+
 def SetDeWeGetChannelPropDmaUart(func):
-    """
-    """
+    """Set dewe get channel prop dma uart"""
     global f_dewe_get_channel_prop_dma_uart
     f_dewe_get_channel_prop_dma_uart = func
 
+
 def SetDeWeSetChannelPropDmaUart(func):
-    """
-    """
+    """Set dewe set channel prop dma uart"""
     global f_dewe_set_channel_prop_dma_uart
     f_dewe_set_channel_prop_dma_uart = func
 
+
 def SetDeWeStartDmaUart(func):
-    """
-    """
+    """Set dewe start dma uart"""
     global f_dewe_start_dma_uart
     f_dewe_start_dma_uart = func
 
+
 def SetDeWeStopDmaUart(func):
-    """
-    """
+    """Set dewe stop dma uart"""
     global f_dewe_stop_dma_uart
     f_dewe_stop_dma_uart = func
 
+
 def SetDeWeReadDmaUart(func):
-    """
-    """
+    """Set dewe read dma uart"""
     global f_dewe_read_dma_uart
     f_dewe_read_dma_uart = func
 
+
 def SetDeWeReadDmaUartRawFrame(func):
-    """
-    """
+    """Set dewe read dma uart raw frame"""
     global f_dewe_read_dma_uart_raw_frame
     f_dewe_read_dma_uart_raw_frame = func
 
+
 def SetDeWeWriteDmaUart(func):
-    """
-    """
+    """Set dewe write dma uart"""
     global f_dewe_write_dma_uart
     f_dewe_write_dma_uart = func
 
+
 def SetDeWeErrorConstantToString(func):
-    """
-    """
+    """Set dewe error constant to string"""
     global f_dewe_error_constant_to_string
     f_dewe_error_constant_to_string = func
 
 
-#
 # Exported API functions
 def DeWeDriverInit():
-    """
-    DeWe Trion API Initialization
-    """
-    if f_dewe_driver_init != None:
-        nNoOfBoards = c_int()
-        ErrorCode = f_dewe_driver_init(byref(nNoOfBoards))
-        return [ErrorCode, nNoOfBoards.value]
+    """DeWe Trion API Initialization"""
+    if f_dewe_driver_init is not None:
+        no_of_boards = c_int()
+        error_code = f_dewe_driver_init(byref(no_of_boards))
+        return [error_code, no_of_boards.value]
     else:
         return [-1, 0]
 
+
 def DeWeDriverDeInit():
-    """
-    DeWe Trion API DeInitialization
-    """
-    if f_dewe_driver_deinit != None:
-        ErrorCode = f_dewe_driver_deinit()
-        return ErrorCode
+    """DeWe Trion API DeInitialization"""
+    if f_dewe_driver_deinit is not None:
+        return f_dewe_driver_deinit()
     else:
         return -1
 
 
 def DeWeSetParam_i32(nBoardNo, nCommandId, nVal):
-    """
-    """
-    if f_dewe_set_param_i32 != None:
-        board_id   = c_int(nBoardNo)
+    """Dewe set param i32"""
+    if f_dewe_set_param_i32 is not None:
+        board_id = c_int(nBoardNo)
         command_id = c_uint(nCommandId)
-        val        = c_int(nVal)
+        val = c_int(nVal)
 
-        #print(nBoardNo, nCommandId, nVal)
-        #print(board_id, command_id, val)
-        ErrorCode = f_dewe_set_param_i32(board_id, command_id, val)
-        return ErrorCode
+        return f_dewe_set_param_i32(board_id, command_id, val)
     else:
         return -1
 
 
 def DeWeGetParam_i32(nBoardNo, nCommandId):
-    """
-    """
-    if f_dewe_set_param_i32 != None:
-        board_id   = c_int(nBoardNo)
+    """Dewe get param i32"""
+    if f_dewe_set_param_i32 is not None:
+        board_id = c_int(nBoardNo)
         command_id = c_uint(nCommandId)
-        val        = c_int()
-        ErrorCode = f_dewe_get_param_i32(board_id, command_id, byref(val))
-        return [ErrorCode, val.value]
+        val = c_int()
+        error_code = f_dewe_get_param_i32(board_id, command_id, byref(val))
+        return [error_code, val.value]
     else:
         return [-2, 0]
 
 
 def DeWeSetParam_i64(nBoardNo, nCommandId, nVal):
-    """
-    """
-    if f_dewe_set_param_i64 != None:
-        board_id   = c_int(nBoardNo)
+    """Dewe set param i64"""
+    if f_dewe_set_param_i64 is not None:
+        board_id = c_int(nBoardNo)
         command_id = c_uint(nCommandId)
-        val        = c_longlong(nVal)
+        val = c_longlong(nVal)
 
-        #print(nBoardNo, nCommandId, nVal)
-        #print(board_id, command_id, val)
-        ErrorCode = f_dewe_set_param_i64(board_id, command_id, val)
-        return ErrorCode
+        return f_dewe_set_param_i64(board_id, command_id, val)
     else:
         return -1
 
 
 def DeWeGetParam_i64(nBoardNo, nCommandId):
-    """
-    """
-    if f_dewe_set_param_i64 != None:
-        board_id   = c_int(nBoardNo)
+    """Dewe get param i64"""
+    if f_dewe_set_param_i64 is not None:
+        board_id = c_int(nBoardNo)
         command_id = c_uint(nCommandId)
-        val        = c_longlong()
-        ErrorCode = f_dewe_get_param_i64(board_id, command_id, byref(val))
-        return [ErrorCode, val.value]
+        val = c_longlong()
+        error_code = f_dewe_get_param_i64(board_id, command_id, byref(val))
+        return [error_code, val.value]
     else:
         return [-3, 0]
 
 
 def DeWeSetParamStruct_str(Target, Command, Var):
-    """
-    """
-    if f_dewe_set_param_struct_str != None:
-        ErrorCode = f_dewe_set_param_struct_str(c_char_p(Target.encode('utf-8')), c_char_p(Command.encode('utf-8')), c_char_p(Var.encode('utf-8')))
-        return ErrorCode
+    """Dewe set param struct str"""
+    if f_dewe_set_param_struct_str is not None:
+        return f_dewe_set_param_struct_str(
+            c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), c_char_p(Var.encode("utf-8"))
+        )
     else:
         return -1
 
-def DeWeGetParamStruct_str(Target, Command):
-    """
-    """
-    if f_dewe_get_param_struct_str != None:
-        s = create_string_buffer(__MAX_STRING_BUF)
-        ErrorCode = f_dewe_get_param_struct_str(c_char_p(Target.encode('utf-8')), c_char_p(Command.encode('utf-8')), s, c_int(__MAX_STRING_BUF))
 
-        if ErrorCode == 230001:
-            [ErrorCode, result_len] = DeWeGetParamStruct_strLEN(Target, Command)
-            s = create_string_buffer(result_len+2)
-            ErrorCode = f_dewe_get_param_struct_str(c_char_p(Target.encode('utf-8')), c_char_p(Command.encode('utf-8')), s, c_int(result_len+1))
-        return [ErrorCode, bytes.decode(s.value, 'utf-8')]
+def DeWeGetParamStruct_str(Target, Command):
+    """Dewe get param struct str"""
+    if f_dewe_get_param_struct_str is not None:
+        s = create_string_buffer(__MAX_STRING_BUF)
+        error_code = f_dewe_get_param_struct_str(
+            c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), s, c_int(__MAX_STRING_BUF)
+        )
+
+        if error_code == 230001:
+            [error_code, result_len] = DeWeGetParamStruct_strLEN(Target, Command)
+            s = create_string_buffer(result_len + 2)
+            error_code = f_dewe_get_param_struct_str(
+                c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), s, c_int(result_len + 1)
+            )
+        return [error_code, bytes.decode(s.value, "utf-8")]
     else:
         return [-1, ""]
 
+
 def DeWeGetParamStruct_strLEN(Target, Command):
-    """
-    """
-    if f_dewe_get_param_struct_strlen != None:
-        Len = c_int()
-        ErrorCode = f_dewe_get_param_struct_strlen(c_char_p(Target.encode('utf-8')), c_char_p(Command.encode('utf-8')), byref(Len))
-        return [ErrorCode, Len.value]
+    """Dewe get param struct str len"""
+    if f_dewe_get_param_struct_strlen is not None:
+        val = c_int()
+        error_code = f_dewe_get_param_struct_strlen(
+            c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), byref(val)
+        )
+        return [error_code, val.value]
     else:
         return [-1, 0]
 
 
 def DeWeSetParamXML_str(Target, Command, Var):
-    """
-    """
-    if f_dewe_set_param_xml_str != None:
-        ErrorCode = f_dewe_set_param_xml_str(c_char_p(Target.encode('utf-8')), c_char_p(Command.encode('utf-8')), c_char_p(Var.encode('utf-8')))
-        return ErrorCode
+    """Dewe set param XML str"""
+    if f_dewe_set_param_xml_str is not None:
+        return f_dewe_set_param_xml_str(c_char_p(
+            Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), c_char_p(Var.encode("utf-8"))
+        )
     else:
         return -1
 
-def DeWeGetParamXML_str(Target, Command):
-    """
-    """
-    if f_dewe_get_param_xml_str != None:
-        s = create_string_buffer(__MAX_STRING_BUF)
-        ErrorCode = f_dewe_get_param_xml_str(c_char_p(Target.encode('utf-8')), c_char_p(Command.encode('utf-8')), s, c_int(__MAX_STRING_BUF))
 
-        if ErrorCode == 230001:
-            [ErrorCode, result_len] = DeWeGetParamXML_strLEN(Target, Command)
-            s = create_string_buffer(result_len+2)
-            ErrorCode = f_dewe_get_param_xml_str(c_char_p(Target.encode('utf-8')), c_char_p(Command.encode('utf-8')), s, c_int(result_len+1))
-        return [ErrorCode, bytes.decode(s.value, 'utf-8')]
+def DeWeGetParamXML_str(Target, Command):
+    """Dewe get param XML str"""
+    if f_dewe_get_param_xml_str is not None:
+        s = create_string_buffer(__MAX_STRING_BUF)
+        error_code = f_dewe_get_param_xml_str(c_char_p(
+            Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), s, c_int(__MAX_STRING_BUF)
+        )
+
+        if error_code == 230001:
+            [error_code, result_len] = DeWeGetParamXML_strLEN(Target, Command)
+            s = create_string_buffer(result_len + 2)
+            error_code = f_dewe_get_param_xml_str(c_char_p(
+                Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), s, c_int(result_len + 1)
+            )
+        return [error_code, bytes.decode(s.value, "utf-8")]
     else:
         return [-1, ""]
 
+
 def DeWeGetParamXML_strLEN(Target, Command):
-    """
-    """
-    if f_dewe_get_param_xml_strlen != None:
-        Len = c_int()
-        ErrorCode = f_dewe_get_param_xml_strlen(c_char_p(Target.encode('utf-8')), c_char_p(Command.encode('utf-8')), byref(Len))
-        return [ErrorCode, Len.value]
+    """Dewe get param XML str len"""
+    if f_dewe_get_param_xml_strlen is not None:
+        val = c_int()
+        error_code = f_dewe_get_param_xml_strlen(
+            c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), byref(val)
+        )
+        return [error_code, val.value]
     else:
         return [-1, 0]
 
 
-#
 # CAN API
-
 def DeWeOpenCAN(nBoardNo):
-    """
-    """
-    if f_dewe_open_can != None:
-        ErrorCode = f_dewe_open_can(c_int(nBoardNo))
-        return ErrorCode
+    """Dewe open CAN"""
+    if f_dewe_open_can is not None:
+        return f_dewe_open_can(c_int(nBoardNo))
     else:
         return -1
+
 
 def DeWeCloseCAN(nBoardNo):
-    """
-    """
-    if f_dewe_close_can != None:
-        ErrorCode = f_dewe_close_can(c_int(nBoardNo))
-        return ErrorCode
+    """Dewe close CAN"""
+    if f_dewe_close_can is not None:
+        return f_dewe_close_can(c_int(nBoardNo))
     else:
         return -1
 
+
 def DeWeGetChannelPropCAN(nBoardNo, nChannelNo):
-    """
-    """
-    if f_dewe_get_channel_prop_can != None:
-        cProp = BOARD_CAN_CHANNEL_PROP()
-        ErrorCode = f_dewe_get_channel_prop_can(c_int(nBoardNo), c_int(nChannelNo), byref(cProp))
-        return [ErrorCode, cProp]
+    """Dewe get channel prop CAN"""
+    if f_dewe_get_channel_prop_can is not None:
+        c_prop = BOARD_CAN_CHANNEL_PROP()
+        error_code = f_dewe_get_channel_prop_can(c_int(nBoardNo), c_int(nChannelNo), byref(c_prop))
+        return [error_code, c_prop]
     else:
         return [-1, BOARD_CAN_CHANNEL_PROP()]
 
+
 def DeWeSetChannelPropCAN(nBoardNo, nChannelNo, cProp):
-    """
-    """
-    if f_dewe_set_channel_prop_can != None:
-        ErrorCode = f_dewe_set_channel_prop_can(c_int(nBoardNo), c_int(nChannelNo), cProp)
-        return ErrorCode
+    """Dewe set channel prop CAN"""
+    if f_dewe_set_channel_prop_can is not None:
+        return f_dewe_set_channel_prop_can(c_int(nBoardNo), c_int(nChannelNo), cProp)
     else:
         return -1
+
 
 def DeWeStartCAN(nBoardNo, nChannelNo):
-    """
-    """
-    if f_dewe_start_can != None:
-        ErrorCode = f_dewe_start_can(c_int(nBoardNo), c_int(nChannelNo))
-        return ErrorCode
+    """Dewe start CAN"""
+    if f_dewe_start_can is not None:
+        return f_dewe_start_can(c_int(nBoardNo), c_int(nChannelNo))
     else:
         return -1
+
 
 def DeWeStopCAN(nBoardNo, nChannelNo):
-    """
-    """
-    if f_dewe_stop_can != None:
-        ErrorCode = f_dewe_stop_can(c_int(nBoardNo), c_int(nChannelNo))
-        return ErrorCode
+    """Dewe stop CAN"""
+    if f_dewe_stop_can is not None:
+        return f_dewe_stop_can(c_int(nBoardNo), c_int(nChannelNo))
     else:
         return -1
 
+
 def DeWeReadCAN(nBoardNo, nMaxFrameCount):
-    """
-    """
-    if f_dewe_read_can != None:
-        CanFrameArrayType = BOARD_CAN_FRAME * nMaxFrameCount
-        pCanFrames = CanFrameArrayType()
-        nRealFrameCount = c_int()
-        ErrorCode = f_dewe_read_can(c_int(nBoardNo), byref(pCanFrames), c_int(nMaxFrameCount), byref(nRealFrameCount))
-        return [ErrorCode, pCanFrames, nRealFrameCount.value]
+    """Dewe read CAN"""
+    if f_dewe_read_can is not None:
+        p_can_frames = (BOARD_CAN_FRAME * nMaxFrameCount)()
+        n_real_frame_count = c_int()
+        error_code = f_dewe_read_can(
+            c_int(nBoardNo), byref(p_can_frames), c_int(nMaxFrameCount), byref(n_real_frame_count)
+        )
+        return [error_code, p_can_frames, n_real_frame_count.value]
     else:
         return [-1, BOARD_CAN_FRAME()]
 
-def DeWeReadCANRawFrame(nBoardNo):
-    """
-    """
-    if f_dewe_read_can_raw_frame != None:
-        #f_dewe_read_can_raw_frame.argtypes = [c_int, POINTER(POINTER(BOARD_CAN_RAW_FRAME)), POINTER(c_int)]
-        #f_dewe_read_can_raw_frame.restype  = c_int
-        pCanFrames = POINTER(BOARD_CAN_RAW_FRAME)()
-        nRealFrameCount = c_int(0)
-        ErrorCode = f_dewe_read_can_raw_frame(c_int(nBoardNo), byref(pCanFrames), byref(nRealFrameCount))
 
-        return [ErrorCode, pCanFrames, nRealFrameCount.value]
+def DeWeReadCANRawFrame(nBoardNo):
+    """Dewe read CAN raw frame"""
+    if f_dewe_read_can_raw_frame is not None:
+        # f_dewe_read_can_raw_frame.argtypes = [c_int, POINTER(POINTER(BOARD_CAN_RAW_FRAME)), POINTER(c_int)]
+        # f_dewe_read_can_raw_frame.restype  = c_int
+        p_can_frames = POINTER(BOARD_CAN_RAW_FRAME)()
+        n_real_frame_count = c_int(0)
+        error_code = f_dewe_read_can_raw_frame(c_int(nBoardNo), byref(p_can_frames), byref(n_real_frame_count))
+
+        return [error_code, p_can_frames, n_real_frame_count.value]
     else:
         return [-1, None]
 
+
 def DeWeFreeFramesCAN(nBoardNo, nFrameCount):
-    """
-    """
-    if f_dewe_free_can_frames != None:
-        ErrorCode = f_dewe_free_can_frames(c_int(nBoardNo), c_int(nFrameCount))
-        return ErrorCode
+    """Dewe free frames CAN"""
+    if f_dewe_free_can_frames is not None:
+        return f_dewe_free_can_frames(c_int(nBoardNo), c_int(nFrameCount))
     else:
         return -1
 
 
 def DeWeWriteCAN(nBoardNo, CanFrameList):
-    """
-    """
-    if f_dewe_write_can != None:
-        nRealFrameCount = c_int()
-        nFrameCount = len(CanFrameList)
-        CanFrameArrayType = BOARD_CAN_FRAME * nFrameCount
-        pCanFrames = CanFrameArrayType()
+    """Dewe write CAN"""
+    if f_dewe_write_can is not None:
+        n_real_frame_count = c_int()
+        n_frame_count = len(CanFrameList)
+        p_can_frames = (BOARD_CAN_FRAME * n_frame_count)()
 
         i = 0
         for CanFrame in CanFrameList:
-          pCanFrames[i] = CanFrame
-          i+=1
+            p_can_frames[i] = CanFrame
+            i += 1
 
-        ErrorCode = f_dewe_write_can(c_int(nBoardNo), byref(pCanFrames), c_int(nFrameCount), byref(nRealFrameCount))
-        return [ErrorCode, nRealFrameCount.value]
+        error_code = f_dewe_write_can(c_int(
+            nBoardNo), byref(p_can_frames), c_int(n_frame_count), byref(n_real_frame_count)
+        )
+        return [error_code, n_real_frame_count.value]
     else:
         return [-1, 0]
+
 
 def DeWeErrorCntCAN(nBoardNo, nChannelNo):
-    """
-    """
-    if f_dewe_error_cnt_can != None:
-        nErrorCount = c_int()
-        ErrorCode = f_dewe_error_cnt_can(c_int(nBoardNo), c_int(nChannelNo), byref(nErrorCount))
-        return [ErrorCode, nErrorCount]
+    """Dewe error cnt CAN"""
+    if f_dewe_error_cnt_can is not None:
+        n_error_count = c_int()
+        error_code = f_dewe_error_cnt_can(c_int(nBoardNo), c_int(nChannelNo), byref(n_error_count))
+        return [error_code, n_error_count]
     else:
         return [-1, 0]
 
 
-#
 # Async UART API
-
 def DeWeOpenDmaUart(nBoardNo):
-    """
-    """
-    if f_dewe_open_dma_uart != None:
-        ErrorCode = f_dewe_open_dma_uart(c_int(nBoardNo))
-        return ErrorCode
+    """Dewe open dmd uart"""
+    if f_dewe_open_dma_uart is not None:
+        return f_dewe_open_dma_uart(c_int(nBoardNo))
     else:
         return -1
+
 
 def DeWeCloseDmaUart(nBoardNo):
-    """
-    """
-    if f_dewe_close_dma_uart != None:
-        ErrorCode = f_dewe_close_dma_uart(c_int(nBoardNo))
-        return ErrorCode
+    """Dewe close dma uart"""
+    if f_dewe_close_dma_uart is not None:
+        return f_dewe_close_dma_uart(c_int(nBoardNo))
     else:
         return -1
 
+
 def DeWeGetChannelPropDmaUart(nBoardNo, nChannelNo):
-    """
-    """
-    if f_dewe_get_channel_prop_dma_uart != None:
-        pProp = BOARD_UART_CHANNEL_PROP()
-        ErrorCode = f_dewe_get_channel_prop_dma_uart(c_int(nBoardNo), c_int(nChannelNo), byref(pProp))
-        return [ErrorCode, pProp]
+    """Dewe get channel prop dma uart"""
+    if f_dewe_get_channel_prop_dma_uart is not None:
+        p_prop = BOARD_UART_CHANNEL_PROP()
+        error_code = f_dewe_get_channel_prop_dma_uart(c_int(nBoardNo), c_int(nChannelNo), byref(p_prop))
+        return [error_code, p_prop]
     else:
         return [-1, BOARD_UART_CHANNEL_PROP()]
 
+
 def DeWeSetChannelPropDmaUart(nBoardNo, nChannelNo, pProp):
-    """
-    """
-    if f_dewe_set_channel_prop_dma_uart != None:
-        ErrorCode = f_dewe_set_channel_prop_dma_uart(c_int(nBoardNo), c_int(nChannelNo), pProp)
-        return ErrorCode
+    """Dewe set channel prop dma uart"""
+    if f_dewe_set_channel_prop_dma_uart is not None:
+        return f_dewe_set_channel_prop_dma_uart(c_int(nBoardNo), c_int(nChannelNo), pProp)
     else:
         return -1
+
 
 def DeWeStartDmaUart(nBoardNo, nChannelNo):
-    """
-    """
-    if f_dewe_start_dma_uart != None:
-        ErrorCode = f_dewe_start_dma_uart(c_int(nBoardNo), c_int(nChannelNo))
-        return ErrorCode
+    """Dewe start dma uart"""
+    if f_dewe_start_dma_uart is not None:
+        return f_dewe_start_dma_uart(c_int(nBoardNo), c_int(nChannelNo))
     else:
         return -1
+
 
 def DeWeStopDmaUart(nBoardNo, nChannelNo):
-    """
-    """
-    if f_dewe_stop_dma_uart != None:
-        ErrorCode = f_dewe_stop_dma_uart(c_int(nBoardNo), c_int(nChannelNo))
-        return ErrorCode
+    """Dewe stop dma uart"""
+    if f_dewe_stop_dma_uart is not None:
+        return f_dewe_stop_dma_uart(c_int(nBoardNo), c_int(nChannelNo))
     else:
         return -1
 
+
 def DeWeReadDmaUart(nBoardNo, nMaxFrameCount):
-    """
-    """
-    if f_dewe_read_dma_uart != None:
-        UartFrameArrayType = BOARD_UART_FRAME * nMaxFrameCount
-        pUartFrames = UartFrameArrayType()
-        nRealFrameCount = c_int()
-        ErrorCode = f_dewe_read_dma_uart(c_int(nBoardNo), byref(pUartFrames), c_int(nMaxFrameCount), byref(nRealFrameCount))
-        return [ErrorCode, pUartFrames, nRealFrameCount.value]
+    """Dewe read dma uart"""
+    if f_dewe_read_dma_uart is not None:
+        p_uart_frames = (BOARD_UART_FRAME * nMaxFrameCount)()
+        n_real_frame_count = c_int()
+        error_code = f_dewe_read_dma_uart(
+            c_int(nBoardNo), byref(p_uart_frames), c_int(nMaxFrameCount), byref(n_real_frame_count)
+        )
+        return [error_code, p_uart_frames, n_real_frame_count.value]
     else:
         return [-1, BOARD_UART_FRAME(), 0]
 
 
 def DeWeReadDmaUartRawFrame(nBoardNo):
-    """
-    """
-    if f_dewe_read_dma_uart_raw_frame != None:
+    """Dewe read dma uart raw frame"""
+    if f_dewe_read_dma_uart_raw_frame is not None:
         f_dewe_read_dma_uart_raw_frame.argtypes = [c_int, POINTER(POINTER(BOARD_UART_RAW_FRAME)), POINTER(c_int)]
-        f_dewe_read_dma_uart_raw_frame.restype  = c_int
-        pUartFrames = POINTER(BOARD_UART_RAW_FRAME)()
-        nRealFrameCount = c_int(0)
-        ErrorCode = f_dewe_read_dma_uart_raw_frame(c_int(nBoardNo), byref(pUartFrames), byref(nRealFrameCount))
-        return [ErrorCode, pUartFrames]
+        f_dewe_read_dma_uart_raw_frame.restype = c_int
+        p_uart_frames = POINTER(BOARD_UART_RAW_FRAME)()
+        n_real_frame_count = c_int(0)
+        error_code = f_dewe_read_dma_uart_raw_frame(c_int(nBoardNo), byref(p_uart_frames), byref(n_real_frame_count))
+        return [error_code, p_uart_frames]
     else:
         return [-1, None]
 
+
 def DeWeWriteDmaUart(nBoardNo, pUartFrames, nFrameCount):
-    """
-    """
-    if f_dewe_write_dma_uart != None:
-        nRealFrameCount = c_int()
-        ErrorCode = f_dewe_write_dma_uart(c_int(nBoardNo), pUartFrames, c_int(nFrameCount), byref(nRealFrameCount))
-        return [ErrorCode, nRealFrameCount]
+    """Dewe write dma uart"""
+    if f_dewe_write_dma_uart is not None:
+        n_real_frame_count = c_int()
+        error_code = f_dewe_write_dma_uart(c_int(nBoardNo), pUartFrames, c_int(nFrameCount), byref(n_real_frame_count))
+        return [error_code, n_real_frame_count]
     else:
         return [-1, 0]
 
+
 # Obtain readable ErrorMessage from ErrorCode
 def DeWeErrorConstantToString(ErrorCode):
-    """
-    """
-    ErrString = ""
-    if f_dewe_error_constant_to_string != None:
+    """Dewe error constant to string"""
+    err_string = ""
+    if f_dewe_error_constant_to_string is not None:
         raw = c_char_p(f_dewe_error_constant_to_string(c_int(ErrorCode)))
         for c in raw.value:
-          ErrString = ErrString + str(chr(c))
-        return ErrString
+            err_string += str(chr(c))
+        return err_string
     else:
         return ""
 
 
-#
 # API helper
 def DeWeGetSampleData(nReadPos):
-    """
-    Raw access the DMA buffer at the given nReadPos.
-    """
+    """Raw access the DMA buffer at the given nReadPos."""
     p = cast(nReadPos, POINTER(c_int))
     return p[0]
-    #return 1
+    # return 1
+
 
 def DeWeGetSampleDataArray(nReadPos):
-    """
-    Raw access the DMA buffer at the given nReadPos.
-    """
+    """Raw access the DMA buffer at the given nReadPos."""
     p = cast(nReadPos, POINTER(c_int))
     return p
-    #return 1
+    # return 1
+
 
 def DeWeGetSampleArray(nReadPos, res):
-    """
-    Raw access the DMA buffer at the given nReadPos.
-    """
-    if res == 24 or res == '24':
+    """Raw access the DMA buffer at the given nReadPos."""
+    p = None
+    if res == 24 or res == "24":
         p = cast(nReadPos, POINTER(c_int))
-    elif res == 16 or res == '16':
+    elif res == 16 or res == "16":
         p = cast(nReadPos, POINTER(c_short))
     return p

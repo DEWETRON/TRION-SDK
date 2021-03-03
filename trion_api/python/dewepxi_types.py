@@ -1,14 +1,15 @@
-# Copyright DEWETRON GmbH 2013
-#
-# dewepxi_types module
-#
+"""
+Copyright DEWETRON GmbH 2013
+
+dewepxi_types module
+"""
 
 
 from ctypes import *
 
+
 class BOARD_CAN_CHANNEL_PROP(Structure):
-    """
-    """
+    """Board CAN channel prop structure"""
     _fields_ = [("Used", c_uint),
                 ("Mode", c_uint),
                 ("BaudRate", c_uint),
@@ -23,8 +24,7 @@ class BOARD_CAN_CHANNEL_PROP(Structure):
 
 
 class BOARD_CAN_FRAME(Structure):
-    """
-    """
+    """Board CAN frame structure"""
     _fields_ = [("CanNo", c_ubyte),
                 ("RFU1", c_ubyte),
                 ("RFU2", c_ubyte),
@@ -33,16 +33,15 @@ class BOARD_CAN_FRAME(Structure):
                 ("DataLength", c_uint),
                 ("CanData", c_ubyte * 8),
                 ("StandardExtended", c_uint),
-                ("FrameType",c_uint),
-                ("SyncCounter",c_uint),
-                ("ErrorCounter",c_uint),
-                ("TimeStampEx",c_uint64)
+                ("FrameType", c_uint),
+                ("SyncCounter", c_uint),
+                ("ErrorCounter", c_uint),
+                ("TimeStampEx", c_uint64)
                 ]
 
 
 class BOARD_CAN_RAW_FRAME(Structure):
-    """
-    """
+    """Board CAN raw frame structure"""
     _fields_ = [("Hdr", c_uint),
                 ("Err", c_uint),
                 ("Pos", c_uint),
@@ -52,8 +51,7 @@ class BOARD_CAN_RAW_FRAME(Structure):
 
 
 class BOARD_UART_CHANNEL_PROP(Structure):
-    """
-    """
+    """Board uart channel prop structure"""
     _fields_ = [("Used", c_uint),
                 ("Mode", c_uint),
                 ("BaudRate", c_uint),
@@ -64,8 +62,7 @@ class BOARD_UART_CHANNEL_PROP(Structure):
 
 
 class BOARD_UART_FRAME(Structure):
-    """
-    """
+    """Board uart frame structure"""
     _fields_ = [("Data", c_ubyte),
                 ("RFU1", c_ubyte),
                 ("RFU2", c_ubyte),
@@ -76,8 +73,7 @@ class BOARD_UART_FRAME(Structure):
 
 
 class BOARD_UART_RAW_FRAME(Structure):
-    """
-    """
+    """Board uart raw frame structure"""
     _fields_ = [("Minute", c_ubyte),
                 ("Second", c_ubyte),
                 ("Data", c_ubyte),

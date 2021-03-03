@@ -1,7 +1,9 @@
-# Copyright DEWETRON GmbH 2013
-#
-# dewepxi_load module
-#
+"""
+Copyright DEWETRON GmbH 2013
+
+dewepxi_load module
+"""
+
 
 import ctypes
 from dewepxi_apicore import *
@@ -9,30 +11,31 @@ import os
 import platform
 import sys
 
-if '64' in platform.architecture()[0]:
-    if sys.platform.startswith('win'):
+
+if "64" in platform.architecture()[0]:
+    if sys.platform.startswith("win"):
         TRION_DLL_NAME = "dwpxi_api_x64.dll"
         TRIONET_DLL_NAME = "dwpxi_netapi_x64.dll"
-    elif sys.platform.startswith('linux'):
+    elif sys.platform.startswith("linux"):
         TRION_DLL_NAME = "libdwpxi_api_x64.so"
         TRIONET_DLL_NAME = "libdwpxi_netapi_x64.so"
-    elif sys.platform == 'darwin':
+    elif sys.platform == "darwin":
         TRION_DLL_NAME = "libdwpxi_api_x64.dylib"
         TRIONET_DLL_NAME = "libdwpxi_netapi_x64.dylib"
     else:
-      raise Exception('Unknown OS')
+        raise Exception("Unknown OS")
 else:
-    if sys.platform.startswith('win'):
+    if sys.platform.startswith("win"):
         TRION_DLL_NAME = "dwpxi_api.dll"
         TRIONET_DLL_NAME = "dwpxi_netapi.dll"
-    elif sys.platform.startswith('linux'):
+    elif sys.platform.startswith("linux"):
         TRION_DLL_NAME = "libdwpxi_api.so"
         TRIONET_DLL_NAME = "libdwpxi_netapi.so"
-    elif sys.platform == 'darwin':
+    elif sys.platform == "darwin":
         TRION_DLL_NAME = "libdwpxi_api.dylib"
         TRIONET_DLL_NAME = "libdwpxi_netapi.dylib"
     else:
-      raise Exception('Unknown OS')
+        raise Exception("Unknown OS")
 
 
 g_trion_api_dll = None
@@ -51,21 +54,23 @@ def DeWePxiLoad(lib="TRION"):
             dll_file = TRION_DLL_NAME
         elif lib == "TRIONET":
             dll_file = TRIONET_DLL_NAME
+        else:
+            raise Exception("Given lib ({}) not supported".format(lib))
 
-        if os.name == 'nt':
+        if os.name == "nt":
             try:
-                scriptName = sys.argv[0]
-                pathName = os.path.dirname(scriptName)
-                locatedAt = (pathName + "/" + dll_file).replace("\\","/")
-                g_trion_api_dll = windll.LoadLibrary(locatedAt)
+                script_name = sys.argv[0]
+                path_name = os.path.dirname(script_name)
+                located_at = os.path.normpath(os.path.join(path_name, dll_file))
+                g_trion_api_dll = windll.LoadLibrary(located_at)
             except:
                 g_trion_api_dll = windll.LoadLibrary(dll_file)
-        elif TRION_DLL_NAME.endswith('.dll'):
+        elif TRION_DLL_NAME.endswith(".dll"):
             try:
-                scriptName = sys.argv[0]
-                pathName = os.path.dirname(scriptName)
-                locatedAt = (pathName + "/" + dll_file).replace("\\","/")
-                g_trion_api_dll = cdll.LoadLibrary(locatedAt)
+                script_name = sys.argv[0]
+                path_name = os.path.dirname(script_name)
+                located_at = os.path.normpath(os.path.join(path_name, dll_file))
+                g_trion_api_dll = cdll.LoadLibrary(located_at)
             except:
                 g_trion_api_dll = cdll.LoadLibrary(dll_file)
         else:
@@ -130,9 +135,7 @@ def DeWePxiLoad(lib="TRION"):
 
 
 def DeWePxiUnload():
-    """
-    Unload the trion API dll
-    """
+    """Unload the trion API dll"""
     try:
         global g_trion_api_dll
         DeWeDriverDeInit()
@@ -177,7 +180,7 @@ def DeWePxiUnload():
 
         SetDeWeErrorConstantToString(None)
 
-        if os.name == 'posix':
+        if os.name == "posix":
             print("Trying dll unload")
             try:
                 handle = g_trion_api_dll._handle
@@ -194,10 +197,5 @@ def DeWePxiUnload():
                 #    print("Could not load libdl")
             except:
                 print("Unloading failed")
-
-
-
-    except :
-
+    except:
         pass
-
