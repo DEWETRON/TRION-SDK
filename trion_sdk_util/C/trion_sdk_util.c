@@ -147,7 +147,7 @@ BOOL ARG_GetBoardIdEX(int argc, char **argv, int nNoOfBoards, int *nBoardId1, in
 
 /**
 * Check if the ChannelID is set by the command line. If not, use default ChannelId "0"
-* Possible ChannelID range [0..7]
+* Possible ChannelID range [0..31]
 * @param argc program argument count
 * @param argv array of program arguments
 * @param nNoOfBoards is the number of detected TRION boards
@@ -159,7 +159,7 @@ BOOL ARG_GetChannelNo(int argc, char **argv, int nNoOfBoards, int *ChannelNo)
     if (argc > 2)
     {
         sscanf(argv[2], "%d", ChannelNo);
-        if ((*ChannelNo > 7) || (*ChannelNo < 0))
+        if ((*ChannelNo > 31) || (*ChannelNo < 0))
         {
            return FALSE;
         }
@@ -173,7 +173,7 @@ BOOL ARG_GetChannelNo(int argc, char **argv, int nNoOfBoards, int *ChannelNo)
 
 /**
 * Check if two ChannelIDs are set by the command line. If not, use default ChannelId "0" and "1"
-* Possible ChannelID range [0..7]
+* Possible ChannelID range [0..31]
 * @param argc program argument count
 * @param argv array of program arguments
 * @param nNoOfBoards is the number of detected TRION boards
@@ -186,12 +186,12 @@ BOOL ARG_GetChannelNoEX(int argc, char **argv, int nNoOfBoards, int *ChannelNo1,
     if (argc > 3)
     {
         sscanf(argv[2], "%d", ChannelNo1);
-        if ((*ChannelNo1 > 7) || (*ChannelNo1 < 0))
+        if ((*ChannelNo1 > 31) || (*ChannelNo1 < 0))
         {
             return FALSE;
         }
         sscanf(argv[3], "%d", ChannelNo2);
-        if ((*ChannelNo2 > 7) || (*ChannelNo2 < 0))
+        if ((*ChannelNo2 > 31) || (*ChannelNo2 < 0))
         {
             return FALSE;
         }
@@ -1093,3 +1093,113 @@ uint64 TRION_StopWatch_GetMS(TRION_StopWatchHandle* sw)
     return 0;
 }
 #endif
+
+
+// Simple internalized DB
+
+double MSI_GetMinRange(const char* msi_type)
+{
+    if (0 == strcmp(msi_type, "MSI-BR-ACC"))
+    {
+        return -10000;
+    }
+    if (0 == strcmp(msi_type, "MSI-BR-V-200"))
+    {
+        return -200;
+    }
+    if (0 == strcmp(msi_type, "MSI2-CH-5"))
+    {
+        return -5000;
+    }
+    if (0 == strcmp(msi_type, "MSI2-CH-100"))
+    {
+        return -100000;
+    }
+    if (0 == strcmp(msi_type, "MSI2-STG-5V"))
+    {
+        return -20;
+    }
+    if (0 == strcmp(msi_type, "MSI2-STG-10V"))
+    {
+        return -10;
+    }
+    if (0 == strcmp(msi_type, "MSI2-V-600"))
+    {
+        return -1000;
+    }
+
+    // Unknown MSI:
+    return 0;
+}
+
+double MSI_GetMaxRange(const char* msi_type) 
+{
+    if (0 == strcmp(msi_type, "MSI-BR-ACC"))
+    {
+        return 10000;
+    }
+    if (0 == strcmp(msi_type, "MSI-BR-V-200"))
+    {
+        return 200;
+    }
+    if (0 == strcmp(msi_type, "MSI2-CH-5"))
+    {
+        return 5000;
+    }
+    if (0 == strcmp(msi_type, "MSI2-CH-100"))
+    {
+        return 100000;
+    }
+    if (0 == strcmp(msi_type, "MSI2-STG-5V"))
+    {
+        return 20;
+    }
+    if (0 == strcmp(msi_type, "MSI2-STG-10V"))
+    {
+        return 10;
+    }
+    if (0 == strcmp(msi_type, "MSI2-V-600"))
+    {
+        return 1000;
+    }
+    // Unknown MSI:
+    return 0;
+}
+
+const char* MSI_GetMinRangeUnit(const char* msi_type)
+{
+    return MSI_GetMaxRangeUnit(msi_type);
+}
+
+const char* MSI_GetMaxRangeUnit(const char* msi_type)
+{
+    if (0 == strcmp(msi_type, "MSI-BR-ACC"))
+    {
+        return "mV";
+    }
+    if (0 == strcmp(msi_type, "MSI-BR-V-200"))
+    {
+        return "V";
+    }
+    if (0 == strcmp(msi_type, "MSI2-CH-5"))
+    {
+        return "pC";
+    }
+    if (0 == strcmp(msi_type, "MSI2-CH-100"))
+    {
+        return "pC";
+    }
+    if (0 == strcmp(msi_type, "MSI2-STG-5V"))
+    {
+        return "mV/V";
+    }
+    if (0 == strcmp(msi_type, "MSI2-STG-10V"))
+    {
+        return "mV/V";
+    }
+    if (0 == strcmp(msi_type, "MSI2-V-600"))
+    {
+        return "V";
+    }
+    return "";
+}

@@ -112,6 +112,11 @@ add_executable(MSIMode
   )
 SampleBuildSettings(MSIMode "analog")
 
+add_executable(CB16D
+  CB16D/cb16d_msi.c
+  )
+SampleBuildSettings(CB16D "analog")
+
 add_executable(MultiBoardAnalogChannels
   MultiBoardAnalogChannels/multi_board_analog_channels.c
   )

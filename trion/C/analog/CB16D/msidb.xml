@@ -1,0 +1,1014 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MSIDB>
+    <MSI Name = "MSI-BR-TH-C" ManufacturerID = "83" ModelNumber = "41" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">9V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">12V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">0°C .. 2310°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">C</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-TH-B" ManufacturerID = "83" ModelNumber = "39" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">9V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">12V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">0°C .. 1820°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">B</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+
+    <MSI Name = "MSI-BR-TH-R" ManufacturerID = "83" ModelNumber = "37" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">9V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">12V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-50°C .. 1760°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">R</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+  <MSI Name = "MSI-BR-TH-E" ManufacturerID = "83" ModelNumber = "35" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">9V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">12V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-270°C .. 1000°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">E</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+
+    <MSI Name = "MSI-BR-TH-K" ManufacturerID = "83" ModelNumber = "1" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-200°C .. 1370°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">K</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-TH-J" ManufacturerID = "83" ModelNumber = "2" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-210°C .. 1200°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">J</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-TH-T" ManufacturerID = "83" ModelNumber = "3" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-270°C .. 400°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">T</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-ACC" ManufacturerID = "83" ModelNumber = "4" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">0.01</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">IEPE</Property>
+            <Property Source = "XML" Name = "Unit">mV</Property>
+            <Property Source = "XML" Name = "Range">-10000mV .. 10000mV</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Current</Property>
+            <Property Source = "XML" Name = "Excitation">4mA</Property>
+            <Property Source = "XML" Name = "MinInputRange">0.1V</Property>
+            <Property Source = "XML" Name = "ACCoupling">1.4</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">1000</Property>
+            <Property Source = "XML" Name = "RangeConversionUnit">mV</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-ACC-S1" ManufacturerID = "83" ModelNumber = "4" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">0.01</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+           <Property Source = "XML" Name = "Mode">IEPE</Property>
+            <Property Source = "XML" Name = "Unit">mV</Property>
+            <Property Source = "XML" Name = "Range">-10000mV .. 10000mV</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Current</Property>
+            <Property Source = "XML" Name = "Excitation">4mA</Property>
+            <Property Source = "XML" Name = "MinInputRange">0.1V</Property>
+            <Property Source = "XML" Name = "ACCoupling">0.16</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+       <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">1000</Property>
+            <Property Source = "XML" Name = "RangeConversionUnit">mV</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+       </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-ACC-S2" ManufacturerID = "83" ModelNumber = "4" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">0.01</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">IEPE</Property>
+            <Property Source = "XML" Name = "Unit">mV</Property>
+            <Property Source = "XML" Name = "Range">-10000mV .. 10000mV</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Current</Property>
+            <Property Source = "XML" Name = "Excitation">4mA</Property>
+            <Property Source = "XML" Name = "MinInputRange">0.1V</Property>
+            <Property Source = "XML" Name = "ACCoupling">1.4</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">1000</Property>
+            <Property Source = "XML" Name = "RangeConversionUnit">mV</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-V-200" ManufacturerID = "83" ModelNumber = "6" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "Unit">V</Property>
+            <Property Source = "XML" Name = "Range">-200V .. 200V</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">0.25V</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">200000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">20</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-V-200" ManufacturerID = "83" ModelNumber = "6" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "Unit">V</Property>
+            <Property Source = "XML" Name = "Range">-200V .. 200V</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">0.25V</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">200000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">20</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-RTD" ManufacturerID = "83" ModelNumber = "7" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-200°C .. 850°C</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">10000</Property>
+            <Property Source = "XML" Name = "ScalingTable">PTX</Property>
+            <Property Source = "XML" Name = "RTDSensorRes">100</Property>
+            <Property Source = "XML" Name = "TemperatureSensors">PT</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <!--- MSI-BR-RTD Modules not in use yet
+    <MSI Name = "MSI-BR-RTD-L-S1" ManufacturerID = "83" ModelNumber = "7" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">Ohm</Property>
+            <Property Source = "XML" Name = "Range">0Ohm .. 6000Ohm</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">10000</Property>
+            <Property Source = "XML" Name = "ScalingTable">RTD-L</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+  <-->
+    <MSI Name = "MSI-BR-CH-50" ManufacturerID = "83" ModelNumber = "10" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">0.01</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">30V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Charge</Property>
+            <Property Source = "XML" Name = "Unit">pC</Property>
+            <Property Source = "XML" Name = "Range">-50000pC .. 50000pC</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">200pC</Property>
+            <Property Source = "XML" Name = "ACCoupling">0.08</Property>
+            <Property Source = "XML" Name = "Bandwidth">45000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-CH-50-L-S1" ManufacturerID = "83" ModelNumber = "10" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">0.01</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">30V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Charge</Property>
+            <Property Source = "XML" Name = "Unit">pC</Property>
+            <Property Source = "XML" Name = "Range">-50000pC .. 50000pC</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">200pC</Property>
+            <Property Source = "XML" Name = "ACCoupling">0.16</Property>
+            <Property Source = "XML" Name = "Bandwidth">45000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-CH-50-L-S2" ManufacturerID = "83" ModelNumber = "10" VersionLetter = "A" VersionNumber = "3">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">0.01</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">30V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Charge</Property>
+            <Property Source = "XML" Name = "Unit">pC</Property>
+            <Property Source = "XML" Name = "Range">-50000pC .. 50000pC</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">200pC</Property>
+            <Property Source = "XML" Name = "ACCoupling">0.3</Property>
+            <Property Source = "XML" Name = "Bandwidth">45000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-TH-N" ManufacturerID = "83" ModelNumber = "36" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">9V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">12V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-270°C .. 1300°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">N</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-TH-S" ManufacturerID = "83" ModelNumber = "38" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">9V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">12V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-50°C .. 1760°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">S</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-TH-L" ManufacturerID = "83" ModelNumber = "40" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">9V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">12V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">0°C .. 1820°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">L</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-TH-U" ManufacturerID = "83" ModelNumber = "42" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">9V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">12V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-200°C .. 600°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">U</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI-BR-CH-100" ManufacturerID = "83" ModelNumber = "46" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">30V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Charge</Property>
+            <Property Source = "XML" Name = "Unit">pC</Property>
+            <Property Source = "XML" Name = "Range">-100000pC .. 100000pC</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">400pC</Property>
+            <Property Source = "XML" Name = "ACCoupling">0.16</Property>
+            <Property Source = "XML" Name = "Bandwidth">45000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>        
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-K" ManufacturerID = "83" ModelNumber = "1" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-200°C .. 1370°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+			<Property Source = "XML" Name = "AdditionalInputScalingFactor">50</Property>
+            <Property Source = "XML" Name = "ScalingTable">K</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-J" ManufacturerID = "83" ModelNumber = "2" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-210°C .. 1200°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+			<Property Source = "XML" Name = "AdditionalInputScalingFactor">50</Property>
+            <Property Source = "XML" Name = "ScalingTable">J</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-T" ManufacturerID = "83" ModelNumber = "3" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-270°C .. 400°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">T</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-E" ManufacturerID = "83" ModelNumber = "35" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-270°C .. 1000°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">E</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-N" ManufacturerID = "83" ModelNumber = "36" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-270°C .. 1300°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">N</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-R" ManufacturerID = "83" ModelNumber = "37" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-50°C .. 1760°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">R</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-S" ManufacturerID = "83" ModelNumber = "38" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-50°C .. 1760°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">S</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-B" ManufacturerID = "83" ModelNumber = "39" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">0°C .. 1820°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">B</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-L" ManufacturerID = "83" ModelNumber = "40" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">0°C .. 900°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">L</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-C" ManufacturerID = "83" ModelNumber = "41" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">0°C .. 2310°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">C</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-TH-U" ManufacturerID = "83" ModelNumber = "42" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Temperature</Property>
+            <Property Source = "XML" Name = "Unit">°C</Property>
+            <Property Source = "XML" Name = "Range">-200°C .. 600°C</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1deg</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">U</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-250R-20mA" ManufacturerID = "83" ModelNumber = "51" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Current</Property>
+            <Property Source = "XML" Name = "Unit">mA</Property>
+            <Property Source = "XML" Name = "Range">-25mA .. 25mA</Property>
+            <Property Source = "XML" Name = "MinInputRange">5mA</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-LVDT" ManufacturerID = "83" ModelNumber = "52" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">LVDT</Property>
+            <Property Source = "XML" Name = "Unit">V</Property>
+            <Property Source = "XML" Name = "Range">-5V .. 5V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1V</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">0</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-STG-5V" ManufacturerID = "83" ModelNumber = "53" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Bridge</Property>
+            <Property Source = "XML" Name = "Unit">mV/V</Property>
+            <Property Source = "XML" Name = "Range">-20mV/V .. 20mV/V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1mV/V</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Voltage</Property>
+            <Property Source = "XML" Name = "Excitation">5V</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">100000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">2</Property>
+            <Property Source = "XML" Name = "RangeConversionUnit">mV/V</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-STG-10V" ManufacturerID = "83" ModelNumber = "53" VersionLetter = "A" VersionNumber = "2">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Bridge</Property>
+            <Property Source = "XML" Name = "Unit">mV/V</Property>
+            <Property Source = "XML" Name = "Range">-10mV/V .. 10mV/V</Property>
+            <Property Source = "XML" Name = "MinInputRange">1mV/V</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Voltage</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">100000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">1</Property>
+            <Property Source = "XML" Name = "RangeConversionUnit">mV/V</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>            
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-CH-5" ManufacturerID = "83" ModelNumber = "54" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Charge</Property>
+            <Property Source = "XML" Name = "Unit">pC</Property>
+            <Property Source = "XML" Name = "Range">-5000pC .. 5000pC</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">200pC</Property>
+            <Property Source = "XML" Name = "ACCoupling">0.16</Property>
+            <Property Source = "XML" Name = "Bandwidth">100000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">500</Property>
+            <Property Source = "XML" Name = "RangeConversionUnit">pC</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>            
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-CH-100" ManufacturerID = "83" ModelNumber = "55" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">10V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">10V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Charge</Property>
+            <Property Source = "XML" Name = "Unit">pC</Property>
+            <Property Source = "XML" Name = "Range">-100000pC .. 100000pC</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">5000pC</Property>
+            <Property Source = "XML" Name = "ACCoupling">0.16</Property>
+            <Property Source = "XML" Name = "Bandwidth">100000</Property>
+			<Property Source = "XML" Name = "AdditionalInputScalingFactor">50</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">10000</Property>
+            <Property Source = "XML" Name = "RangeConversionUnit">pC</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>            
+        </MetaInfos>
+    </MSI>
+    <MSI Name = "MSI2-V-600" ManufacturerID = "83" ModelNumber = "56" VersionLetter = "A" VersionNumber = "1">
+        <ChannelRequirements>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "InputType">DIFF</Property>
+            <Property Source = "XML" Name = "HPFilter">DC</Property>
+            <Property Source = "XML" Name = "Excitation">10V</Property>
+            <Property Source = "XML" Name = "MinExcitation">0V</Property>
+            <Property Source = "XML" Name = "MaxExcitation">0V</Property>
+        </ChannelRequirements>
+        <ChannelSettings>
+            <Property Source = "XML" Name = "Mode">Voltage</Property>
+            <Property Source = "XML" Name = "Unit">V</Property>
+            <Property Source = "XML" Name = "Range">-1000V .. 1000V</Property>
+            <Property Source = "XML" Name = "ExcitationMode">Off</Property>
+            <Property Source = "XML" Name = "Excitation">0V</Property>
+            <Property Source = "XML" Name = "MinInputRange">100V</Property>
+            <Property Source = "XML" Name = "ACCoupling">0</Property>
+            <Property Source = "XML" Name = "Bandwidth">10000</Property>
+            <Property Source = "XML" Name = "ScalingTable">Linear</Property>
+        </ChannelSettings>
+        <MetaInfos>
+            <Property Source = "XML" Name = "RangeConversionFactor">100</Property>
+            <Property Source = "TEDS" Name = "MinPhysVal">MinPhysVal</Property>
+            <Property Source = "TEDS" Name = "MaxPhysVal">MaxPhysVal</Property>            
+        </MetaInfos>
+    </MSI>
+</MSIDB>

@@ -105,6 +105,8 @@ typedef struct ScaleInfo_tag
 
     //Span - just for check reasons
     double fSpan;
+
+    const char* unit;
 } ScaleInfo;
 
 typedef struct RangeSpan_t
@@ -252,5 +254,13 @@ void TRION_StopWatch_Start(TRION_StopWatchHandle* sw);
 void TRION_StopWatch_Stop(TRION_StopWatchHandle* sw);
 uint64 TRION_StopWatch_GetUS(TRION_StopWatchHandle* sw);
 uint64 TRION_StopWatch_GetMS(TRION_StopWatchHandle* sw);
+
+
+// MSI utility
+double MSI_GetMinRange(const char* msi_type);
+double MSI_GetMaxRange(const char* msi_type);
+const char* MSI_GetMinRangeUnit(const char* msi_type);
+const char* MSI_GetMaxRangeUnit(const char* msi_type);
+
 
 #endif
