@@ -5,15 +5,16 @@
  * The AIChannel is selectable over cmd line parameter 2. Default Channel Nr. = 0
  * This example should be used with a TRION-1600-dLV, TRION-1802-dLV or PUREC.
  *
- * Note: CGB16D has to be connected before running this example.
- * The example has to process the MSI adapters TEDS respoonse.
- * The example hat to now the supportes MSI adapters or process the accompanied
- * msib.xml. 
+ * Note: CB16D has to be connected before running this example.
+ * The example has to process the MSI adapters TEDS response.
+ * The example hat to know the supported MSI adapters or process the accompanied
+ * msidb.xml. 
  *
  * Features:
  *  - Scan and show MSI Adapter on given channel
  *  - Read MSI configuration
  *  - Configure channel
+ *  - Measure
  */
 
 #include "dewepxi_apicore.h"
@@ -48,31 +49,15 @@ int main(int argc, char* argv[])
 {
     int nNoOfBoards = 0;
     int nErrorCode = 0;
-    int nADCDelay = 0;
-    int Scansize = 0;
     int nBoardId = 0;
     int nChannelNo=0;
-    int input=0;
-    char sPropertyStr[256] = {0};
-    char sSensorStr[256] = {0};
     char sTarget[256] = {0};
-    char sRangeStr[256] = {0};
-    char sExcitationStr[256] = {0};
-    char sStrVal[256] = {0};
     char sErrorText[256]={0};
     char sBoardId[256]={0};
-    char sResultStr[256]={0};
+
     char TEDS_DATA[32 * 1024] = { 0 };       //large enough for even the 20kbit E2Prom
-    char *punit=NULL;
-    double fVal=0;
-    int nSizeScan=0;
     ScaleInfo scaleinfo;
 
-
-    int duration =0;
-    // To be adopted to user's demands ..
-    const double fRangeMin = 0;       // MAX MIN VALUE: -200�C
-    const double fRangeMax = 1820;       // MAX MAX VALUE: 1370�C
 
     // Load pxi_api.dll
     if ( 0 != LoadTrionApi() )
