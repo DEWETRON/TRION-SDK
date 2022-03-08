@@ -22,7 +22,7 @@ import platform
 project = 'DEWETRON TRION SDK'
 copyright = '2021, DEWETRON GmbH'
 author = 'DEWETRON GmbH'
-nav_title = 'TRION SDK'
+nav_title = 'DEWETRON TRION SDK'
 
 # The full version, including alpha/beta/rc tags
 release = '6.0'
@@ -97,17 +97,18 @@ if html_theme == 'sphinx_material':
 
       # internal & external links
       "nav_links": [
+
         {
-            "href": "./home.html",
+            "href": "https://www.dewetron.com/products/signal-conditioning/all-trion3-trion-modules/",
             "internal": False,
-            "title": "DEWETRON Online Documentation",
+            "title": "TRION & TRION3 Modules",
         },
         {
-            "href": "./index.html",
+            "href": "https://www.dewetron.com/products/oxygen-measurement-software/",
             "internal": False,
             "title": "OXYGEN Software",
         },
-        {
+        {   
             "href": "https://www.dewetron.com/",
             "internal": False,
             "title": "DEWETRON Measurement Systems",

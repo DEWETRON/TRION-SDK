@@ -3,9 +3,9 @@
 .. Sphinx and reStructuredText documentation:
 .. https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 
-=============
-TRION-SDK 6.0
-=============
+======================
+DEWETRON TRION-SDK 6.0
+======================
 
 **TRION Software Development Kit**
 
@@ -16,3 +16,15 @@ TRION-SDK 6.0
    :includehidden:
 
    00_InformationRights/InformationRights
+   01_Quickstart/Quickstart
+   02_ChannelTypes/ChannelTypes
+   03_DataAcquisition/DataAcquisition
+   04_Synchronization/Synchronization
+   05_CommandApiReference/CommandApiReference
+   06_XMLApiReference/XMLApiReference
+   07_DEWE2/DEWE2_Enclosure.rst
+   08_DEWE3/DEWE3_Enclosure.rst
+   09_TRIONet/TRIONet_Enclosure.rst
+   10_PUREC/PUREC_Enclosure.rst
+   11_ConnectorBoxes/ConnectorBoxes.rst
+   20_Support/Support.rst
