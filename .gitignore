@@ -26,7 +26,17 @@
 *.a
 *.lib
 
+# Python pyc files
+*.pyc
+
 # Executables
 *.exe
 *.out
 *.app
+
+# vscode projects
+**/.vscode
+
+# build directories
+**/build
+**/build64
