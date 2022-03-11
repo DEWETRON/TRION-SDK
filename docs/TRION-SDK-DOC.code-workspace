@@ -6,6 +6,6 @@
 	],
 	"settings": {
 		"esbonio.server.enabled": true,
-		"esbonio.sphinx.confDir": "/home/glaure/Development/TRION-SDK/docs"
+		"esbonio.sphinx.confDir": "c:\\Development\\TRION-SDK\\docs"
 	}
 }

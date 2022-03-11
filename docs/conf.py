@@ -148,6 +148,8 @@ latex_elements = {
 'fncychap' : r'\usepackage[Bjarne]{fncychap}',
 #'fncychap' : r'\usepackage[Sonny]{fncychap}',
 
+#Figure placement within LaTeX paper
+'figure_align': 'H',
 }
 
 latex_additional_files = [
