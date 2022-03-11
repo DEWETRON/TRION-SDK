@@ -187,7 +187,22 @@ Get TRION-SDK
 .. fun with seeing sample data
 
 
+DEWETRON TRION-SDK freely available on GitHub.
+
+Please clone the repository or download to zip package to try it!
+
 https://github.com/DEWETRON/TRION-SDK
+
+
+
+QuickStart Example Source Code
+------------------------------
+
+.. literalinclude:: quick_example.cpp
+   :language: c++
+   :linenos:
+   :lines: 9-
+
 
 
 
