@@ -5,7 +5,6 @@
 		}
 	],
 	"settings": {
-		"esbonio.server.enabled": true,
-		"esbonio.sphinx.confDir": "c:\\Development\\TRION-SDK\\docs"
+		"esbonio.server.enabled": true
 	}
 }

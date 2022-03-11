@@ -43,7 +43,7 @@ Note: Python3 will already be installed in Linux.
     - "sudo apt install texlive-luatex"
     - "sudo apt install texlive-latex-extra"
     - "sudo apt install fonts-freefont-otf texlive-fonts-extra"
-
+    - "sudo apt install latexmk"
 
 After this please open a terminal:
  * Install Sphinx
