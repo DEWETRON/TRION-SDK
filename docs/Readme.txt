@@ -69,7 +69,7 @@ In any commandshell enter:
 
 make.bat html
 
-The latex output is created in the sub directory build/html
+The latex output is created in the sub directory _build/html
 
 
 Create pdf
@@ -81,9 +81,13 @@ In any commandshell enter:
 
 make.bat latex
 
-The latex output is created in the sub directory build/latex
+The latex output is created in the sub directory _build/latex
 
-Open build/latex/oxygenmanual.tex in TexStudio
+Open _build/latex/oxygenmanual.tex in TexStudio
 
 and press F5
 
+
+make.bat latexpdf
+
+Directly create pdf cocument.

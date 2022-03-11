@@ -40,3 +40,4 @@
 # build directories
 **/build
 **/build64
+**/_build
