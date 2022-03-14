@@ -22,9 +22,10 @@ DEWETRON TRION-SDK 6.0
    04_Synchronization/Synchronization
    05_CommandApiReference/CommandApiReference
    06_XMLApiReference/XMLApiReference
-   07_DEWE2/DEWE2_Enclosure.rst
-   08_DEWE3/DEWE3_Enclosure.rst
-   09_TRIONet/TRIONet_Enclosure.rst
-   10_PUREC/PUREC_Enclosure.rst
-   11_ConnectorBoxes/ConnectorBoxes.rst
+   07_TEDS/TEDS.rst
+   10_DEWE2/DEWE2_Enclosure.rst
+   11_DEWE3/DEWE3_Enclosure.rst
+   12_TRIONet/TRIONet_Enclosure.rst
+   13_PUREC/PUREC_Enclosure.rst
+   14_ConnectorBoxes/ConnectorBoxes.rst
    20_Support/Support.rst

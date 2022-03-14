@@ -583,7 +583,7 @@ settable properties, that is not marked with the attribute “Config =
 
 
 Result XML Document
-'''''''''''''''''''
+~~~~~~~~~~~~~~~~~~~
 
 The result xml-document has the same layout, as the configuration
 xml-document.
