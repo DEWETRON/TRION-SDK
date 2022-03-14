@@ -94,7 +94,7 @@ Start DEWETRON Explorer
 If you are lucky and have DEWETRON TRION hardware available you are ready to go.
 You can start OXYGEN or the quickstart example to test your measurment hardware.
 
-All other have to setup a demo system first.
+All others have to setup a demo system first.
 DEWETRON Explorer is the tool for this task. 
 
 The app has two different tabs. The Hardware tab displays detected measurement
@@ -182,8 +182,8 @@ Get TRION-SDK
 .. enter TRION-SDK/trion
 .. run cmake
 .. run studio
-.. build QuickStart (aka OneAnalogChannel extreme simple)
-.. run QuickStart
+.. build Quickstart (aka OneAnalogChannel extreme simple)
+.. run Quickstart
 .. fun with seeing sample data
 
 
@@ -194,16 +194,165 @@ Please clone the repository or download to zip package to try it!
 https://github.com/DEWETRON/TRION-SDK
 
 
+Enter TRION-SDK workspace, then create the quickstart workspace:
 
-QuickStart Example Source Code
-------------------------------
+.. code:: bat
 
-.. literalinclude:: quick_example.cpp
-   :language: c++
-   :linenos:
-   :lines: 9-
+    $ cd trion\CXX
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+    -- Selecting Windows SDK version 10.0.18362.0 to target Windows 10.0.19044.
+    -- Configuring done
+    -- Generating done
+    -- Build files have been written to: C:/Development/TRION-SDK/trion/CXX/build
 
 
+Then double click or open the file TRION_SDK_CXX.sln with Visual Studio.
+
+
+Quickstart Example
+------------------
+
+The "Quickstart" example configures and runs a short measurement in just a few steps.
+It intended to run on the previously configured demo system: a DEWE3-A4 with a TRION3-1850-MULTI-4-D
+in its first slot.
+This example is reduced to the base minimum and does not do any error handling or setup optimizations.
+
+Step 1:
+
+.. code:: c
+
+    DeWePxiLoad();
+    DeWeDriverInit(&boards);
+
+
+DeWePxiLoad loads the libray but does not do any initialization. It calls dlopen and 
+maps all exported C functions.
+
+
+DeWeDriverInit initializes API internals. It stores the number of detected devices
+in the *boards* variable. if the value stored in *boards* is negative, the API indicates
+that a simulation environment or demo system is active. Positive values mean that real hardware
+is active. 
+
+
+Step 2:
+
+.. code:: c
+
+    DeWeSetParam_i32(0, CMD_OPEN_BOARD, 0);
+    DeWeSetParam_i32(0, CMD_RESET_BOARD, 0);
+    DeWeSetParam_i32(1, CMD_OPEN_BOARD, 0);
+    DeWeSetParam_i32(1, CMD_RESET_BOARD, 0);
+
+In step 2 the individual boards have to be openend and reset to a valid default state.
+This is done using the DeWeSetParam_i32 function. The first argument a index number
+referencing a dedicated board. With the current demo system the board with index 0
+is the internal chassis controller. Index 1 references the TRION3-1850-MULTI-4-D board.
+
+After CMD_RESET_BOARD the devices are ready for the next configuration steps.
+
+
+Step 3:
+
+.. code:: c
+
+    DeWeSetParamStruct_str("BoardID1/AI0", "Used", "True");
+
+In this step the first analog channel "AI0" is enabled. The other available analog channels
+are disabled. For this the api function DeWeSetParamStruct_str is used. The first argument
+is the target string referencing the first AI channel of the board with index 1. The 
+second argument selects the used property, which is set to "True" by the third argument.
+
+"False" is the second allowed value and it is applied to the other AI channels to disable
+them.
+
+
+Step 4:
+
+.. code:: c
+
+    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_SIZE, 200);
+    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 50);
+    DeWeSetParamStruct_str("BoardID1/AcqProp", "SampleRate", "2000");
+
+Now the acquisition properties have to be configured. CMD_BUFFER_BLOCK_SIZE and 
+CMD_BUFFER_BLOCK_COUNT are used to setup the acuisition buffer for the AI channel.
+
+The sample rate has to be configured by setting the *SampleRate* property of the 
+*BoardID1/AcqProp* property.
+
+Step 5:
+
+.. code:: c
+
+    DeWeSetParam_i32(1, CMD_UPDATE_PARAM_ALL, 0);
+
+Up to this point channel and acquisition configuration was done. But it did not
+apply to the hardware device. The devices are still on the default settings
+made by using CMD_RESET_BOARD.
+The new configuration is applied to the hardware by using CMD_UPDATE_PARAM_ALL.
+
+Step 6:
+
+.. code:: c
+
+    DeWeSetParam_i32(1, CMD_START_ACQUISITION, 0);
+
+Now it is time to start the aquisition. This is done by the command
+CMD_START_ACQUISITION. 
+
+Usually this is done before entering a acqisition loop processing the
+measured samples.
+
+Step 7:
+
+.. code:: c
+
+    DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
+    DeWeGetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, &avail_samples);
+
+Just read the number of samples stored in the buffer since CMD_START_ACQUISITION.
+After processing the samples, the application has to free them with CMD_BUFFER_FREE_NO_SAMPLE
+to free buffer memory for new samples.
+
+.. note:: -  Please note that the acquisition loop is missing in this example. It will be shown in following examples.
+
+
+Step 8:
+
+.. code:: c
+
+    DeWeSetParam_i32(1, CMD_STOP_ACQUISITION, 0);
+
+CMD_STOP_ACQUISITION is used to end acquisition and therefore the measurement.
+No new samples will be stored in the buffer.
+
+
+Step 9:
+
+.. code:: c
+
+    DeWeSetParam_i32(0, CMD_CLOSE_BOARD, 0);
+    DeWeSetParam_i32(1, CMD_CLOSE_BOARD, 0);
+    DeWeDriverDeInit();
+    DeWePxiUnload();
+
+Close the boards and uninitialize the API.
+
+
+Quickstart Example Source Code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../../trion/CXX/quickstart/quickstart.cpp
+    :caption: Quickstart example
+    :language: c++
+    :linenos:
+    :lines: 9-
+
+
+.. note:: -  Running the example is possible, but it generates no output. Its only purpose is to explain the setup.
 
 
 Achievements
@@ -213,12 +362,20 @@ Achievements
 ..   configure simulation
 ..   build and run an example!
 
+Congratulations! With the help of this chapter you installed a working toolchain.
+Using DEWETRON explorer you configured a demo system. You validated the system using 
+DEWETRON OXYGEN where you had a look at the different channels your measurement board provided.
+
+You generated a solution for Visual Studio and compiled the Quickstart example. You read
+about the highlighted steps of the example.
+
+You even run the example! Even though it didnt output much :).
 
 
 Next Steps
 ----------
 
-.. What happens in quickstart.cpp?
+TODO
 .. Look at other channel types: Counter, DI, CAN ...
 .. Different measurement modes: Bridge, ...
 .. Multiple Channels
