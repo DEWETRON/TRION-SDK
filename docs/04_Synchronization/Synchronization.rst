@@ -35,21 +35,23 @@ Master instrument
 The board setup is the same when multiple TRION boards are used. The first board has to be set to Master mode, 
 all others to Slave:
 
-Master board setup “BoardID0”:
+Master board setup "BoardID0":
+
 
 .. code:: c
-    
-    DeWeSetParamStruct_str(“BoardID0/AcqProp”, “OperationMode”, “Master”);
-    DeWeSetParamStruct_str(“BoardID0/AcqProp”, “ExtTrigger”, “False”);
-    DeWeSetParamStruct_str(“BoardID0/AcqProp”, “ExtClk”, “False”);
 
-Slave board setup “BoardIDX” [for X from 1 to NrOfAvailableBoards]:
+    DeWeSetParamStruct_str("BoardID0/AcqProp", "OperationMode", "Master");
+    DeWeSetParamStruct_str("BoardID0/AcqProp", "ExtTrigger", "False");
+    DeWeSetParamStruct_str("BoardID0/AcqProp", "ExtClk", "False");
+
+
+Slave board setup "BoardIDX" [for X from 1 to NrOfAvailableBoards]:
 
 .. code:: c
-    
-    DeWeSetParamStruct_str(“BoardIDX/AcqProp”, “OperationMode”, “Slave”);
-    DeWeSetParamStruct_str(“BoardIDX/AcqProp”, “ExtTrigger”, “PosEdge”);
-    DeWeSetParamStruct_str(“BoardIDX/AcqProp”, “ExtClk”, “False”);
+
+    DeWeSetParamStruct_str("BoardIDX/AcqProp", "OperationMode", "Slave");
+    DeWeSetParamStruct_str("BoardIDX/AcqProp", "ExtTrigger", "PosEdge");
+    DeWeSetParamStruct_str("BoardIDX/AcqProp", "ExtClk", "False");
 
 
 SYNC-OUT has to be configured:
@@ -60,9 +62,9 @@ SYNC-OUT has to be configured:
 These are the appropriate TRION-API commands:
 
 .. code:: c
-    
-    DeWeSetParamStruct_str(“BoardID0/Trig7”, “Source”, “Low”);
-    DeWeSetParamStruct_str(“BoardID0/Trig7”, “Inverted”, “False”);
+
+    DeWeSetParamStruct_str("BoardID0/Trig7", "Source", "Low");
+    DeWeSetParamStruct_str("BoardID0/Trig7", "Inverted", "False");
     // Then apply the settings using:
     DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
 
@@ -74,14 +76,14 @@ On slave devices using TRION-SYNC-BUS has to be configured too.
 All boards have to be configured to slave mode!
 
 
-Slave board setup “BoardIDX” [for X from 0 to NrOfAvailableBoards]
+Slave board setup "BoardIDX" [for X from 0 to NrOfAvailableBoards]
 
 .. code:: c
 
-    DeWeSetParamStruct_str(“BoardIDX/AcqProp”, “OperationMode”, “Slave”);
-    // Usually “PosEdge”
-    DeWeSetParamStruct_str(“BoardIDX/AcqProp”, “ExtTrigger”, “PosEdge”);
-    DeWeSetParamStruct_str(“BoardIDX/AcqProp”, “ExtClk”, “False”);
+    DeWeSetParamStruct_str("BoardIDX/AcqProp", "OperationMode", "Slave");
+    // Usually "PosEdge"
+    DeWeSetParamStruct_str("BoardIDX/AcqProp", "ExtTrigger", "PosEdge");
+    DeWeSetParamStruct_str("BoardIDX/AcqProp", "ExtClk", "False");
 
 
 SYNC-OUT has to be configured:
@@ -93,8 +95,8 @@ These are the appropriate TRION-API commands:
 
 .. code:: c
 
-    DeWeSetParamStruct_str(“BoardID0/Trig7”, “Source”, “High”);
-    DeWeSetParamStruct_str(“BoardID0/Trig7”, “Inverted”, “False”);
+    DeWeSetParamStruct_str("BoardID0/Trig7", "Source", "High");
+    DeWeSetParamStruct_str("BoardID0/Trig7", "Inverted", "False");
     // Then apply the settings using:
     DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
 
