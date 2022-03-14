@@ -375,7 +375,7 @@ You even run the example! Even though it didnt output much :).
 Next Steps
 ----------
 
-TODO
+.. TODO
 .. Look at other channel types: Counter, DI, CAN ...
 .. Different measurement modes: Bridge, ...
 .. Multiple Channels

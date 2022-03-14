@@ -89,7 +89,7 @@ if html_theme == 'sphinx_material':
       #'repo_name': 'sphinx-material',
 
       # Visible levels of the global TOC; -1 means unlimited
-      'globaltoc_depth': -1,
+      'globaltoc_depth': 0,
       # If False, expand all TOC entries
       'globaltoc_collapse': True,
       # If True, show hidden TOC entries

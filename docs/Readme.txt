@@ -91,3 +91,12 @@ and press F5
 make.bat latexpdf
 
 Directly create pdf cocument.
+
+
+
+Documentation Standard
+======================
+1. Chapter              =============
+1.1 Subchapter          -------------
+1.1.1 Section           ~~~~~~~~~~~~~
+1.1.1.1 Subsection      ^^^^^^^^^^^^^

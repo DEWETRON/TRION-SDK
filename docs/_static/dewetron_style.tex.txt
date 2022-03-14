@@ -4,6 +4,9 @@
 
 \usepackage{fontspec}
 
+\setcounter{tocdepth}{2} 
+
+
 % main font should be Calibri, Linux alternative Carlito 
 \IfFontExistsTF{Calibri}
   {\setmainfont{Calibri}}
