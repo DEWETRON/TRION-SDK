@@ -28,4 +28,5 @@ DEWETRON TRION-SDK 6.0
    12_TRIONet/TRIONet_Enclosure.rst
    13_PUREC/PUREC_Enclosure.rst
    14_ConnectorBoxes/ConnectorBoxes.rst
+   19_DevelopmentTips/DevelopmentTips.rst
    20_Support/Support.rst
