@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
     // sleep for a short period, then:
     DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
-    DeWeGetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, &avail_samples);
+    DeWeSetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, avail_samples);
 
     // Step 8: Stop acquisition
     DeWeSetParam_i32(1, CMD_STOP_ACQUISITION, 0);
