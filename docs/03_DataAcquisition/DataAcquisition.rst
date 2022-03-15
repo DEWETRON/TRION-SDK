@@ -204,7 +204,7 @@ specific Board:
 
 .. code:: c
 
-    DeweGetParamStruct_str( "BoardId0", "ScanDescriptor_V2", Buf, sizeof(Buf));
+    DeWeGetParamStruct_str( "BoardId0", "ScanDescriptor_V2", Buf, sizeof(Buf));
 
 
 The returned XML document correlates with the following hierarchy:

@@ -101,10 +101,33 @@ if(MSVC)
   
 endif()
 
+# Add CXX language bindings and utility libraries
+if (EXISTS ${TRION_SDK_ROOT}/trion_api/CXX/trion_api_cxx/CMakeLists.txt)
+  if (NOT TARGET dw_modules_api_cxx)
+    add_subdirectory(${TRION_SDK_ROOT}/trion_api/CXX/trion_api_cxx trion_api_cxx)
+  endif()
+else()
+  message(status "${TRION_SDK_ROOT}/trion_api/CXX/trion_api_cxx not found")
+endif()
+
+# Add XML processing library
+if (NOT TARGET pugixml)
+  add_subdirectory(${TRION_SDK_ROOT}/3rdparty/pugixml-1.9 pugixml)
+endif()
+
+# Add XML processing utility library
+if (NOT TARGET xpugixml)
+  add_subdirectory(${TRION_SDK_ROOT}/trion_api/CXX/lib/xpugixml xpugixml)
+endif()
+
+
 macro(SampleBuildSettings SAMPLE)
   target_link_libraries(${SAMPLE}
     trion_api_inc
+    trion_api_cxx
     trion_sdk_util_C
+    xpugixml
+    pugixml
     )
   if(UNIX)
     target_link_libraries(${SAMPLE}
@@ -132,7 +155,10 @@ macro(SampleBuildSettingsFolder SAMPLE FOLDER)
   set_target_properties(${SAMPLE} PROPERTIES FOLDER ${FOLDER})
   target_link_libraries(${SAMPLE}
     trion_api_inc
+    trion_api_cxx
     trion_sdk_util_C
+    xpugixml
+    pugixml
     )
   if(UNIX)
     target_link_libraries(${SAMPLE}
@@ -160,7 +186,10 @@ macro(TRIONET_SampleBuildSettings SAMPLE)
   set_target_properties(${SAMPLE} PROPERTIES FOLDER "Examples TRIONET")
   target_link_libraries(${SAMPLE}
     trion_api_inc
+    trion_api_cxx
     trion_sdk_util_C
+    xpugixml
+    pugixml
     )
   if(UNIX)
     target_link_libraries(${SAMPLE}
@@ -192,6 +221,7 @@ endmacro()
 if (NOT TARGET trion_sdk_util_C)
   add_subdirectory(${TRION_SDK_ROOT}/trion_sdk_util/C trion_sdk_util)
 endif()
+
 
 add_subdirectory(quickstart)
 

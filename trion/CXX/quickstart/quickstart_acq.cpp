@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 {
     int boards = 0;
     int avail_samples = 0;
-    sint64 buf_end_pos = 0;         // Last position in the ring buffer
+    int64_t buf_end_pos = 0;         // Last position in the ring buffer
     int buff_size = 0;              // Total size of the ring buffer
 
     // Basic SDK Initialization
@@ -54,8 +54,8 @@ int main(int argc, char* argv[])
     DeWeSetParam_i32(1, CMD_START_ACQUISITION, 0);
 
     // Measurement loop and sample processing
-    sint64 read_pos = 0;
-    sint32* read_pos_ptr = 0;
+    int64_t read_pos = 0;
+    int32_t* read_pos_ptr = 0;
     int sample_value = 0;
 
     // Break with CTRL+C only
@@ -65,6 +65,7 @@ int main(int argc, char* argv[])
         DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
         if (avail_samples <= 0)
         {
+            Sleep(100);
             continue;
         }
 

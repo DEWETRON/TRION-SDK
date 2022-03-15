@@ -12,36 +12,36 @@ This section explains howto access and manipulate those documents.
 Relevant API interface
 ----------------------
 
-XML documents can be accessed by the DeweSetParamStruct_str class
+XML documents can be accessed by the DeWeSetParamStruct_str class
 functions. XPath operations on these documents are possible by
-using the DeweSetParamXML_str class functions.
+using the DeWeSetParamXML_str class functions.
 
 
 .. code:: c
 
-    int DeweSetParamStruct_str)(const char *target, 
+    int DeWeSetParamStruct_str)(const char *target, 
         const char *command,
         const char *val);
-    int DeweGetParamStruct_str(const char *target, 
+    int DeWeGetParamStruct_str(const char *target, 
         const char *command, 
         char *val, 
         uint32 val_size);
-    int DeweGetParamStructEx_str(const char *target, 
+    int DeWeGetParamStructEx_str(const char *target, 
         const char *command, 
         char *val, 
         uint32 val_size);
-    int DeweGetParamStruct_strLEN(const char *target, 
+    int DeWeGetParamStruct_strLEN(const char *target, 
         const char *command, 
         uint32 *val_size);
     
-    int DeweSetParamXML_str(const char *target, 
+    int DeWeSetParamXML_str(const char *target, 
         const char *command, 
         const char *val);
-    int DeweGetParamXMLStruct_str(const char *target, 
+    int DeWeGetParamXMLStruct_str(const char *target, 
         const char *command, 
         char *val, 
         uint32 val_size);
-    int DeweGetParamXMLStruct_strLEN(const char *target, 
+    int DeWeGetParamXMLStruct_strLEN(const char *target, 
         const char *command, 
         uint32 *val_size);
 
@@ -456,7 +456,7 @@ So the final function call looks like:
 
 .. code:: c
 
-    DeweSetParamStruct_str( "BoardID0/AcqProp", "SampleRate", "20000" );
+    DeWeSetParamStruct_str( "BoardID0/AcqProp", "SampleRate", "20000" );
 
 
 Example: How to setup the ResolutionAI
@@ -473,7 +473,7 @@ Final function call:
 
 .. code:: c
     
-    DeweSetParamStruct_str( "BoardID0/AcqProp", "ResolutionAI", "16" );
+    DeeSetParamStruct_str( "BoardID0/AcqProp", "ResolutionAI", "16" );
 
 
 
@@ -504,7 +504,7 @@ Final function call:
 
 .. code:: c
     
-    DeweSetParamStruct_str( "BoardID0/AI0", "Mode", "Resistance" );
+    DeWeSetParamStruct_str( "BoardID0/AI0", "Mode", "Resistance" );
 
 
 Example: How to set the Range of an analogue channel in Resistance-mode
@@ -521,7 +521,7 @@ Final function call:
 
 .. code:: c
 
-    DeweSetParamStruct_str( "BoardID0/AI0", "Range", "3000" );
+    DeWeSetParamStruct_str( "BoardID0/AI0", "Range", "3000" );
 
 
 BoardConfig XML-File
