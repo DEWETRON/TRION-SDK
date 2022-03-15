@@ -20,7 +20,8 @@
 /**
  * Functor to be implemented by applications interested in sample data.
  */
-using AddSampleFunctor = std::function<void(const char*, uint32_t, const void*, uint32_t, uint32_t, uint32_t)>;
+using AddSampleFunctor = std::function<void(const char*, uint32_t, 
+    const void*, uint32_t, uint32_t, uint32_t)>;
 
 
 /**
@@ -44,7 +45,8 @@ public:
         pugi::xml_document sd_doc;
         if (pugi::status_ok == sd_doc.load_string(sd_xml.c_str()).status)
         {
-            auto scan_description_node = sd_doc.select_node("ScanDescriptor/*/ScanDescription").node();
+            auto scan_description_node = 
+                sd_doc.select_node("ScanDescriptor/*/ScanDescription").node();
             if (scan_description_node)
             {
                 if (2 != scan_description_node.attribute("version").as_int())
@@ -52,7 +54,8 @@ public:
                     throw std::runtime_error("Unsupported version");
                 }
 
-                m_scan_size_bytes = scan_description_node.attribute("scan_size").as_int() / 8;
+                m_scan_size_bytes 
+                    = scan_description_node.attribute("scan_size").as_int() / 8;
                 // Can be safely ignored:
                 // bit
                 // byte_order
@@ -102,7 +105,8 @@ public:
             auto read_pos_ptr_chn = read_pos_ptr + offset_bytes;
             uint32_t channel_bit_mask = (1 << sd.sample_size) - 1;
 
-            m_datasink(sd.name.c_str(), sd.index, read_pos_ptr_chn, avail_samples, channel_bit_mask, m_scan_size_bytes);
+            m_datasink(sd.name.c_str(), sd.index, read_pos_ptr_chn, avail_samples, 
+                channel_bit_mask, m_scan_size_bytes);
         }
 
         return read_pos + (avail_samples * m_scan_size_bytes);

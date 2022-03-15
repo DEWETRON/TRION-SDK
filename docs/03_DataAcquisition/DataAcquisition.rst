@@ -274,6 +274,14 @@ attributes and values of the returned scan descriptor XML document:
 
 
 
+Scan Descriptor Example Source Code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../../trion/CXX/quickstart/quickstart_acq_scan_desc.cpp
+    :caption: Scan Descriptor example
+    :language: c++
+    :linenos:
+    :lines: 9-
 
 
 
