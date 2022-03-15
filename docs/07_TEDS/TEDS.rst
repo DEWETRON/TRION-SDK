@@ -100,56 +100,64 @@ The following list explains all possible XML Elements and their XML attributes:
 TEDSData description
 ^^^^^^^^^^^^^^^^^^^^
 
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{9cm}|
 
-*TEDSType*: Name of the TEDS eeprom
+.. table:: TEDS XML description
+   :widths: 10 10 80
 
-*SerialNumber*: Read only serialnumber
-
-*MemoryRegion*:
-
-*Name*: Region name. Some TEDS chips have separate configuration pages
-
-*Writable*: true if writeable
-
-*MemorySize*: Size of the EEPROM
-
-*MemorySize@Unit*: usually "Byte"
-
-*Data*: EEPROM content as hexadecimal coded string
-
-*ROMCodeRaw*: Read only, family code plus serial number.
-
-*TEDSInfo*: Parent node
-
-*TEDSInfo/@Manufacturer*: Sensor manufacturer
-
-*TEDSInfo/@Serial*: Sensor serial number
-
-*TEDSInfo/@TedsVersion*: Usually 2 (1=IEEE 1451.4 D0.9x; 2=IEEE 1451.4 final)
-
-*TEDSInfo/@Model*: Model Number of the sensor
-
-*TEDSInfo/@VersionLetter*: Version letter of the sensor
-
-*TEDSInfo/@VersionNumber*: Version number of the sensor
-
-*Template*: Recoginzed and decoded template
-
-*Template/@Number*: The number of the template
-
-*Template/@Manufacturer*: Template manufacturer
-
-*Template/@Title*: Template name
-
-*Template/Abstract*: Template name
-
-*Property*: List of all the decoded template properties
-
-*Property/@Name*: Property name
-
-*Property/@Type*: Number describing the data type
-
-
+   +---------------+--------------------------+------------------------------------------------------+
+   | **Element**   | **Attribute**            | **Description**                                      |
+   +===============+==========================+======================================================+
+   | TEDSData      |                          | TEDS root element                                    |
+   +---------------+--------------------------+------------------------------------------------------+
+   | TEDSType      |                          | TEDS EEPROM chip                                     |
+   +---------------+--------------------------+------------------------------------------------------+
+   | SerialNumber  |                          | Read only TEDS Serial Number                         |
+   +---------------+--------------------------+------------------------------------------------------+
+   | MemoryRegion  |                          | One or more memory regions                           |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Name                     | Region name                                          |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Writeable                | 'true' if writeable                                  |
+   +---------------+--------------------------+------------------------------------------------------+
+   | MemorySize    |                          | Size of the EEPROM                                   |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Unit                     | Usually "Byte"                                       |
+   +---------------+--------------------------+------------------------------------------------------+
+   | Data          |                          | EEPROM content as hexadecimal coded string           |
+   +---------------+--------------------------+------------------------------------------------------+
+   | ROMCodeRaw    |                          | Read only, family code plus serial number            |
+   +---------------+--------------------------+------------------------------------------------------+
+   | TEDSInfo      |                          | Sennsor information                                  |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Manufacturer             | Sensor manufacturer                                  |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Serial                   | Sensor serial number                                 |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | TedsVersion              | Usually 2 (1=IEEE 1451.4 D0.9x; 2=IEEE 1451.4 final) |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Model                    | Model Number of the sensor                           |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | VersionLetter            | Version letter of the sensor                         |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | VersionNumber            | Version number of the sensor                         |
+   +---------------+--------------------------+------------------------------------------------------+
+   | Template      |                          | Recognized and decoded template                      |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Number                   | The number of the template                           |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Manufacturer             | Template manufacturer                                |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Title                    | Template name                                        |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Abstract                 | Descriptive text about the sensor template           |
+   +---------------+--------------------------+------------------------------------------------------+
+   | Property      |                          | List of all the decoded template properties          |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Name                     | Property name                                        |
+   +---------------+--------------------------+------------------------------------------------------+
+   |               | Type                     | Number describing the data type                      |
+   +---------------+--------------------------+------------------------------------------------------+
 
 
 TedsWriteEx - Writing <Data>
