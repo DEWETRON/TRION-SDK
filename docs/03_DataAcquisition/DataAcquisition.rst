@@ -269,13 +269,20 @@ attributes and values of the returned scan descriptor XML document:
 
 .. warning::
     When requesting a scan descriptor with command “ScanDescriptor” (Version
-    1), some newer board may not be able to return a valid scan descriptor
+    1), some boards may not be able to return a valid scan descriptor
     for analog 24bit channels. Therefore, always use “ScanDescriptor_V2”.
 
+
+.. warning::
+    "ScanDescriptor" version 1 is deprecated and will be removed. It will return
+    the V2 document in future.
 
 
 Scan Descriptor Example Source Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The next example extends the Quickstart app with a valid Scan Descriptor support class.
+
 
 .. literalinclude:: ../../trion/CXX/quickstart/quickstart_acq_scan_desc.cpp
     :caption: Scan Descriptor example
