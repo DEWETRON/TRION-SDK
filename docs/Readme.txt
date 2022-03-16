@@ -100,3 +100,7 @@ Documentation Standard
 1.1 Subchapter          -------------
 1.1.1 Section           ~~~~~~~~~~~~~
 1.1.1.1 Subsection      ^^^^^^^^^^^^^
+
+
+rst files should use UNIX file format or validators report
+problems in every line.
