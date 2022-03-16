@@ -25,7 +25,8 @@ using AddSampleFunctor = std::function<void(const char*, uint32_t,
 
 
 /**
- * Example Decoder using the ScanDescripter V2 xml for generic
+ * ScanDescripterDecode
+ * Uses ScanDescriptor_V2 xml allowing generic
  * sample decoding and processing.
  */
 class ScanDescriptorDecoder
@@ -77,7 +78,6 @@ public:
                                 , sample.attribute("offset").as_uint()
                         });
                 }
-
             }
             else
             {
