@@ -57,6 +57,34 @@ MSI Modes
 ~~~~~~~~~
 
 
+
+
+Analog Out Channels
+-------------------
+
+
+MonitorOutput Mode
+~~~~~~~~~~~~~~~~~~
+
+
+MathOutput Mode
+~~~~~~~~~~~~~~~
+
+
+ConstOutput Mode
+~~~~~~~~~~~~~~~~
+
+
+FunctionGenerator Mode
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+StreamOutput Mode
+~~~~~~~~~~~~~~~~~
+
+
+
+
 Counter Channels
 ----------------
 
@@ -117,6 +145,7 @@ CANFD Channels
 
 
 Currently not supported
+
 
 
 
