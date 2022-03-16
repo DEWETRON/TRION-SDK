@@ -302,13 +302,38 @@ of -100%. The limit for the output-offset usually is +/-150%
 
 
 Testing for constraints
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
+
+
+Range
+~~~~~
 
 As the TRION-API supports asymmetrical custom ranges, the range is split
 into RangeMin and RangeMax. RangeMin is the lower value of a given
 range-span, whereby RangeMax is the upper value.
 
-Examples
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Range Examples
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Range                | RangeMin     | RangeMax     |
+   +======================+==============+==============+
+   | 10V (= -10V .. 10V)  | -10V         | 10V          |
+   +----------------------+--------------+--------------+
+   | -5 .. 10V            | -5V          | 10V          |
+   +----------------------+--------------+--------------+
+   | 0 .. 10V             | 0V           | 10V          |
+   +----------------------+--------------+--------------+
+   | 3 .. 10V             | 3V           | 10V          |
+   +----------------------+--------------+--------------+
+   | -10 .. 5V            | -10V         | 5V           |
+   +----------------------+--------------+--------------+
+   | -10 .. 0V            | -10V         | 0V           |
+   +----------------------+--------------+--------------+
+
+
 
 
 Analog Out Channels
