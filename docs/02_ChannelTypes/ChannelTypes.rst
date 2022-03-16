@@ -333,6 +333,38 @@ range-span, whereby RangeMax is the upper value.
    | -10 .. 0V            | -10V         | 0V           |
    +----------------------+--------------+--------------+
 
+This is the range (in [V]), the amplifier-path has to be set to, to satisfy
+the promise, that the interval RangeMin..RangeMax is covered by the
+raw-value-full-scale.
+
+
+HWRangeMin, HWRangeMax, HWInputOffset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+As the properties Range (RangeMin..RangeMx) and InputOffset are always in
+logical units (eg Ohms for resistance mode), a intermediate step of conversion
+is necessary, to translate them to the underlying voltage-measurements.
+The HWRangeMin/Max and InputOffset are used subsequentially to calculate the
+AmplifierRange. The main-purpose of those values is to keep the calculation
+comprehensible.
+
+
+Amplifier Range
+~~~~~~~~~~~~~~~
+The result of the calculated AmplifierRange must always satisfy following
+condition:
+
+    .. math:: AmplRangeMin[V] \leq AmplifierRange[V] \leq AmplRangeMax
+
+
+Voltage Mode, Calibration Mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Depending on properties: Range, InputOffset
+
+    .. math:: HWRangeMin[V] = RangeMin[V]
+    .. math:: HWRangeMax[V] = RangeMax[V]
+    .. math:: HWInputOffset[V] = InputOffset[V]
+    .. math:: AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))
+
 
 
 
