@@ -534,3 +534,16 @@ This shows the set of typical properties for IRIG-sync-in mode.
    |                         | API internally.                                      |
    |                         | This element shall be ignored by applications        |
    +-------------------------+------------------------------------------------------+
+
+Exmple
+~~~~~~
+
+PTP, GPS and IRIG are similar to setup.
+
+The follwing exmample covers the basic setup and acquisition start sequence.
+
+.. literalinclude:: ../../trion/CXX/synchronization/synchronization_ptp.cpp
+    :caption: PTP slave setup example
+    :language: c++
+    :linenos:
+    :lines: 9-
