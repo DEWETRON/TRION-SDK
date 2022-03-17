@@ -1,6 +1,22 @@
 # Prerequisites
 *.d
 
+#Cmake generated
+*.cmake
+CmakeCache.txt
+**CmakeFiles/
+**/CompilerId*
+
+# Project Files
+*.suo
+*.sln
+*.vcxproj
+*.vcxproj.*
+
+# VS Databases
+*.VC.*
+*.ipch
+
 # Compiled Object files
 *.slo
 *.lo
@@ -41,3 +57,4 @@
 **/build
 **/build64
 **/_build
+**/Debug

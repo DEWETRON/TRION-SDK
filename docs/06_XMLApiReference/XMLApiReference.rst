@@ -523,6 +523,211 @@ Final function call:
 
     DeWeSetParamStruct_str( "BoardID0/AI0", "Range", "3000" );
 
+Complex inter-property dependency notations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+More complex measurement modes may have complex dependencies
+between single properties.
+Selecting one specific property-value can shrink or widen the
+selection on other properties.
+
+If a property influences the constraints of another property
+this is indicated with the xml-attribute "ReferenceNode" on
+property-node-level.
+
+.. warning::
+    One property may influnece more than one other property.
+    The value of the xml-attribute "ReferenceNode" holds a semicolon
+    seperated list of affected attributes.
+
+    For example "ShuntType;Range"
+
+Property selector mechanism
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A property may influence a differnt property in a way, that the most
+clear way of communicating this is by using a different definitionset
+for the influenced property.
+
+The following exmple will help to make this more clear.
+
+.. code-block:: XML
+    :caption: Property selector mechanism exmple, Bridge Resistance
+
+    <InputType Count = "9" Default = "0" ReferenceNode = "BridgeRes">
+        <ID0 Type = "External">BRFULL</ID0>
+        <ID1 Type = "External">BRFULL5W</ID1>
+        <ID2 Type = "External">BRHALF</ID2>
+        <ID3 Type = "External">BRHALF4W</ID3>
+        <ID4 Type = "Internal">BRQUARTER3W</ID4>
+        <ID5 Type = "Internal">BRQUARTER4W</ID5>
+        <ID6 Type = "Internal">CompletionVoltage</ID6>
+        <ID7 Type = "Internal">LineVoltageDrop</ID7>
+        <ID8 Type = "NA">Short</ID8>
+    </InputType>
+    <BridgeRes
+        Unit = "Ohm"
+        Count = "3"
+        Default = "2"
+        Subkey = "Type"
+        Type = "Internal">
+        <ID1>1000</ID1>
+        <ID2>350</ID2>
+        <ID7>120</ID7>
+    </BridgeRes>
+    <BridgeRes
+        ProgMin = "50"
+        ProgMax = "10000"
+        Unit = "Ohm"
+        Count = "2"
+        Default = "0"
+        Subkey = "Type"
+        Type = "External">
+        <ID0>350</ID0>
+        <ID1>120</ID1>
+    </BridgeRes>
+    <BridgeRes
+        Count = "0"
+        Subkey = "Type"
+        Type = "NA"/>
+
+In this exmple the property "InputType" determines which definition set
+of "BridgeRes" is valid.
+
+InputType has the xml-attribute "ReferenceNode" with a value of
+"BridgeRes".
+This indicates, that "BridgeRes" depends on "InputType".
+
+Each ID node (ID0 to ID8) of "InputType" has a xml-attribute "Type".
+The name of this attribute can differ from "Type". The referenced
+node(s) establish a relation to this attribute.
+
+On the same xml-level as "InputType" there are 3 nodes "BridgeRes".
+Each of these nodes has a xml-attribute "Subkey".
+The value of "Subkey" determines which xml-attribute-name determines
+the selection of this node.
+In this example "Subkey" has the value of "Type".
+This indicates, that the "Type"-Attributes on ID-node-level in
+"InputType" needs to be looked at.
+
+The "Subkey" xml-attribute is followed with a "Type" attribute.
+The actual name of this attribute is always the same, as the value
+of the "Subkey" attribute.
+The value of the "Type" xml-attribute now is the value of the "Type"
+xml-attributes from "InputType" to look for a match.
+
+Examples:
+
+If "InputType" is set to a value of "BRQUARTER3W", "BRQUARTER4W",
+"CompletionVoltage"or "LineVoltageDrop" the Type-attribute in "InputType"
+would have the assigned value of "Internal".
+So the 1st BridgeRes Node has to be applied to determine the definition-set
+for BridgeRes. (As the 1st node has "SubKey"="Type" and "Type="Internal").
+
+.. code-block:: XML
+    :caption: InputType Internal
+
+    <InputType Count = "9" Default = "0" ReferenceNode = "BridgeRes">
+        <ID4 Type = "Internal">BRQUARTER3W</ID4>
+        <ID5 Type = "Internal">BRQUARTER4W</ID5>
+        <ID6 Type = "Internal">CompletionVoltage</ID6>
+        <ID7 Type = "Internal">LineVoltageDrop</ID7>
+    </InputType>
+
+.. code-block:: XML
+    :caption: BridgeRes Internal
+    
+    <BridgeRes
+        Unit = "Ohm"
+        Count = "3"
+        Default = "2"
+        Subkey = "Type"
+        Type = "Internal">
+        <ID1>1000</ID1>
+        <ID2>350</ID2>
+        <ID7>120</ID7>
+    </BridgeRes>
+
+If "InputType" is set to a value of "BRFULL", "BRFULL5W", "BRHALF"
+or "BRHAL4W" the Type-attribute in "InputType" would have the assigned
+value of "External"
+So the 2nd BridgeRes Node has to be applied to determine the definition-
+set for BridgeRes. (As the 2nd node has "SubKey"="Type" and "Type="External").
+
+.. code-block:: XML
+    :caption: InputType External
+
+    <InputType Count = "9" Default = "0" ReferenceNode = "BridgeRes">
+        <ID0 Type = "External">BRFULL</ID0>
+        <ID1 Type = "External">BRFULL5W</ID1>
+        <ID2 Type = "External">BRHALF</ID2>
+        <ID3 Type = "External">BRHALF4W</ID3>
+    </InputType>
+
+.. code-block:: XML
+    :caption: BridgeRes External
+
+    <BridgeRes
+        ProgMin = "50"
+        ProgMax = "10000"
+        Unit = "Ohm"
+        Count = "2"
+        Default = "0"
+        Subkey = "Type"
+        Type = "External">
+        <ID0>350</ID0>
+        <ID1>120</ID1>
+    </BridgeRes>
+
+
+If "InputType" is set to a value of "Short" the Type-attribute in "InputType"
+would have the assigned value of "NA"
+So the 3rd BridgeRes Node has to be applied to determine the definition-set
+for BridgeRes. (As the 3rd node has "SubKey"="Type" and "Type="NA").
+In this case this results in an empty definition-set indicating that
+this property is not used in that combination.
+
+.. code-block:: XML
+    :caption: InputType NA
+
+    <InputType Count = "9" Default = "0" ReferenceNode = "BridgeRes">
+        <ID8 Type = "NA">Short</ID8>
+    </InputType>
+
+.. code-block:: XML
+    :caption: BridgeRes NA
+
+    <BridgeRes
+        Count = "0"
+        Subkey = "Type"
+        Type = "NA"/>
+
+
+Everytime the application sets a property with depending nodes, API
+evaluates this information an adjusts it's internal validity checks according.
+If the previously set value of the depending property would still be valid
+after reevaluation the value will be left unchanged by TRION-API.
+If the previously set value of the depending property would be invalid
+the value will be set to the given Default of the newly selected definition-
+set.
+
+Example 1:
+"InputType" = "BRFULL"
+"BridgeRes" = "1000 Ohm" (legal, as "BridgeRes" with "Type"="External is freely programmable")
+
+change "InputType" to "BRQUARTER3W"
+This changes the "BridgeRes" to "Type"="Internal".
+"1000 Ohm" is in the list of valid options for this table (ID1), so the value remains
+unchanged.
+
+Example 2:
+"InputType" = "BRFULL"
+"BridgeRes" = "420 Ohm" (legal, as "BridgeRes" wirh "Type"="External is freely programmable")
+
+change "InputType" to "BRQUARTER3W"
+This changes the "BridgeRes" to "Type"="Internal".
+As this node is not programmable, and a value of "420 Ohm" is not within the list
+of valid values, API has to reset this to it's default of "350 Ohm".
 
 BoardConfig XML-File
 --------------------
