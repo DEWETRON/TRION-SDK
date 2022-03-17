@@ -434,14 +434,136 @@ of -100%. The limit for the output-offset usually is +/-150%
 
 
 
-Testing for constraints
-~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+Range calculation
+-----------------
+
 
 As the TRION-API supports asymmetrical custom ranges, the range is split
 into RangeMin and RangeMax. RangeMin is the lower value of a given
 range-span, whereby RangeMax is the upper value.
 
-Examples
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Range Examples
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Range                | RangeMin     | RangeMax     |
+   +======================+==============+==============+
+   | 10V (= -10V .. 10V)  | -10V         | 10V          |
+   +----------------------+--------------+--------------+
+   | -5 .. 10V            | -5V          | 10V          |
+   +----------------------+--------------+--------------+
+   | 0 .. 10V             | 0V           | 10V          |
+   +----------------------+--------------+--------------+
+   | 3 .. 10V             | 3V           | 10V          |
+   +----------------------+--------------+--------------+
+   | -10 .. 5V            | -10V         | 5V           |
+   +----------------------+--------------+--------------+
+   | -10 .. 0V            | -10V         | 0V           |
+   +----------------------+--------------+--------------+
+
+This is the range (in [V]), the amplifier-path has to be set to, to satisfy
+the promise, that the interval RangeMin..RangeMax is covered by the
+raw-value-full-scale.
+
+
+HWRangeMin, HWRangeMax, HWInputOffset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+As the properties Range (RangeMin..RangeMx) and InputOffset are always in
+logical units (eg Ohms for resistance mode), a intermediate step of conversion
+is necessary, to translate them to the underlying voltage-measurements.
+The HWRangeMin/Max and InputOffset are used subsequentially to calculate the
+AmplifierRange. The main-purpose of those values is to keep the calculation
+comprehensible.
+
+
+Amplifier Range
+~~~~~~~~~~~~~~~
+The result of the calculated AmplifierRange must always satisfy following
+condition:
+
+    .. math:: AmplRangeMin[V] \leq AmplifierRange[V] \leq AmplRangeMax
+
+
+Voltage Mode, Calibration Mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Depending on properties: Range, InputOffset
+
+    .. math:: HWRangeMin[V] = RangeMin[V]
+    .. math:: HWRangeMax[V] = RangeMax[V]
+    .. math:: HWInputOffset[V] = InputOffset[V]
+    .. math:: AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))
+
+
+Resistance Mode
+~~~~~~~~~~~~~~~
+Depending on properties: Range, InputOffset, Excitation
+
+    .. math:: HWRangeMin[V] = RangeMin[\Omega] * Excitation[A]
+    .. math:: HWRangeMax[V] = RangeMax[\Omega] * Excitation[A]
+    .. math:: HWInputOffset[V] = InputOffset[\Omega] * Excitation[A]
+    .. math:: AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))
+
+
+Bridge Mode
+~~~~~~~~~~~
+Depending on properties: Range, InputOffset, Excitation
+
+Note: Excitation and Range are related.
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|
+
+.. table:: Bridge Range Examples
+   :widths: 20 20
+
+   +--------------------+---------------------+
+   | Excitation Unit    | Range Unit          |
+   +====================+=====================+
+   | mA                 | mV/mA               |
+   +--------------------+---------------------+
+   | V                  | mV/mV               |
+   +--------------------+---------------------+
+
+The calculation is shown for mA-unit. Formulas also apply for V-excitations
+
+    .. math:: HWRangeMin[V] = \frac{RangeMin[\frac{mV}{mA}] * Excitation[mA]}{1000}
+    .. math:: HWRangeMax[V] = \frac{RangeMax[\frac{mV}{mA}] * Excitation[mA]}{1000}
+    .. math:: HWInputOffset[V] = \frac{InputOffset[\frac{mV}{mA}] * Excitation[mA]}{1000}
+    .. math:: AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))
+
+
+Potentiometer Mode
+~~~~~~~~~~~~~~~~~~
+Depending on properties: Range, InputOffset, Excitation
+
+    .. math:: HWRangeMin[V] = \frac{RangeMin[\%] * Excitation[V]}{100}-\frac{Excitation[V]}{2}
+    .. math:: HWRangeMax[V] = \frac{RangeMax[\%] * Excitation[V]}{100}-\frac{Excitation[V]}{2}
+    .. math:: HWInputOffset = InputOffset[\%] * Excitation[V]
+    .. math:: AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))
+
+
+
+RTD-Temperature Mode
+~~~~~~~~~~~~~~~~~~~~
+
+TBD
+
+
+Current Mode, ExcCurrentMonitor Mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Depending on properties: Range, ShuntRes
+
+    .. math:: HWRangeMin[V] = RangeMin[A] * ShuntRes[\Omega]
+    .. math:: HWRangeMax[V] = RangeMax[A] * ShuntRes[\Omega]
+    .. math:: HWInputOffset[V] = InputOffset[A] * ShuntRes[\Omega]
+    .. math:: AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))
+
 
 
 Analog Out Channels
