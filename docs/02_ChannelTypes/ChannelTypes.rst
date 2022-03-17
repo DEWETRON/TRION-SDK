@@ -148,7 +148,7 @@ On the range-side it usually does not allow to use a free
 programmable value.
 
 .. code-block:: XML
-    :caption: Range element
+    :caption: Voltage mode element
 
     <Mode Mode = "Voltage">
         <Range>..</Range>
@@ -226,8 +226,140 @@ Resistance Mode
 Bridge Mode
 ~~~~~~~~~~~
 
+Specific TRION-boards offer a native "Bridge" mode, usually featuring
+support for full-, half- and quarter-bridge configurations with internal
+bridge completion.
+
+Bridge-measurement can either be driven by voltage or by current excitation.
+As some properties are directly depending on this circumstance the bridge-mode-
+subtree is more complex than the voltage-mode subtree, showing multiple
+instances of some properties.
+
+In bridge-mode the Excitation property should be the first one to be set,
+as the validity of many other properties directly depends on this information.
+
+.. code-block:: XML
+    :caption: Bridge mode element
+
+    <Mode Mode = "Bridge">
+        <Range>..</Range>
+        <Range>..</Range>
+        <InputOffset>..</InputOffset>
+        <InputOffset>..</InputOffset>
+        <Excitation>..</Excitation>
+        <Excitation>..</Excitation>
+        <ShuntTarget>..</ShuntTarget>
+        <ShuntTarget>..</ShuntTarget>
+        <LPFilter_Type>..</LPFilter_Type>
+        <LPFilter_Order>..</LPFilter_Order>
+        <LPFilter_Val>..</LPFilter_Val>
+        <HPFilter_Type>..</HPFilter_Type>
+        <HPFilter_Order>..</HPFilter_Order>
+        <HPFilter_Val>..</HPFilter_Val>
+        <IIRFilter_Type>..</IIRFilter_Type>
+        <IIRFilter_Order>..</IIRFilter_Order>
+        <IIRFilter_Val>..</IIRFilter_Val>
+        <HPIIRFilter_Type>..</HPIIRFilter_Type>
+        <HPIIRFilter_Order>..</HPIIRFilter_Order>
+        <HPIIRFilter_Val>..</HPIIRFilter_Val>
+        <InputImpedance>..</InputImpedance>
+        <InputType>..</InputType>
+        <BridgeRes>..</BridgeRes>
+        <BridgeRes>..</BridgeRes>
+        <BridgeRes>..</BridgeRes>
+        <ShuntType>..</ShuntType>
+        <ShuntResistance>..</ShuntResistance>
+        <ChannelFeatures>..</ChannelFeatures>
+        <TEDSOptions>..</TEDSOptions>
+    </Mode>
+
+Excitation Attribute
+^^^^^^^^^^^^^^^^^^^^
+Unit: either V, mA
+
+This property allows to configure the excitation.
+As many other properties directly depend on the unit
+of the excitation it is the first property that should
+be set.
+
+Range Attribute
+^^^^^^^^^^^^^^^
+Unit: either mV/V, mV/mA
+
+.. warning::
+    Due to the wide possible electrical range that can be covered
+    by simply setting the Excitation to either a very low or very
+    high value, an application either needs to follow the :ref:`more advanced
+    constraint evaluation <advanced_contraints>`, or always
+    requery the Range after changing a related attibute from the API,
+    as it will perform automatic corrections to the range, if any
+    constraint is violated.
+
+InputOffset Attribute
+^^^^^^^^^^^^^^^^^^^^^
+Unit: either mV/V, mV/mA
+
+This property is often used synonymous to “Sensor-Offset”. It’s
+main use is to shift the virtual 0 mV/V or 0mV7mA by a given value.
+Due to various physical effects any non-ideal sensor usually has a bias.
+With the property input-offset API can be setup to compensate for
+this bias.
+
+.. _bridge_res_input_type:
+
+InputType Attribute
+^^^^^^^^^^^^^^^^^^^
+Unit: N/A
+
+In bridge-mode this property indicates the possible input-path-configurations.
+
+This usualy covers the possible bridge-configurations
+(full, half, quarter), the wiring configurtion (3, 4 or 5-wire)
+as well as internal routing types used to facilitate diagnostic
+features without the need to change the mode (like applying a
+virtual short to sense the amplifier offset, or measuring the line
+voltage drop).
+
+BridgeRes Attribute
+^^^^^^^^^^^^^^^^^^^
+Unit: N/A
+
+This attribute allows to configure the nominal resistance value of the
+used straing gauge. Which table is applicable is selected via the
+:ref:`input type <bridge_res_input_type>`. On configurations with internal
+completion this configures the used completion resistance.
+
+ShuntType Attribute
+^^^^^^^^^^^^^^^^^^^
+Unit: N/A
+
+This property is used together with the
+:ref:`ShuntResistance <bridge_shunt_resistance>` property
+to activate an internal shunt-resistor for a shunt-calibration.
+
+.. _bridge_shunt_resistance:
+
+ShuntResistance Attribute
+^^^^^^^^^^^^^^^^^^^^^^^^^
+Unit: Ohm
+
+Selects the used shunt resistor for shunt-calibration.
+
+.. note::
+    Depending on the TRION board this may be realized via a
+    :ref:`ShuntTarget <bridge_shunt_target>`, and therefore
+    not a user selectable value.
+
+.. _bridge_shunt_target:
+
+ShuntTarget Attribute
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+TODO
+
 
 Potentiometer Mode
+
 ~~~~~~~~~~~~~~~~~~
 
 
@@ -258,6 +390,7 @@ MSI Modes
 CAN Mode
 ~~~~~~~~
 
+.. _advanced_contraints:
 
 Advanced Constraints
 --------------------
