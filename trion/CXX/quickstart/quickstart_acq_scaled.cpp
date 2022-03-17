@@ -17,6 +17,9 @@ int main(int argc, char* argv[])
     int avail_samples = 0;
     int64_t buf_end_pos = 0;        // Last position in the ring buffer
     int buff_size = 0;              // Total size of the ring buffer
+    double scaleoffset;
+    double scalevalue;
+
 
     // Basic SDK Initialization
     DeWePxiLoad();
@@ -38,6 +41,12 @@ int main(int argc, char* argv[])
     DeWeSetParamStruct_str("BoardID1/AI2", "Used", "False");
     DeWeSetParamStruct_str("BoardID1/AI3", "Used", "False");
 
+    // Set AI0 range to +-10V
+    DeWeSetParamStruct_str("BoardID01/AI0", "Range", "10 V");
+
+    // Test: asymmetric ranges from -5V to 15V
+    // DeWeSetParamStruct_str("BoardID01/AI0", "Range", "-5 V .. 15 V");
+
     // Configure acquisition properties
     DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_SIZE, 20);
     DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 50);
@@ -45,6 +54,15 @@ int main(int argc, char* argv[])
 
     // Apply settings
     DeWeSetParam_i32(1, CMD_UPDATE_PARAM_ALL, 0);
+
+    // Get scaling and offset parameters for AI0
+    {
+        char buffer[32];
+        DeWeGetParamStruct_str("BoardID01/AI0", "scalevalue", buffer, sizeof(buffer));
+        sscanf(buffer, "%lf", &scalevalue);
+        DeWeGetParamStruct_str("BoardID01/AI0", "scaleoffset", buffer, sizeof(buffer));
+        sscanf(buffer, "%lf", &scaleoffset);
+    }
 
     // Get buffer configuration
     DeWeGetParam_i64(1, CMD_BUFFER_END_POINTER, &buf_end_pos);
@@ -57,6 +75,7 @@ int main(int argc, char* argv[])
     int64_t read_pos = 0;
     int32_t* read_pos_ptr = 0;
     int sample_value = 0;
+    double scaled_value = 0;
 
     // Break with CTRL+C only
     while (1)
@@ -88,12 +107,17 @@ int main(int argc, char* argv[])
             read_pos_ptr = reinterpret_cast<sint32*>(read_pos) + i;
             sample_value = *read_pos_ptr;
 
+            // sign extend negative 24bit samples
+            if (sample_value & 0x800000) sample_value |= 0xff000000;
+            scaled_value = sample_value * scalevalue + scaleoffset;
+
             // Warning: This will not work for multiple AI channels with
             // 24Bit resolution
             // Please have a look at the acq with scan_descriptor example.
 
             std::cout << "AI0: " << std::dec << sample_value 
-                      << "     " << std::hex << sample_value << std::endl;
+                      << "     " << std::hex << sample_value
+                      << "     " << std::dec << scaled_value << " V" << std::endl;
         }
 
         DeWeSetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, avail_samples);
