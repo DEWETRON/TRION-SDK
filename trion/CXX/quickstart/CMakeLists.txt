@@ -12,6 +12,11 @@ add_executable(QuickstartAcq
   )
 SampleBuildSettings(QuickstartAcq)
 
+add_executable(QuickstartAcqScaled
+  quickstart_acq_scaled.cpp
+  )
+SampleBuildSettings(QuickstartAcqScaled)
+
 add_executable(QuickstartAcqScanDesc
   quickstart_acq_scan_desc.cpp
   )

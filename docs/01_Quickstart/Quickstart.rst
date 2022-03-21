@@ -355,30 +355,144 @@ Quickstart Example Source Code
 .. note:: -  Running the example is possible, but it generates no output. Its only purpose is to explain the setup.
 
 
-Achievements
-------------
+Achievements after Quickstart
+-----------------------------
 
-.. Now you are able to
-..   configure simulation
-..   build and run an example!
+Congratulations! With the help of this chapter you installed a
+working toolchain. Using DEWETRON explorer you configured a demo
+system. You validated the system using DEWETRON OXYGEN where you
+had a look at the different channels your measurement board provided.
 
-Congratulations! With the help of this chapter you installed a working toolchain.
-Using DEWETRON explorer you configured a demo system. You validated the system using 
-DEWETRON OXYGEN where you had a look at the different channels your measurement board provided.
+You generated a solution for Visual Studio and compiled the Quickstart
+example. You read about the highlighted steps of the example.
 
-You generated a solution for Visual Studio and compiled the Quickstart example. You read
-about the highlighted steps of the example.
-
-You even run the example! Even though it didnt output much :).
+You even run the example! Even though it didnt do a lot :-).
 
 
-Next Steps
-----------
+Next Step: Acquisition Loop
+---------------------------
 
-.. TODO
-.. Look at other channel types: Counter, DI, CAN ...
-.. Different measurement modes: Bridge, ...
-.. Multiple Channels
-..   Scan Descriptor (C++)
-..   ..
+Have a look at the next example: QuickstartAcq.cpp
+
+
+This example improves on the first one by implementing a simple acquisition
+loop.
+
+After CMD_UPDATE_PARAM_ALL was used to apply the settings made,
+the necessary sample buffer parameters have to be requested.
+
+.. code:: c
+
+    DeWeGetParam_i64(1, CMD_BUFFER_END_POINTER, &buf_end_pos);
+    DeWeGetParam_i32(1, CMD_BUFFER_TOTAL_MEM_SIZE, &buff_size);
+
+
+Also supported is CMD_BUFFER_END_POINTER to retrieve a pointer to
+the buffer start. But it is not necessary to implement the buffer
+wrap around handling and therefore not used.
+
+
+.. note:: -  The samples are stored in a ring buffer. When iterating the buffer you have to look for the buffer end and implement the wrap around handling.
+
+
+.. code:: c
+
+    DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
+
+Just read the number of samples stored in the buffer since
+CMD_START_ACQUISITION.
+if avail_samples is zero you can continue with the next loop iteration.
+A call to *Sleep* is optional.
+
+
+.. code:: c
+
+    DeWeGetParam_i64(1, CMD_BUFFER_ACT_SAMPLE_POS, &read_pos);
+
+With CMD_BUFFER_ACT_SAMPLE_POS we get the address of the oldest unprocessed
+sample.
+
+
+.. code:: c
+
+    for (int i = 0; i < avail_samples; ++i)
+    {
+        // Handle the ring buffer wrap around
+        if (read_pos >= buf_end_pos)
+        {
+            read_pos -= buff_size;
+        }
+
+        read_pos_ptr = reinterpret_cast<sint32*>(read_pos) + i;
+        sample_value = *read_pos_ptr;
+
+        std::cout << "AI0: " << std::dec << sample_value << "   " << std::hex << sample_value << std::endl;
+    }
+
+
+This loop iterates all the samples. *read_pos* has to be cast to a pointer
+to able to read from the sample position. i is added to the pointer to reach and
+read all samples.
+
+*read_pos* has to be compared to *buf_end_pos*. If this boundary is reached
+*buff_size* has to be subtracted to return to the start of the buffer.
+
+
+.. code:: c
+
+    DeWeSetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, avail_samples);
+
+After the inner loop completed, free the ring buffer with
+CMD_BUFFER_FREE_NO_SAMPLE. If you do not free the ring buffer
+it will get full and the acquisition will stop with a buffer
+overflow error.
+
+
+Everthing else is identically to the first quickstart example.
+
+
+
+Quickstart with simple Acquisition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ../../trion/CXX/quickstart/quickstart_acq.cpp
+    :caption: Quickstart example with simple acquisition loop
+    :language: c++
+    :linenos:
+    :lines: 9-
+
+
+Achievements after Quickstart with Acquisition
+----------------------------------------------
+
+Using QuickstartAcq we implement our first measurement application
+using one volatge channel.
+
+Now we got an output like this:
+
+.. code:: text
+
+   $ ./quickstart/Debug/QuickstartAcq.exe
+   AI0: 0   0
+   AI0: 421379   66e03
+   AI0: 841096   cd588
+   AI0: 1257494   133016
+   AI0: 1668929   197741
+   AI0: 2073777   1fa4b1
+   AI0: 2470441   25b229
+   AI0: 2857356   2b998c
+
+
+A list of the raw sample values. One column in decimal, the other in
+hexadecimal.
+
+
+
+Next Step: Scaled Values
+------------------------
+
+Let's extend QuickstartAcq to print correctly scaled values as exercise:
+
+
+
 
