@@ -19,30 +19,30 @@ using the DeWeSetParamXML_str class functions.
 
 .. code:: c
 
-    int DeWeSetParamStruct_str)(const char *target, 
+    int DeWeSetParamStruct_str)(const char *target,
         const char *command,
         const char *val);
-    int DeWeGetParamStruct_str(const char *target, 
-        const char *command, 
-        char *val, 
+    int DeWeGetParamStruct_str(const char *target,
+        const char *command,
+        char *val,
         uint32 val_size);
-    int DeWeGetParamStructEx_str(const char *target, 
-        const char *command, 
-        char *val, 
+    int DeWeGetParamStructEx_str(const char *target,
+        const char *command,
+        char *val,
         uint32 val_size);
-    int DeWeGetParamStruct_strLEN(const char *target, 
-        const char *command, 
+    int DeWeGetParamStruct_strLEN(const char *target,
+        const char *command,
         uint32 *val_size);
-    
-    int DeWeSetParamXML_str(const char *target, 
-        const char *command, 
+
+    int DeWeSetParamXML_str(const char *target,
+        const char *command,
         const char *val);
-    int DeWeGetParamXMLStruct_str(const char *target, 
-        const char *command, 
-        char *val, 
+    int DeWeGetParamXMLStruct_str(const char *target,
+        const char *command,
+        char *val,
         uint32 val_size);
-    int DeWeGetParamXMLStruct_strLEN(const char *target, 
-        const char *command, 
+    int DeWeGetParamXMLStruct_strLEN(const char *target,
+        const char *command,
         uint32 *val_size);
 
 
@@ -50,7 +50,7 @@ Accessible Documents
 --------------------
 
 1. BoardProperties.xml
-  
+
 ..  * AcquisitionProperties
 ..  * ChannelProperties
 
@@ -472,7 +472,7 @@ Derived target- and item-string:
 Final function call:
 
 .. code:: c
-    
+
     DeeSetParamStruct_str( "BoardID0/AcqProp", "ResolutionAI", "16" );
 
 
@@ -503,7 +503,7 @@ Derived target- and item-string:
 Final function call:
 
 .. code:: c
-    
+
     DeWeSetParamStruct_str( "BoardID0/AI0", "Mode", "Resistance" );
 
 
@@ -522,6 +522,87 @@ Final function call:
 .. code:: c
 
     DeWeSetParamStruct_str( "BoardID0/AI0", "Range", "3000" );
+
+Complex property notations
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some properties have either complex relations to other properties or
+have a more complex mathematical ruleset needed to determine
+their constraints.
+Some properties are read-only information, and are not meant to
+be set by an application.
+
+Those things are indicated with xml-attributes.
+
+List of xml-attributes indicating a complex property
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. tabularcolumns:: |p{2cm}|p{2cm}|p{8cm}
+
+.. table:: Special xml-attributes
+   :widths: 10 10 80
+
+   +----------------------+----------+-------------------------------------+
+   | Atributename         | Value    | Meaning                             |
+   +======================+==========+=====================================+
+   | Config               | False    | Indicates a read-only-property with |
+   |                      |          | a static value, or no relevant      |
+   |                      |          | value at all, only providing        |
+   |                      |          | taxative information                |
+   |                      |          |                                     |
+   |                      |          | Example: Node "ChannelFeatures"     |
+   +----------------------+----------+-------------------------------------+
+   | Config               | Derived  | Indicates a read-only-property with |
+   |                      |          | a value that is derived from other  |
+   |                      |          | properties.                         |
+   |                      |          |                                     |
+   |                      |          | Example: Node "ShuntResistance" in  |
+   |                      |          | bridge-mode on a TRION-18XX-MULTI   |
+   +----------------------+----------+-------------------------------------+
+   | Calculated           |          | Indicates a property where some or  |
+   |                      |          | all constraints are dynamic and     |
+   |                      |          | can be calculated with a given      |
+   |                      |          | mathematical expression             |
+   |                      |          |                                     |
+   |                      |          | see :ref:`Calculated values         |
+   |                      |          | notations                           |
+   |                      |          | <calculated_values_notation>`       |
+   |                      |          |                                     |
+   |                      |          |                                     |
+   |                      |          | Example: Node "ShuntTarget" in      |
+   |                      |          | bridge-mode on a TRION-18XX-MULTI   |
+   +----------------------+----------+-------------------------------------+
+   | Subkey               | *various*| Indicates a property that depends   |
+   |                      |          | in its validity on the setting      |
+   |                      |          | of a different property.            |
+   |                      |          |                                     |
+   |                      |          | see ReferenceNode                   |
+   |                      |          |                                     |
+   |                      |          | see :ref:`Complex inter-property    |
+   |                      |          | dependency notations                |
+   |                      |          | <complex_inter_property_dependency>`|
+   |                      |          |                                     |
+   |                      |          | Example: Node "BridgeRes" in        |
+   |                      |          | bridge-mode on a TRION-18XX-MULTI   |
+   +----------------------+----------+-------------------------------------+
+   | ReferenceNode        | *various*| Holds a semicolon seperated list of |
+   |                      |          | property-names that are affect      |
+   |                      |          | in their constraint-set by changes  |
+   |                      |          | of this property.                   |
+   |                      |          |                                     |
+   |                      |          | see Subkey                          |
+   |                      |          |                                     |
+   |                      |          | see :ref:`Complex inter-property    |
+   |                      |          | dependency notations                |
+   |                      |          | <complex_inter_property_dependency>`|
+   |                      |          |                                     |
+   |                      |          | Example: Node "InputType" in        |
+   |                      |          | bridge-mode on a TRION-18XX-MULTI   |
+   +----------------------+----------+-------------------------------------+
+
+
+
+.. _complex_inter_property_dependency:
 
 Complex inter-property dependency notations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -542,8 +623,19 @@ property-node-level.
 
     For example "ShuntType;Range"
 
-Property selector mechanism
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Implicit Property selector mechanism
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Bridgemode exists an implicite dependency between "Excitation" and
+"Range".
+This dependency is not annotated in the xml-structure.
+When using voltage-excitation the "Range"-node to use is the one with
+"Unit" = "mV/V".
+When using current-excitation the "Range"-node to use is the one with
+"Unit" = "mV/mA".
+
+Explicit Property selector mechanism
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A property may influence a differnt property in a way, that the most
 clear way of communicating this is by using a different definitionset
@@ -636,7 +728,7 @@ for BridgeRes. (As the 1st node has "SubKey"="Type" and "Type="Internal").
 
 .. code-block:: XML
     :caption: BridgeRes Internal
-    
+
     <BridgeRes
         Unit = "Ohm"
         Count = "3"
@@ -713,21 +805,101 @@ set.
 
 Example 1:
 "InputType" = "BRFULL"
-"BridgeRes" = "1000 Ohm" (legal, as "BridgeRes" with "Type"="External is freely programmable")
+"BridgeRes" = "1000 Ohm" (legal, as "BridgeRes"
+with "Type"="External is freely programmable")
 
 change "InputType" to "BRQUARTER3W"
 This changes the "BridgeRes" to "Type"="Internal".
-"1000 Ohm" is in the list of valid options for this table (ID1), so the value remains
+"1000 Ohm" is in the list of valid options for this table (ID1),
+so the value remains
 unchanged.
 
 Example 2:
 "InputType" = "BRFULL"
-"BridgeRes" = "420 Ohm" (legal, as "BridgeRes" wirh "Type"="External is freely programmable")
+"BridgeRes" = "420 Ohm" (legal, as "BridgeRes" with "Type"="External
+is freely programmable")
 
 change "InputType" to "BRQUARTER3W"
 This changes the "BridgeRes" to "Type"="Internal".
-As this node is not programmable, and a value of "420 Ohm" is not within the list
-of valid values, API has to reset this to it's default of "350 Ohm".
+As this node is not programmable, and a value of "420 Ohm" is not within
+the list of valid values, API has to reset this to it's default of "350 Ohm".
+
+.. _calculated_values_notation:
+
+Calculated values notations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Being a static document, the boardproperties document can not directly
+transport dynamic values.
+
+To transport such dependencies the xml-node will hold an attribute
+named "Calculated".
+
+.. code-block:: XML
+    :caption: Calculated values notations - Example
+
+    <ShuntTarget
+        Unit = "mV/V"
+        Count = "1"
+        Default = "0"
+        Programmable = "True"
+        Calculated = ""
+        ProgMin = "10.0 * 1e-6 * 'R_BRIDGE' / (2.0 * 'EXCVoltage') * 1e3"
+        ProgMax = "75.0 * 1e-6 * 'R_BRIDGE' / (2.0 * 'EXCVoltage') * 1e3">
+            <ID0>2</ID0>
+            <Setting VariableName = "R_BRIDGE" Type = "AI0" Path = "" Item = "BridgeRes" Unit = "Ohm"/>
+            <Setting VariableName = "EXCVoltage" Type = "AI0" Path = "" Item = "Excitation" Unit = "V"/>
+    </ShuntTarget>
+
+This example is from a TRION3-1820-MULTI-4-D in bridge-mode.
+The maximum and minimal valid values are mathematically dependent on the
+brige-resistance and the voltage-excitation.
+
+    .. math:: ProgMin = \frac{10.0 * 10^6 * R\_BRIDGE[\Omega]}{2 * 10^3 * EXCVoltage[V]}
+    .. math:: ProgMax = \frac{75.0 * 10^6 * R\_BRIDGE[\Omega]}{2 * 10^3 * EXCVoltage[V]}
+
+
+The 'Setting'-nodes indicate how to obtain the values needed in the
+calculation.
+Those values should be accessed by DeWeGetParamStruct_str-commands.
+
+.. table:: Setting node xml attributes
+   :widths: 20 80
+
+   +---------------+--------------------------------------------------+
+   | xmlattribute  | explaination                                     |
+   +===============+==================================================+
+   | VariableName  ||  Name of a variable used by the equation(s)     |
+   |               ||  eg "R_BRIDGE"                                  |
+   +---------------+--------------------------------------------------+
+   | Type          |  These two attributes together form the          |
+   | Path          |  targe part for the DeWeGetParamStruct_str       |
+   |               |  call:                                           |
+   |               |                                                  |
+   |               |  "BoardId[X]\\[Type]\\[Path]"                    |
+   |               |                                                  |
+   |               |  BoardId[X]: the board-id of the current board   |
+   |               |                                                  |   
+   |               |  if "Path" is empty the final backslash shall    |
+   |               |  be ommited                                      |
+   +---------------+--------------------------------------------------+
+   | Item          |  The command part for the DeWeGetParamStruct_str |
+   |               |  call.                                           |
+   +---------------+--------------------------------------------------+
+   | Unit          | For informational purposes                       |
+   +---------------+--------------------------------------------------+
+
+
+So in this example the two varaibles should be obtained with the
+following commands:
+
+.. code:: c
+
+    DeWeGetParamStruct_str("BoardID0\\AI0", "BridgeRes", R_BRIDGE_var, sizeof());
+    DeWeGetParamStruct_str("BoardID0\\AI0", "Excitation", EXCVoltage_var, sizeof());
+
+With these two values at hand the values for ProgMin and ProgMax can be
+calculated.
 
 BoardConfig XML-File
 --------------------
@@ -735,7 +907,7 @@ BoardConfig XML-File
 Purpose of the File
 ~~~~~~~~~~~~~~~~~~~
 
-The detailed layout of the configuration-file is boar specific. It can
+The detailed layout of the configuration-file is board specific. It can
 be derived from the content of the BoardProperties XML-File.
 
 The file has three major sections:
