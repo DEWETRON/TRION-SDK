@@ -290,7 +290,7 @@ Unit: either mV/V, mV/mA
     Due to the wide possible electrical range that can be covered
     by simply setting the Excitation to either a very low or very
     high value, an application either needs to follow the :ref:`more advanced
-    constraint evaluation <advanced_contraints>`, or always
+    constraint evaluation <range_calculation_bridge>`, or always
     requery the Range after changing a related attibute from the API,
     as it will perform automatic corrections to the range, if any
     constraint is violated.
@@ -299,8 +299,8 @@ InputOffset Attribute
 ^^^^^^^^^^^^^^^^^^^^^
 Unit: either mV/V, mV/mA
 
-This property is often used synonymous to “Sensor-Offset”. It’s
-main use is to shift the virtual 0 mV/V or 0mV7mA by a given value.
+This property is often used synonymous to “Sensor-Offset”. It's
+main use is to shift the virtual 0 mV/V or 0mV/mA by a given value.
 Due to various physical effects any non-ideal sensor usually has a bias.
 With the property input-offset API can be setup to compensate for
 this bias.
@@ -353,15 +353,53 @@ Selects the used shunt resistor for shunt-calibration.
 .. _bridge_shunt_target:
 
 ShuntTarget Attribute
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
+Unit: mV/V
 
-TODO
+Some TRION-boards allow to set a specified target value for
+shunt-calibration.
+The API will then calculate a virtual shunt-resistance value
+considering and compensating the lineresistance drop and apply
+it's value when "ShuntType" is set to "Internal".
 
+InputImpedance Attribute
+^^^^^^^^^^^^^^^^^^^^^^^^
+Unit: N/A
+
+Some TRION-boards allow to set the input-impedance to a high-impedance path
+if certain hardwarespecific requirements are met.
 
 Potentiometer Mode
-
 ~~~~~~~~~~~~~~~~~~
 
+The "potentiometer"-mode technically is a half-bridge, where the
+hardware is configured to scale to a percent full-scale (default 0..100%).
+
+.. code-block:: XML
+    :caption: Potentiometer mode element
+
+    <Mode Mode = "Bridge">
+        <Range>..</Range>
+        <Excitation>..</Excitation>
+        <ShuntTarget>..</ShuntTarget>
+        <ShuntTarget>..</ShuntTarget>
+        <LPFilter_Type>..</LPFilter_Type>
+        <LPFilter_Order>..</LPFilter_Order>
+        <LPFilter_Val>..</LPFilter_Val>
+        <HPFilter_Type>..</HPFilter_Type>
+        <HPFilter_Order>..</HPFilter_Order>
+        <HPFilter_Val>..</HPFilter_Val>
+        <IIRFilter_Type>..</IIRFilter_Type>
+        <IIRFilter_Order>..</IIRFilter_Order>
+        <IIRFilter_Val>..</IIRFilter_Val>
+        <HPIIRFilter_Type>..</HPIIRFilter_Type>
+        <HPIIRFilter_Order>..</HPIIRFilter_Order>
+        <HPIIRFilter_Val>..</HPIIRFilter_Val>
+        <InputImpedance>..</InputImpedance>
+        <InputType>..</InputType>
+        <ChannelFeatures>..</ChannelFeatures>
+        <TEDSOptions>..</TEDSOptions>
+    </Mode>
 
 RTD-Temperature Mode
 ~~~~~~~~~~~~~~~~~~~~
@@ -509,6 +547,7 @@ Depending on properties: Range, InputOffset, Excitation
     .. math:: HWInputOffset[V] = InputOffset[\Omega] * Excitation[A]
     .. math:: AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))
 
+.. _range_calculation_bridge:
 
 Bridge Mode
 ~~~~~~~~~~~
