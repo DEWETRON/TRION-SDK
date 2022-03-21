@@ -488,11 +488,28 @@ hexadecimal.
 
 
 
-Next Step: Scaled Values
-------------------------
+What is still missing?
+----------------------
 
-Let's extend QuickstartAcq to print correctly scaled values as exercise:
+The example accessed the samples using CMD_BUFFER_ACT_SAMPLE_POS and
+pointer arithmetic. The algorithm for access the samples is board
+dependent. Please not that 24bit samples of a TRION-2402-dACC are packed
+a differentway in comparison to a TRION3-1850-MULTI. So a readout function
+for one board may not work for another type.
+
+There is a solution for that: The next example QuickstartAcq introduces
+a new concept, the **scan descriptor**. Its a set of rules telling you
+how the samples are organized in the sample ringbuffer. If an application
+implements and follows the rules, it is able to access the sample buffer in
+generic way that is guaranteed to work for all TRION and TRION3 boards.
 
 
+An example explaning the scan descripter is *QuickstartAcqScanDesc*.
 
 
+*QuickstartAcqScanDescScaled* further extends the example showing
+a way how range scaling can be implemented.
+
+
+The scan descriptor concept itself is explaind in chapter
+:ref:`Data Acquisition Scan Descriptor <data_aquisition_scan_descriptor>`

@@ -1,5 +1,5 @@
 /**
- * TRION-SDK Quickstart example with acquisition loop and ScanDescriptor support.
+ * TRION-SDK Quickstart example with acquisition loop.
  *
  * This code is licensed under MIT license (see LICENSE.txt for details)
  * Copyright (c) 2022 by DEWETRON GmbH
@@ -20,7 +20,7 @@
 /**
  * Functor to be implemented by applications interested in sample data.
  */
-using AddSampleFunctor = std::function<void(const char*, uint32_t, 
+using AddSampleFunctor = std::function<void(const char*, uint32_t,
     const void*, uint32_t, uint32_t, uint32_t, uint32_t)>;
 
 
@@ -34,7 +34,7 @@ class ScanDescriptorDecoder
 public:
     ScanDescriptorDecoder(const std::string& sd_xml, AddSampleFunctor f)
         : m_datasink(f)
-    {    
+    {
         parseScanDescriptor(sd_xml);
     }
 
@@ -46,7 +46,7 @@ public:
         pugi::xml_document sd_doc;
         if (pugi::status_ok == sd_doc.load_string(sd_xml.c_str()).status)
         {
-            auto scan_description_node = 
+            auto scan_description_node =
                 sd_doc.select_node("ScanDescriptor/*/ScanDescription").node();
             if (scan_description_node)
             {
@@ -55,7 +55,7 @@ public:
                     throw std::runtime_error("Unsupported version");
                 }
 
-                m_scan_size_bytes 
+                m_scan_size_bytes
                     = scan_description_node.attribute("scan_size").as_int() / 8;
                 // Can be safely ignored:
                 // bit
@@ -71,7 +71,7 @@ public:
                     auto sample = channel.child("Sample");
 
                     m_scan_desc_vec.push_back(
-                        SDData{ std::string(channel.attribute("name").as_string()) 
+                        SDData{ std::string(channel.attribute("name").as_string())
                                 , std::string(channel.attribute("type").as_string())
                                 , channel.attribute("index").as_uint()
                                 , sample.attribute("size").as_uint()
@@ -91,7 +91,7 @@ public:
     }
 
     /**
-     * Process sample blocks 
+     * Process sample blocks
      * @param avail_samples a continuous block of samples
      * @return incremented read_pos
      */
@@ -129,44 +129,33 @@ private:
 };
 
 
-/**
- * Data Sink - App interface
- * @param channel is the name of the channel
- * @param first_sample pointer to the first sample
- * @param nr_samples number of samples available
- * @param bitmask bit mask to apply to get the valid sample value
- * @param stride is the offset to the next sample
- */
-void addSample(const char* channel_name,
-            uint32_t channel_index,
-            const void* first_sample,
-            uint32_t nr_samples,
-            uint32_t channel_bitmask,
-            uint32_t channel_bit_msb,
-            uint32_t stride)
+struct LinearScaleValue
 {
-    const char* data_ptr = static_cast<const char*>(first_sample);
+    double gain;
+    double offset;
+};
 
-    for (uint32_t i = 0; i < nr_samples; ++i)
-    {
-        uint32_t value = (*reinterpret_cast<const uint32_t*>(data_ptr)) & channel_bitmask;
-        std::cout << channel_name << ": " << std::hex << value  << std::endl;
-        data_ptr += stride;
-    }
-}
 
 /**
  * Print samples in channel per column
  * Uses Functor interface like "addSample"
  */
-class FormattedOutput
+class FormattedScaledOutput
 {
 public:
-    FormattedOutput(int num_channels, int block_size)
+    FormattedScaledOutput(int num_channels, int block_size)
         : m_num_channels(num_channels)
         , m_block_size(block_size)
     {
         m_output_buffer.resize(m_num_channels);
+        
+        // default scale values
+        m_lin_scale_values = std::vector<LinearScaleValue>(m_num_channels, { 1.0, 0});
+    }
+
+    void setLinearScaleValues(const std::vector<LinearScaleValue>& lin_scale_values)
+    {
+        m_lin_scale_values = lin_scale_values;
     }
 
     void operator()(const char* channel_name,
@@ -211,8 +200,13 @@ public:
             {
                 for (uint32_t chn = 0; chn < m_num_channels; ++chn)
                 {
+                    // raw value
                     auto value = m_output_buffer[chn].chn_sample_buffer[i];
                     std::cout << std::setw(10) << std::hex << value << ", ";
+                    
+                    // range scaled value
+                    auto scaled_value = value * m_lin_scale_values[channel_index].gain + m_lin_scale_values[channel_index].offset;
+                    std::cout << std::setw(10) << std::dec << scaled_value << "V, ";
                 }
 
                 std::cout << std::endl;
@@ -232,8 +226,8 @@ public:
     std::vector<ChannelSamples> m_output_buffer;
     uint32_t m_num_channels;
     int m_block_size;
+    std::vector<LinearScaleValue> m_lin_scale_values;
 };
-
 
 
 int main(int argc, char* argv[])
@@ -245,7 +239,10 @@ int main(int argc, char* argv[])
     int buff_size = 0;              // Total size of the ring buffer
     char scan_descriptor[8192] = { 0 };
 
-    FormattedOutput output(4, buffer_block_size);
+    int num_ai_channel = 1;         // Determine AI channels
+    std::vector<LinearScaleValue> channel_scale_values;
+    FormattedScaledOutput output(num_ai_channel, buffer_block_size);
+        
 
     // Basic SDK Initialization
     DeWePxiLoad();
@@ -261,16 +258,24 @@ int main(int argc, char* argv[])
     DeWeSetParam_i32(1, CMD_OPEN_BOARD, 0);
     DeWeSetParam_i32(1, CMD_RESET_BOARD, 0);
 
-    // Enable all analog channels
-    DeWeSetParamStruct_str("BoardID1/AIAll", "Used", "True");
+    // Enable AI0 channel on board 1, disable all other
+    DeWeSetParamStruct_str("BoardID1/AIAll", "Used", "False");
+    DeWeSetParamStruct_str("BoardID1/AI0", "Used", "True");
+
+    // Set AI0 range to +-10V
+    //DeWeSetParamStruct_str("BoardID01/AI0", "Range", "10 V");
+
+    // Test: asymmetric ranges from -5V to 15V
+    DeWeSetParamStruct_str("BoardID01/AI0", "Range", "-5 V .. 15 V");
 
     // Configure acquisition properties
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_SIZE, buffer_block_size);
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 200);
+    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_SIZE, 20);
+    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 50);
     DeWeSetParamStruct_str("BoardID1/AcqProp", "SampleRate", "100");
 
     // Apply settings
     DeWeSetParam_i32(1, CMD_UPDATE_PARAM_ALL, 0);
+
 
     // Get buffer configuration
     DeWeGetParam_i64(1, CMD_BUFFER_END_POINTER, &buf_end_pos);
@@ -278,29 +283,50 @@ int main(int argc, char* argv[])
 
     // Get scan descriptor
     DeWeGetParamStruct_str("BoardId1", "ScanDescriptor_V2", scan_descriptor, sizeof(scan_descriptor));
-    
-#if 1
+
+    // Get scaling and offset parameters for all AI channels
+    for (int i=0; i < num_ai_channel; ++i)
+    {
+        double scaleoffset;
+        double scalevalue;
+        char buffer[32];
+        std::string channel_target = "BoardID01/AI" + std::to_string(i);
+
+        DeWeGetParamStruct_str(channel_target.c_str(), "scalevalue", buffer, sizeof(buffer));
+        sscanf(buffer, "%lf", &scalevalue);
+        DeWeGetParamStruct_str(channel_target.c_str(), "scaleoffset", buffer, sizeof(buffer));
+        sscanf(buffer, "%lf", &scaleoffset);
+        channel_scale_values.push_back({ scalevalue , scaleoffset });
+    }
+
+    // Inform output about the range scale factors
+    output.setLinearScaleValues(channel_scale_values);
+
     // Connect to formatted output
     ScanDescriptorDecoder sd_decoder(scan_descriptor, output);
-    
-#else
-    // or addSample function
-    //ScanDescriptorDecoder sd_decoder(scan_descriptor, &addSample);
-#endif
 
     // Start acquisition
     DeWeSetParam_i32(1, CMD_START_ACQUISITION, 0);
 
     // Measurement loop and sample processing
     int64_t read_pos = 0;
-    int64_t* read_pos_ptr = 0;
+    int32_t* read_pos_ptr = 0;
     int sample_value = 0;
+    double scaled_value = 0;
 
     // Break with CTRL+C only
     while (1)
     {
         // Get the number of samples available
         DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
+        if (avail_samples <= 0)
+        {
+            Sleep(100);
+            continue;
+        }
+
+        // Get the current read pointer
+        DeWeGetParam_i64(1, CMD_BUFFER_ACT_SAMPLE_POS, &read_pos);
         if (avail_samples <= 0)
         {
             Sleep(100);

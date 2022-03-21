@@ -160,6 +160,7 @@ This approach allows a minimal internal overhead on data-access.
 
 
 
+.. _data_aquisition_scan_descriptor:
 
 Scan Descriptor
 ---------------
