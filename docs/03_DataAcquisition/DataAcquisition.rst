@@ -282,7 +282,8 @@ attributes and values of the returned scan descriptor XML document:
 Scan Descriptor Example Source Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The next example extends the Quickstart app with a valid Scan Descriptor support class.
+The next example extends the Quickstart app with a valid Scan Descriptor
+support class.
 
 
 .. literalinclude:: ../../trion/CXX/quickstart/quickstart_acq_scan_desc.cpp
@@ -290,6 +291,54 @@ The next example extends the Quickstart app with a valid Scan Descriptor support
     :language: c++
     :linenos:
     :lines: 9-
+
+
+
+ADC Delay
+---------
+
+AD converters have a conversion time. Analog samples may
+appear in later scans than time-wise corresponding digital channels. The
+ADCdelay is used to allow the application to align samples of analog and
+digital channel types.
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table:: ADC delay effect on samples (for ADCDelay = 4)
+   :widths: 20 20 20 20 20
+
+   +----------------+----------+----------+----------+----------+
+   | **Sample Nr**  | **AI0**  | **AI1**  | **CNT0** | **DI0**  |
+   +================+==========+==========+==========+==========+
+   | 0              | invalid  | invalid  | 0        | 0        |
+   +----------------+----------+----------+----------+----------+
+   | 1              | invalid  | invalid  | 1        | 1        |
+   +----------------+----------+----------+----------+----------+
+   | 2              | invalid  | invalid  | 2        | 2        |
+   +----------------+----------+----------+----------+----------+
+   | 3              | invalid  | invalid  | 3        | 3        |
+   +----------------+----------+----------+----------+----------+
+   | 4              | 1        | 1        | 4        | 4        |
+   +----------------+----------+----------+----------+----------+
+   | 5              | 2        | 2        | 5        | 5        |
+   +----------------+----------+----------+----------+----------+
+   | 6              | 3        | 3        | 6        | 6        |
+   +----------------+----------+----------+----------+----------+
+   | 7              | 4        | 4        | 7        | 7        |
+   +----------------+----------+----------+----------+----------+
+
+
+After acquisition start the samples from index 0 to 3 (== ADCDelay) are
+marked as invalid. There will be values, but because of AD conversion
+time they will be more or less randomized.
+
+The value of ADCDelay is board dependend and can be requested with
+CMD_BOARD_ADC_DELAY.
+
+.. note::
+    Please have look at the example “ADCDelay” showing a way for applying the
+    ADC delay to realign AI samples to the other channels.
 
 
 
