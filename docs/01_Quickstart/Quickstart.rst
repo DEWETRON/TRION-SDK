@@ -20,14 +20,15 @@ in just a few steps:
 4. Install TRION-SDK and run the quickstart example
 5. Have a look at the example source
 
-Before running the SDK, please install the supported tool-chain (something like Visual Studio):
+Before running the SDK, please install the supported tool-chain (something
+like Visual Studio):
 
 * Visual Studio 2019 or better (for Windows)
 * cmake
 
-The TRION API exports a C interface. TRION SDK contains examples for differente programming
-languages though main focus will be on C and C++. The presented information will be 
-valid for other languages too.
+The TRION API exports a C interface. TRION SDK contains examples for different
+programming languages though main focus will be on C and C++. The presented
+information will be valid for other languages too.
 
 
 
@@ -42,12 +43,14 @@ Install TRION API
 
 The first step is the installation of the DEWETRON TRION Application package.
 
-It is available on DEWETRON Customer Support portal. It is found under "TRION Module Driver and SDK".
+It is available on DEWETRON Customer Support portal. It is found under "TRION
+Module Driver and SDK".
 
 https://ccc.dewetron.com/pl/dewe3-series
 
 
-After download please run the installer. When using its default settings it will install
+After download please run the installer. When using its default settings it
+will install
 
 * TRION API for 32bit and 64bit
 * DEWETRON TRION Driver
@@ -55,27 +58,28 @@ After download please run the installer. When using its default settings it will
 * DEWETRON DEWE2 Driver
 
 
-.. note:: -  You can omit installation of DEWE2 driver. It is only needed for DEWE2 enclosures and may trigger an unnecessary reboot after installation.
+.. note:: You can omit installation of DEWE2 driver. It is only needed for
+    DEWE2 enclosures and may trigger an unnecessary reboot after installation.
 
 
 .. figure:: _img/trion_api_install_1.png
     :alt: Starting the TRION installer
     :width: 5in
-    
+
     Starting the TRION installer
 
 
 .. figure:: _img/trion_api_install_2.png
     :alt: TRION installation progress
     :width: 5in
-    
+
     TRION installation progress
 
 
 .. figure:: _img/trion_api_install_3.png
     :alt: TRION installation complete
     :width: 5in
-    
+
     TRION installation complete
 
 
@@ -91,55 +95,58 @@ Start DEWETRON Explorer
 .. quit
 
 
-If you are lucky and have DEWETRON TRION hardware available you are ready to go.
-You can start OXYGEN or the quickstart example to test your measurment hardware.
+If you are lucky and have DEWETRON TRION hardware available you are ready to
+go. You can start OXYGEN or the quickstart example to test your measurment
+hardware.
 
-All others have to setup a demo system first.
-DEWETRON Explorer is the tool for this task. 
+All others have to setup a demo system first. DEWETRON Explorer is the tool
+for this task.
 
 The app has two different tabs. The Hardware tab displays detected measurement
-devices. This can be local TRION boards or TRIONet devices found in the network.
+devices. This can be local TRION boards or TRIONet devices found in the
+network.
 
-The demo tab provides functionality to configure a simulated DEWETRON enclosure and
-fill its virtual slots with TRION boards.
+The demo tab provides functionality to configure a simulated DEWETRON enclosure
+and fill its virtual slots with TRION boards.
 
 The next steps guide through the procedure:
 
 1. Switch to demo tab
-2. Select a DEWE3-A4 enclosure 
+2. Select a DEWE3-A4 enclosure
 3. Double click on TRION3-1850-MULTI-4-D board to put it into the first free slot
 4. Press Save when closing the application.
 
 
 
-.. warning:: -  You have to close DEWETRON Explorer to have access to the devices with other applications. TRION API and device access is mutual exclusive!
+.. warning:: You have to close DEWETRON Explorer to have access to the devices
+    with other applications. TRION API and device access is mutual exclusive!
 
 
 .. figure:: _img/dewetron_explorer_1.png
     :alt: DEWETRON Explorer hardware window
     :width: 5in
-    
+
     DEWETRON Explorer hardware window
 
 
 .. figure:: _img/dewetron_explorer_2.png
     :alt: DEWETRON Explorer demo window
     :width: 5in
-    
+
     DEWETRON Explorer demo window
 
 
 .. figure:: _img/dewetron_explorer_3.png
     :alt: Select DEWE3-A4 enclosure simulation
     :width: 5in
-    
+
     Select DEWE3-A4 enclosure simulation
 
 
 .. figure:: _img/dewetron_explorer_4.png
     :alt: Select TRION3-1850-MULTI-4-D board
     :width: 5in
-    
+
     Select TRION3-1850-MULTI-4-D board
 
 
@@ -147,12 +154,12 @@ Then quit DEWETRON Explorer and press "Save".
 The "demo" system is now available for all applications.
 
 
-You can use this application to configure a simulation of all possible TRION based
-systems.
+You can use this application to configure a simulation of all possible TRION
+based systems.
 
-Please note that TRION3 boards can only be put into DEWE3 enclosures. The simulation
-follows the rule that only PXIe boards may be put into compatible slots.
-DEWE2 enclosures support PXI only.
+Please note that TRION3 boards can only be put into DEWE3 enclosures. The
+simulation follows the rule that only PXIe boards may be put into compatible
+slots. DEWE2 enclosures support PXI only.
 
 
 The easiest way to verify your demo system is to install and run OXYGEN:
@@ -163,7 +170,7 @@ https://www.dewetron.com/products/oxygen-measurement-software/
 .. figure:: _img/oxygen_channellist_1.png
     :alt: OXYGEN channel list
     :width: 5in
-    
+
     OXYGEN channel list
 
 
@@ -214,10 +221,11 @@ Then double click or open the file TRION_SDK_CXX.sln with Visual Studio.
 Quickstart Example
 ------------------
 
-The "Quickstart" example configures and runs a short measurement in just a few steps.
-It intended to run on the previously configured demo system: a DEWE3-A4 with a TRION3-1850-MULTI-4-D
-in its first slot.
-This example is reduced to the base minimum and does not do any error handling or setup optimizations.
+The "Quickstart" example configures and runs a short measurement in just a
+few steps. It intended to run on the previously configured demo system:
+a DEWE3-A4 with a TRION3-1850-MULTI-4-D in its first slot.
+This example is reduced to the base minimum and does not do any error
+handling or setup optimizations.
 
 Step 1:
 
@@ -227,14 +235,14 @@ Step 1:
     DeWeDriverInit(&boards);
 
 
-DeWePxiLoad loads the libray but does not do any initialization. It calls dlopen and 
-maps all exported C functions.
+DeWePxiLoad loads the libray but does not do any initialization. It calls
+dlopen and maps all exported C functions.
 
 
-DeWeDriverInit initializes API internals. It stores the number of detected devices
-in the *boards* variable. if the value stored in *boards* is negative, the API indicates
-that a simulation environment or demo system is active. Positive values mean that real hardware
-is active. 
+DeWeDriverInit initializes API internals. It stores the number of detected
+devices in the *boards* variable. if the value stored in *boards* is negative,
+the API indicates that a simulation environment or demo system is active.
+Positive values mean that real hardware is active.
 
 
 Step 2:
@@ -246,10 +254,11 @@ Step 2:
     DeWeSetParam_i32(1, CMD_OPEN_BOARD, 0);
     DeWeSetParam_i32(1, CMD_RESET_BOARD, 0);
 
-In step 2 the individual boards have to be openend and reset to a valid default state.
-This is done using the DeWeSetParam_i32 function. The first argument a index number
-referencing a dedicated board. With the current demo system the board with index 0
-is the internal chassis controller. Index 1 references the TRION3-1850-MULTI-4-D board.
+In step 2 the individual boards have to be openend and reset to a valid default
+state. This is done using the DeWeSetParam_i32 function. The first argument a
+index number referencing a dedicated board. With the current demo system the board
+with index 0 is the internal chassis controller. Index 1 references the
+TRION3-1850-MULTI-4-D board.
 
 After CMD_RESET_BOARD the devices are ready for the next configuration steps.
 
@@ -260,13 +269,14 @@ Step 3:
 
     DeWeSetParamStruct_str("BoardID1/AI0", "Used", "True");
 
-In this step the first analog channel "AI0" is enabled. The other available analog channels
-are disabled. For this the api function DeWeSetParamStruct_str is used. The first argument
-is the target string referencing the first AI channel of the board with index 1. The 
-second argument selects the used property, which is set to "True" by the third argument.
+In this step the first analog channel "AI0" is enabled. The other available
+analog channels are disabled. For this the api function DeWeSetParamStruct_str
+is used. The first argument is the target string referencing the first AI
+channel of the board with index 1. The second argument selects the used
+property, which is set to "True" by the third argument.
 
-"False" is the second allowed value and it is applied to the other AI channels to disable
-them.
+"False" is the second allowed value and it is applied to the other AI channels
+to disable them.
 
 
 Step 4:
@@ -277,11 +287,12 @@ Step 4:
     DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 50);
     DeWeSetParamStruct_str("BoardID1/AcqProp", "SampleRate", "2000");
 
-Now the acquisition properties have to be configured. CMD_BUFFER_BLOCK_SIZE and 
-CMD_BUFFER_BLOCK_COUNT are used to setup the acuisition buffer for the AI channel.
+Now the acquisition properties have to be configured. CMD_BUFFER_BLOCK_SIZE
+and CMD_BUFFER_BLOCK_COUNT are used to setup the acuisition buffer for the
+AI channel.
 
-The sample rate has to be configured by setting the *SampleRate* property of the 
-*BoardID1/AcqProp* property.
+The sample rate has to be configured by setting the *SampleRate* property of
+the *BoardID1/AcqProp* property.
 
 Step 5:
 
@@ -301,7 +312,7 @@ Step 6:
     DeWeSetParam_i32(1, CMD_START_ACQUISITION, 0);
 
 Now it is time to start the aquisition. This is done by the command
-CMD_START_ACQUISITION. 
+CMD_START_ACQUISITION.
 
 Usually this is done before entering a acqisition loop processing the
 measured samples.
@@ -313,11 +324,13 @@ Step 7:
     DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
     DeWeGetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, &avail_samples);
 
-Just read the number of samples stored in the buffer since CMD_START_ACQUISITION.
-After processing the samples, the application has to free them with CMD_BUFFER_FREE_NO_SAMPLE
-to free buffer memory for new samples.
+Just read the number of samples stored in the buffer since
+CMD_START_ACQUISITION. After processing the samples, the application has
+to free them with CMD_BUFFER_FREE_NO_SAMPLE to free buffer memory for new
+samples.
 
-.. note:: -  Please note that the acquisition loop is missing in this example. It will be shown in following examples.
+.. note:: Please note that the acquisition loop is missing in this example.
+    It will be shown in following examples.
 
 
 Step 8:
@@ -352,7 +365,8 @@ Quickstart Example Source Code
     :lines: 9-
 
 
-.. note:: -  Running the example is possible, but it generates no output. Its only purpose is to explain the setup.
+.. note:: Running the example is possible, but it generates no output.
+    Its only purpose is to explain the setup.
 
 
 Achievements after Quickstart
@@ -392,7 +406,8 @@ the buffer start. But it is not necessary to implement the buffer
 wrap around handling and therefore not used.
 
 
-.. note:: -  The samples are stored in a ring buffer. When iterating the buffer you have to look for the buffer end and implement the wrap around handling.
+.. note:: The samples are stored in a ring buffer. When iterating the buffer
+    you have to look for the buffer end and implement the wrap around handling.
 
 
 .. code:: c
