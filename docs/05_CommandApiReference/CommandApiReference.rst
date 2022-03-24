@@ -573,6 +573,7 @@ This value can be queried after applying all necessary parameters
 for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).
 
 
+
 CMD_BUFFER_END_POINTER
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -601,8 +602,9 @@ This command retrieves the start pointer of the sample ring buffer.
 This value can be queried after applying all necessary parameters
 for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).
 
-CMD_BUFFER_START_POINTER is deprecated. CMD_BUFFER_0_END_POINTER should be
+CMD_BUFFER_END_POINTER is deprecated. CMD_BUFFER_0_END_POINTER should be
 used.
+
 
 
 CMD_BUFFER_0_END_POINTER
@@ -630,3 +632,311 @@ Usable during acquisition: no
 This command retrieves the start pointer of the sample ring buffer 0.
 This value can be queried after applying all necessary parameters
 for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).
+
+
+
+CMD_BUFFER_TOTAL_MEM_SIZE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Type: atomic
+
+Usable during acquisition: yes
+
+Status: deprecated, use CMD_BUFFER_0_TOTAL_MEM_SIZE instead
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table::
+   :widths: 20 20 20 20
+
+   +-----+------------+-------------+---------------+
+   |     | Board      | Value       | Remark        |
+   +=====+============+=============+===============+
+   | Get | Index only | mem size    |               |
+   +-----+------------+-------------+---------------+
+   | Set |  N/A       | N/A         | Not supported |
+   +-----+------------+-------------+---------------+
+
+This command retrieves the total size of the allocated ring buffer in bytes.
+A typical usage for this information is the wrap around handling when
+reading out the sample ring buffer.
+
+This value can be queried after applying all necessary parameters
+for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).
+
+CMD_BUFFER_TOTAL_MEM_SIZE is deprecated. CMD_BUFFER_0_TOTAL_MEM_SIZE should be
+used.
+
+
+
+CMD_BUFFER_0_TOTAL_MEM_SIZE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Type: atomic
+
+Usable during acquisition: no
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table::
+   :widths: 20 20 20 20
+
+   +-----+------------+-------------+---------------+
+   |     | Board      | Value       | Remark        |
+   +=====+============+=============+===============+
+   | Get | Index only | mem size    |               |
+   +-----+------------+-------------+---------------+
+   | Set |  N/A       | N/A         | Not supported |
+   +-----+------------+-------------+---------------+
+
+
+This command retrieves the total size of the allocated ring buffer in bytes.
+A typical usage for this information is the wrap around handling when
+reading out the sample ring buffer.
+
+This value can be queried after applying all necessary parameters
+for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).
+
+
+
+CMD_BUFFER_AVAL_NO_SAMPLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Type: atomic
+
+Usable during acquisition: yes
+
+Status: deprecated, use CMD_BUFFER_0_AVAL_NO_SAMPLE instead
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table::
+   :widths: 20 20 20 20
+
+   +-----+------------+--------------------------+---------------+
+   |     | Board      | Value                    | Remark        |
+   +=====+============+==========================================+
+   | Get | Index only | nr of available samples  |               |
+   +-----+------------+--------------------------+---------------+
+   | Set |  N/A       | N/A                      | Not supported |
+   +-----+------------+--------------------------+---------------+
+
+
+This command retrieves the number of unprocessed scans within the ring buffer.
+This command is non-blocking so \*val may have the value of 0 if there are no
+samples available yet.
+
+This function will indicate if a buffer-overflow in the ring buffer has
+occurred by returning ERR_BUFFER_OVERWRITE. This can happen if the actual
+data processing is too slow. To clear this error the acquisition should
+be stopped on all boards and restarted. Another method is to call
+CMD_BUFFER_0_CLEAR_ERROR.
+
+This value can be queried at any time during a running acquisition. Calling
+this command on a stopped boardwill result in an error code indicating that
+no acquisition is running (ERR_DAQ_NOT_STARTED).
+
+CMD_BUFFER_AVAL_NO_SAMPLE is deprecated. CMD_BUFFER_0_AVAL_NO_SAMPLE should be
+used.
+
+
+
+CMD_BUFFER_0_AVAL_NO_SAMPLE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Type: atomic
+
+Usable during acquisition: no
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table::
+   :widths: 20 20 20 20
+
+   +-----+------------+--------------------------+---------------+
+   |     | Board      | Value                    | Remark        |
+   +=====+============+==========================================+
+   | Get | Index only | nr of available samples  |               |
+   +-----+------------+--------------------------+---------------+
+   | Set |  N/A       | N/A                      | Not supported |
+   +-----+------------+--------------------------+---------------+
+
+
+This command retrieves the number of unprocessed scans within the ring buffer.
+This command is non-blocking so \*val may have the value of 0 if there are no
+samples available yet.
+
+This function will indicate if a buffer-overflow in the ring buffer has
+occurred by returning ERR_BUFFER_OVERWRITE. This can happen if the actual
+data processing is too slow. To clear this error the acquisition should
+be stopped on all boards and restarted. Another method is to call
+CMD_BUFFER_0_CLEAR_ERROR.
+
+This value can be queried at any time during a running acquisition. Calling
+this command on a stopped boardwill result in an error code indicating that
+no acquisition is running (ERR_DAQ_NOT_STARTED).
+
+
+
+
+CMD_BUFFER_FREE_NO_SAMPLE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Type: atomic
+
+Usable during acquisition: yes
+
+Status: deprecated, use CMD_BUFFER_0_FREE_NO_SAMPLE instead
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table::
+   :widths: 20 20 20 20
+
+   +-----+------------+--------------------------+---------------+
+   |     | Board      | Value                    | Remark        |
+   +=====+============+==========================================+
+   | Get | Index only | nr of samples to free    |               |
+   +-----+------------+--------------------------+---------------+
+   | Set |  N/A       | N/A                      | Not supported |
+   +-----+------------+--------------------------+---------------+
+
+
+This command indicates to the driver that a numbers of scans have been
+processed by the application and the ring buffer can be freed.
+
+In a typical data-readout-loop the sequence would be:
+
+- CMD_BUFFER_0_AVAIL_NO_SAMPLE returning \*val = x
+- CMD_BUFFER_0_ACT_SAMPLE_POS
+- Actual data processing of y scans
+- CMD_BUFFER_0_FREE_NO_SAMPLE setting val = y
+
+The application does not have necessarily to process the same amount
+of data as reported back by CMD_BUFFER_AVAIL_NO_SAMPLE. It
+may process less data (provided enough data is processed per loop, to
+ensure, that no buffer overrun occurs).
+
+If the application issues CMD_BUFFER_FREE_NO_SAMPLE command with smaller
+values than samples available, the un-freed samples will be reported again
+at the next CMD_BUFFER_0_AVAIL_NO_SAMPLE call.
+
+CMD_BUFFER_FREE_NO_SAMPLE is deprecated. CMD_BUFFER_0_FREE_NO_SAMPLE should be
+used.
+
+
+
+CMD_BUFFER_0_FREE_NO_SAMPLE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Type: atomic
+
+Usable during acquisition: no
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table::
+   :widths: 20 20 20 20
+
+   +-----+------------+--------------------------+---------------+
+   |     | Board      | Value                    | Remark        |
+   +=====+============+==========================================+
+   | Get | Index only | nr of samples to free    |               |
+   +-----+------------+--------------------------+---------------+
+   | Set |  N/A       | N/A                      | Not supported |
+   +-----+------------+--------------------------+---------------+
+
+
+This command indicates to the driver that a numbers of scans have been
+processed by the application and the ring buffer can be freed.
+
+In a typical data-readout-loop the sequence would be:
+
+- CMD_BUFFER_0_AVAIL_NO_SAMPLE returning \*val = x
+- CMD_BUFFER_0_ACT_SAMPLE_POS
+- Actual data processing of y scans
+- CMD_BUFFER_0_FREE_NO_SAMPLE setting val = y
+
+The application does not have necessarily to process the same amount
+of data as reported back by CMD_BUFFER_AVAIL_NO_SAMPLE. It
+may process less data (provided enough data is processed per loop, to
+ensure, that no buffer overrun occurs).
+
+If the application issues CMD_BUFFER_FREE_NO_SAMPLE command with smaller
+values than samples available, the un-freed samples will be reported again
+at the next CMD_BUFFER_0_AVAIL_NO_SAMPLE call.
+
+
+
+CMD_BUFFER_ACT_SAMPLE_POS
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Type: atomic
+
+Usable during acquisition: yes
+
+Status: deprecated, use CMD_BUFFER_0_ACT_SAMPLE_POS instead
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table::
+   :widths: 20 20 20 20
+
+   +-----+------------+--------------------------+---------------+
+   |     | Board      | Value                    | Remark        |
+   +=====+============+==========================================+
+   | Get | Index only | pointer to samples       |               |
+   +-----+------------+--------------------------+---------------+
+   | Set |  N/A       | N/A                      | Not supported |
+   +-----+------------+--------------------------+---------------+
+
+This command retrieves the address of the start of the first unprocessed scan.
+This value can be queried at any time during a running acquisition.
+Calling this command on a stopped board will result in an error code
+indicating that no acquisition is running (ERR_DAQ_NOT_STARTED).
+
+CMD_BUFFER_ACT_SAMPLE_POS is deprecated. CMD_BUFFER_0_ACT_SAMPLE_POS should be
+used.
+
+
+
+CMD_BUFFER_0_ACT_SAMPLE_POS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Type: atomic
+
+Usable during acquisition: yes
+
+
+.. tabularcolumns:: |p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|
+
+.. table::
+   :widths: 20 20 20 20
+
+   +-----+------------+--------------------------+---------------+
+   |     | Board      | Value                    | Remark        |
+   +=====+============+==========================================+
+   | Get | Index only | pointer to samples       |               |
+   +-----+------------+--------------------------+---------------+
+   | Set |  N/A       | N/A                      | Not supported |
+   +-----+------------+--------------------------+---------------+
+
+This command retrieves the address of the start of the first unprocessed scan.
+This value can be queried at any time during a running acquisition.
+Calling this command on a stopped board will result in an error code
+indicating that no acquisition is running (ERR_DAQ_NOT_STARTED).
+
+
+
+Advanced Command ID Enumeration
+-------------------------------
+
+
+
