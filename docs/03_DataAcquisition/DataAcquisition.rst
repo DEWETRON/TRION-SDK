@@ -20,7 +20,7 @@ Scan and Scan Size
 One scan is the portion of data that consists of exactly one sample for
 each sampled channel on a board.
 
-So if there are 2 analogue channels and 1 counter channel active, the
+So if there are 2 analog channels and 1 counter channel active, the
 scan would logically hold three values. (AI0, AI1, CNT0).
 
 The scan-size therefore directly derives from this information. It
@@ -293,6 +293,7 @@ support class.
     :lines: 9-
 
 
+.. _data_acq_adc_delay:
 
 ADC Delay
 ---------

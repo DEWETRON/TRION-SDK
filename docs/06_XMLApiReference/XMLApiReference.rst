@@ -137,8 +137,8 @@ BoardFeatures
 ^^^^^^^^^^^^^
 
 This section roughly describes the acquisition capabilities of the board
-at hand. This example shows a TRION-2402-dACC-6-BNC (analogue sampling
-board with six analogue channels)
+at hand. This example shows a TRION-2402-dACC-6-BNC (analog sampling
+board with six analog channels)
 
 
 .. code-block:: XML
@@ -177,8 +177,8 @@ board with six analogue channels)
 
 From this information the application can deduce:
 
--  The board has six analogue input channels
--  The analogue input channels can be used with 16 and 24 Bit resolution
+-  The board has six analog input channels
+-  The analog input channels can be used with 16 and 24 Bit resolution
 -  The default resolution is 24 Bit
 -  2 counter channels are available with a 80MHz resolution
 -  1 internal counter channel is available - a so called BoardCounter
@@ -264,7 +264,7 @@ ResolutionAI
     </ResolutionAI>
 
 
-This property allows setting the analogue channels to a desired
+This property allows setting the analog channels to a desired
 ADC-resolution.
 
 
@@ -285,14 +285,14 @@ channels and all their settable properties.
 
 In this case, the XML-File shows that:
 
--  There are six analogue channels, labeled AI0 to AI5
+-  There are six analog channels, labeled AI0 to AI5
 -  Two counter channels, labeled CNT0 and CNT 1
 -  One internal counter (the Board-Counter), labeled BoardCNT0
 
 The basic layout for all the channel-types is always the same and allows
 for easy initial navigation within the node.
 
-The analogue channel 0 is used as example to explain this in more depth.
+The analog channel 0 is used as example to explain this in more depth.
 
 
 .. figure:: _img/image10.png
@@ -327,7 +327,7 @@ which are only mentioned in some modes but not in others simply indicate
 that they would have no actual meaning in the modes where they are not
 listed.
 
-Here within the analogue channels this is not the case. An example would
+Here within the analog channels this is not the case. An example would
 be counter-channels that have a mode called “Simple Event Counting” -
 that only takes one input signal - and therefore have only one source
 mentioned in this mode but also support a “gated event counting” - that
@@ -346,7 +346,7 @@ Voltage/Range
 
     BoardProperties - Voltage Mode
 
-This is the exhaustive list of supported properties for an analogue
+This is the exhaustive list of supported properties for an analog
 channel in voltage mode.
 
 
@@ -385,7 +385,7 @@ The most obvious property here is Range:
 
 From this information the application can deduce:
 
--  The analogue input supports ranges from 0.03V to 200V
+-  The analog input supports ranges from 0.03V to 200V
 -  The default input range is 200V
 -  It is freely programmable. So any value between min and max can be
    set and the hardware is not limited to the values presented in the
@@ -491,8 +491,8 @@ This has two consequences when deriving target and item information:
    target
 
 
-Example: How to set the mode of an analogue channel to Resistance
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Example: How to set the mode of an analog channel to Resistance
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Path within XML-File: ChannelProperties/AI0/Mode
 Derived target- and item-string:
@@ -507,8 +507,8 @@ Final function call:
     DeWeSetParamStruct_str( "BoardID0/AI0", "Mode", "Resistance" );
 
 
-Example: How to set the Range of an analogue channel in Resistance-mode
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Example: How to set the Range of an analog channel in Resistance-mode
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Path within XML-File: ChannelProperties/AI0/Mode/Range
 
