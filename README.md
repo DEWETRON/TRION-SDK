@@ -4,21 +4,30 @@ DEWETRON TRION SDK. TRION API SDK description and example sources.
 [![Github All Releases](https://img.shields.io/github/downloads/DEWETRON/TRION-SDK/total)]()
 
 
+A development environment allowing to directly access DEWETRON hardware:
+
+* DEWETRON TRION PXI boards
+* DEWETRON TRION3 PXIe boards
+* DEWETRON TRIONet devices
+* DEWETRON PUREC devices
+
+
 # NEWS
 
 New DEWETRON TRION API package:
 
-* 2020-12-17 Release of TRION API R5.4.0 
-* 2020-12-17 Release of TRIONET FIRMWARE R5.4.0 
+* 2022-04-05 Release of TRION API R6.1.0 
+* 2022-04-05 Release of TRIONET FIRMWARE R6.1.0 
 
 Get those for optimal results.
+
 
 # Prerequisites
 To use the DEWETRION TRION SDK you need a current TRION API installation.
 The TRION Application installer is available on DEWETRON's customer care center:
 
 TRION Application Installer:
-https://ccc.dewetron.com/pl/dewe2-series
+https://ccc.dewetron.com/pl/dewe3-series
 
 TRIONET Firmware:
 https://ccc.dewetron.com/pr/trionet
