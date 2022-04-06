@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
     DeWeSetParamStruct_str("BoardID0/BoardCnt0", "Used", "True");
 
     // Step 4: Configure acquisition properties
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_SIZE, 200);
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 50);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_BLOCK_SIZE, 200);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_BLOCK_COUNT, 50);
     DeWeSetParamStruct_str("BoardID0/AcqProp", "SampleRate", "2000");
 
     // Step 5: Configure sync-in propoerties
@@ -67,8 +67,8 @@ int main(int argc, char* argv[])
     // and howto free them:
 
     // sleep for a short period, then:
-    DeWeGetParam_i32(0, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
-    DeWeSetParam_i32(0, CMD_BUFFER_FREE_NO_SAMPLE, avail_samples);
+    DeWeGetParam_i32(0, CMD_BUFFER_0_AVAIL_NO_SAMPLE, &avail_samples);
+    DeWeSetParam_i32(0, CMD_BUFFER_0_FREE_NO_SAMPLE, avail_samples);
 
     // Step 10: Stop acquisition
     DeWeSetParam_i32(0, CMD_STOP_ACQUISITION, 0);

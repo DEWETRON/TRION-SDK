@@ -265,16 +265,16 @@ int main(int argc, char* argv[])
     DeWeSetParamStruct_str("BoardID1/AIAll", "Used", "True");
 
     // Configure acquisition properties
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_SIZE, buffer_block_size);
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 200);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_BLOCK_SIZE, buffer_block_size);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_BLOCK_COUNT, 200);
     DeWeSetParamStruct_str("BoardID1/AcqProp", "SampleRate", "100");
 
     // Apply settings
     DeWeSetParam_i32(1, CMD_UPDATE_PARAM_ALL, 0);
 
     // Get buffer configuration
-    DeWeGetParam_i64(1, CMD_BUFFER_END_POINTER, &buf_end_pos);
-    DeWeGetParam_i32(1, CMD_BUFFER_TOTAL_MEM_SIZE, &buff_size);
+    DeWeGetParam_i64(1, CMD_BUFFER_0_END_POINTER, &buf_end_pos);
+    DeWeGetParam_i32(1, CMD_BUFFER_0_TOTAL_MEM_SIZE, &buff_size);
 
     // Get scan descriptor
     DeWeGetParamStruct_str("BoardId1", "ScanDescriptor_V2", scan_descriptor, sizeof(scan_descriptor));
@@ -300,7 +300,7 @@ int main(int argc, char* argv[])
     while (1)
     {
         // Get the number of samples available
-        DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
+        DeWeGetParam_i32(1, CMD_BUFFER_0_AVAIL_NO_SAMPLE, &avail_samples);
         if (avail_samples <= 0)
         {
             Sleep(100);
@@ -308,9 +308,9 @@ int main(int argc, char* argv[])
         }
 
         // Get the current read pointer
-        DeWeGetParam_i64(1, CMD_BUFFER_ACT_SAMPLE_POS, &read_pos);
+        DeWeGetParam_i64(1, CMD_BUFFER_0_ACT_SAMPLE_POS, &read_pos);
 
-        // Process samples in CMD_BUFFER_BLOCK_SIZE
+        // Process samples in CMD_0_BUFFER_BLOCK_SIZE
         // to handle ring buffer wrap arounds only here:
         auto avail_samples_to_process = avail_samples;
         while (avail_samples_to_process > 0)
@@ -325,7 +325,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        DeWeSetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, avail_samples);
+        DeWeSetParam_i32(1, CMD_BUFFER_0_FREE_NO_SAMPLE, avail_samples);
     }
 
 

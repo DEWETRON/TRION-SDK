@@ -57,7 +57,7 @@ Example:
 .. code:: c
 
     int samples_available;
-    DeWeGetParam_i32(0, CMD_BUFFER_AVAIL_NO_SAMPLE, &samples_available);
+    DeWeGetParam_i32(0, CMD_BUFFER_0_AVAIL_NO_SAMPLE, &samples_available);
 
 
 Parameters:
@@ -823,11 +823,11 @@ In a typical data-readout-loop the sequence would be:
 - CMD_BUFFER_0_FREE_NO_SAMPLE setting val = y
 
 The application does not have necessarily to process the same amount
-of data as reported back by CMD_BUFFER_AVAIL_NO_SAMPLE. It
+of data as reported back by CMD_BUFFER_0_AVAIL_NO_SAMPLE. It
 may process less data (provided enough data is processed per loop, to
 ensure, that no buffer overrun occurs).
 
-If the application issues CMD_BUFFER_FREE_NO_SAMPLE command with smaller
+If the application issues CMD_BUFFER_0_FREE_NO_SAMPLE command with smaller
 values than samples available, the un-freed samples will be reported again
 at the next CMD_BUFFER_0_AVAIL_NO_SAMPLE call.
 

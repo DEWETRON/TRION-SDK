@@ -283,12 +283,12 @@ Step 4:
 
 .. code:: c
 
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_SIZE, 200);
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 50);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_BLOCK_SIZE, 200);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_BLOCK_COUNT, 50);
     DeWeSetParamStruct_str("BoardID1/AcqProp", "SampleRate", "2000");
 
-Now the acquisition properties have to be configured. CMD_BUFFER_BLOCK_SIZE
-and CMD_BUFFER_BLOCK_COUNT are used to setup the acuisition buffer for the
+Now the acquisition properties have to be configured. CMD_BUFFER_0_BLOCK_SIZE
+and CMD_BUFFER_0_BLOCK_COUNT are used to setup the acuisition buffer for the
 AI channel.
 
 The sample rate has to be configured by setting the *SampleRate* property of
@@ -321,12 +321,12 @@ Step 7:
 
 .. code:: c
 
-    DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
-    DeWeGetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, &avail_samples);
+    DeWeGetParam_i32(1, CMD_BUFFER_0_AVAIL_NO_SAMPLE, &avail_samples);
+    DeWeGetParam_i32(1, CMD_BUFFER_0_FREE_NO_SAMPLE, &avail_samples);
 
 Just read the number of samples stored in the buffer since
 CMD_START_ACQUISITION. After processing the samples, the application has
-to free them with CMD_BUFFER_FREE_NO_SAMPLE to free buffer memory for new
+to free them with CMD_BUFFER_0_FREE_NO_SAMPLE to free buffer memory for new
 samples.
 
 .. note:: Please note that the acquisition loop is missing in this example.
@@ -397,11 +397,11 @@ the necessary sample buffer parameters have to be requested.
 
 .. code:: c
 
-    DeWeGetParam_i64(1, CMD_BUFFER_END_POINTER, &buf_end_pos);
-    DeWeGetParam_i32(1, CMD_BUFFER_TOTAL_MEM_SIZE, &buff_size);
+    DeWeGetParam_i64(1, CMD_BUFFER_0_END_POINTER, &buf_end_pos);
+    DeWeGetParam_i32(1, CMD_BUFFER_0_TOTAL_MEM_SIZE, &buff_size);
 
 
-Also supported is CMD_BUFFER_END_POINTER to retrieve a pointer to
+Also supported is CMD_BUFFER_0_END_POINTER to retrieve a pointer to
 the buffer start. But it is not necessary to implement the buffer
 wrap around handling and therefore not used.
 
@@ -412,7 +412,7 @@ wrap around handling and therefore not used.
 
 .. code:: c
 
-    DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
+    DeWeGetParam_i32(1, CMD_BUFFER_0_AVAIL_NO_SAMPLE, &avail_samples);
 
 Just read the number of samples stored in the buffer since
 CMD_START_ACQUISITION.
@@ -422,9 +422,9 @@ A call to *Sleep* is optional.
 
 .. code:: c
 
-    DeWeGetParam_i64(1, CMD_BUFFER_ACT_SAMPLE_POS, &read_pos);
+    DeWeGetParam_i64(1, CMD_BUFFER_0_ACT_SAMPLE_POS, &read_pos);
 
-With CMD_BUFFER_ACT_SAMPLE_POS we get the address of the oldest unprocessed
+With CMD_BUFFER_0_ACT_SAMPLE_POS we get the address of the oldest unprocessed
 sample.
 
 
@@ -506,7 +506,7 @@ hexadecimal.
 What is still missing?
 ----------------------
 
-The example accessed the samples using CMD_BUFFER_ACT_SAMPLE_POS and
+The example accessed the samples using CMD_BUFFER_0_ACT_SAMPLE_POS and
 pointer arithmetic. The algorithm for access the samples is board
 dependent. Please not that 24bit samples of a TRION-2402-dACC are packed
 a differentway in comparison to a TRION3-1850-MULTI. So a readout function

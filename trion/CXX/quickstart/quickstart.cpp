@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
     DeWeSetParamStruct_str("BoardID1/AI3", "Used", "False");
 
     // Step 4: Configure acquisition properties
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_SIZE, 200);
-    DeWeSetParam_i32(1, CMD_BUFFER_BLOCK_COUNT, 50);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_BLOCK_SIZE, 200);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_BLOCK_COUNT, 50);
     DeWeSetParamStruct_str("BoardID1/AcqProp", "SampleRate", "2000");
 
     // Step 5: Apply settings
@@ -53,8 +53,8 @@ int main(int argc, char* argv[])
     // and howto free them:
 
     // sleep for a short period, then:
-    DeWeGetParam_i32(1, CMD_BUFFER_AVAIL_NO_SAMPLE, &avail_samples);
-    DeWeSetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, avail_samples);
+    DeWeGetParam_i32(1, CMD_BUFFER_0_AVAIL_NO_SAMPLE, &avail_samples);
+    DeWeSetParam_i32(1, CMD_BUFFER_0_FREE_NO_SAMPLE, avail_samples);
 
     // Step 8: Stop acquisition
     DeWeSetParam_i32(1, CMD_STOP_ACQUISITION, 0);
