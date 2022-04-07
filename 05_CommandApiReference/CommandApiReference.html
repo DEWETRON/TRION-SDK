@@ -1,0 +1,3168 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="lang:clipboard.copy" content="Copy to clipboard">
+  <meta name="lang:clipboard.copied" content="Copied to clipboard">
+  <meta name="lang:search.language" content="en">
+  <meta name="lang:search.pipeline.stopwords" content="True">
+  <meta name="lang:search.pipeline.trimmer" content="True">
+  <meta name="lang:search.result.none" content="No matching documents">
+  <meta name="lang:search.result.one" content="1 matching document">
+  <meta name="lang:search.result.other" content="# matching documents">
+  <meta name="lang:search.tokenizer" content="[\s\-]+">
+
+  
+    <link href="https://fonts.gstatic.com/" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&display=fallback" rel="stylesheet">
+
+    <style>
+      body,
+      input {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif
+      }
+
+      code,
+      kbd,
+      pre {
+        font-family: "Roboto Mono", "Courier New", Courier, monospace
+      }
+    </style>
+  
+
+  <link rel="stylesheet" href="../_static/stylesheets/application.css"/>
+  <link rel="stylesheet" href="../_static/stylesheets/application-palette.css"/>
+  <link rel="stylesheet" href="../_static/stylesheets/application-fixes.css"/>
+  
+  <link rel="stylesheet" href="../_static/fonts/material-icons.css"/>
+  
+  <meta name="theme-color" content="#3f51b5">
+  <script src="../_static/javascripts/modernizr.js"></script>
+  
+  
+  
+    <title>Command Reference &#8212; DEWETRON TRION SDK 6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/material.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/stylesheets/oxygen_material.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="XML Reference" href="../06_XMLApiReference/XMLApiReference.html" />
+    <link rel="prev" title="Synchronization" href="../04_Synchronization/Synchronization.html" />
+
+
+
+  
+   
+
+  </head>
+  <body dir=ltr
+        data-md-color-primary=blue data-md-color-accent=light-blue>
+  
+  <svg class="md-svg">
+    <defs data-children-count="0">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+      
+    </defs>
+  </svg>
+  
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
+  <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+  <a href="#05_CommandApiReference/CommandApiReference" tabindex="1" class="md-skip"> Skip to content </a>
+  <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex navheader">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../index.html" title="DEWETRON TRION SDK 6.0 documentation"
+           class="md-header-nav__button md-logo">
+          
+              <img src="../_static/logo.png" height="26"
+                   alt="DEWETRON TRION SDK 6.0 documentation logo">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          <span class="md-header-nav__topic">DEWETRON TRION SDK</span>
+          <span class="md-header-nav__topic"> Command Reference </span>
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+        
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" action="../search.html" method="get" name="search">
+      <input type="text" class="md-search__input" name="q" placeholder="Search"
+             autocapitalize="off" autocomplete="off" spellcheck="false"
+             data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      
+      
+  
+  <script src="../_static/javascripts/version_dropdown.js"></script>
+  <script>
+    var json_loc = "../"versions.json"",
+        target_loc = "../../",
+        text = "Versions";
+    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
+  </script>
+  
+
+    </div>
+  </nav>
+</header>
+
+  
+  <div class="md-container">
+    
+    
+    
+  <nav class="md-tabs" data-md-component="tabs">
+    <div class="md-tabs__inner md-grid">
+      <ul class="md-tabs__list">
+          <li class="md-tabs__item"><a href="../index.html" class="md-tabs__link">DEWETRON TRION SDK 6.0 documentation</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/products/signal-conditioning/all-trion3-trion-modules/" class="md-tabs__link">TRION & TRION3 Modules</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/products/oxygen-measurement-software/" class="md-tabs__link">OXYGEN Software</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/" class="md-tabs__link">DEWETRON Measurement Systems</a></li>
+      </ul>
+    </div>
+  </nav>
+    <main class="md-main">
+      <div class="md-main__inner md-grid" data-md-component="container">
+        
+          <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../index.html" title="DEWETRON TRION SDK 6.0 documentation" class="md-nav__button md-logo">
+      
+        <img src="../_static/logo.png" alt=" logo" width="48" height="48">
+      
+    </a>
+    <a href="../index.html"
+       title="DEWETRON TRION SDK 6.0 documentation">DEWETRON TRION SDK</a>
+  </label>
+  
+
+  
+  <ul class="md-nav__list">
+    <li class="md-nav__item">
+    
+      <span class="md-nav__link caption"><span class="caption-text">Contents</span></span>
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../00_InformationRights/InformationRights.html" class="md-nav__link">Preface</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../01_Quickstart/Quickstart.html" class="md-nav__link">Quickstart</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../02_ChannelTypes/ChannelTypes.html" class="md-nav__link">Channel Types</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../03_DataAcquisition/DataAcquisition.html" class="md-nav__link">Data Acquisition</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../04_Synchronization/Synchronization.html" class="md-nav__link">Synchronization</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    <label class="md-nav__link md-nav__link--active" for="__toc"> Command Reference </label>
+    
+      <a href="#" class="md-nav__link md-nav__link--active">Command Reference</a>
+      
+        
+<nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
+  <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#05-commandapireference-commandapireference--page-root" class="md-nav__link">Command Reference</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#expert-clarification" class="md-nav__link">Expert clarification</a>
+        </li>
+        <li class="md-nav__item"><a href="#dewegetparam-i32" class="md-nav__link">DeWeGetParam_i32</a>
+        </li>
+        <li class="md-nav__item"><a href="#dewesetparam-i32" class="md-nav__link">DeWeSetParam_i32</a>
+        </li>
+        <li class="md-nav__item"><a href="#dewegetparam-i64" class="md-nav__link">DeWeGetParam_i64</a>
+        </li>
+        <li class="md-nav__item"><a href="#dewesetparam-i64" class="md-nav__link">DeWeSetParam_i64</a>
+        </li>
+        <li class="md-nav__item"><a href="#command-id-enumeration" class="md-nav__link">Command ID Enumeration</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#cmd-open-board" class="md-nav__link">CMD_OPEN_BOARD</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-close-board" class="md-nav__link">CMD_CLOSE_BOARD</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-reset-board" class="md-nav__link">CMD_RESET_BOARD</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-start-acquisition" class="md-nav__link">CMD_START_ACQUISITION</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-stop-acquisition" class="md-nav__link">CMD_STOP_ACQUISITION</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-block-size" class="md-nav__link">CMD_BUFFER_BLOCK_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-block-size" class="md-nav__link">CMD_BUFFER_0_BLOCK_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-block-count" class="md-nav__link">CMD_BUFFER_BLOCK_COUNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-block-count" class="md-nav__link">CMD_BUFFER_0_BLOCK_COUNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-all" class="md-nav__link">CMD_UPDATE_PARAM_ALL</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-start-pointer" class="md-nav__link">CMD_BUFFER_START_POINTER</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-start-pointer" class="md-nav__link">CMD_BUFFER_0_START_POINTER</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-end-pointer" class="md-nav__link">CMD_BUFFER_END_POINTER</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-end-pointer" class="md-nav__link">CMD_BUFFER_0_END_POINTER</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-total-mem-size" class="md-nav__link">CMD_BUFFER_TOTAL_MEM_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-total-mem-size" class="md-nav__link">CMD_BUFFER_0_TOTAL_MEM_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-avail-no-sample" class="md-nav__link">CMD_BUFFER_AVAIL_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-avail-no-sample" class="md-nav__link">CMD_BUFFER_0_AVAIL_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-free-no-sample" class="md-nav__link">CMD_BUFFER_FREE_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-free-no-sample" class="md-nav__link">CMD_BUFFER_0_FREE_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-act-sample-pos" class="md-nav__link">CMD_BUFFER_ACT_SAMPLE_POS</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-act-sample-pos" class="md-nav__link">CMD_BUFFER_0_ACT_SAMPLE_POS</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#advanced-command-id-enumeration" class="md-nav__link">Advanced Command ID Enumeration</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#cmd-act-sample-count" class="md-nav__link">CMD_ACT_SAMPLE_COUNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-acq-all" class="md-nav__link">CMD_UPDATE_PARAM_ACQ_ALL</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-chn-all" class="md-nav__link">CMD_UPDATE_PARAM_CHN_ALL</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-acq" class="md-nav__link">CMD_UPDATE_PARAM_ACQ</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-acq-route" class="md-nav__link">CMD_UPDATE_PARAM_ACQ_ROUTE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-mux" class="md-nav__link">CMD_UPDATE_PARAM_MUX</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-intsig0-cmd-update-pram-intsig1" class="md-nav__link">CMD_UPDATE_PARAM_INTSIG0, CMD_UPDATE_PRAM_INTSIG1</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-ai" class="md-nav__link">CMD_UPDATE_PARAM_AI</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-cnt" class="md-nav__link">CMD_UPDATE_PARAM_CNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-di" class="md-nav__link">CMD_UPDATE_PARAM_DI</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-board-cnt" class="md-nav__link">CMD_UPDATE_PARAM_BOARD_CNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-can" class="md-nav__link">CMD_UPDATE_PARAM_CAN</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-uart" class="md-nav__link">CMD_UPDATE_PARAM_UART</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-async-polling-time" class="md-nav__link">CMD_ASYNC_POLLING_TIME</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-async-frame-size" class="md-nav__link">CMD_ASYNC_FRAME_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-acq-timing" class="md-nav__link">CMD_UPDATE_PARAM_ACQ_TIMING</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-timing-state" class="md-nav__link">CMD_TIMING_STATE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-clear-error" class="md-nav__link">CMD_BUFFER_CLEAR_ERROR</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-clear-error" class="md-nav__link">CMD_BUFFER_0_CLEAR_ERROR</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-get-uart-status" class="md-nav__link">CMD_GET_UART_STATUS</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-wait-avail-no-sample" class="md-nav__link">CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-wait-avail-no-sample" class="md-nav__link">CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-acq-state" class="md-nav__link">CMD_ACQ_STATE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-aref" class="md-nav__link">CMD_UPDATE_PARAM_AREF</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-timing-time" class="md-nav__link">CMD_TIMING_TIME</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-gps-receiver-reset" class="md-nav__link">CMD_GPS_RECEIVER_RESET</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-pxi-line-state" class="md-nav__link">CMD_PXI_LINE_STATE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-discret-state-set" class="md-nav__link">CMD_DISCRET_STATE_SET</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-discret-state-clear" class="md-nav__link">CMD_DISCRET_STATE_CLEAR</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-discret-group32-set" class="md-nav__link">CMD_DISCRET_GROUP32_SET</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-idled-board-on" class="md-nav__link">CMD_IDLED_BOARD_ON</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-idled-board-off" class="md-nav__link">CMD_IDLED_BOARD_OFF</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-idled-chanel-on" class="md-nav__link">CMD_IDLED_CHANEL_ON</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-idled-chanel-off" class="md-nav__link">CMD_IDLED_CHANEL_OFF</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-board-adc-delay" class="md-nav__link">CMD_BOARD_ADC_DELAY</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-board-baseeeprom-write" class="md-nav__link">CMD_BOARD_BASEEEPROM_WRITE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-board-coneeprom-write" class="md-nav__link">CMD_BOARD_CONEEPROM_WRITE</a>
+        </li></ul>
+            </nav>
+        </li></ul>
+            </nav>
+        </li>
+  </ul>
+</nav>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../06_XMLApiReference/XMLApiReference.html" class="md-nav__link">XML Reference</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../07_TEDS/TEDS.html" class="md-nav__link">TEDS Interface</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../10_DEWE2/DEWE2_Enclosure.html" class="md-nav__link">DEWE2 Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../11_DEWE3/DEWE3_Enclosure.html" class="md-nav__link">DEWE3 Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../12_TRIONet/TRIONet_Enclosure.html" class="md-nav__link">TRIONet Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../13_PUREC/PUREC_Enclosure.html" class="md-nav__link">PUREC Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../14_ConnectorBoxes/ConnectorBoxes.html" class="md-nav__link">ConnectorBoxes</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../19_DevelopmentTips/DevelopmentTips.html" class="md-nav__link">Development Tips</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../20_Support/Support.html" class="md-nav__link">Support</a>
+      
+    
+    </li>
+  </ul>
+  
+
+</nav>
+              </div>
+            </div>
+          </div>
+          <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                
+<nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
+  <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#05-commandapireference-commandapireference--page-root" class="md-nav__link">Command Reference</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#expert-clarification" class="md-nav__link">Expert clarification</a>
+        </li>
+        <li class="md-nav__item"><a href="#dewegetparam-i32" class="md-nav__link">DeWeGetParam_i32</a>
+        </li>
+        <li class="md-nav__item"><a href="#dewesetparam-i32" class="md-nav__link">DeWeSetParam_i32</a>
+        </li>
+        <li class="md-nav__item"><a href="#dewegetparam-i64" class="md-nav__link">DeWeGetParam_i64</a>
+        </li>
+        <li class="md-nav__item"><a href="#dewesetparam-i64" class="md-nav__link">DeWeSetParam_i64</a>
+        </li>
+        <li class="md-nav__item"><a href="#command-id-enumeration" class="md-nav__link">Command ID Enumeration</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#cmd-open-board" class="md-nav__link">CMD_OPEN_BOARD</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-close-board" class="md-nav__link">CMD_CLOSE_BOARD</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-reset-board" class="md-nav__link">CMD_RESET_BOARD</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-start-acquisition" class="md-nav__link">CMD_START_ACQUISITION</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-stop-acquisition" class="md-nav__link">CMD_STOP_ACQUISITION</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-block-size" class="md-nav__link">CMD_BUFFER_BLOCK_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-block-size" class="md-nav__link">CMD_BUFFER_0_BLOCK_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-block-count" class="md-nav__link">CMD_BUFFER_BLOCK_COUNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-block-count" class="md-nav__link">CMD_BUFFER_0_BLOCK_COUNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-all" class="md-nav__link">CMD_UPDATE_PARAM_ALL</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-start-pointer" class="md-nav__link">CMD_BUFFER_START_POINTER</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-start-pointer" class="md-nav__link">CMD_BUFFER_0_START_POINTER</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-end-pointer" class="md-nav__link">CMD_BUFFER_END_POINTER</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-end-pointer" class="md-nav__link">CMD_BUFFER_0_END_POINTER</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-total-mem-size" class="md-nav__link">CMD_BUFFER_TOTAL_MEM_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-total-mem-size" class="md-nav__link">CMD_BUFFER_0_TOTAL_MEM_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-avail-no-sample" class="md-nav__link">CMD_BUFFER_AVAIL_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-avail-no-sample" class="md-nav__link">CMD_BUFFER_0_AVAIL_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-free-no-sample" class="md-nav__link">CMD_BUFFER_FREE_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-free-no-sample" class="md-nav__link">CMD_BUFFER_0_FREE_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-act-sample-pos" class="md-nav__link">CMD_BUFFER_ACT_SAMPLE_POS</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-act-sample-pos" class="md-nav__link">CMD_BUFFER_0_ACT_SAMPLE_POS</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#advanced-command-id-enumeration" class="md-nav__link">Advanced Command ID Enumeration</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#cmd-act-sample-count" class="md-nav__link">CMD_ACT_SAMPLE_COUNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-acq-all" class="md-nav__link">CMD_UPDATE_PARAM_ACQ_ALL</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-chn-all" class="md-nav__link">CMD_UPDATE_PARAM_CHN_ALL</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-acq" class="md-nav__link">CMD_UPDATE_PARAM_ACQ</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-acq-route" class="md-nav__link">CMD_UPDATE_PARAM_ACQ_ROUTE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-mux" class="md-nav__link">CMD_UPDATE_PARAM_MUX</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-intsig0-cmd-update-pram-intsig1" class="md-nav__link">CMD_UPDATE_PARAM_INTSIG0, CMD_UPDATE_PRAM_INTSIG1</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-ai" class="md-nav__link">CMD_UPDATE_PARAM_AI</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-cnt" class="md-nav__link">CMD_UPDATE_PARAM_CNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-di" class="md-nav__link">CMD_UPDATE_PARAM_DI</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-board-cnt" class="md-nav__link">CMD_UPDATE_PARAM_BOARD_CNT</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-can" class="md-nav__link">CMD_UPDATE_PARAM_CAN</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-uart" class="md-nav__link">CMD_UPDATE_PARAM_UART</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-async-polling-time" class="md-nav__link">CMD_ASYNC_POLLING_TIME</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-async-frame-size" class="md-nav__link">CMD_ASYNC_FRAME_SIZE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-acq-timing" class="md-nav__link">CMD_UPDATE_PARAM_ACQ_TIMING</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-timing-state" class="md-nav__link">CMD_TIMING_STATE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-clear-error" class="md-nav__link">CMD_BUFFER_CLEAR_ERROR</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-clear-error" class="md-nav__link">CMD_BUFFER_0_CLEAR_ERROR</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-get-uart-status" class="md-nav__link">CMD_GET_UART_STATUS</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-wait-avail-no-sample" class="md-nav__link">CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-buffer-0-wait-avail-no-sample" class="md-nav__link">CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-acq-state" class="md-nav__link">CMD_ACQ_STATE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-update-param-aref" class="md-nav__link">CMD_UPDATE_PARAM_AREF</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-timing-time" class="md-nav__link">CMD_TIMING_TIME</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-gps-receiver-reset" class="md-nav__link">CMD_GPS_RECEIVER_RESET</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-pxi-line-state" class="md-nav__link">CMD_PXI_LINE_STATE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-discret-state-set" class="md-nav__link">CMD_DISCRET_STATE_SET</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-discret-state-clear" class="md-nav__link">CMD_DISCRET_STATE_CLEAR</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-discret-group32-set" class="md-nav__link">CMD_DISCRET_GROUP32_SET</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-idled-board-on" class="md-nav__link">CMD_IDLED_BOARD_ON</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-idled-board-off" class="md-nav__link">CMD_IDLED_BOARD_OFF</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-idled-chanel-on" class="md-nav__link">CMD_IDLED_CHANEL_ON</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-idled-chanel-off" class="md-nav__link">CMD_IDLED_CHANEL_OFF</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-board-adc-delay" class="md-nav__link">CMD_BOARD_ADC_DELAY</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-board-baseeeprom-write" class="md-nav__link">CMD_BOARD_BASEEEPROM_WRITE</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmd-board-coneeprom-write" class="md-nav__link">CMD_BOARD_CONEEPROM_WRITE</a>
+        </li></ul>
+            </nav>
+        </li></ul>
+            </nav>
+        </li>
+  </ul>
+</nav>
+              </div>
+            </div>
+          </div>
+        
+        <div class="md-content">
+          <article class="md-content__inner md-typeset" role="main">
+            
+  <section id="command-reference">
+<h1 id="05-commandapireference-commandapireference--page-root">Command Reference<a class="headerlink" href="#05-commandapireference-commandapireference--page-root" title="Permalink to this headline">¶</a></h1>
+<p>This section gives a description of available command IDs for the integer
+based API functions.</p>
+<p>There are two distinct integer based commands:</p>
+<ul class="simple">
+<li><p>One to set data, or trigger an action</p></li>
+<li><p>One to retrieve data</p></li>
+</ul>
+<section id="expert-clarification">
+<h2 id="expert-clarification">Expert clarification<a class="headerlink" href="#expert-clarification" title="Permalink to this headline">¶</a></h2>
+<p>Another distinction is whether it is an atomic command or a composite
+command.
+Composite commands are a collection of atomic commands executed within
+the context of the API. Hardwareupdates in general are more time-consuming,
+as they involve hardware-access, and board-specific guard-times between
+those accesses, determined by the components used on the board itself.
+Composite commands allow the API to perform order-optimization, and thereby
+cut the time spent in the actual function, compared to using the
+atomic-commands on application level.</p>
+<p>When invoking a composite command, API will try to perform the underlying
+atomic commands with a best-effortpolicy. So every atomic command will be
+tried to execute, even if any of the prior executed atomic operation
+returned an error. (Except if there are internal hard-dependencies, which
+would render an operation as potentially harmful to the hardware).</p>
+<p>As the i32-invokers use a single integer-return-value for the error-code,
+the return-value of the composite commands will always reflect the <em>worst</em>
+error-code encountered during the execution. Therefore it is possible to
+lose detailed information, as it is possible that more than one of the
+underlying atomic commands would indicate an error-state.</p>
+</section>
+<section id="dewegetparam-i32">
+<h2 id="dewegetparam-i32">DeWeGetParam_i32<a class="headerlink" href="#dewegetparam-i32" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">DeWeGetParam_i32</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">board</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">out</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>DeWeGetParam_i32 is used to retrieve a value (or result) for a specific defined
+command. A board is accessed by an integer index &gt;= 0.
+The second parameter command must be a valid command from the file
+<em>dewexpi_commands.inc</em>
+The result is stored to the variable referenced by the pointer val.</p>
+<p>Example:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">samples_available</span><span class="p">;</span><span class="w"></span>
+<span class="n">DeWeGetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_AVAIL_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">samples_available</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p>board: Index of the board the command has to be executed on. Starts at 0.</p></li>
+<li><p>command: The id of the get command to be executed.</p></li>
+<li><p>val: A pointer to an 32 bit integer variable where the result is stored.</p></li>
+</ul>
+<p>Return codes:</p>
+<ul class="simple">
+<li><p>0: A return code of 0 (ERR_NONE), indicates execution without failure. The content of val is reliable.</p></li>
+<li><p>&lt;0: A negative return code indicates a warning. The value returned in pVal can be taken as reliable.</p></li>
+<li><p>&gt;0: A positive return code indicates an error. The value returned in val is not reliable, and should not be considered for further usage.</p></li>
+</ul>
+</section>
+<section id="dewesetparam-i32">
+<h2 id="dewesetparam-i32">DeWeSetParam_i32<a class="headerlink" href="#dewesetparam-i32" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">DeWeSetParam_i32</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">board</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>DeWeSetParam_i32 is used to set a value or trigger a command.
+A board is accessed by an integer index &gt;= 0.
+The second parameter command must be a valid command from the file
+<em>dewexpi_commands.inc</em>
+For some commands val is optional and can be 0.</p>
+<p>Example:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_FREE_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p>board: Index of the board the command has to be executed on. Starts at 0.</p></li>
+<li><p>command: The id of the get command to be executed.</p></li>
+<li><p>val: A pointer to an 64 bit integer variable where the result is stored.</p></li>
+</ul>
+<p>Return codes:</p>
+<ul class="simple">
+<li><p>0: A return code of 0 (ERR_NONE), indicates execution without failure. The content of val is reliable.</p></li>
+<li><p>&lt;0: A negative return code indicates a warning. The value returned in pVal can be taken as reliable.</p></li>
+<li><p>&gt;0: A positive return code indicates an error. The value returned in val is not reliable, and should not be considered for further usage.</p></li>
+</ul>
+</section>
+<section id="dewegetparam-i64">
+<h2 id="dewegetparam-i64">DeWeGetParam_i64<a class="headerlink" href="#dewegetparam-i64" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">DeWeGetParam_i64</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">board</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">out</span><span class="p">]</span><span class="w"> </span><span class="n">sint64</span><span class="o">*</span><span class="w"> </span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>DeWeGetParam_i64 is used to retrieve a value (or result) for a specific defined
+command. A board is accessed by an integer index &gt;= 0.
+The second parameter command must be a valid command from the file
+<em>dewexpi_commands.inc</em>
+The result is stored to the 64bit variable referenced by the pointer val.</p>
+<p>DeWeGetParam_i64 was added to the API to get be able to get valid buffer
+pointer on 64bit systems.</p>
+<p>Example:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">sint64</span><span class="w"> </span><span class="n">read_pos</span><span class="p">;</span><span class="w"></span>
+<span class="n">DeWeGetParam_i64</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_ACT_SAMPLE_POS</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">read_pos</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p>board: Index of the board the command has to be executed on. Starts at 0.</p></li>
+<li><p>command: The id of the get command to be executed.</p></li>
+<li><p>val: A pointer to an 64 bit integer variable where the result is stored.</p></li>
+</ul>
+<p>Return codes:</p>
+<ul class="simple">
+<li><p>0: A return code of 0 (ERR_NONE), indicates execution without failure. The content of val is reliable.</p></li>
+<li><p>&lt;0: A negative return code indicates a warning. The value returned in pVal can be taken as reliable.</p></li>
+<li><p>&gt;0: A positive return code indicates an error. The value returned in val is not reliable, and should not be considered for further usage.</p></li>
+</ul>
+</section>
+<section id="dewesetparam-i64">
+<h2 id="dewesetparam-i64">DeWeSetParam_i64<a class="headerlink" href="#dewesetparam-i64" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">DeWeSetParam_i64</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">board</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">in</span><span class="p">]</span><span class="w"> </span><span class="n">sint64</span><span class="w"> </span><span class="n">val</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>DeWeSetParam_i32 is used to set a value or trigger a command.
+A board is accessed by an integer index &gt;= 0.
+The second parameter command must be a valid command from the file
+<em>dewexpi_commands.inc</em>
+For some commands val is optional and can be 0.</p>
+<p>DeWeGetParam_i64 was added to the API to get be able to get valid buffer
+pointer on 64bit systems. DeWeSetParam_i64 is the datatype compatible set
+function.</p>
+<p>Example:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">sint64</span><span class="w"> </span><span class="n">read_pos</span><span class="p">;</span><span class="w"></span>
+<span class="n">DeWeSetParam_i64</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_1_CLEAR_ERROR</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p>board: Index of the board the command has to be executed on. Starts at 0.</p></li>
+<li><p>command: The id of the get command to be executed.</p></li>
+<li><p>val: A pointer to an 64 bit integer variable where the result is stored.</p></li>
+</ul>
+<p>Return codes:</p>
+<ul class="simple">
+<li><p>0: A return code of 0 (ERR_NONE), indicates execution without failure. The content of val is reliable.</p></li>
+<li><p>&lt;0: A negative return code indicates a warning. The value returned in pVal can be taken as reliable.</p></li>
+<li><p>&gt;0: A positive return code indicates an error. The value returned in val is not reliable, and should not be considered for further usage.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>DeWeSetParam_i32 and DeWeSetParam_i64 are compatible and the
+same commands can be used. To get a pointer always use DeWeSetParam_i64 to be save</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>DeWeGetParam_i32 and DeWeGetParam_i64 are compatible and the
+same commands can be used.</p>
+</div>
+</section>
+<section id="command-id-enumeration">
+<h2 id="command-id-enumeration">Command ID Enumeration<a class="headerlink" href="#command-id-enumeration" title="Permalink to this headline">¶</a></h2>
+<p>This section covers the basic set of i32-commands to be able to
+perform data-acquisition with via the API with a TRION™-Board.
+Most SDK Examples use this basic set.
+Any application that does not intend to change amplifier-settings on
+analog cards during a running acquisition can rely on this basic interface.
+The main difference between this basic interface and the advanced
+interface-functions is the level of granularity of the commands.</p>
+<section id="cmd-open-board">
+<h3 id="cmd-open-board">CMD_OPEN_BOARD<a class="headerlink" href="#cmd-open-board" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>unused</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Opens a board. This automatically configures the board to its
+default state.</p>
+</section>
+<section id="cmd-close-board">
+<h3 id="cmd-close-board">CMD_CLOSE_BOARD<a class="headerlink" href="#cmd-close-board" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>unused</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Closes a board. If forgotten, DeWeDriverDeInit closes
+all open boards.</p>
+</section>
+<section id="cmd-reset-board">
+<h3 id="cmd-reset-board">CMD_RESET_BOARD<a class="headerlink" href="#cmd-reset-board" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>unused</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The default setting is applied to the board on the
+initial CMD_OPEN_BOARD. CMD_RESET_BOARD reflects
+these settings to the hardware of the given board, and therefore
+acts like CMD_UPDATE_PARAM_ALL. To clear out the ADC-pipes, a short
+(around 100 ms) measurement is started during this operation.</p>
+</section>
+<section id="cmd-start-acquisition">
+<h3 id="cmd-start-acquisition">CMD_START_ACQUISITION<a class="headerlink" href="#cmd-start-acquisition" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>ACQ State</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>unused</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command starts the acquisition on the indexed board. To allow
+this command to actually execute and start acquisition on the hardware,
+it is mandatory, that the hardware setup (both, on the logical layer
+and on the hardware) has been executed and finished.</p>
+<p>Get is aliased by CMD_ACQ_STATE. Should not be used directly, as
+support for the not-aliased command may be dropped in
+upcoming versions.</p>
+</section>
+<section id="cmd-stop-acquisition">
+<h3 id="cmd-stop-acquisition">CMD_STOP_ACQUISITION<a class="headerlink" href="#cmd-stop-acquisition" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>unused</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command stops the acquisition for the given board.</p>
+</section>
+<section id="cmd-buffer-block-size">
+<h3 id="cmd-buffer-block-size">CMD_BUFFER_BLOCK_SIZE<a class="headerlink" href="#cmd-buffer-block-size" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<p>Status: deprecated, use CMD_BUFFER_0_BLOCK_SIZE instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>block size</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>block size</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command queries or sets the block size to be used during acquisition.
+Please refer to the chapter “Data Acquisition” for details.</p>
+<p>CMD_BUFFER_BLOCK_SIZE is deprecated. CMD_BUFFER_0_BLOCK_SIZE should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-block-size">
+<h3 id="cmd-buffer-0-block-size">CMD_BUFFER_0_BLOCK_SIZE<a class="headerlink" href="#cmd-buffer-0-block-size" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>block size</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>block size</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command queries or sets the block size to be used during acquisition.
+Please refer to the chapter “Data Acquisition” for details. This configures
+the block size of buffer 0.</p>
+</section>
+<section id="cmd-buffer-block-count">
+<h3 id="cmd-buffer-block-count">CMD_BUFFER_BLOCK_COUNT<a class="headerlink" href="#cmd-buffer-block-count" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<p>Status: deprecated, use CMD_BUFFER_0_BLOCK_SIZE instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>block count</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>block count</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command queries or sets the block count to be used during acquisition.
+Please refer to the chapter “Data Acquisition” for details.</p>
+<p>CMD_BUFFER_BLOCK_COUNT is deprecated. CMD_BUFFER_0_BLOCK_COUNT should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-block-count">
+<h3 id="cmd-buffer-0-block-count">CMD_BUFFER_0_BLOCK_COUNT<a class="headerlink" href="#cmd-buffer-0-block-count" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>block count</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>block count</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command queries or sets the block count to be used during acquisition.
+Please refer to the chapter “Data Acquisition” for details. This configures
+the block count of buffer 0.</p>
+</section>
+<section id="cmd-update-param-all">
+<h3 id="cmd-update-param-all">CMD_UPDATE_PARAM_ALL<a class="headerlink" href="#cmd-update-param-all" title="Permalink to this headline">¶</a></h3>
+<p>Type: compositem, issues:</p>
+<ul class="simple">
+<li><p>CMD_UPDATE_PARAM_ACQ_SR</p></li>
+<li><p>CMD_UPDATE_PARAM_AO_PATTERN</p></li>
+<li><p>CMD_UPDATE_PARAM_CHN_ALL</p></li>
+<li><p>CMD_UPDATE_PARAM_ACQ_ALL</p></li>
+</ul>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This function updates the whole hardware to match the logical settings.
+It allocates the sample ring buffer according to the specified parameters
+and inherent parameters like samplerate, number of used channels and channel
+data width.</p>
+<p>This is equivalent to calling:</p>
+<ul class="simple">
+<li><p>CMD_UPDATE_PARAM_ACQ_SR</p></li>
+<li><p>CMD_UPDATE_PARAM_AO_PATTERN</p></li>
+<li><p>CMD_UPDATE_PARAM_CHN_ALL</p></li>
+<li><p>CMD_UPDATE_PARAM_ACQ_ALL</p></li>
+</ul>
+<p>During setup this is typically the last set-command issued to the driver
+before starting the acquisition. Typically after this command only
+get-commands are applied to the driver. An exception to this rule would be
+the command CMD_BUFFER_FREE_NO_SAMPLE as this is part of a typical
+data-readout-loop and is used as a set-command. As this command potentially
+changes the DMA layout, it is not advised to issue this command during a
+running acquisition.</p>
+<p>During a running acquisition this command will return ERR_COMMAND_NOT_ALLOWED.
+But as this command is a composite command, updating all channels, the
+trigger-line-MUX and the acquisition parameters parts of changed configuration
+will take effect, using an best-effort-policy.</p>
+<p>Expert tip: Do not call it during a running acquisition.</p>
+</section>
+<section id="cmd-buffer-start-pointer">
+<h3 id="cmd-buffer-start-pointer">CMD_BUFFER_START_POINTER<a class="headerlink" href="#cmd-buffer-start-pointer" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: deprecated, use CMD_BUFFER_0_START_POINTER instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>buffer start</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the start pointer of the sample ring buffer.
+This value can be queried after applying all necessary parameters
+for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
+<p>CMD_BUFFER_START_POINTER is deprecated. CMD_BUFFER_0_START_POINTER should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-start-pointer">
+<h3 id="cmd-buffer-0-start-pointer">CMD_BUFFER_0_START_POINTER<a class="headerlink" href="#cmd-buffer-0-start-pointer" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>buffer start</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the start pointer of the sample ring buffer 0.
+This value can be queried after applying all necessary parameters
+for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
+</section>
+<section id="cmd-buffer-end-pointer">
+<h3 id="cmd-buffer-end-pointer">CMD_BUFFER_END_POINTER<a class="headerlink" href="#cmd-buffer-end-pointer" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: deprecated, use CMD_BUFFER_0_END_POINTER instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>buffer start</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the start pointer of the sample ring buffer.
+This value can be queried after applying all necessary parameters
+for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
+<p>CMD_BUFFER_END_POINTER is deprecated. CMD_BUFFER_0_END_POINTER should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-end-pointer">
+<h3 id="cmd-buffer-0-end-pointer">CMD_BUFFER_0_END_POINTER<a class="headerlink" href="#cmd-buffer-0-end-pointer" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>buffer start</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the start pointer of the sample ring buffer 0.
+This value can be queried after applying all necessary parameters
+for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
+</section>
+<section id="cmd-buffer-total-mem-size">
+<h3 id="cmd-buffer-total-mem-size">CMD_BUFFER_TOTAL_MEM_SIZE<a class="headerlink" href="#cmd-buffer-total-mem-size" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: deprecated, use CMD_BUFFER_0_TOTAL_MEM_SIZE instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>mem size</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the total size of the allocated ring buffer in bytes.
+A typical usage for this information is the wrap around handling when
+reading out the sample ring buffer.</p>
+<p>This value can be queried after applying all necessary parameters
+for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
+<p>CMD_BUFFER_TOTAL_MEM_SIZE is deprecated. CMD_BUFFER_0_TOTAL_MEM_SIZE should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-total-mem-size">
+<h3 id="cmd-buffer-0-total-mem-size">CMD_BUFFER_0_TOTAL_MEM_SIZE<a class="headerlink" href="#cmd-buffer-0-total-mem-size" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>mem size</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the total size of the allocated ring buffer in bytes.
+A typical usage for this information is the wrap around handling when
+reading out the sample ring buffer.</p>
+<p>This value can be queried after applying all necessary parameters
+for acquisition setup (for example by calling CMD_UPDATE_PARAM_ALL).</p>
+</section>
+<section id="cmd-buffer-avail-no-sample">
+<h3 id="cmd-buffer-avail-no-sample">CMD_BUFFER_AVAIL_NO_SAMPLE<a class="headerlink" href="#cmd-buffer-avail-no-sample" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: deprecated, use CMD_BUFFER_0_AVAL_NO_SAMPLE instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>nr of available samples</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the number of unprocessed scans within the ring buffer.
+This command is non-blocking so *val may have the value of 0 if there are no
+samples available yet.</p>
+<p>This function will indicate if a buffer-overflow in the ring buffer has
+occurred by returning ERR_BUFFER_OVERWRITE. This can happen if the actual
+data processing is too slow. To clear this error the acquisition should
+be stopped on all boards and restarted. Another method is to call
+CMD_BUFFER_0_CLEAR_ERROR.</p>
+<p>This value can be queried at any time during a running acquisition. Calling
+this command on a stopped boardwill result in an error code indicating that
+no acquisition is running (ERR_DAQ_NOT_STARTED).</p>
+<p>CMD_BUFFER_AVAL_NO_SAMPLE is deprecated. CMD_BUFFER_0_AVAL_NO_SAMPLE should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-avail-no-sample">
+<h3 id="cmd-buffer-0-avail-no-sample">CMD_BUFFER_0_AVAIL_NO_SAMPLE<a class="headerlink" href="#cmd-buffer-0-avail-no-sample" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>nr of available samples</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the number of unprocessed scans within the ring buffer.
+This command is non-blocking so *val may have the value of 0 if there are no
+samples available yet.</p>
+<p>This function will indicate if a buffer-overflow in the ring buffer has
+occurred by returning ERR_BUFFER_OVERWRITE. This can happen if the actual
+data processing is too slow. To clear this error the acquisition should
+be stopped on all boards and restarted. Another method is to call
+CMD_BUFFER_0_CLEAR_ERROR.</p>
+<p>This value can be queried at any time during a running acquisition. Calling
+this command on a stopped boardwill result in an error code indicating that
+no acquisition is running (ERR_DAQ_NOT_STARTED).</p>
+</section>
+<section id="cmd-buffer-free-no-sample">
+<h3 id="cmd-buffer-free-no-sample">CMD_BUFFER_FREE_NO_SAMPLE<a class="headerlink" href="#cmd-buffer-free-no-sample" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: deprecated, use CMD_BUFFER_0_FREE_NO_SAMPLE instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>nr of samples to free</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command indicates to the driver that a numbers of scans have been
+processed by the application and the ring buffer can be freed.</p>
+<p>In a typical data-readout-loop the sequence would be:</p>
+<ul class="simple">
+<li><p>CMD_BUFFER_0_AVAIL_NO_SAMPLE returning *val = x</p></li>
+<li><p>CMD_BUFFER_0_ACT_SAMPLE_POS</p></li>
+<li><p>Actual data processing of y scans</p></li>
+<li><p>CMD_BUFFER_0_FREE_NO_SAMPLE setting val = y</p></li>
+</ul>
+<p>The application does not have necessarily to process the same amount
+of data as reported back by CMD_BUFFER_0_AVAIL_NO_SAMPLE. It
+may process less data (provided enough data is processed per loop, to
+ensure, that no buffer overrun occurs).</p>
+<p>If the application issues CMD_BUFFER_0_FREE_NO_SAMPLE command with smaller
+values than samples available, the un-freed samples will be reported again
+at the next CMD_BUFFER_0_AVAIL_NO_SAMPLE call.</p>
+<p>CMD_BUFFER_FREE_NO_SAMPLE is deprecated. CMD_BUFFER_0_FREE_NO_SAMPLE should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-free-no-sample">
+<h3 id="cmd-buffer-0-free-no-sample">CMD_BUFFER_0_FREE_NO_SAMPLE<a class="headerlink" href="#cmd-buffer-0-free-no-sample" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>nr of samples to free</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command indicates to the driver that a numbers of scans have been
+processed by the application and the ring buffer can be freed.</p>
+<p>In a typical data-readout-loop the sequence would be:</p>
+<ul class="simple">
+<li><p>CMD_BUFFER_0_AVAIL_NO_SAMPLE returning *val = x</p></li>
+<li><p>CMD_BUFFER_0_ACT_SAMPLE_POS</p></li>
+<li><p>Actual data processing of y scans</p></li>
+<li><p>CMD_BUFFER_0_FREE_NO_SAMPLE setting val = y</p></li>
+</ul>
+<p>The application does not have necessarily to process the same amount
+of data as reported back by CMD_BUFFER_AVAIL_NO_SAMPLE. It
+may process less data (provided enough data is processed per loop, to
+ensure, that no buffer overrun occurs).</p>
+<p>If the application issues CMD_BUFFER_FREE_NO_SAMPLE command with smaller
+values than samples available, the un-freed samples will be reported again
+at the next CMD_BUFFER_0_AVAIL_NO_SAMPLE call.</p>
+</section>
+<section id="cmd-buffer-act-sample-pos">
+<h3 id="cmd-buffer-act-sample-pos">CMD_BUFFER_ACT_SAMPLE_POS<a class="headerlink" href="#cmd-buffer-act-sample-pos" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: deprecated, use CMD_BUFFER_0_ACT_SAMPLE_POS instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>pointer to samples</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the address of the start of the first unprocessed scan.
+This value can be queried at any time during a running acquisition.
+Calling this command on a stopped board will result in an error code
+indicating that no acquisition is running (ERR_DAQ_NOT_STARTED).</p>
+<p>CMD_BUFFER_ACT_SAMPLE_POS is deprecated. CMD_BUFFER_0_ACT_SAMPLE_POS should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-act-sample-pos">
+<h3 id="cmd-buffer-0-act-sample-pos">CMD_BUFFER_0_ACT_SAMPLE_POS<a class="headerlink" href="#cmd-buffer-0-act-sample-pos" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>pointer to samples</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the address of the start of the first unprocessed scan.
+This value can be queried at any time during a running acquisition.
+Calling this command on a stopped board will result in an error code
+indicating that no acquisition is running (ERR_DAQ_NOT_STARTED).</p>
+</section>
+</section>
+<section id="advanced-command-id-enumeration">
+<h2 id="advanced-command-id-enumeration">Advanced Command ID Enumeration<a class="headerlink" href="#advanced-command-id-enumeration" title="Permalink to this headline">¶</a></h2>
+<section id="cmd-act-sample-count">
+<h3 id="cmd-act-sample-count">CMD_ACT_SAMPLE_COUNT<a class="headerlink" href="#cmd-act-sample-count" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>nr of acquired samples</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This function retrieves the number of already sampled values on the given
+board. This is a low latency function and allows for example for software
+time stamping of asynchronous Non-TRION data sources. Asynchronous TRION
+data channels are usually hardware time stamped as this is the more accurate
+way for time stamping. This function is meant to be used in conjunction
+with third party hardware that does not provide reliable timestamps on its
+own.</p>
+<p>Note: Not to be confused with CMD_BUFFER_0_AVAIL_NO_SAMPLE or
+CMD_BUFFER_0_ACT_SAMPLE_POS. This function does not provide any information
+regarding the already transferred samples. It cannot be used for any
+conclusion regarding any sample buffer information.</p>
+</section>
+<section id="cmd-update-param-acq-all">
+<h3 id="cmd-update-param-acq-all">CMD_UPDATE_PARAM_ACQ_ALL<a class="headerlink" href="#cmd-update-param-acq-all" title="Permalink to this headline">¶</a></h3>
+<p>Type: composite, issues:</p>
+<ul class="simple">
+<li><p>CMD_UPDATE_PARAM_ACQ</p></li>
+<li><p>CMD_UPDATE_PARAM_MUX</p></li>
+<li><p>CMD_UPDATE_PARAM_INTSIG0</p></li>
+<li><p>CMD_UPDATE_PARAM_INTSIG1</p></li>
+</ul>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This function updates the hardware regarding the pure data-acquisition
+parameters. This includes, but is not limited to setting up the DMA-
+characteristics.</p>
+<p>This is equivalent to call CMD_UPDATE_PARAM_ACQ, CMD_UPDATE_PARAM_MUX,
+CMD_UPDATE_PARAM_INTSIG0 and CMD_UPDATE_PARAM_INTSIG1 in this order.
+As this command potentially changes the DMA layout, it is not advised
+to issue this command during a running acquisition.</p>
+<p>During a running acquisition this command will return ERR_COMMAND_NOT_ALLOWED.</p>
+</section>
+<section id="cmd-update-param-chn-all">
+<h3 id="cmd-update-param-chn-all">CMD_UPDATE_PARAM_CHN_ALL<a class="headerlink" href="#cmd-update-param-chn-all" title="Permalink to this headline">¶</a></h3>
+<p>Type: composite, issues:</p>
+<ul class="simple">
+<li><p>CMD_UPDATE_PARAM_AI with parameter UPDATE_ALL_CHANNELS</p></li>
+<li><p>CMD_UPDATE_PARAM_AREF with parameter UPDATE_ALL_CHANNELS</p></li>
+<li><p>CMD_UPDATE_PARAM_CNT with parameter UPDATE_ALL_CHANNELS</p></li>
+<li><p>CMD_UPDATE_PARAM_DI with parameter UPDATE_ALL_CHANNELS</p></li>
+<li><p>CMD_UPDATE_PARAM_BOARD_CNT with parameter UPDATE_ALL_CHANNELS</p></li>
+<li><p>CMD_UPDATE_PARAM_CAN with parameter UPDATE_ALL_CHANNELS</p></li>
+<li><p>CMD_UPDATE_PARAM_UART with parameter UPDATE_ALL_CHANNELS</p></li>
+</ul>
+<p>Usable during acquisition:  yes (but not recommended)</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the hardware-settings of all channels featured on the
+indexed board to reflect the latest logical settings.</p>
+</section>
+<section id="cmd-update-param-acq">
+<h3 id="cmd-update-param-acq">CMD_UPDATE_PARAM_ACQ<a class="headerlink" href="#cmd-update-param-acq" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the board hardware to reflect all acquisition
+related logical settings.
+This includes the signal-routing on the PXI-plane (eg for synchronization
+purposes), configuring the hardware to the selected samplingrate and
+preparing the DMA-ring-buffer.</p>
+</section>
+<section id="cmd-update-param-acq-route">
+<h3 id="cmd-update-param-acq-route">CMD_UPDATE_PARAM_ACQ_ROUTE<a class="headerlink" href="#cmd-update-param-acq-route" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes (but only recommended in limited cases)</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the signal-route-multiplexer for the signals directly
+relevant to the acquisition to their latest logical values.</p>
+<p>In detail these are the settings:</p>
+<ul class="simple">
+<li><p>AcqClk</p></li>
+<li><p>AcqSync</p></li>
+<li><p>AcqStart</p></li>
+</ul>
+<p>Usually those parameters are set prior to acquisition. A possible use case,
+when to issue this command during a running acquisition would be, to route
+AcqStart to High after an acquisition using external trigger has been started
+successfully, to prevent the acquisition from being stopped, if the
+external-trigger returns to low.</p>
+</section>
+<section id="cmd-update-param-mux">
+<h3 id="cmd-update-param-mux">CMD_UPDATE_PARAM_MUX<a class="headerlink" href="#cmd-update-param-mux" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command applies the logical settings of the signal-line multiplexers
+to the hardware. This includes the PXI-line settings like TRIG0-TRIG7,
+the LBL and LBR lines, Start Trigger lines, etc. Usually this command is
+invoked implicitly by calling one of the PARAM_UPDATE_ACQ commands. This
+command is only useful, if an application needs to change MUX-settings during
+a running acquisition and can be ignored otherwise.</p>
+</section>
+<section id="cmd-update-param-intsig0-cmd-update-pram-intsig1">
+<h3 id="cmd-update-param-intsig0-cmd-update-pram-intsig1">CMD_UPDATE_PARAM_INTSIG0, CMD_UPDATE_PRAM_INTSIG1<a class="headerlink" href="#cmd-update-param-intsig0-cmd-update-pram-intsig1" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes (but with considerations)</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the hardware settings for the IntSig0 and IntSig1
+line to reflect the latest logical settings. It can safely be used during
+a running acquisition.</p>
+</section>
+<section id="cmd-update-param-ai">
+<h3 id="cmd-update-param-ai">CMD_UPDATE_PARAM_AI<a class="headerlink" href="#cmd-update-param-ai" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><ul class="simple">
+<li><p>Channel index</p></li>
+<li><p>UPDATE_ALL_CHANNELS</p></li>
+<li><p>UPDATE_GROUP_CHANNELS</p></li>
+</ul>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the analog amplifier chain to reflect the latest
+logic values. It is safe to issue this command during a running acquisition,
+unless the <em>Used</em> state of the channel in question has been changed.</p>
+</section>
+<section id="cmd-update-param-cnt">
+<h3 id="cmd-update-param-cnt">CMD_UPDATE_PARAM_CNT<a class="headerlink" href="#cmd-update-param-cnt" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><ul class="simple">
+<li><p>Channel index</p></li>
+<li><p>UPDATE_ALL_CHANNELS</p></li>
+<li><p>UPDATE_GROUP_CHANNELS</p></li>
+</ul>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the counter properties on the FPGA to reflect the
+latest logical configuration values. This includes the input-multiplexer
+as well, as the filter settings and advanced counter parameters. As the
+advanced counter parameters change the logical math used on the channel it
+makes no sense, to make changes to those settings during a running
+acquisition.</p>
+</section>
+<section id="cmd-update-param-di">
+<h3 id="cmd-update-param-di">CMD_UPDATE_PARAM_DI<a class="headerlink" href="#cmd-update-param-di" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><ul class="simple">
+<li><p>Channel index</p></li>
+<li><p>UPDATE_ALL_CHANNELS</p></li>
+<li><p>UPDATE_GROUP_CHANNELS</p></li>
+</ul>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the digital input settings on the board to reflect
+the latest logical configuration values. As this is most likely to change the
+scan-layout it is not possible to issue this command on a running acquisition.</p>
+</section>
+<section id="cmd-update-param-board-cnt">
+<h3 id="cmd-update-param-board-cnt">CMD_UPDATE_PARAM_BOARD_CNT<a class="headerlink" href="#cmd-update-param-board-cnt" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: no</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><ul class="simple">
+<li><p>Channel index</p></li>
+<li><p>UPDATE_ALL_CHANNELS</p></li>
+<li><p>UPDATE_GROUP_CHANNELS</p></li>
+</ul>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the board-counter properties on the FPGA to reflect
+the latest logical configuration values. This includes the input-multiplexer
+as well, as the filter settings and advanced counter parameters.
+As the advanced counter parameters change the logical math used on the channel
+it makes no sense, to make changes to those settings during a running
+acquisition.</p>
+</section>
+<section id="cmd-update-param-can">
+<h3 id="cmd-update-param-can">CMD_UPDATE_PARAM_CAN<a class="headerlink" href="#cmd-update-param-can" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes (synchronous acquisition), no (CAN acquisition)</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><ul class="simple">
+<li><p>Channel index</p></li>
+<li><p>UPDATE_ALL_CHANNELS</p></li>
+<li><p>UPDATE_GROUP_CHANNELS</p></li>
+</ul>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the CAN-controller settings to reflect the latest
+logical configuration values. The CAN-acquisition has to be in a stopped
+stated, to accept this command.</p>
+</section>
+<section id="cmd-update-param-uart">
+<h3 id="cmd-update-param-uart">CMD_UPDATE_PARAM_UART<a class="headerlink" href="#cmd-update-param-uart" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes (synchronous acquisition), no (UART acquisition)</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><ul class="simple">
+<li><p>Channel index</p></li>
+<li><p>UPDATE_ALL_CHANNELS</p></li>
+<li><p>UPDATE_GROUP_CHANNELS</p></li>
+</ul>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the UART-controller settings to reflect the latest
+logical configuration values. The UART-acquisition has to be in a stopped
+stated, to accept this command.</p>
+</section>
+<section id="cmd-async-polling-time">
+<h3 id="cmd-async-polling-time">CMD_ASYNC_POLLING_TIME<a class="headerlink" href="#cmd-async-polling-time" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Status: deprecated and unsupported</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>Currently set polling time [ms]</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>Polling time to set [ms]</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><em>No longer implemented.</em></p>
+</section>
+<section id="cmd-async-frame-size">
+<h3 id="cmd-async-frame-size">CMD_ASYNC_FRAME_SIZE<a class="headerlink" href="#cmd-async-frame-size" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Status: deprecated and unsupported</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>Frame size</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>Frame size</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><em>No longer implemented.</em></p>
+</section>
+<section id="cmd-update-param-acq-timing">
+<h3 id="cmd-update-param-acq-timing">CMD_UPDATE_PARAM_ACQ_TIMING<a class="headerlink" href="#cmd-update-param-acq-timing" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Updates the hardware to reflect the currently set logical configuration
+related to the various timing-modes (eg.: PTP, IRIG, GPS-SYNC, PPS-Sync).</p>
+</section>
+<section id="cmd-timing-state">
+<h3 id="cmd-timing-state">CMD_TIMING_STATE<a class="headerlink" href="#cmd-timing-state" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>Current timing state</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command queries the board for the current state of the FPGA-internal
+state machine.</p>
+<p>The possible reported values are:</p>
+<ul class="simple">
+<li><p>TIMINGSTATE_LOCKED</p></li>
+<li><p>TIMINGSTATE_NOTRESYNCED</p></li>
+<li><p>TIMINGSTATE_UNLOCKED</p></li>
+<li><p>TIMINGSTATE_LOCKEDOOR</p></li>
+<li><p>TIMINGSTATE_TIMEERROR</p></li>
+<li><p>TIMINGSTATE_RELOCKOOR</p></li>
+<li><p>TIMINGSTATE_NOTIMINGMODE</p></li>
+</ul>
+<p>For a detailed description of those values please refer to the chapter
+<em>Synchronization</em>.</p>
+</section>
+<section id="cmd-buffer-clear-error">
+<h3 id="cmd-buffer-clear-error">CMD_BUFFER_CLEAR_ERROR<a class="headerlink" href="#cmd-buffer-clear-error" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: deprecated, use CMD_BUFFER_0_CLEAR_ERROR instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command is used in more advanced error control of buffer overruns
+during acquisition. When a buffer-overrun occurs, the driver will stay
+in the overrun-error-occurred state, until either the acquisition is
+stopped or the command CMD_BUFFER_CLEAR_ERROR is issued. The basic and
+recommended error-handling for buffer-overruns is to stop the running
+acquisition, and restart it.</p>
+<p>For advanced applications this might be a
+undesired error-handling-policy, especially in multi-board-systems. With
+the stop-start approach even boards that are currently error-free would
+be stopped (in a master-slave environment). With the command
+CMD_BUFFER_CLEAR_ERROR it is possible to inform the driver that the
+application did acknowledge the overrun-condition, and handled it, and
+normal acquisition can occur from now on. For details about the usage
+of this command, please refer to the related SDK example.</p>
+<p>CMD_BUFFER_CLEAR_ERROR is deprecated. CMD_BUFFER_0_CLEAR_ERROR should be
+used.</p>
+</section>
+<section id="cmd-buffer-0-clear-error">
+<h3 id="cmd-buffer-0-clear-error">CMD_BUFFER_0_CLEAR_ERROR<a class="headerlink" href="#cmd-buffer-0-clear-error" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command is used in more advanced error control of buffer overruns
+during acquisition. When a buffer-overrun occurs, the driver will stay
+in the overrun-error-occurred state, until either the acquisition is
+stopped or the command CMD_BUFFER_0_CLEAR_ERROR is issued. The basic and
+recommended error-handling for buffer-overruns is to stop the running
+acquisition, and restart it.</p>
+<p>For advanced applications this might be a
+undesired error-handling-policy, especially in multi-board-systems. With
+the stop-start approach even boards that are currently error-free would
+be stopped (in a master-slave environment). With the command
+CMD_BUFFER_0_CLEAR_ERROR it is possible to inform the driver that the
+application did acknowledge the overrun-condition, and handled it, and
+normal acquisition can occur from now on. For details about the usage
+of this command, please refer to the related SDK example.</p>
+</section>
+<section id="cmd-get-uart-status">
+<h3 id="cmd-get-uart-status">CMD_GET_UART_STATUS<a class="headerlink" href="#cmd-get-uart-status" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>Current UART-FIFO state</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the current FIFO-status of the on-board-UART
+(UART capable boards only).</p>
+<p>The possible reported values are:</p>
+<ul class="simple">
+<li><p>WARNING_UART_FIFO_BUSY</p></li>
+<li><p>WARNING_UART_FIFO_FULL</p></li>
+<li><p>WARNING_UART_FIFO_ERROR</p></li>
+<li><p>ERR_NONE</p></li>
+</ul>
+</section>
+<section id="cmd-buffer-wait-avail-no-sample">
+<h3 id="cmd-buffer-wait-avail-no-sample">CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE<a class="headerlink" href="#cmd-buffer-wait-avail-no-sample" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: deprecated, use CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE instead</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>Nr of available samples</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command is the blocking sibling of CMD_BUFFER_AVAIL_NO_SAMPLE.
+When issued, the API will block until a number of samples
+have been acquired. This command frees the application of the need to
+poll for available samples. The subsequent processing of acquired data
+is the same, as it would be with CMD_BUFFER_AVAIL_NO_SAMPLE.</p>
+<p>CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE is deprecated.
+CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE should be used.</p>
+</section>
+<section id="cmd-buffer-0-wait-avail-no-sample">
+<h3 id="cmd-buffer-0-wait-avail-no-sample">CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE<a class="headerlink" href="#cmd-buffer-0-wait-avail-no-sample" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>Nr of available samples</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command is the blocking sibling of CMD_BUFFER_0_AVAIL_NO_SAMPLE.
+When issued, the API will block until the a number of samples
+have been acquired. This command frees the application of the need to
+poll for available samples. The subsequent processing of acquired data
+is the same, as it would be with CMD_BUFFER_0_AVAIL_NO_SAMPLE.</p>
+</section>
+<section id="cmd-acq-state">
+<h3 id="cmd-acq-state">CMD_ACQ_STATE<a class="headerlink" href="#cmd-acq-state" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>Current acquisition state</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the current acquisition state of the board.</p>
+<p>The possible reported values:</p>
+<ul class="simple">
+<li><p>ACQ_STATE_IDLE</p></li>
+<li><p>ACQ_STATE_RUNNING</p></li>
+<li><p>ACQ_STATE_SYNCED</p></li>
+<li><p>ACQ_STATE_ERROR</p></li>
+</ul>
+<p>This way an application can always see, in what detailed state the
+data acquisition hardware currently is.</p>
+<p>This command is for example useful on external-trigger setups, as the
+command CMD_START_ACQUISTION would just arm the given board, but as
+long, as the external trigger did not happen, the board itself would
+stay in ACQ_STATE_IDLE.</p>
+</section>
+<section id="cmd-update-param-aref">
+<h3 id="cmd-update-param-aref">CMD_UPDATE_PARAM_AREF<a class="headerlink" href="#cmd-update-param-aref" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>Current acquisition state</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><ul class="simple">
+<li><p>Channel index</p></li>
+<li><p>UPDATE_ALL_CHANNELS</p></li>
+<li><p>UPDATE_GROUP_CHANNELS</p></li>
+</ul>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command updates the current hardware-settings of the internal
+analogue reference source to reflect the latest logical values.</p>
+</section>
+<section id="cmd-timing-time">
+<h3 id="cmd-timing-time">CMD_TIMING_TIME<a class="headerlink" href="#cmd-timing-time" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 18%"/>
+<col style="width: 18%"/>
+<col style="width: 45%"/>
+<col style="width: 18%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>nr of acquired samples</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This low-latency command updates the logical data-elements below
+/AcqProp/Timing/SystemTime to hold the current hardware-values.
+Typical usage examples would be a GPS or IRIG time-source connected
+to a IRIG or GPS capable TRION™-board.</p>
+<p>After issuing this command the string-getters for the single
+time-elements can be issued to obtain the information.</p>
+</section>
+<section id="cmd-gps-receiver-reset">
+<h3 id="cmd-gps-receiver-reset">CMD_GPS_RECEIVER_RESET<a class="headerlink" href="#cmd-gps-receiver-reset" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<blockquote>
+<div></div></blockquote>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command issues the command-sequence, that will perform a low-level-reset
+on the receiver of the GPScapable TRION™-board.</p>
+</section>
+<section id="cmd-pxi-line-state">
+<h3 id="cmd-pxi-line-state">CMD_PXI_LINE_STATE<a class="headerlink" href="#cmd-pxi-line-state" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>Index only</p></td>
+<td><p>State of PXI-lines</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the current state of the PXI-Lines.
+For decoding use the filter-bits PXI_LINE_STATE_TRIG0 to PXI_LINE_STATE_LBL12.</p>
+</section>
+<section id="cmd-discret-state-set">
+<h3 id="cmd-discret-state-set">CMD_DISCRET_STATE_SET<a class="headerlink" href="#cmd-discret-state-set" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>DI Channel index</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command is used to set the given logical discreet (DIO/DO) channel to
+a logic 1 value (= High). As only natural channel number can be passed,
+only one DIO/DO channel (bit) can be set at the same time.</p>
+</section>
+<section id="cmd-discret-state-clear">
+<h3 id="cmd-discret-state-clear">CMD_DISCRET_STATE_CLEAR<a class="headerlink" href="#cmd-discret-state-clear" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>DI Channel index</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command is used to set the given logical discreet (DIO/DO) channel to
+a logic 0 value (= Low). As only natural channel number can be passed,
+only one DIO/DO channel (bit) can be set at the same time.</p>
+</section>
+<section id="cmd-discret-group32-set">
+<h3 id="cmd-discret-group32-set">CMD_DISCRET_GROUP32_SET<a class="headerlink" href="#cmd-discret-group32-set" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>Bit-pattern to set</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Discreet asynchronous output channels (DIO/DO) are organized in 32Bit groups
+on TRION™. This command is used to update a whole 32-bit group at once.
+This command by nature operates on a less hardware-abstract level than the
+CMD_DISCRET_STATE_SET/CMD_DISCRET_STATE_CLEAR commands. Therefore an
+application has to have a higher awareness about the detailed hardware
+capabilities of the given board.</p>
+<p>Note: the second group of 32-Discreets can be addressed by incrementing the
+command ID by 1 (CMD_DISCRET_GROUP32_Set +1).</p>
+</section>
+<section id="cmd-idled-board-on">
+<h3 id="cmd-idled-board-on">CMD_IDLED_BOARD_ON<a class="headerlink" href="#cmd-idled-board-on" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>LED color</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Specific TRION™-boards feature a single LED that can be SW-controlled.
+Currently valid colors to set the LED to are:</p>
+<ul class="simple">
+<li><p>IDLED_COL_RED</p></li>
+<li><p>IDLED_COL_GREEN</p></li>
+<li><p>IDLED_COL_ORANGE</p></li>
+<li><p>IDLED_COL_OFF</p></li>
+</ul>
+<p>Whether this command is supported, and details about the allowed values
+are depending on the specific TRION™-board.</p>
+</section>
+<section id="cmd-idled-board-off">
+<h3 id="cmd-idled-board-off">CMD_IDLED_BOARD_OFF<a class="headerlink" href="#cmd-idled-board-off" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Specific TRION™-boards feature a single LED that can be SW-controlled.
+This command will turn the LED of the given board off.
+The command is equivalent to issue CMD_IDLED_BOARD_ON with the parameter
+IDLED_COL_OFF.</p>
+</section>
+<section id="cmd-idled-chanel-on">
+<h3 id="cmd-idled-chanel-on">CMD_IDLED_CHANEL_ON<a class="headerlink" href="#cmd-idled-chanel-on" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: not implemented</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>LED color</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Command that will set a LED that is located near a specific channel
+connector.</p>
+<p>This command is currently not supported, as no board features these
+LEDs.</p>
+</section>
+<section id="cmd-idled-chanel-off">
+<h3 id="cmd-idled-chanel-off">CMD_IDLED_CHANEL_OFF<a class="headerlink" href="#cmd-idled-chanel-off" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<p>Status: not implemented</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Command that will set a LED that is located near a specific channel
+connector.</p>
+<p>This command is currently not supported, as no board features these
+LEDs.</p>
+</section>
+<section id="cmd-board-adc-delay">
+<h3 id="cmd-board-adc-delay">CMD_BOARD_ADC_DELAY<a class="headerlink" href="#cmd-board-adc-delay" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command retrieves the ADC delay, using the current settings.
+AD converter have different runtime of the samples
+from analog side to the final converted value. Analog
+samples may appear in later scans, than time-wise corresponding
+digital channels. The ADC-delay is used to allow the application
+to re-associate samples of different channel-types.</p>
+<p>A more detailed description can be found in th chapter
+<a class="reference internal" href="../03_DataAcquisition/DataAcquisition.html#data-acq-adc-delay"><span class="std std-ref">ADC Delay</span></a></p>
+<p>Please refer to the SDK-example “ADCDelay” for correct usage.</p>
+</section>
+<section id="cmd-board-baseeeprom-write">
+<h3 id="cmd-board-baseeeprom-write">CMD_BOARD_BASEEEPROM_WRITE<a class="headerlink" href="#cmd-board-baseeeprom-write" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes (but not recommended)</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command writes the content of the base-e2rpom-xml-file back to
+the e2prom. Unless the application willingly writes directly to the
+baseeeprom-xml-file, there is no need to issue this command.</p>
+</section>
+<section id="cmd-board-coneeprom-write">
+<h3 id="cmd-board-coneeprom-write">CMD_BOARD_CONEEPROM_WRITE<a class="headerlink" href="#cmd-board-coneeprom-write" title="Permalink to this headline">¶</a></h3>
+<p>Type: atomic</p>
+<p>Usable during acquisition: yes (but not recommended)</p>
+<table>
+<colgroup>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+<col style="width: 25%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Board</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Remark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Get</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Set</p></td>
+<td><p>Index only</p></td>
+<td><p>N/A</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This command writes the content of the connector-e2rpom-xml-file back
+to the e2prom. Unless the application willingly writes directly to the
+coneeprom-xml-file, there is no need to issue this command.</p>
+</section>
+</section>
+</section>
+
+
+          </article>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer class="md-footer">
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+          
+            <a href="../04_Synchronization/Synchronization.html" title="Synchronization"
+               class="md-flex md-footer-nav__link md-footer-nav__link--prev"
+               rel="prev">
+              <div class="md-flex__cell md-flex__cell--shrink">
+                <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+              </div>
+              <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+                <span class="md-flex__ellipsis">
+                  <span
+                      class="md-footer-nav__direction"> Previous </span> Synchronization </span>
+              </div>
+            </a>
+          
+          
+            <a href="../06_XMLApiReference/XMLApiReference.html" title="XML Reference"
+               class="md-flex md-footer-nav__link md-footer-nav__link--next"
+               rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
+                class="md-flex__ellipsis"> <span
+                class="md-footer-nav__direction"> Next </span> XML Reference </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink"><i
+                class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          
+        </a>
+        
+      </nav>
+    </div>
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        <div class="md-footer-copyright">
+          <div class="md-footer-copyright__highlight">
+              &#169; Copyright 2021, DEWETRON GmbH.
+              
+          </div>
+            Created using
+            <a href="http://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+             and
+            <a href="https://github.com/bashtage/sphinx-material/">Material for
+              Sphinx</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../_static/javascripts/application.js"></script>
+  <script>app.initialize({version: "1.0.4", url: {base: ".."}})</script>
+  </body>
+</html>

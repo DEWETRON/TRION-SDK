@@ -1,0 +1,1354 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="lang:clipboard.copy" content="Copy to clipboard">
+  <meta name="lang:clipboard.copied" content="Copied to clipboard">
+  <meta name="lang:search.language" content="en">
+  <meta name="lang:search.pipeline.stopwords" content="True">
+  <meta name="lang:search.pipeline.trimmer" content="True">
+  <meta name="lang:search.result.none" content="No matching documents">
+  <meta name="lang:search.result.one" content="1 matching document">
+  <meta name="lang:search.result.other" content="# matching documents">
+  <meta name="lang:search.tokenizer" content="[\s\-]+">
+
+  
+    <link href="https://fonts.gstatic.com/" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&display=fallback" rel="stylesheet">
+
+    <style>
+      body,
+      input {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif
+      }
+
+      code,
+      kbd,
+      pre {
+        font-family: "Roboto Mono", "Courier New", Courier, monospace
+      }
+    </style>
+  
+
+  <link rel="stylesheet" href="../_static/stylesheets/application.css"/>
+  <link rel="stylesheet" href="../_static/stylesheets/application-palette.css"/>
+  <link rel="stylesheet" href="../_static/stylesheets/application-fixes.css"/>
+  
+  <link rel="stylesheet" href="../_static/fonts/material-icons.css"/>
+  
+  <meta name="theme-color" content="#3f51b5">
+  <script src="../_static/javascripts/modernizr.js"></script>
+  
+  
+  
+    <title>Channel Types &#8212; DEWETRON TRION SDK 6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/material.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/stylesheets/oxygen_material.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Acquisition" href="../03_DataAcquisition/DataAcquisition.html" />
+    <link rel="prev" title="Quickstart" href="../01_Quickstart/Quickstart.html" />
+
+
+
+  
+   
+
+  </head>
+  <body dir=ltr
+        data-md-color-primary=blue data-md-color-accent=light-blue>
+  
+  <svg class="md-svg">
+    <defs data-children-count="0">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+      
+    </defs>
+  </svg>
+  
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
+  <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+  <a href="#02_ChannelTypes/ChannelTypes" tabindex="1" class="md-skip"> Skip to content </a>
+  <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex navheader">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../index.html" title="DEWETRON TRION SDK 6.0 documentation"
+           class="md-header-nav__button md-logo">
+          
+              <img src="../_static/logo.png" height="26"
+                   alt="DEWETRON TRION SDK 6.0 documentation logo">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          <span class="md-header-nav__topic">DEWETRON TRION SDK</span>
+          <span class="md-header-nav__topic"> Channel Types </span>
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+        
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" action="../search.html" method="get" name="search">
+      <input type="text" class="md-search__input" name="q" placeholder="Search"
+             autocapitalize="off" autocomplete="off" spellcheck="false"
+             data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      
+      
+  
+  <script src="../_static/javascripts/version_dropdown.js"></script>
+  <script>
+    var json_loc = "../"versions.json"",
+        target_loc = "../../",
+        text = "Versions";
+    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
+  </script>
+  
+
+    </div>
+  </nav>
+</header>
+
+  
+  <div class="md-container">
+    
+    
+    
+  <nav class="md-tabs" data-md-component="tabs">
+    <div class="md-tabs__inner md-grid">
+      <ul class="md-tabs__list">
+          <li class="md-tabs__item"><a href="../index.html" class="md-tabs__link">DEWETRON TRION SDK 6.0 documentation</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/products/signal-conditioning/all-trion3-trion-modules/" class="md-tabs__link">TRION & TRION3 Modules</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/products/oxygen-measurement-software/" class="md-tabs__link">OXYGEN Software</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/" class="md-tabs__link">DEWETRON Measurement Systems</a></li>
+      </ul>
+    </div>
+  </nav>
+    <main class="md-main">
+      <div class="md-main__inner md-grid" data-md-component="container">
+        
+          <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../index.html" title="DEWETRON TRION SDK 6.0 documentation" class="md-nav__button md-logo">
+      
+        <img src="../_static/logo.png" alt=" logo" width="48" height="48">
+      
+    </a>
+    <a href="../index.html"
+       title="DEWETRON TRION SDK 6.0 documentation">DEWETRON TRION SDK</a>
+  </label>
+  
+
+  
+  <ul class="md-nav__list">
+    <li class="md-nav__item">
+    
+      <span class="md-nav__link caption"><span class="caption-text">Contents</span></span>
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../00_InformationRights/InformationRights.html" class="md-nav__link">Preface</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../01_Quickstart/Quickstart.html" class="md-nav__link">Quickstart</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    <label class="md-nav__link md-nav__link--active" for="__toc"> Channel Types </label>
+    
+      <a href="#" class="md-nav__link md-nav__link--active">Channel Types</a>
+      
+        
+<nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
+  <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#02-channeltypes-channeltypes--page-root" class="md-nav__link">Channel Types</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#analog-channels-ai" class="md-nav__link">Analog Channels (AI)</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#channel-properties" class="md-nav__link">Channel Properties</a>
+        </li>
+        <li class="md-nav__item"><a href="#general-attributes" class="md-nav__link">General Attributes</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#default-attribute" class="md-nav__link">Default Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#progmin-progmax-attribute" class="md-nav__link">ProgMin ProgMax Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#unit-attribute" class="md-nav__link">Unit Attribute</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#voltage-mode" class="md-nav__link">Voltage Mode</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#range-attribute" class="md-nav__link">Range Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#inputoffset-attribute" class="md-nav__link">InputOffset Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#inputtype-attribute" class="md-nav__link">InputType Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#excitation-attribute" class="md-nav__link">Excitation Attribute</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#current-mode" class="md-nav__link">Current Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#resistance-mode" class="md-nav__link">Resistance Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#bridge-mode" class="md-nav__link">Bridge Mode</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#id1" class="md-nav__link">Excitation Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#id2" class="md-nav__link">Range Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#id3" class="md-nav__link">InputOffset Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#bridge-res-input-type" class="md-nav__link">InputType Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#bridgeres-attribute" class="md-nav__link">BridgeRes Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#shunttype-attribute" class="md-nav__link">ShuntType Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#shuntresistance-attribute" class="md-nav__link">ShuntResistance Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#shunttarget-attribute" class="md-nav__link">ShuntTarget Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#inputimpedance-attribute" class="md-nav__link">InputImpedance Attribute</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#potentiometer-mode" class="md-nav__link">Potentiometer Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#rtd-temperature-mode" class="md-nav__link">RTD-Temperature Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#iepe-mode" class="md-nav__link">IEPE Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#exccurrentmonitor-mode" class="md-nav__link">ExcCurrentMonitor Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#excvoltmonitor-mode" class="md-nav__link">ExcVoltMonitor Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#calibration-mode" class="md-nav__link">Calibration Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#msi-modes" class="md-nav__link">MSI Modes</a>
+        </li>
+        <li class="md-nav__item"><a href="#can-mode" class="md-nav__link">CAN Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#advanced-constraints" class="md-nav__link">Advanced Constraints</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#amplrangemax-amplrangemin-amplrangeunit" class="md-nav__link">AmplRangeMax, AmplRangeMin, AmplRangeUnit</a>
+        </li>
+        <li class="md-nav__item"><a href="#maxinputoffset" class="md-nav__link">MaxInputOffset</a>
+        </li>
+        <li class="md-nav__item"><a href="#maxoutputoffset" class="md-nav__link">MaxOutputOffset</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#range-calculation" class="md-nav__link">Range calculation</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#hwrangemin-hwrangemax-hwinputoffset" class="md-nav__link">HWRangeMin, HWRangeMax, HWInputOffset</a>
+        </li>
+        <li class="md-nav__item"><a href="#amplifier-range" class="md-nav__link">Amplifier Range</a>
+        </li>
+        <li class="md-nav__item"><a href="#voltage-mode-calibration-mode" class="md-nav__link">Voltage Mode, Calibration Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#id5" class="md-nav__link">Resistance Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#range-calculation-bridge" class="md-nav__link">Bridge Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#id7" class="md-nav__link">Potentiometer Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#id8" class="md-nav__link">RTD-Temperature Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#current-mode-exccurrentmonitor-mode" class="md-nav__link">Current Mode, ExcCurrentMonitor Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#analog-out-channels" class="md-nav__link">Analog Out Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#monitoroutput-mode" class="md-nav__link">MonitorOutput Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#mathoutput-mode" class="md-nav__link">MathOutput Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#constoutput-mode" class="md-nav__link">ConstOutput Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#functiongenerator-mode" class="md-nav__link">FunctionGenerator Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#streamoutput-mode" class="md-nav__link">StreamOutput Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#counter-channels" class="md-nav__link">Counter Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#events-mode" class="md-nav__link">Events Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#period-mode" class="md-nav__link">Period Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#pulsewidth-mode" class="md-nav__link">PulseWidth Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#twopulseedgesep-mode" class="md-nav__link">TwoPulseEdgeSep Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#subcounter-period-mode" class="md-nav__link">Subcounter Period Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#subcounter-twopulseedgesep-mode" class="md-nav__link">Subcounter TwoPulseEdgeSep Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#subcounter-frequency-mode" class="md-nav__link">Subcounter Frequency Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#digital-channels" class="md-nav__link">Digital Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#di-mode" class="md-nav__link">DI Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#dio-mode" class="md-nav__link">DIO Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#can-channels" class="md-nav__link">CAN Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#highspeed-mode" class="md-nav__link">HighSpeed Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#canfd-channels" class="md-nav__link">CANFD Channels</a>
+        </li>
+        <li class="md-nav__item"><a href="#rs485-channels" class="md-nav__link">RS485 Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#raw-mode" class="md-nav__link">Raw Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#nmea-mode" class="md-nav__link">NMEA Mode</a>
+        </li></ul>
+            </nav>
+        </li></ul>
+            </nav>
+        </li>
+  </ul>
+</nav>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../03_DataAcquisition/DataAcquisition.html" class="md-nav__link">Data Acquisition</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../04_Synchronization/Synchronization.html" class="md-nav__link">Synchronization</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../05_CommandApiReference/CommandApiReference.html" class="md-nav__link">Command Reference</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../06_XMLApiReference/XMLApiReference.html" class="md-nav__link">XML Reference</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../07_TEDS/TEDS.html" class="md-nav__link">TEDS Interface</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../10_DEWE2/DEWE2_Enclosure.html" class="md-nav__link">DEWE2 Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../11_DEWE3/DEWE3_Enclosure.html" class="md-nav__link">DEWE3 Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../12_TRIONet/TRIONet_Enclosure.html" class="md-nav__link">TRIONet Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../13_PUREC/PUREC_Enclosure.html" class="md-nav__link">PUREC Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../14_ConnectorBoxes/ConnectorBoxes.html" class="md-nav__link">ConnectorBoxes</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../19_DevelopmentTips/DevelopmentTips.html" class="md-nav__link">Development Tips</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../20_Support/Support.html" class="md-nav__link">Support</a>
+      
+    
+    </li>
+  </ul>
+  
+
+</nav>
+              </div>
+            </div>
+          </div>
+          <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                
+<nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
+  <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#02-channeltypes-channeltypes--page-root" class="md-nav__link">Channel Types</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#analog-channels-ai" class="md-nav__link">Analog Channels (AI)</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#channel-properties" class="md-nav__link">Channel Properties</a>
+        </li>
+        <li class="md-nav__item"><a href="#general-attributes" class="md-nav__link">General Attributes</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#default-attribute" class="md-nav__link">Default Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#progmin-progmax-attribute" class="md-nav__link">ProgMin ProgMax Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#unit-attribute" class="md-nav__link">Unit Attribute</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#voltage-mode" class="md-nav__link">Voltage Mode</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#range-attribute" class="md-nav__link">Range Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#inputoffset-attribute" class="md-nav__link">InputOffset Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#inputtype-attribute" class="md-nav__link">InputType Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#excitation-attribute" class="md-nav__link">Excitation Attribute</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#current-mode" class="md-nav__link">Current Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#resistance-mode" class="md-nav__link">Resistance Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#bridge-mode" class="md-nav__link">Bridge Mode</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#id1" class="md-nav__link">Excitation Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#id2" class="md-nav__link">Range Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#id3" class="md-nav__link">InputOffset Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#bridge-res-input-type" class="md-nav__link">InputType Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#bridgeres-attribute" class="md-nav__link">BridgeRes Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#shunttype-attribute" class="md-nav__link">ShuntType Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#shuntresistance-attribute" class="md-nav__link">ShuntResistance Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#shunttarget-attribute" class="md-nav__link">ShuntTarget Attribute</a>
+        </li>
+        <li class="md-nav__item"><a href="#inputimpedance-attribute" class="md-nav__link">InputImpedance Attribute</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#potentiometer-mode" class="md-nav__link">Potentiometer Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#rtd-temperature-mode" class="md-nav__link">RTD-Temperature Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#iepe-mode" class="md-nav__link">IEPE Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#exccurrentmonitor-mode" class="md-nav__link">ExcCurrentMonitor Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#excvoltmonitor-mode" class="md-nav__link">ExcVoltMonitor Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#calibration-mode" class="md-nav__link">Calibration Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#msi-modes" class="md-nav__link">MSI Modes</a>
+        </li>
+        <li class="md-nav__item"><a href="#can-mode" class="md-nav__link">CAN Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#advanced-constraints" class="md-nav__link">Advanced Constraints</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#amplrangemax-amplrangemin-amplrangeunit" class="md-nav__link">AmplRangeMax, AmplRangeMin, AmplRangeUnit</a>
+        </li>
+        <li class="md-nav__item"><a href="#maxinputoffset" class="md-nav__link">MaxInputOffset</a>
+        </li>
+        <li class="md-nav__item"><a href="#maxoutputoffset" class="md-nav__link">MaxOutputOffset</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#range-calculation" class="md-nav__link">Range calculation</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#hwrangemin-hwrangemax-hwinputoffset" class="md-nav__link">HWRangeMin, HWRangeMax, HWInputOffset</a>
+        </li>
+        <li class="md-nav__item"><a href="#amplifier-range" class="md-nav__link">Amplifier Range</a>
+        </li>
+        <li class="md-nav__item"><a href="#voltage-mode-calibration-mode" class="md-nav__link">Voltage Mode, Calibration Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#id5" class="md-nav__link">Resistance Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#range-calculation-bridge" class="md-nav__link">Bridge Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#id7" class="md-nav__link">Potentiometer Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#id8" class="md-nav__link">RTD-Temperature Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#current-mode-exccurrentmonitor-mode" class="md-nav__link">Current Mode, ExcCurrentMonitor Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#analog-out-channels" class="md-nav__link">Analog Out Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#monitoroutput-mode" class="md-nav__link">MonitorOutput Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#mathoutput-mode" class="md-nav__link">MathOutput Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#constoutput-mode" class="md-nav__link">ConstOutput Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#functiongenerator-mode" class="md-nav__link">FunctionGenerator Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#streamoutput-mode" class="md-nav__link">StreamOutput Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#counter-channels" class="md-nav__link">Counter Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#events-mode" class="md-nav__link">Events Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#period-mode" class="md-nav__link">Period Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#pulsewidth-mode" class="md-nav__link">PulseWidth Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#twopulseedgesep-mode" class="md-nav__link">TwoPulseEdgeSep Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#subcounter-period-mode" class="md-nav__link">Subcounter Period Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#subcounter-twopulseedgesep-mode" class="md-nav__link">Subcounter TwoPulseEdgeSep Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#subcounter-frequency-mode" class="md-nav__link">Subcounter Frequency Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#digital-channels" class="md-nav__link">Digital Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#di-mode" class="md-nav__link">DI Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#dio-mode" class="md-nav__link">DIO Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#can-channels" class="md-nav__link">CAN Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#highspeed-mode" class="md-nav__link">HighSpeed Mode</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#canfd-channels" class="md-nav__link">CANFD Channels</a>
+        </li>
+        <li class="md-nav__item"><a href="#rs485-channels" class="md-nav__link">RS485 Channels</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#raw-mode" class="md-nav__link">Raw Mode</a>
+        </li>
+        <li class="md-nav__item"><a href="#nmea-mode" class="md-nav__link">NMEA Mode</a>
+        </li></ul>
+            </nav>
+        </li></ul>
+            </nav>
+        </li>
+  </ul>
+</nav>
+              </div>
+            </div>
+          </div>
+        
+        <div class="md-content">
+          <article class="md-content__inner md-typeset" role="main">
+            
+  <section id="channel-types">
+<h1 id="02-channeltypes-channeltypes--page-root">Channel Types<a class="headerlink" href="#02-channeltypes-channeltypes--page-root" title="Permalink to this headline">¶</a></h1>
+<p>TRION and TRION3 modules support multiple different channel types.
+These channels futher support different measurement modes.</p>
+<p>The following sections describe the different channels and provide an
+extensive list of the available modes.</p>
+<p>As an SDK developer you do not have to create your own database
+of boards and their channels and modes. A boards abilities
+are reported by its <em>Properties.xml</em> document.
+It can be requested during runtime for every device and is described
+in more detail in the XML Reference chapter.</p>
+<section id="analog-channels-ai">
+<h2 id="analog-channels-ai">Analog Channels (AI)<a class="headerlink" href="#analog-channels-ai" title="Permalink to this headline">¶</a></h2>
+<p>Technically the path for analog measurement data consist of three
+distinct parts on TRION™-boards.</p>
+<ol class="arabic simple">
+<li><p>The analog input-path performing the signal-conditioning</p></li>
+<li><p>The A/D conversion</p></li>
+<li><p>Digital data post-processing</p></li>
+</ol>
+<p>The TRION-API however encapsulates the exact details of this chain
+in a way, so that the various differences in implementation depending
+on the exact board-type are not visible above the interface. This allows
+an application to choose a rather generic approach toward analog
+channels in general, and frees the application developer from the need
+to develop against a specific board-type. The property-set for analog
+channels basically describes the whole chain from signal-conditioning
+to postprocessing in an uniform way.</p>
+<section id="channel-properties">
+<h3 id="channel-properties">Channel Properties<a class="headerlink" href="#channel-properties" title="Permalink to this headline">¶</a></h3>
+<p>The property set for analog channels is organized beneath
+various measurement modes. Under each mode a selected set of
+configurable parameters exists. Not all properties are available for
+all TRION™-boards. But for each mode a minimum-set of obvious common
+configuration items can be enumerated. This chapter will provide an
+overview over all currently used properties, sorted by the currently
+supported measurement modes, split into the parameters available on
+all TRION analog channels, and those available on specific
+boards only.</p>
+<p>Each property has a list of potential allowed settings. The list has
+a minimal size of one entry, if the property has a use within the
+given mode.
+For non-trivial measurement modes some of the properties have non-trivial
+constraints. Those constraints are derivable from the
+board-properties-xml-document.</p>
+<p>The application does not strictly need to pre-validate properties
+against those constraints.
+The API will usually adjust set property-values to satisfy those
+constraints, and will issue a WRNING-Level errorcode to indicate
+this to the application. In such a case, it would be a viable strategy
+to invoke the property-getter to retrieve the adjusted value for further
+application-processing. However: As this approach might not be suitable
+for all types of applications an exhaustive overview over those
+property-constraints, and how to validate them on application level.</p>
+</section>
+<section id="general-attributes">
+<h3 id="general-attributes">General Attributes<a class="headerlink" href="#general-attributes" title="Permalink to this headline">¶</a></h3>
+<section id="default-attribute">
+<h4 id="default-attribute">Default Attribute<a class="headerlink" href="#default-attribute" title="Permalink to this headline">¶</a></h4>
+<p>This indicates the index of the default-setting for the property.
+The API will set all settings to their default-values, when the
+mode is switched.</p>
+<p>In the following code block <em>Default = “2”</em> is selects
+&lt;ID2&gt;10&lt;/ID2&gt; as its default value.</p>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-number">Listing 3 </span><span class="caption-text">Default attribute</span><a class="headerlink" href="#id9" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Range</span>
+    <span class="na">Default =</span> <span class="s">"2"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;ID0&gt;</span>100<span class="nt">&lt;/ID0&gt;</span>
+    <span class="nt">&lt;ID1&gt;</span>30<span class="nt">&lt;/ID1&gt;</span>
+    <span class="nt">&lt;ID2&gt;</span>10<span class="nt">&lt;/ID2&gt;</span>
+    <span class="nt">&lt;ID3&gt;</span>3<span class="nt">&lt;/ID3&gt;</span>
+    <span class="nt">&lt;ID4&gt;</span>1<span class="nt">&lt;/ID4&gt;</span>
+    <span class="nt">&lt;ID5&gt;</span>0.1<span class="nt">&lt;/ID5&gt;</span>
+<span class="nt">&lt;/Range&gt;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="progmin-progmax-attribute">
+<h4 id="progmin-progmax-attribute">ProgMin ProgMax Attribute<a class="headerlink" href="#progmin-progmax-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Some properties can be programmable in a given interval. If this
+is the case for a given Property, it is indicated by presence of
+the two attributes ProgMin and ProgMax.
+Both attributes are always in the same unit as the underlying
+property.</p>
+<div class="literal-block-wrapper docutils container" id="id10">
+<div class="code-block-caption"><span class="caption-number">Listing 4 </span><span class="caption-text">ProgMin ProgMax attribute</span><a class="headerlink" href="#id10" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Range</span>
+    <span class="na">ProgMax =</span> <span class="s">"100"</span>
+    <span class="na">ProgMin =</span> <span class="s">"-100"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/Range&gt;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="unit-attribute">
+<h4 id="unit-attribute">Unit Attribute<a class="headerlink" href="#unit-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Generally indicates the Unit used with the given property. This
+includes all fixed list-entries of the list, as well as the unit
+for ProgMin and ProgMax if given.
+In certain modes like Bridge for example, the attribute unit can
+also work a distinction-predicate, if one property with all its
+definition may exist multiple times. In bridge-mode this would be
+for example the case for the property “Range”, which exists once
+with unit = “mV/V” and once with the unit = “mV/mA”.</p>
+<div class="literal-block-wrapper docutils container" id="id11">
+<div class="code-block-caption"><span class="caption-number">Listing 5 </span><span class="caption-text">Unit attribute</span><a class="headerlink" href="#id11" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Range</span>
+    <span class="na">Unit =</span> <span class="s">"V"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/Range&gt;</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="voltage-mode">
+<h3 id="voltage-mode">Voltage Mode<a class="headerlink" href="#voltage-mode" title="Permalink to this headline">¶</a></h3>
+<p>On most TRION™-boards the modes “Voltage” and “Calibration” are
+very similar. The Calibration mode usually is more restrictive on
+the Range-property, but less restrictive on the Input-Types. The
+Calibration Mode usually allows for signal routing to onboard
+calibration-sources that have barely a use in normal measurement.
+On the range-side it usually does not allow to use a free
+programmable value.</p>
+<div class="literal-block-wrapper docutils container" id="id12">
+<div class="code-block-caption"><span class="caption-number">Listing 6 </span><span class="caption-text">Voltage mode element</span><a class="headerlink" href="#id12" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Mode</span> <span class="na">Mode =</span> <span class="s">"Voltage"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Range&gt;</span>..<span class="nt">&lt;/Range&gt;</span>
+    <span class="nt">&lt;InputOffset&gt;</span>..<span class="nt">&lt;/InputOffset&gt;</span>
+    <span class="nt">&lt;Excitation&gt;</span>..<span class="nt">&lt;/Excitation&gt;</span>
+    <span class="nt">&lt;LPFilter_Type&gt;</span>..<span class="nt">&lt;/LPFilter_Type&gt;</span>
+    <span class="nt">&lt;LPFilter_Order&gt;</span>..<span class="nt">&lt;/LPFilter_Order&gt;</span>
+    <span class="nt">&lt;LPFilter_Val&gt;</span>..<span class="nt">&lt;/LPFilter_Val&gt;</span>
+    <span class="nt">&lt;HPFilter_Type&gt;</span>..<span class="nt">&lt;/HPFilter_Type&gt;</span>
+    <span class="nt">&lt;HPFilter_Order&gt;</span>..<span class="nt">&lt;/HPFilter_Order&gt;</span>
+    <span class="nt">&lt;HPFilter_Val&gt;</span>..<span class="nt">&lt;/HPFilter_Val&gt;</span>
+    <span class="nt">&lt;InputType&gt;</span>..<span class="nt">&lt;/InputType&gt;</span>
+    <span class="nt">&lt;IIRFilter_Type&gt;</span>..<span class="nt">&lt;/IIRFilter_Type&gt;</span>
+    <span class="nt">&lt;IIRFilter_Order&gt;</span>..<span class="nt">&lt;/IIRFilter_Order&gt;</span>
+    <span class="nt">&lt;IIRFilter_Val&gt;</span>..<span class="nt">&lt;/IIRFilter_Val&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Type&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Type&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Order&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Order&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Val&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Val&gt;</span>
+    <span class="nt">&lt;InputImpedance&gt;</span>..<span class="nt">&lt;/InputImpedance&gt;</span>
+    <span class="nt">&lt;ChannelFeatures&gt;</span>..<span class="nt">&lt;/ChannelFeatures&gt;</span>
+    <span class="nt">&lt;TEDSOptions&gt;</span>..<span class="nt">&lt;/TEDSOptions&gt;</span>
+<span class="nt">&lt;/Mode&gt;</span>
+</pre></div>
+</div>
+</div>
+<section id="range-attribute">
+<h4 id="range-attribute">Range Attribute<a class="headerlink" href="#range-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: V</p>
+<p>Sets the input-range of the amplifier and post processing chain,
+usually in V. In terms of Non-TRION™-signal conditioners this is
+closely related to the used gain.</p>
+</section>
+<section id="inputoffset-attribute">
+<h4 id="inputoffset-attribute">InputOffset Attribute<a class="headerlink" href="#inputoffset-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: V</p>
+<p>This property is often used synonymous to “Sensor-Offset”. It’s
+main use is to shift the virtual 0 V by a given value. Due to
+various physical effects any non-ideal sensor usually has a bias.
+With the property input-offset API can be setup to compensate for
+this bias.</p>
+</section>
+<section id="inputtype-attribute">
+<h4 id="inputtype-attribute">InputType Attribute<a class="headerlink" href="#inputtype-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: N/A</p>
+<p>This property indicates the possible input-type-configurations.
+For example: Single-Ended, Differential
+Note: some TRION-boards only support one non-switchable input type.
+In this case the property still will be present, but only feature
+one entry.</p>
+</section>
+<section id="excitation-attribute">
+<h4 id="excitation-attribute">Excitation Attribute<a class="headerlink" href="#excitation-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: either V, mA or both</p>
+<p>This property allows to configure or disable the excitation
+(e.g. for sensor-supply).</p>
+</section>
+</section>
+<section id="current-mode">
+<h3 id="current-mode">Current Mode<a class="headerlink" href="#current-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="resistance-mode">
+<h3 id="resistance-mode">Resistance Mode<a class="headerlink" href="#resistance-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="bridge-mode">
+<h3 id="bridge-mode">Bridge Mode<a class="headerlink" href="#bridge-mode" title="Permalink to this headline">¶</a></h3>
+<p>Specific TRION-boards offer a native “Bridge” mode, usually featuring
+support for full-, half- and quarter-bridge configurations with internal
+bridge completion.</p>
+<p>Bridge-measurement can either be driven by voltage or by current excitation.
+As some properties are directly depending on this circumstance the bridge-mode-
+subtree is more complex than the voltage-mode subtree, showing multiple
+instances of some properties.</p>
+<p>In bridge-mode the Excitation property should be the first one to be set,
+as the validity of many other properties directly depends on this information.</p>
+<div class="literal-block-wrapper docutils container" id="id13">
+<div class="code-block-caption"><span class="caption-number">Listing 7 </span><span class="caption-text">Bridge mode element</span><a class="headerlink" href="#id13" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Mode</span> <span class="na">Mode =</span> <span class="s">"Bridge"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Range&gt;</span>..<span class="nt">&lt;/Range&gt;</span>
+    <span class="nt">&lt;Range&gt;</span>..<span class="nt">&lt;/Range&gt;</span>
+    <span class="nt">&lt;InputOffset&gt;</span>..<span class="nt">&lt;/InputOffset&gt;</span>
+    <span class="nt">&lt;InputOffset&gt;</span>..<span class="nt">&lt;/InputOffset&gt;</span>
+    <span class="nt">&lt;Excitation&gt;</span>..<span class="nt">&lt;/Excitation&gt;</span>
+    <span class="nt">&lt;Excitation&gt;</span>..<span class="nt">&lt;/Excitation&gt;</span>
+    <span class="nt">&lt;ShuntTarget&gt;</span>..<span class="nt">&lt;/ShuntTarget&gt;</span>
+    <span class="nt">&lt;ShuntTarget&gt;</span>..<span class="nt">&lt;/ShuntTarget&gt;</span>
+    <span class="nt">&lt;LPFilter_Type&gt;</span>..<span class="nt">&lt;/LPFilter_Type&gt;</span>
+    <span class="nt">&lt;LPFilter_Order&gt;</span>..<span class="nt">&lt;/LPFilter_Order&gt;</span>
+    <span class="nt">&lt;LPFilter_Val&gt;</span>..<span class="nt">&lt;/LPFilter_Val&gt;</span>
+    <span class="nt">&lt;HPFilter_Type&gt;</span>..<span class="nt">&lt;/HPFilter_Type&gt;</span>
+    <span class="nt">&lt;HPFilter_Order&gt;</span>..<span class="nt">&lt;/HPFilter_Order&gt;</span>
+    <span class="nt">&lt;HPFilter_Val&gt;</span>..<span class="nt">&lt;/HPFilter_Val&gt;</span>
+    <span class="nt">&lt;IIRFilter_Type&gt;</span>..<span class="nt">&lt;/IIRFilter_Type&gt;</span>
+    <span class="nt">&lt;IIRFilter_Order&gt;</span>..<span class="nt">&lt;/IIRFilter_Order&gt;</span>
+    <span class="nt">&lt;IIRFilter_Val&gt;</span>..<span class="nt">&lt;/IIRFilter_Val&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Type&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Type&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Order&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Order&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Val&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Val&gt;</span>
+    <span class="nt">&lt;InputImpedance&gt;</span>..<span class="nt">&lt;/InputImpedance&gt;</span>
+    <span class="nt">&lt;InputType&gt;</span>..<span class="nt">&lt;/InputType&gt;</span>
+    <span class="nt">&lt;BridgeRes&gt;</span>..<span class="nt">&lt;/BridgeRes&gt;</span>
+    <span class="nt">&lt;BridgeRes&gt;</span>..<span class="nt">&lt;/BridgeRes&gt;</span>
+    <span class="nt">&lt;BridgeRes&gt;</span>..<span class="nt">&lt;/BridgeRes&gt;</span>
+    <span class="nt">&lt;ShuntType&gt;</span>..<span class="nt">&lt;/ShuntType&gt;</span>
+    <span class="nt">&lt;ShuntResistance&gt;</span>..<span class="nt">&lt;/ShuntResistance&gt;</span>
+    <span class="nt">&lt;ChannelFeatures&gt;</span>..<span class="nt">&lt;/ChannelFeatures&gt;</span>
+    <span class="nt">&lt;TEDSOptions&gt;</span>..<span class="nt">&lt;/TEDSOptions&gt;</span>
+<span class="nt">&lt;/Mode&gt;</span>
+</pre></div>
+</div>
+</div>
+<section id="id1">
+<h4 id="id1">Excitation Attribute<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>Unit: either V, mA</p>
+<p>This property allows to configure the excitation.
+As many other properties directly depend on the unit
+of the excitation it is the first property that should
+be set.</p>
+</section>
+<section id="id2">
+<h4 id="id2">Range Attribute<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>Unit: either mV/V, mV/mA</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Due to the wide possible electrical range that can be covered
+by simply setting the Excitation to either a very low or very
+high value, an application either needs to follow the <a class="reference internal" href="#range-calculation-bridge"><span class="std std-ref">more advanced
+constraint evaluation</span></a>, or always
+requery the Range after changing a related attibute from the API,
+as it will perform automatic corrections to the range, if any
+constraint is violated.</p>
+</div>
+</section>
+<section id="id3">
+<h4 id="id3">InputOffset Attribute<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>Unit: either mV/V, mV/mA</p>
+<p>This property is often used synonymous to “Sensor-Offset”. It’s
+main use is to shift the virtual 0 mV/V or 0mV/mA by a given value.
+Due to various physical effects any non-ideal sensor usually has a bias.
+With the property input-offset API can be setup to compensate for
+this bias.</p>
+</section>
+<section id="bridge-res-input-type">
+<span id="id4"></span><h4 id="bridge-res-input-type">InputType Attribute<a class="headerlink" href="#bridge-res-input-type" title="Permalink to this headline">¶</a></h4>
+<p>Unit: N/A</p>
+<p>In bridge-mode this property indicates the possible input-path-configurations.</p>
+<p>This usualy covers the possible bridge-configurations
+(full, half, quarter), the wiring configurtion (3, 4 or 5-wire)
+as well as internal routing types used to facilitate diagnostic
+features without the need to change the mode (like applying a
+virtual short to sense the amplifier offset, or measuring the line
+voltage drop).</p>
+</section>
+<section id="bridgeres-attribute">
+<h4 id="bridgeres-attribute">BridgeRes Attribute<a class="headerlink" href="#bridgeres-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: N/A</p>
+<p>This attribute allows to configure the nominal resistance value of the
+used straing gauge. Which table is applicable is selected via the
+<a class="reference internal" href="#bridge-res-input-type"><span class="std std-ref">input type</span></a>. On configurations with internal
+completion this configures the used completion resistance.</p>
+</section>
+<section id="shunttype-attribute">
+<h4 id="shunttype-attribute">ShuntType Attribute<a class="headerlink" href="#shunttype-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: N/A</p>
+<p>This property is used together with the
+<a class="reference internal" href="#bridge-shunt-resistance"><span class="std std-ref">ShuntResistance</span></a> property
+to activate an internal shunt-resistor for a shunt-calibration.</p>
+</section>
+<section id="shuntresistance-attribute">
+<span id="bridge-shunt-resistance"></span><h4 id="shuntresistance-attribute">ShuntResistance Attribute<a class="headerlink" href="#shuntresistance-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: Ohm</p>
+<p>Selects the used shunt resistor for shunt-calibration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the TRION board this may be realized via a
+<a class="reference internal" href="#bridge-shunt-target"><span class="std std-ref">ShuntTarget</span></a>, and therefore
+not a user selectable value.</p>
+</div>
+</section>
+<section id="shunttarget-attribute">
+<span id="bridge-shunt-target"></span><h4 id="shunttarget-attribute">ShuntTarget Attribute<a class="headerlink" href="#shunttarget-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: mV/V</p>
+<p>Some TRION-boards allow to set a specified target value for
+shunt-calibration.
+The API will then calculate a virtual shunt-resistance value
+considering and compensating the lineresistance drop and apply
+it’s value when “ShuntType” is set to “Internal”.</p>
+</section>
+<section id="inputimpedance-attribute">
+<h4 id="inputimpedance-attribute">InputImpedance Attribute<a class="headerlink" href="#inputimpedance-attribute" title="Permalink to this headline">¶</a></h4>
+<p>Unit: N/A</p>
+<p>Some TRION-boards allow to set the input-impedance to a high-impedance path
+if certain hardwarespecific requirements are met.</p>
+</section>
+</section>
+<section id="potentiometer-mode">
+<h3 id="potentiometer-mode">Potentiometer Mode<a class="headerlink" href="#potentiometer-mode" title="Permalink to this headline">¶</a></h3>
+<p>The “potentiometer”-mode technically is a half-bridge, where the
+hardware is configured to scale to a percent full-scale (default 0..100%).</p>
+<div class="literal-block-wrapper docutils container" id="id14">
+<div class="code-block-caption"><span class="caption-number">Listing 8 </span><span class="caption-text">Potentiometer mode element</span><a class="headerlink" href="#id14" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Mode</span> <span class="na">Mode =</span> <span class="s">"Bridge"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Range&gt;</span>..<span class="nt">&lt;/Range&gt;</span>
+    <span class="nt">&lt;Excitation&gt;</span>..<span class="nt">&lt;/Excitation&gt;</span>
+    <span class="nt">&lt;ShuntTarget&gt;</span>..<span class="nt">&lt;/ShuntTarget&gt;</span>
+    <span class="nt">&lt;ShuntTarget&gt;</span>..<span class="nt">&lt;/ShuntTarget&gt;</span>
+    <span class="nt">&lt;LPFilter_Type&gt;</span>..<span class="nt">&lt;/LPFilter_Type&gt;</span>
+    <span class="nt">&lt;LPFilter_Order&gt;</span>..<span class="nt">&lt;/LPFilter_Order&gt;</span>
+    <span class="nt">&lt;LPFilter_Val&gt;</span>..<span class="nt">&lt;/LPFilter_Val&gt;</span>
+    <span class="nt">&lt;HPFilter_Type&gt;</span>..<span class="nt">&lt;/HPFilter_Type&gt;</span>
+    <span class="nt">&lt;HPFilter_Order&gt;</span>..<span class="nt">&lt;/HPFilter_Order&gt;</span>
+    <span class="nt">&lt;HPFilter_Val&gt;</span>..<span class="nt">&lt;/HPFilter_Val&gt;</span>
+    <span class="nt">&lt;IIRFilter_Type&gt;</span>..<span class="nt">&lt;/IIRFilter_Type&gt;</span>
+    <span class="nt">&lt;IIRFilter_Order&gt;</span>..<span class="nt">&lt;/IIRFilter_Order&gt;</span>
+    <span class="nt">&lt;IIRFilter_Val&gt;</span>..<span class="nt">&lt;/IIRFilter_Val&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Type&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Type&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Order&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Order&gt;</span>
+    <span class="nt">&lt;HPIIRFilter_Val&gt;</span>..<span class="nt">&lt;/HPIIRFilter_Val&gt;</span>
+    <span class="nt">&lt;InputImpedance&gt;</span>..<span class="nt">&lt;/InputImpedance&gt;</span>
+    <span class="nt">&lt;InputType&gt;</span>..<span class="nt">&lt;/InputType&gt;</span>
+    <span class="nt">&lt;ChannelFeatures&gt;</span>..<span class="nt">&lt;/ChannelFeatures&gt;</span>
+    <span class="nt">&lt;TEDSOptions&gt;</span>..<span class="nt">&lt;/TEDSOptions&gt;</span>
+<span class="nt">&lt;/Mode&gt;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="rtd-temperature-mode">
+<h3 id="rtd-temperature-mode">RTD-Temperature Mode<a class="headerlink" href="#rtd-temperature-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="iepe-mode">
+<h3 id="iepe-mode">IEPE Mode<a class="headerlink" href="#iepe-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="exccurrentmonitor-mode">
+<h3 id="exccurrentmonitor-mode">ExcCurrentMonitor Mode<a class="headerlink" href="#exccurrentmonitor-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="excvoltmonitor-mode">
+<h3 id="excvoltmonitor-mode">ExcVoltMonitor Mode<a class="headerlink" href="#excvoltmonitor-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="calibration-mode">
+<h3 id="calibration-mode">Calibration Mode<a class="headerlink" href="#calibration-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="msi-modes">
+<h3 id="msi-modes">MSI Modes<a class="headerlink" href="#msi-modes" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="can-mode">
+<h3 id="can-mode">CAN Mode<a class="headerlink" href="#can-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="advanced-constraints">
+<span id="advanced-contraints"></span><h2 id="advanced-constraints">Advanced Constraints<a class="headerlink" href="#advanced-constraints" title="Permalink to this headline">¶</a></h2>
+<p>In Voltage-measurement mode, the exact amplifier-setting only
+depends on the range-property and the input-offset-attribute.
+In the non-trivial measurement modes the amplifier-setting are affected
+by more than those two logical parameters. A typical example would be
+bridge-mode, where the amplifier settings are affected by logical range,
+input-offset and excitation.</p>
+<p>While it would be possible to limit each property in a way, so that all
+possible combination would yield a legal amplifier setup, it would hurt
+the versatility of the single properties.</p>
+<p>This chapter will reveal the dependencies of the various parameters in
+the different modes, as well as the formulas used to evaluate versus
+the given constraints.</p>
+<p>Almost all constraints affect the range-property.
+Each range-property-node holds several attributes relevant for
+constraints checking:</p>
+<section id="amplrangemax-amplrangemin-amplrangeunit">
+<h3 id="amplrangemax-amplrangemin-amplrangeunit">AmplRangeMax, AmplRangeMin, AmplRangeUnit<a class="headerlink" href="#amplrangemax-amplrangemin-amplrangeunit" title="Permalink to this headline">¶</a></h3>
+<p>These attributes indicate the legal maximum and minimum values for the
+final amplifier-setup. The AmplRangeUnit is always in volt [V].</p>
+</section>
+<section id="maxinputoffset">
+<h3 id="maxinputoffset">MaxInputOffset<a class="headerlink" href="#maxinputoffset" title="Permalink to this headline">¶</a></h3>
+<p>Maximum allowed input-offset. This is always given in %-of-range.
+On most TRION™-boards this is +/-200%, unless already in the highest
+possible range, where usually no further input-offset is allowed.</p>
+</section>
+<section id="maxoutputoffset">
+<h3 id="maxoutputoffset">MaxOutputOffset<a class="headerlink" href="#maxoutputoffset" title="Permalink to this headline">¶</a></h3>
+<p>The output-offset is the virtual offset introduce by asymmetrical custom
+ranges. For example a custom range of 0..10V would yield a output-offset
+of -100%. The limit for the output-offset usually is +/-150%</p>
+</section>
+</section>
+<section id="range-calculation">
+<h2 id="range-calculation">Range calculation<a class="headerlink" href="#range-calculation" title="Permalink to this headline">¶</a></h2>
+<p>As the TRION-API supports asymmetrical custom ranges, the range is split
+into RangeMin and RangeMax. RangeMin is the lower value of a given
+range-span, whereby RangeMax is the upper value.</p>
+<table id="id15">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Range Examples</span><a class="headerlink" href="#id15" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+<col style="width: 33%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Range</p></th>
+<th class="head"><p>RangeMin</p></th>
+<th class="head"><p>RangeMax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>10V (= -10V .. 10V)</p></td>
+<td><p>-10V</p></td>
+<td><p>10V</p></td>
+</tr>
+<tr class="row-odd"><td><p>-5 .. 10V</p></td>
+<td><p>-5V</p></td>
+<td><p>10V</p></td>
+</tr>
+<tr class="row-even"><td><p>0 .. 10V</p></td>
+<td><p>0V</p></td>
+<td><p>10V</p></td>
+</tr>
+<tr class="row-odd"><td><p>3 .. 10V</p></td>
+<td><p>3V</p></td>
+<td><p>10V</p></td>
+</tr>
+<tr class="row-even"><td><p>-10 .. 5V</p></td>
+<td><p>-10V</p></td>
+<td><p>5V</p></td>
+</tr>
+<tr class="row-odd"><td><p>-10 .. 0V</p></td>
+<td><p>-10V</p></td>
+<td><p>0V</p></td>
+</tr>
+</tbody>
+</table>
+<p>This is the range (in [V]), the amplifier-path has to be set to, to satisfy
+the promise, that the interval RangeMin..RangeMax is covered by the
+raw-value-full-scale.</p>
+<section id="hwrangemin-hwrangemax-hwinputoffset">
+<h3 id="hwrangemin-hwrangemax-hwinputoffset">HWRangeMin, HWRangeMax, HWInputOffset<a class="headerlink" href="#hwrangemin-hwrangemax-hwinputoffset" title="Permalink to this headline">¶</a></h3>
+<p>As the properties Range (RangeMin..RangeMx) and InputOffset are always in
+logical units (eg Ohms for resistance mode), a intermediate step of conversion
+is necessary, to translate them to the underlying voltage-measurements.
+The HWRangeMin/Max and InputOffset are used subsequentially to calculate the
+AmplifierRange. The main-purpose of those values is to keep the calculation
+comprehensible.</p>
+</section>
+<section id="amplifier-range">
+<h3 id="amplifier-range">Amplifier Range<a class="headerlink" href="#amplifier-range" title="Permalink to this headline">¶</a></h3>
+<p>The result of the calculated AmplifierRange must always satisfy following
+condition:</p>
+<blockquote>
+<div><div class="math">
+<p><img alt="AmplRangeMin[V] \leq AmplifierRange[V] \leq AmplRangeMax" src="../_images/math/af0de410f672f703623965c1c2b2fd21c463a3cb.png"/></p>
+</div></div></blockquote>
+</section>
+<section id="voltage-mode-calibration-mode">
+<h3 id="voltage-mode-calibration-mode">Voltage Mode, Calibration Mode<a class="headerlink" href="#voltage-mode-calibration-mode" title="Permalink to this headline">¶</a></h3>
+<p>Depending on properties: Range, InputOffset</p>
+<blockquote>
+<div><div class="math">
+<p><img alt="HWRangeMin[V] = RangeMin[V]" src="../_images/math/c20fa543a1a6b7f91f9b4d5ca0c908a0d35d2540.png"/></p>
+</div><div class="math">
+<p><img alt="HWRangeMax[V] = RangeMax[V]" src="../_images/math/352a610e3add8df45eef05df4a212285be90d191.png"/></p>
+</div><div class="math">
+<p><img alt="HWInputOffset[V] = InputOffset[V]" src="../_images/math/b689b5c0efbdf5ec2f64a6485c3102f69e7f64cf.png"/></p>
+</div><div class="math">
+<p><img alt="AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))" src="../_images/math/1e87558d588fa5847c3a35ec3425b142882198f1.png"/></p>
+</div></div></blockquote>
+</section>
+<section id="id5">
+<h3 id="id5">Resistance Mode<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>Depending on properties: Range, InputOffset, Excitation</p>
+<blockquote>
+<div><div class="math">
+<p><img alt="HWRangeMin[V] = RangeMin[\Omega] * Excitation[A]" src="../_images/math/6df6ec7c74bc1e5216654a011ae3ae018ec6ad0e.png"/></p>
+</div><div class="math">
+<p><img alt="HWRangeMax[V] = RangeMax[\Omega] * Excitation[A]" src="../_images/math/2bd6b3e44a1f5409b19bacbee46655425a18174e.png"/></p>
+</div><div class="math">
+<p><img alt="HWInputOffset[V] = InputOffset[\Omega] * Excitation[A]" src="../_images/math/716bc0e618c248cda66f27901b623885efc3e2a3.png"/></p>
+</div><div class="math">
+<p><img alt="AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))" src="../_images/math/1e87558d588fa5847c3a35ec3425b142882198f1.png"/></p>
+</div></div></blockquote>
+</section>
+<section id="range-calculation-bridge">
+<span id="id6"></span><h3 id="range-calculation-bridge">Bridge Mode<a class="headerlink" href="#range-calculation-bridge" title="Permalink to this headline">¶</a></h3>
+<p>Depending on properties: Range, InputOffset, Excitation</p>
+<p>Note: Excitation and Range are related.</p>
+<table id="id16">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Bridge Range Examples</span><a class="headerlink" href="#id16" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%"/>
+<col style="width: 50%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Excitation Unit</p></th>
+<th class="head"><p>Range Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>mA</p></td>
+<td><p>mV/mA</p></td>
+</tr>
+<tr class="row-odd"><td><p>V</p></td>
+<td><p>mV/mV</p></td>
+</tr>
+</tbody>
+</table>
+<p>The calculation is shown for mA-unit. Formulas also apply for V-excitations</p>
+<blockquote>
+<div><div class="math">
+<p><img alt="HWRangeMin[V] = \frac{RangeMin[\frac{mV}{mA}] * Excitation[mA]}{1000}" src="../_images/math/82be150a82c3c94b40a68e55295ce4e553a6de3a.png"/></p>
+</div><div class="math">
+<p><img alt="HWRangeMax[V] = \frac{RangeMax[\frac{mV}{mA}] * Excitation[mA]}{1000}" src="../_images/math/77ae55d5bd8f7b0ea66161f395de1b9b0b0b31fe.png"/></p>
+</div><div class="math">
+<p><img alt="HWInputOffset[V] = \frac{InputOffset[\frac{mV}{mA}] * Excitation[mA]}{1000}" src="../_images/math/3b801013c4497eb7feb653a5ed59e7a86b5d52d0.png"/></p>
+</div><div class="math">
+<p><img alt="AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))" src="../_images/math/1e87558d588fa5847c3a35ec3425b142882198f1.png"/></p>
+</div></div></blockquote>
+</section>
+<section id="id7">
+<h3 id="id7">Potentiometer Mode<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>Depending on properties: Range, InputOffset, Excitation</p>
+<blockquote>
+<div><div class="math">
+<p><img alt="HWRangeMin[V] = \frac{RangeMin[\%] * Excitation[V]}{100}-\frac{Excitation[V]}{2}" src="../_images/math/589a942209fb0df7ebeb64a451205bded9e98cf0.png"/></p>
+</div><div class="math">
+<p><img alt="HWRangeMax[V] = \frac{RangeMax[\%] * Excitation[V]}{100}-\frac{Excitation[V]}{2}" src="../_images/math/d6d6f6c4611f11c4866173f1ef607736ec4a781e.png"/></p>
+</div><div class="math">
+<p><img alt="HWInputOffset = InputOffset[\%] * Excitation[V]" src="../_images/math/2af9a594bb14e1a3267e11969677715d91563dc1.png"/></p>
+</div><div class="math">
+<p><img alt="AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))" src="../_images/math/1e87558d588fa5847c3a35ec3425b142882198f1.png"/></p>
+</div></div></blockquote>
+</section>
+<section id="id8">
+<h3 id="id8">RTD-Temperature Mode<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>TBD</p>
+</section>
+<section id="current-mode-exccurrentmonitor-mode">
+<h3 id="current-mode-exccurrentmonitor-mode">Current Mode, ExcCurrentMonitor Mode<a class="headerlink" href="#current-mode-exccurrentmonitor-mode" title="Permalink to this headline">¶</a></h3>
+<p>Depending on properties: Range, ShuntRes</p>
+<blockquote>
+<div><div class="math">
+<p><img alt="HWRangeMin[V] = RangeMin[A] * ShuntRes[\Omega]" src="../_images/math/bf15740be4162140a73c362e79d77a2c5bb633ad.png"/></p>
+</div><div class="math">
+<p><img alt="HWRangeMax[V] = RangeMax[A] * ShuntRes[\Omega]" src="../_images/math/ad684db5cc72e36fbe2450c5e52f75856f00c6b7.png"/></p>
+</div><div class="math">
+<p><img alt="HWInputOffset[V] = InputOffset[A] * ShuntRes[\Omega]" src="../_images/math/4ff9559f861e12980f7a41268d7c2da5dfbbe730.png"/></p>
+</div><div class="math">
+<p><img alt="AmplifierRange[V] = max(abs(HWRangeMin+HWInputOffset), \\ abs(HWRangeMax+HWInputOffset))" src="../_images/math/1e87558d588fa5847c3a35ec3425b142882198f1.png"/></p>
+</div></div></blockquote>
+</section>
+</section>
+<section id="analog-out-channels">
+<h2 id="analog-out-channels">Analog Out Channels<a class="headerlink" href="#analog-out-channels" title="Permalink to this headline">¶</a></h2>
+<section id="monitoroutput-mode">
+<h3 id="monitoroutput-mode">MonitorOutput Mode<a class="headerlink" href="#monitoroutput-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="mathoutput-mode">
+<h3 id="mathoutput-mode">MathOutput Mode<a class="headerlink" href="#mathoutput-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="constoutput-mode">
+<h3 id="constoutput-mode">ConstOutput Mode<a class="headerlink" href="#constoutput-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="functiongenerator-mode">
+<h3 id="functiongenerator-mode">FunctionGenerator Mode<a class="headerlink" href="#functiongenerator-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="streamoutput-mode">
+<h3 id="streamoutput-mode">StreamOutput Mode<a class="headerlink" href="#streamoutput-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="counter-channels">
+<h2 id="counter-channels">Counter Channels<a class="headerlink" href="#counter-channels" title="Permalink to this headline">¶</a></h2>
+<section id="events-mode">
+<h3 id="events-mode">Events Mode<a class="headerlink" href="#events-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="period-mode">
+<h3 id="period-mode">Period Mode<a class="headerlink" href="#period-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="pulsewidth-mode">
+<h3 id="pulsewidth-mode">PulseWidth Mode<a class="headerlink" href="#pulsewidth-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="twopulseedgesep-mode">
+<h3 id="twopulseedgesep-mode">TwoPulseEdgeSep Mode<a class="headerlink" href="#twopulseedgesep-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="subcounter-period-mode">
+<h3 id="subcounter-period-mode">Subcounter Period Mode<a class="headerlink" href="#subcounter-period-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="subcounter-twopulseedgesep-mode">
+<h3 id="subcounter-twopulseedgesep-mode">Subcounter TwoPulseEdgeSep Mode<a class="headerlink" href="#subcounter-twopulseedgesep-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="subcounter-frequency-mode">
+<h3 id="subcounter-frequency-mode">Subcounter Frequency Mode<a class="headerlink" href="#subcounter-frequency-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="digital-channels">
+<h2 id="digital-channels">Digital Channels<a class="headerlink" href="#digital-channels" title="Permalink to this headline">¶</a></h2>
+<section id="di-mode">
+<h3 id="di-mode">DI Mode<a class="headerlink" href="#di-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="dio-mode">
+<h3 id="dio-mode">DIO Mode<a class="headerlink" href="#dio-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="can-channels">
+<h2 id="can-channels">CAN Channels<a class="headerlink" href="#can-channels" title="Permalink to this headline">¶</a></h2>
+<section id="highspeed-mode">
+<h3 id="highspeed-mode">HighSpeed Mode<a class="headerlink" href="#highspeed-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="canfd-channels">
+<h2 id="canfd-channels">CANFD Channels<a class="headerlink" href="#canfd-channels" title="Permalink to this headline">¶</a></h2>
+<p>Currently not supported</p>
+</section>
+<section id="rs485-channels">
+<h2 id="rs485-channels">RS485 Channels<a class="headerlink" href="#rs485-channels" title="Permalink to this headline">¶</a></h2>
+<section id="raw-mode">
+<h3 id="raw-mode">Raw Mode<a class="headerlink" href="#raw-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="nmea-mode">
+<h3 id="nmea-mode">NMEA Mode<a class="headerlink" href="#nmea-mode" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+</section>
+
+
+          </article>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer class="md-footer">
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+          
+            <a href="../01_Quickstart/Quickstart.html" title="Quickstart"
+               class="md-flex md-footer-nav__link md-footer-nav__link--prev"
+               rel="prev">
+              <div class="md-flex__cell md-flex__cell--shrink">
+                <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+              </div>
+              <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+                <span class="md-flex__ellipsis">
+                  <span
+                      class="md-footer-nav__direction"> Previous </span> Quickstart </span>
+              </div>
+            </a>
+          
+          
+            <a href="../03_DataAcquisition/DataAcquisition.html" title="Data Acquisition"
+               class="md-flex md-footer-nav__link md-footer-nav__link--next"
+               rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
+                class="md-flex__ellipsis"> <span
+                class="md-footer-nav__direction"> Next </span> Data Acquisition </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink"><i
+                class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          
+        </a>
+        
+      </nav>
+    </div>
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        <div class="md-footer-copyright">
+          <div class="md-footer-copyright__highlight">
+              &#169; Copyright 2021, DEWETRON GmbH.
+              
+          </div>
+            Created using
+            <a href="http://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+             and
+            <a href="https://github.com/bashtage/sphinx-material/">Material for
+              Sphinx</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../_static/javascripts/application.js"></script>
+  <script>app.initialize({version: "1.0.4", url: {base: ".."}})</script>
+  </body>
+</html>

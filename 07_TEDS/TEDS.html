@@ -1,0 +1,787 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="lang:clipboard.copy" content="Copy to clipboard">
+  <meta name="lang:clipboard.copied" content="Copied to clipboard">
+  <meta name="lang:search.language" content="en">
+  <meta name="lang:search.pipeline.stopwords" content="True">
+  <meta name="lang:search.pipeline.trimmer" content="True">
+  <meta name="lang:search.result.none" content="No matching documents">
+  <meta name="lang:search.result.one" content="1 matching document">
+  <meta name="lang:search.result.other" content="# matching documents">
+  <meta name="lang:search.tokenizer" content="[\s\-]+">
+
+  
+    <link href="https://fonts.gstatic.com/" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&display=fallback" rel="stylesheet">
+
+    <style>
+      body,
+      input {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif
+      }
+
+      code,
+      kbd,
+      pre {
+        font-family: "Roboto Mono", "Courier New", Courier, monospace
+      }
+    </style>
+  
+
+  <link rel="stylesheet" href="../_static/stylesheets/application.css"/>
+  <link rel="stylesheet" href="../_static/stylesheets/application-palette.css"/>
+  <link rel="stylesheet" href="../_static/stylesheets/application-fixes.css"/>
+  
+  <link rel="stylesheet" href="../_static/fonts/material-icons.css"/>
+  
+  <meta name="theme-color" content="#3f51b5">
+  <script src="../_static/javascripts/modernizr.js"></script>
+  
+  
+  
+    <title>TEDS Interface &#8212; DEWETRON TRION SDK 6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/material.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/stylesheets/oxygen_material.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="DEWE2 Enclosures" href="../10_DEWE2/DEWE2_Enclosure.html" />
+    <link rel="prev" title="XML Reference" href="../06_XMLApiReference/XMLApiReference.html" />
+
+
+
+  
+   
+
+  </head>
+  <body dir=ltr
+        data-md-color-primary=blue data-md-color-accent=light-blue>
+  
+  <svg class="md-svg">
+    <defs data-children-count="0">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+      
+    </defs>
+  </svg>
+  
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
+  <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+  <a href="#07_TEDS/TEDS" tabindex="1" class="md-skip"> Skip to content </a>
+  <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex navheader">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../index.html" title="DEWETRON TRION SDK 6.0 documentation"
+           class="md-header-nav__button md-logo">
+          
+              <img src="../_static/logo.png" height="26"
+                   alt="DEWETRON TRION SDK 6.0 documentation logo">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          <span class="md-header-nav__topic">DEWETRON TRION SDK</span>
+          <span class="md-header-nav__topic"> TEDS Interface </span>
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+        
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" action="../search.html" method="get" name="search">
+      <input type="text" class="md-search__input" name="q" placeholder="Search"
+             autocapitalize="off" autocomplete="off" spellcheck="false"
+             data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      
+      
+  
+  <script src="../_static/javascripts/version_dropdown.js"></script>
+  <script>
+    var json_loc = "../"versions.json"",
+        target_loc = "../../",
+        text = "Versions";
+    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
+  </script>
+  
+
+    </div>
+  </nav>
+</header>
+
+  
+  <div class="md-container">
+    
+    
+    
+  <nav class="md-tabs" data-md-component="tabs">
+    <div class="md-tabs__inner md-grid">
+      <ul class="md-tabs__list">
+          <li class="md-tabs__item"><a href="../index.html" class="md-tabs__link">DEWETRON TRION SDK 6.0 documentation</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/products/signal-conditioning/all-trion3-trion-modules/" class="md-tabs__link">TRION & TRION3 Modules</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/products/oxygen-measurement-software/" class="md-tabs__link">OXYGEN Software</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/" class="md-tabs__link">DEWETRON Measurement Systems</a></li>
+      </ul>
+    </div>
+  </nav>
+    <main class="md-main">
+      <div class="md-main__inner md-grid" data-md-component="container">
+        
+          <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../index.html" title="DEWETRON TRION SDK 6.0 documentation" class="md-nav__button md-logo">
+      
+        <img src="../_static/logo.png" alt=" logo" width="48" height="48">
+      
+    </a>
+    <a href="../index.html"
+       title="DEWETRON TRION SDK 6.0 documentation">DEWETRON TRION SDK</a>
+  </label>
+  
+
+  
+  <ul class="md-nav__list">
+    <li class="md-nav__item">
+    
+      <span class="md-nav__link caption"><span class="caption-text">Contents</span></span>
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../00_InformationRights/InformationRights.html" class="md-nav__link">Preface</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../01_Quickstart/Quickstart.html" class="md-nav__link">Quickstart</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../02_ChannelTypes/ChannelTypes.html" class="md-nav__link">Channel Types</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../03_DataAcquisition/DataAcquisition.html" class="md-nav__link">Data Acquisition</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../04_Synchronization/Synchronization.html" class="md-nav__link">Synchronization</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../05_CommandApiReference/CommandApiReference.html" class="md-nav__link">Command Reference</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../06_XMLApiReference/XMLApiReference.html" class="md-nav__link">XML Reference</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    <label class="md-nav__link md-nav__link--active" for="__toc"> TEDS Interface </label>
+    
+      <a href="#" class="md-nav__link md-nav__link--active">TEDS Interface</a>
+      
+        
+<nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
+  <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#07-teds-teds--page-root" class="md-nav__link">TEDS Interface</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#prerequisites" class="md-nav__link">Prerequisites</a>
+        </li>
+        <li class="md-nav__item"><a href="#api-functions" class="md-nav__link">API Functions</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#tedsreadex" class="md-nav__link">TedsReadEx</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#tedsdata-description" class="md-nav__link">TEDSData description</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#tedswriteex-writing-data" class="md-nav__link">TedsWriteEx - Writing <Data></a>
+        </li>
+        <li class="md-nav__item"><a href="#editing-teds-properties" class="md-nav__link">Editing TEDS Properties</a>
+        </li>
+        <li class="md-nav__item"><a href="#tedsreadexchain" class="md-nav__link">TedsReadExChain</a>
+        </li>
+        <li class="md-nav__item"><a href="#tedstype" class="md-nav__link">TedsType</a>
+        </li>
+        <li class="md-nav__item"><a href="#tedsmem" class="md-nav__link">TedsMem</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#sdk-examples" class="md-nav__link">SDK Examples</a>
+        </li></ul>
+            </nav>
+        </li>
+  </ul>
+</nav>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../10_DEWE2/DEWE2_Enclosure.html" class="md-nav__link">DEWE2 Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../11_DEWE3/DEWE3_Enclosure.html" class="md-nav__link">DEWE3 Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../12_TRIONet/TRIONet_Enclosure.html" class="md-nav__link">TRIONet Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../13_PUREC/PUREC_Enclosure.html" class="md-nav__link">PUREC Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../14_ConnectorBoxes/ConnectorBoxes.html" class="md-nav__link">ConnectorBoxes</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../19_DevelopmentTips/DevelopmentTips.html" class="md-nav__link">Development Tips</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../20_Support/Support.html" class="md-nav__link">Support</a>
+      
+    
+    </li>
+  </ul>
+  
+
+</nav>
+              </div>
+            </div>
+          </div>
+          <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                
+<nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
+  <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#07-teds-teds--page-root" class="md-nav__link">TEDS Interface</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#prerequisites" class="md-nav__link">Prerequisites</a>
+        </li>
+        <li class="md-nav__item"><a href="#api-functions" class="md-nav__link">API Functions</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#tedsreadex" class="md-nav__link">TedsReadEx</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#tedsdata-description" class="md-nav__link">TEDSData description</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#tedswriteex-writing-data" class="md-nav__link">TedsWriteEx - Writing <Data></a>
+        </li>
+        <li class="md-nav__item"><a href="#editing-teds-properties" class="md-nav__link">Editing TEDS Properties</a>
+        </li>
+        <li class="md-nav__item"><a href="#tedsreadexchain" class="md-nav__link">TedsReadExChain</a>
+        </li>
+        <li class="md-nav__item"><a href="#tedstype" class="md-nav__link">TedsType</a>
+        </li>
+        <li class="md-nav__item"><a href="#tedsmem" class="md-nav__link">TedsMem</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#sdk-examples" class="md-nav__link">SDK Examples</a>
+        </li></ul>
+            </nav>
+        </li>
+  </ul>
+</nav>
+              </div>
+            </div>
+          </div>
+        
+        <div class="md-content">
+          <article class="md-content__inner md-typeset" role="main">
+            
+  <section id="teds-interface">
+<h1 id="07-teds-teds--page-root">TEDS Interface<a class="headerlink" href="#07-teds-teds--page-root" title="Permalink to this headline">¶</a></h1>
+<p>A transducer electronic data sheet (TEDS) is a standardized method of storing transducer (sensors or actuators) identification, calibration, correction data, and manufacturer-related information.
+(from wikipedia)</p>
+<section id="prerequisites">
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>TEDS is available for TRION analog channels that support TEDS in dedicated measurment modes. Modes supporting it have
+the channel feature “SupportTEDS” listed in the channel properties xml.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-number">Listing 25 </span><span class="caption-text">ChannelProperties - ChannelFeatures Node</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Mode</span> <span class="na">Mode =</span> <span class="s">"Voltage"</span><span class="nt">&gt;</span>
+
+    ...
+
+    <span class="nt">&lt;ChannelFeatures</span> <span class="na">Config =</span> <span class="s">"False"</span> <span class="na">Count =</span> <span class="s">"2"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;ID0&gt;</span>AmplifierZero<span class="nt">&lt;/ID0&gt;</span>
+        <span class="nt">&lt;ID1&gt;</span>SupportTEDS<span class="nt">&lt;/ID1&gt;</span>
+    <span class="nt">&lt;/ChannelFeatures&gt;</span>
+    <span class="nt">&lt;TEDSOptions</span> <span class="na">Config =</span> <span class="s">"False"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;Feature</span> <span class="na">Name =</span> <span class="s">"TEDSScanDefault"</span><span class="nt">&gt;</span>True<span class="nt">&lt;/Feature&gt;</span>
+    <span class="nt">&lt;/TEDSOptions&gt;</span>
+<span class="nt">&lt;/Mode&gt;</span>
+</pre></div>
+</div>
+</div>
+<p>The other setting TEDSScanDefault is a hint to an application, that TEDS can be used during measurement.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the hardware implementation, an active TEDS scan may lead to false measurement results.
+TEDSScanDefault set to True means a scan during a measurement will not add extra noise to the read data.</p>
+</div>
+</section>
+<section id="api-functions">
+<h2 id="api-functions">API Functions<a class="headerlink" href="#api-functions" title="Permalink to this headline">¶</a></h2>
+<section id="tedsreadex">
+<h3 id="tedsreadex">TedsReadEx<a class="headerlink" href="#tedsreadex" title="Permalink to this headline">¶</a></h3>
+<p>TedsReadEx reads a TEDSData XML document. The target string addresses the dedicated analog channel to ask for TEDS
+information. TEDS_DATA should be string buffer large enough for the read document.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="w"> </span><span class="n">TEDS_DATA</span><span class="p">[</span><span class="mi">8</span><span class="o">*</span><span class="mi">1024</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">DeWeGetParamStruct_str</span><span class="p">(</span><span class="w"> </span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TedsReadEx"</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">TEDS_DATA</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">TEDS_DATA</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-number">Listing 26 </span><span class="caption-text">TEDSProperties - TEDS.xml</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version="1.0"?&gt;</span>
+<span class="nt">&lt;TEDSData&gt;</span>
+    <span class="nt">&lt;TEDSType&gt;</span>DS2431<span class="nt">&lt;/TEDSType&gt;</span>
+    <span class="nt">&lt;SerialNumber&gt;</span>0000005CA657<span class="nt">&lt;/SerialNumber&gt;</span>
+    <span class="nt">&lt;MemoryRegion</span> <span class="na">Name =</span> <span class="s">"EEPROM"</span> <span class="na">Writeable =</span> <span class="s">"true"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;MemorySize</span> <span class="na">Unit =</span> <span class="s">"Byte"</span><span class="nt">&gt;</span>128<span class="nt">&lt;/MemorySize&gt;</span>
+        <span class="nt">&lt;Data&gt;</span>1F40620000000000841C000000000000000002000000000000006418008021C10E
+        C34800000000E00000000000000000000000000000000000000000000000000000000000
+        000000000000000000000000000000000000000000000000000000000000000000000000
+        00000000000000000000000000000000000000<span class="nt">&lt;/Data&gt;</span>
+    <span class="nt">&lt;/MemoryRegion&gt;</span>
+    <span class="nt">&lt;ROMCodeRaw&gt;</span>2D57A65C00000019<span class="nt">&lt;/ROMCodeRaw&gt;</span>
+    <span class="nt">&lt;TEDSInfo</span> <span class="na">Manufacturer =</span> <span class="s">"31"</span> <span class="na">Serial =</span> <span class="s">"0"</span> <span class="na">TedsVersion =</span> <span class="s">"2"</span> <span class="na">Model =</span> <span class="s">"393"</span> <span class="na">VersionLetter =</span> <span class="s">" "</span> <span class="na">VersionNumber =</span> <span class="s">"0"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;Template</span> <span class="na">Number =</span> <span class="s">"33"</span> <span class="na">Manufacturer =</span> <span class="s">"0"</span> <span class="na">Title =</span> <span class="s">"Bridge Sensor"</span> <span class="na">Abstract =</span> <span class="s">"IEEE 1451.4 Default Bridge Sensor Template&amp;#10;For sensors that provide a bridge circuit to a measuring device"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"ElecSigType"</span> <span class="na">Type =</span> <span class="s">"5"</span><span class="nt">&gt;</span>3<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MinPhysVal"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MaxPhysVal"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MinElecVal"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MaxElecVal"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MapMeth"</span> <span class="na">Type =</span> <span class="s">"5"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"BridgeType"</span> <span class="na">Type =</span> <span class="s">"5"</span><span class="nt">&gt;</span>1<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"SensorImped"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>40<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"RespTime"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>9.9999999999999995e-07<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"ExciteAmplNom"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>2.5000000000000004<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"ExciteAmplMin"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>1<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"ExciteAmplMax"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>6<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"CalDate"</span> <span class="na">Type =</span> <span class="s">"4"</span><span class="nt">&gt;</span>37254<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"CalInitials"</span> <span class="na">Type =</span> <span class="s">"1"</span><span class="nt">&gt;&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"CalPeriod"</span> <span class="na">Type =</span> <span class="s">"3"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MeasID"</span> <span class="na">Type =</span> <span class="s">"3"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+        <span class="nt">&lt;/Template&gt;</span>
+    <span class="nt">&lt;/TEDSInfo&gt;</span>
+<span class="nt">&lt;/TEDSData&gt;</span>
+</pre></div>
+</div>
+</div>
+<p>The following list explains all possible XML Elements and their XML attributes:</p>
+<section id="tedsdata-description">
+<h4 id="tedsdata-description">TEDSData description<a class="headerlink" href="#tedsdata-description" title="Permalink to this headline">¶</a></h4>
+<table id="id3">
+<caption><span class="caption-number">Table 10 </span><span class="caption-text">TEDS XML description</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 10%"/>
+<col style="width: 80%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Element</strong></p></th>
+<th class="head"><p><strong>Attribute</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>TEDSData</p></td>
+<td></td>
+<td><p>TEDS root element</p></td>
+</tr>
+<tr class="row-odd"><td><p>TEDSType</p></td>
+<td></td>
+<td><p>TEDS EEPROM chip</p></td>
+</tr>
+<tr class="row-even"><td><p>SerialNumber</p></td>
+<td></td>
+<td><p>Read only TEDS Serial Number</p></td>
+</tr>
+<tr class="row-odd"><td><p>MemoryRegion</p></td>
+<td></td>
+<td><p>One or more memory regions</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>Name</p></td>
+<td><p>Region name</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>Writeable</p></td>
+<td><p>‘true’ if writeable</p></td>
+</tr>
+<tr class="row-even"><td><p>MemorySize</p></td>
+<td></td>
+<td><p>Size of the EEPROM</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>Unit</p></td>
+<td><p>Usually “Byte”</p></td>
+</tr>
+<tr class="row-even"><td><p>Data</p></td>
+<td></td>
+<td><p>EEPROM content as hexadecimal coded string</p></td>
+</tr>
+<tr class="row-odd"><td><p>ROMCodeRaw</p></td>
+<td></td>
+<td><p>Read only, family code plus serial number</p></td>
+</tr>
+<tr class="row-even"><td><p>TEDSInfo</p></td>
+<td></td>
+<td><p>Sensor information</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>Manufacturer</p></td>
+<td><p>Sensor manufacturer</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>Serial</p></td>
+<td><p>Sensor serial number</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>TedsVersion</p></td>
+<td><p>Usually 2 (1=IEEE 1451.4 D0.9x; 2=IEEE 1451.4 final)</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>Model</p></td>
+<td><p>Model Number of the sensor</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>VersionLetter</p></td>
+<td><p>Version letter of the sensor</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>VersionNumber</p></td>
+<td><p>Version number of the sensor</p></td>
+</tr>
+<tr class="row-odd"><td><p>Template</p></td>
+<td></td>
+<td><p>Recognized and decoded template</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>Number</p></td>
+<td><p>The number of the template</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>Manufacturer</p></td>
+<td><p>Template manufacturer</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>Title</p></td>
+<td><p>Template name</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>Abstract</p></td>
+<td><p>Descriptive text about the sensor template</p></td>
+</tr>
+<tr class="row-even"><td><p>Property</p></td>
+<td></td>
+<td><p>List of all the decoded template properties</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>Name</p></td>
+<td><p>Property name</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>Type</p></td>
+<td><p>Number describing the data type</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="tedswriteex-writing-data">
+<h3 id="tedswriteex-writing-data">TedsWriteEx - Writing &lt;Data&gt;<a class="headerlink" href="#tedswriteex-writing-data" title="Permalink to this headline">¶</a></h3>
+<p>TedsWriteEx writes the &lt;Data&gt; content of a TEDSData XML document into a attached TEDS eeprom.
+The target string addresses the dedicated analog channel to write the TEDS
+information to. TEDS_DATA has to contain the necessary XML document.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="w"> </span><span class="n">TEDS_DATA</span><span class="p">[</span><span class="mi">8</span><span class="o">*</span><span class="mi">1024</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"&lt;TEDSDATA&gt;..."</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">DeWeSetParamStruct_str</span><span class="p">(</span><span class="w"> </span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TedsWriteEx"</span><span class="p">,</span><span class="w"> </span><span class="n">TEDS_DATA</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-number">Listing 27 </span><span class="caption-text">Write TEDS - TEDS.xml</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version="1.0"?&gt;</span>
+<span class="nt">&lt;TEDSData&gt;</span>
+    <span class="nt">&lt;TEDSType&gt;</span>DS2431<span class="nt">&lt;/TEDSType&gt;</span>
+    <span class="nt">&lt;SerialNumber&gt;</span>0000005CA657<span class="nt">&lt;/SerialNumber&gt;</span>
+    <span class="nt">&lt;MemoryRegion</span> <span class="na">Name =</span> <span class="s">"EEPROM"</span> <span class="na">Writeable =</span> <span class="s">"true"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;MemorySize</span> <span class="na">Unit =</span> <span class="s">"Byte"</span><span class="nt">&gt;</span>128<span class="nt">&lt;/MemorySize&gt;</span>
+        <span class="nt">&lt;Data&gt;</span>1F40620000000000841C000000000000000002000000000000006418008021C10EC34800000000E0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000<span class="nt">&lt;/Data&gt;</span>
+    <span class="nt">&lt;/MemoryRegion&gt;</span>
+    <span class="nt">&lt;ROMCodeRaw&gt;</span>2D57A65C00000019<span class="nt">&lt;/ROMCodeRaw&gt;</span>
+<span class="nt">&lt;/TEDSData&gt;</span>
+</pre></div>
+</div>
+</div>
+<p>It is not necessary that the document contains a TEDSInfo node. Changes to a TEDSInfo node will be ignored.</p>
+</section>
+<section id="editing-teds-properties">
+<h3 id="editing-teds-properties">Editing TEDS Properties<a class="headerlink" href="#editing-teds-properties" title="Permalink to this headline">¶</a></h3>
+<p>The i32 commands: CMD_BOARD_AITEDSEX_READ, CMD_BOARD_AITEDSEX_SYNCHRONIZE and CMD_BOARD_AITEDSEX_WRITE allows
+developers to edit TEDS properties without the need to create the &lt;Data&gt; hexadecimal representation.</p>
+<p>For this mode the changes have to be written into an API internal TEDS document addressable by the target string:
+“BoardId0/aitedsex/AI0”.</p>
+<p>Do all changes to this document and then the changes can be applied to the EEPROM.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">nBoardId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">nChannelIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="n">nBoardId</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BOARD_AITEDSEX_READ</span><span class="p">,</span><span class="w"> </span><span class="n">nChannelIndex</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">// set serial to 1234</span>
+<span class="n">DeWeSetParamXML_str</span><span class="p">(</span><span class="w"> </span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TEDSData/TEDSInfo/@Serial, "</span><span class="mi">1234</span><span class="s">");</span>
+
+<span class="c1">// set MinPhysVal to -10</span>
+<span class="n">DeWeSetParamXML_str</span><span class="p">(</span><span class="w"> </span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TEDSData/TEDSInfo/Template/Property[@Name='MinPhysVal'], "</span><span class="mi">-10</span><span class="s">");</span>
+
+<span class="c1">// generate the new valid TEDS Data</span>
+<span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="n">nBoardId</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BOARD_AITEDSEX_SYNCHRONIZE</span><span class="p">,</span><span class="w"> </span><span class="n">nChannelIndex</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">// write to the EEPROM</span>
+<span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="n">nBoardId</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BOARD_AITEDSEX_WRITE</span><span class="p">,</span><span class="w"> </span><span class="n">nChannelIndex</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="tedsreadexchain">
+<h3 id="tedsreadexchain">TedsReadExChain<a class="headerlink" href="#tedsreadexchain" title="Permalink to this headline">¶</a></h3>
+<p>It is allowed to physically chain TEDS EEPROMs. For this case TedsReadExChain has to be used.</p>
+<p>TedsReadExChain reads a TEDSChain XML document. The target string addresses the dedicated analog channel to ask for TEDS
+information. TEDS_DATA should be string buffer large enough for the read document.</p>
+<p>The XML document presents all found TEDS EEPROMs as TEDSData child elements of TEDSChain.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="w"> </span><span class="n">TEDS_DATA</span><span class="p">[</span><span class="mi">8</span><span class="o">*</span><span class="mi">1024</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">DeWeGetParamStruct_str</span><span class="p">(</span><span class="w"> </span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TedsReadExChain"</span><span class="p">,</span><span class="w"> </span><span class="n">TEDS_DATA</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">TEDS_DATA</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-number">Listing 28 </span><span class="caption-text">ChannelProperties - ChannelFeatures Node</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="highlight-XML notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version="1.0"?&gt;</span>
+<span class="nt">&lt;TEDSChain&gt;</span>
+    <span class="nt">&lt;TEDSData&gt;</span>
+        <span class="nt">&lt;TEDSType&gt;</span>DS2431<span class="nt">&lt;/TEDSType&gt;</span>
+        <span class="nt">&lt;SerialNumber&gt;</span>0000005CA657<span class="nt">&lt;/SerialNumber&gt;</span>
+        <span class="nt">&lt;MemoryRegion</span> <span class="na">Name =</span> <span class="s">"EEPROM"</span> <span class="na">Writeable =</span> <span class="s">"true"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;MemorySize</span> <span class="na">Unit =</span> <span class="s">"Byte"</span><span class="nt">&gt;</span>128<span class="nt">&lt;/MemorySize&gt;</span>
+            <span class="nt">&lt;Data&gt;</span>1F40620000000000841C000000000000000002000000000000006418008021C10EC34800000000E0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000<span class="nt">&lt;/Data&gt;</span>
+        <span class="nt">&lt;/MemoryRegion&gt;</span>
+        <span class="nt">&lt;ROMCodeRaw&gt;</span>2D57A65C00000019<span class="nt">&lt;/ROMCodeRaw&gt;</span>
+        <span class="nt">&lt;TEDSInfo</span> <span class="na">Manufacturer =</span> <span class="s">"31"</span> <span class="na">Serial =</span> <span class="s">"0"</span> <span class="na">TedsVersion =</span> <span class="s">"2"</span> <span class="na">Model =</span> <span class="s">"393"</span> <span class="na">VersionLetter =</span> <span class="s">" "</span> <span class="na">VersionNumber =</span> <span class="s">"0"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;Template</span> <span class="na">Number =</span> <span class="s">"33"</span> <span class="na">Manufacturer =</span> <span class="s">"0"</span> <span class="na">Title =</span> <span class="s">"Bridge Sensor"</span> <span class="na">Abstract =</span> <span class="s">"IEEE 1451.4 Default Bridge Sensor Template&amp;#10;For sensors that provide a bridge circuit to a measuring device"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"ElecSigType"</span> <span class="na">Type =</span> <span class="s">"5"</span><span class="nt">&gt;</span>3<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MinPhysVal"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MaxPhysVal"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MinElecVal"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MaxElecVal"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MapMeth"</span> <span class="na">Type =</span> <span class="s">"5"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"BridgeType"</span> <span class="na">Type =</span> <span class="s">"5"</span><span class="nt">&gt;</span>1<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"SensorImped"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>40<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"RespTime"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>9.9999999999999995e-07<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"ExciteAmplNom"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>2.5000000000000004<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"ExciteAmplMin"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>1<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"ExciteAmplMax"</span> <span class="na">Type =</span> <span class="s">"2"</span><span class="nt">&gt;</span>6<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"CalDate"</span> <span class="na">Type =</span> <span class="s">"4"</span><span class="nt">&gt;</span>37254<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"CalInitials"</span> <span class="na">Type =</span> <span class="s">"1"</span><span class="nt">&gt;&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"CalPeriod"</span> <span class="na">Type =</span> <span class="s">"3"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+                <span class="nt">&lt;Property</span> <span class="na">Name =</span> <span class="s">"MeasID"</span> <span class="na">Type =</span> <span class="s">"3"</span><span class="nt">&gt;</span>0<span class="nt">&lt;/Property&gt;</span>
+            <span class="nt">&lt;/Template&gt;</span>
+        <span class="nt">&lt;/TEDSInfo&gt;</span>
+    <span class="nt">&lt;/TEDSData&gt;</span>
+<span class="nt">&lt;/TEDSChain&gt;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="tedstype">
+<h3 id="tedstype">TedsType<a class="headerlink" href="#tedstype" title="Permalink to this headline">¶</a></h3>
+<p>Low level functionality to only access the romcode.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeGetParamStruct_str</span><span class="p">(</span><span class="w"> </span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TedsType"</span><span class="p">,</span><span class="w"> </span><span class="n">TEDS_DATA</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">TEDS_DATA</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="c1">// TEDS_DATA = 2D0000005CA65719</span>
+</pre></div>
+</div>
+</section>
+<section id="tedsmem">
+<h3 id="tedsmem">TedsMem<a class="headerlink" href="#tedsmem" title="Permalink to this headline">¶</a></h3>
+<p>Low level functionality to only access TEDS memory regions.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeGetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TedsMem0"</span><span class="p">,</span><span class="w"> </span><span class="n">TEDS_DATA</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">TEDS_DATA</span><span class="p">));</span><span class="w"></span>
+<span class="c1">// TEDS_DATA = 801F40620000000000841C000000000000000002000000000000006418008021</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TedsMem0"</span><span class="p">,</span><span class="w"> </span><span class="s">"0022334455667788990011223344556677889900112233445566778899001333"</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeGetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TedsMem1"</span><span class="p">,</span><span class="w"> </span><span class="n">TEDS_DATA</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">TEDS_DATA</span><span class="p">));</span><span class="w"></span>
+<span class="c1">// TEDS_DATA = 46C10EC34800000000E000000000000000000000000000000000000000000000</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID0/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"TedsMem1"</span><span class="p">,</span><span class="w"> </span><span class="s">"0022334455667788990011223344556677889900112233445566778899001333"</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="sdk-examples">
+<h2 id="sdk-examples">SDK Examples<a class="headerlink" href="#sdk-examples" title="Permalink to this headline">¶</a></h2>
+<p>The use of the TRION API TEDS interface is shown in following examples:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>interfacingTEDSEx</p></li>
+<li><p>interfacingTEDS</p></li>
+<li><p>InterfacingTEDSCal</p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+
+
+          </article>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer class="md-footer">
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+          
+            <a href="../06_XMLApiReference/XMLApiReference.html" title="XML Reference"
+               class="md-flex md-footer-nav__link md-footer-nav__link--prev"
+               rel="prev">
+              <div class="md-flex__cell md-flex__cell--shrink">
+                <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+              </div>
+              <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+                <span class="md-flex__ellipsis">
+                  <span
+                      class="md-footer-nav__direction"> Previous </span> XML Reference </span>
+              </div>
+            </a>
+          
+          
+            <a href="../10_DEWE2/DEWE2_Enclosure.html" title="DEWE2 Enclosures"
+               class="md-flex md-footer-nav__link md-footer-nav__link--next"
+               rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
+                class="md-flex__ellipsis"> <span
+                class="md-footer-nav__direction"> Next </span> DEWE2 Enclosures </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink"><i
+                class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          
+        </a>
+        
+      </nav>
+    </div>
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        <div class="md-footer-copyright">
+          <div class="md-footer-copyright__highlight">
+              &#169; Copyright 2021, DEWETRON GmbH.
+              
+          </div>
+            Created using
+            <a href="http://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+             and
+            <a href="https://github.com/bashtage/sphinx-material/">Material for
+              Sphinx</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../_static/javascripts/application.js"></script>
+  <script>app.initialize({version: "1.0.4", url: {base: ".."}})</script>
+  </body>
+</html>

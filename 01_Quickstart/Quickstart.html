@@ -1,0 +1,982 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="lang:clipboard.copy" content="Copy to clipboard">
+  <meta name="lang:clipboard.copied" content="Copied to clipboard">
+  <meta name="lang:search.language" content="en">
+  <meta name="lang:search.pipeline.stopwords" content="True">
+  <meta name="lang:search.pipeline.trimmer" content="True">
+  <meta name="lang:search.result.none" content="No matching documents">
+  <meta name="lang:search.result.one" content="1 matching document">
+  <meta name="lang:search.result.other" content="# matching documents">
+  <meta name="lang:search.tokenizer" content="[\s\-]+">
+
+  
+    <link href="https://fonts.gstatic.com/" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&display=fallback" rel="stylesheet">
+
+    <style>
+      body,
+      input {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif
+      }
+
+      code,
+      kbd,
+      pre {
+        font-family: "Roboto Mono", "Courier New", Courier, monospace
+      }
+    </style>
+  
+
+  <link rel="stylesheet" href="../_static/stylesheets/application.css"/>
+  <link rel="stylesheet" href="../_static/stylesheets/application-palette.css"/>
+  <link rel="stylesheet" href="../_static/stylesheets/application-fixes.css"/>
+  
+  <link rel="stylesheet" href="../_static/fonts/material-icons.css"/>
+  
+  <meta name="theme-color" content="#3f51b5">
+  <script src="../_static/javascripts/modernizr.js"></script>
+  
+  
+  
+    <title>Quickstart &#8212; DEWETRON TRION SDK 6.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/material.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/stylesheets/oxygen_material.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Channel Types" href="../02_ChannelTypes/ChannelTypes.html" />
+    <link rel="prev" title="Preface" href="../00_InformationRights/InformationRights.html" />
+
+
+
+  
+   
+
+  </head>
+  <body dir=ltr
+        data-md-color-primary=blue data-md-color-accent=light-blue>
+  
+  <svg class="md-svg">
+    <defs data-children-count="0">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+      
+    </defs>
+  </svg>
+  
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
+  <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+  <a href="#01_Quickstart/Quickstart" tabindex="1" class="md-skip"> Skip to content </a>
+  <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex navheader">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../index.html" title="DEWETRON TRION SDK 6.0 documentation"
+           class="md-header-nav__button md-logo">
+          
+              <img src="../_static/logo.png" height="26"
+                   alt="DEWETRON TRION SDK 6.0 documentation logo">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          <span class="md-header-nav__topic">DEWETRON TRION SDK</span>
+          <span class="md-header-nav__topic"> Quickstart </span>
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+        
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" action="../search.html" method="get" name="search">
+      <input type="text" class="md-search__input" name="q" placeholder="Search"
+             autocapitalize="off" autocomplete="off" spellcheck="false"
+             data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      
+      
+  
+  <script src="../_static/javascripts/version_dropdown.js"></script>
+  <script>
+    var json_loc = "../"versions.json"",
+        target_loc = "../../",
+        text = "Versions";
+    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
+  </script>
+  
+
+    </div>
+  </nav>
+</header>
+
+  
+  <div class="md-container">
+    
+    
+    
+  <nav class="md-tabs" data-md-component="tabs">
+    <div class="md-tabs__inner md-grid">
+      <ul class="md-tabs__list">
+          <li class="md-tabs__item"><a href="../index.html" class="md-tabs__link">DEWETRON TRION SDK 6.0 documentation</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/products/signal-conditioning/all-trion3-trion-modules/" class="md-tabs__link">TRION & TRION3 Modules</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/products/oxygen-measurement-software/" class="md-tabs__link">OXYGEN Software</a></li>
+            
+            <li class="md-tabs__item"><a href="https://www.dewetron.com/" class="md-tabs__link">DEWETRON Measurement Systems</a></li>
+      </ul>
+    </div>
+  </nav>
+    <main class="md-main">
+      <div class="md-main__inner md-grid" data-md-component="container">
+        
+          <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../index.html" title="DEWETRON TRION SDK 6.0 documentation" class="md-nav__button md-logo">
+      
+        <img src="../_static/logo.png" alt=" logo" width="48" height="48">
+      
+    </a>
+    <a href="../index.html"
+       title="DEWETRON TRION SDK 6.0 documentation">DEWETRON TRION SDK</a>
+  </label>
+  
+
+  
+  <ul class="md-nav__list">
+    <li class="md-nav__item">
+    
+      <span class="md-nav__link caption"><span class="caption-text">Contents</span></span>
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../00_InformationRights/InformationRights.html" class="md-nav__link">Preface</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    <label class="md-nav__link md-nav__link--active" for="__toc"> Quickstart </label>
+    
+      <a href="#" class="md-nav__link md-nav__link--active">Quickstart</a>
+      
+        
+<nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
+  <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#01-quickstart-quickstart--page-root" class="md-nav__link">Quickstart</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#install-trion-api" class="md-nav__link">Install TRION API</a>
+        </li>
+        <li class="md-nav__item"><a href="#start-dewetron-explorer" class="md-nav__link">Start DEWETRON Explorer</a>
+        </li>
+        <li class="md-nav__item"><a href="#get-trion-sdk" class="md-nav__link">Get TRION-SDK</a>
+        </li>
+        <li class="md-nav__item"><a href="#quickstart-example" class="md-nav__link">Quickstart Example</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#quickstart-example-source-code" class="md-nav__link">Quickstart Example Source Code</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#achievements-after-quickstart" class="md-nav__link">Achievements after Quickstart</a>
+        </li>
+        <li class="md-nav__item"><a href="#next-step-acquisition-loop" class="md-nav__link">Next Step: Acquisition Loop</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#quickstart-with-simple-acquisition" class="md-nav__link">Quickstart with simple Acquisition</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#achievements-after-quickstart-with-acquisition" class="md-nav__link">Achievements after Quickstart with Acquisition</a>
+        </li>
+        <li class="md-nav__item"><a href="#what-is-still-missing" class="md-nav__link">What is still missing?</a>
+        </li></ul>
+            </nav>
+        </li>
+  </ul>
+</nav>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../02_ChannelTypes/ChannelTypes.html" class="md-nav__link">Channel Types</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../03_DataAcquisition/DataAcquisition.html" class="md-nav__link">Data Acquisition</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../04_Synchronization/Synchronization.html" class="md-nav__link">Synchronization</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../05_CommandApiReference/CommandApiReference.html" class="md-nav__link">Command Reference</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../06_XMLApiReference/XMLApiReference.html" class="md-nav__link">XML Reference</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../07_TEDS/TEDS.html" class="md-nav__link">TEDS Interface</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../10_DEWE2/DEWE2_Enclosure.html" class="md-nav__link">DEWE2 Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../11_DEWE3/DEWE3_Enclosure.html" class="md-nav__link">DEWE3 Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../12_TRIONet/TRIONet_Enclosure.html" class="md-nav__link">TRIONet Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../13_PUREC/PUREC_Enclosure.html" class="md-nav__link">PUREC Enclosures</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../14_ConnectorBoxes/ConnectorBoxes.html" class="md-nav__link">ConnectorBoxes</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../19_DevelopmentTips/DevelopmentTips.html" class="md-nav__link">Development Tips</a>
+      
+    
+    </li>
+    <li class="md-nav__item">
+    
+    
+      <a href="../20_Support/Support.html" class="md-nav__link">Support</a>
+      
+    
+    </li>
+  </ul>
+  
+
+</nav>
+              </div>
+            </div>
+          </div>
+          <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                
+<nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
+  <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#01-quickstart-quickstart--page-root" class="md-nav__link">Quickstart</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#install-trion-api" class="md-nav__link">Install TRION API</a>
+        </li>
+        <li class="md-nav__item"><a href="#start-dewetron-explorer" class="md-nav__link">Start DEWETRON Explorer</a>
+        </li>
+        <li class="md-nav__item"><a href="#get-trion-sdk" class="md-nav__link">Get TRION-SDK</a>
+        </li>
+        <li class="md-nav__item"><a href="#quickstart-example" class="md-nav__link">Quickstart Example</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#quickstart-example-source-code" class="md-nav__link">Quickstart Example Source Code</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#achievements-after-quickstart" class="md-nav__link">Achievements after Quickstart</a>
+        </li>
+        <li class="md-nav__item"><a href="#next-step-acquisition-loop" class="md-nav__link">Next Step: Acquisition Loop</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#quickstart-with-simple-acquisition" class="md-nav__link">Quickstart with simple Acquisition</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#achievements-after-quickstart-with-acquisition" class="md-nav__link">Achievements after Quickstart with Acquisition</a>
+        </li>
+        <li class="md-nav__item"><a href="#what-is-still-missing" class="md-nav__link">What is still missing?</a>
+        </li></ul>
+            </nav>
+        </li>
+  </ul>
+</nav>
+              </div>
+            </div>
+          </div>
+        
+        <div class="md-content">
+          <article class="md-content__inner md-typeset" role="main">
+            
+  <section id="quickstart">
+<h1 id="01-quickstart-quickstart--page-root">Quickstart<a class="headerlink" href="#01-quickstart-quickstart--page-root" title="Permalink to this headline">¶</a></h1>
+<p>Lets dive in fast! This quickstart guide will get you using the TRION-SDK
+in just a few steps:</p>
+<ol class="arabic simple">
+<li><p>TRION Application package installation</p></li>
+<li><p>Setting a simulated measurement device</p></li>
+<li><p>Use DEWETRON OXYGEN to learn about the device</p></li>
+<li><p>Install TRION-SDK and run the quickstart example</p></li>
+<li><p>Have a look at the example source</p></li>
+</ol>
+<p>Before running the SDK, please install the supported tool-chain (something
+like Visual Studio):</p>
+<ul class="simple">
+<li><p>Visual Studio 2019 or better (for Windows)</p></li>
+<li><p>cmake</p></li>
+</ul>
+<p>The TRION API exports a C interface. TRION SDK contains examples for different
+programming languages though main focus will be on C and C++. The presented
+information will be valid for other languages too.</p>
+<section id="install-trion-api">
+<h2 id="install-trion-api">Install TRION API<a class="headerlink" href="#install-trion-api" title="Permalink to this headline">¶</a></h2>
+<p>The first step is the installation of the DEWETRON TRION Application package.</p>
+<p>It is available on DEWETRON Customer Support portal. It is found under “TRION
+Module Driver and SDK”.</p>
+<p><a class="reference external" href="https://ccc.dewetron.com/pl/dewe3-series">https://ccc.dewetron.com/pl/dewe3-series</a></p>
+<p>After download please run the installer. When using its default settings it
+will install</p>
+<ul class="simple">
+<li><p>TRION API for 32bit and 64bit</p></li>
+<li><p>DEWETRON TRION Driver</p></li>
+<li><p>DEWETRON Explorer</p></li>
+<li><p>DEWETRON DEWE2 Driver</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can omit installation of DEWE2 driver. It is only needed for
+DEWE2 enclosures and may trigger an unnecessary reboot after installation.</p>
+</div>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/trion_api_install_1.png"><img alt="Starting the TRION installer" src="../_images/trion_api_install_1.png" style="width: 5in;"/></a>
+<figcaption>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Starting the TRION installer</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/trion_api_install_2.png"><img alt="TRION installation progress" src="../_images/trion_api_install_2.png" style="width: 5in;"/></a>
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">TRION installation progress</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/trion_api_install_3.png"><img alt="TRION installation complete" src="../_images/trion_api_install_3.png" style="width: 5in;"/></a>
+<figcaption>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">TRION installation complete</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="start-dewetron-explorer">
+<h2 id="start-dewetron-explorer">Start DEWETRON Explorer<a class="headerlink" href="#start-dewetron-explorer" title="Permalink to this headline">¶</a></h2>
+<p>If you are lucky and have DEWETRON TRION hardware available you are ready to
+go. You can start OXYGEN or the quickstart example to test your measurment
+hardware.</p>
+<p>All others have to setup a demo system first. DEWETRON Explorer is the tool
+for this task.</p>
+<p>The app has two different tabs. The Hardware tab displays detected measurement
+devices. This can be local TRION boards or TRIONet devices found in the
+network.</p>
+<p>The demo tab provides functionality to configure a simulated DEWETRON enclosure
+and fill its virtual slots with TRION boards.</p>
+<p>The next steps guide through the procedure:</p>
+<ol class="arabic simple">
+<li><p>Switch to demo tab</p></li>
+<li><p>Select a DEWE3-A4 enclosure</p></li>
+<li><p>Double click on TRION3-1850-MULTI-4-D board to put it into the first free slot</p></li>
+<li><p>Press Save when closing the application.</p></li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You have to close DEWETRON Explorer to have access to the devices
+with other applications. TRION API and device access is mutual exclusive!</p>
+</div>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/dewetron_explorer_1.png"><img alt="DEWETRON Explorer hardware window" src="../_images/dewetron_explorer_1.png" style="width: 5in;"/></a>
+<figcaption>
+<p><span class="caption-number">Fig. 4 </span><span class="caption-text">DEWETRON Explorer hardware window</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/dewetron_explorer_2.png"><img alt="DEWETRON Explorer demo window" src="../_images/dewetron_explorer_2.png" style="width: 5in;"/></a>
+<figcaption>
+<p><span class="caption-number">Fig. 5 </span><span class="caption-text">DEWETRON Explorer demo window</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/dewetron_explorer_3.png"><img alt="Select DEWE3-A4 enclosure simulation" src="../_images/dewetron_explorer_3.png" style="width: 5in;"/></a>
+<figcaption>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Select DEWE3-A4 enclosure simulation</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_images/dewetron_explorer_4.png"><img alt="Select TRION3-1850-MULTI-4-D board" src="../_images/dewetron_explorer_4.png" style="width: 5in;"/></a>
+<figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">Select TRION3-1850-MULTI-4-D board</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Then quit DEWETRON Explorer and press “Save”.
+The “demo” system is now available for all applications.</p>
+<p>You can use this application to configure a simulation of all possible TRION
+based systems.</p>
+<p>Please note that TRION3 boards can only be put into DEWE3 enclosures. The
+simulation follows the rule that only PXIe boards may be put into compatible
+slots. DEWE2 enclosures support PXI only.</p>
+<p>The easiest way to verify your demo system is to install and run OXYGEN:</p>
+<p><a class="reference external" href="https://www.dewetron.com/products/oxygen-measurement-software/">https://www.dewetron.com/products/oxygen-measurement-software/</a></p>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/oxygen_channellist_1.png"><img alt="OXYGEN channel list" src="../_images/oxygen_channellist_1.png" style="width: 5in;"/></a>
+<figcaption>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">OXYGEN channel list</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Why is there an additional CAN and digital I/O connector shown?</p>
+<p>New DEWE3-A4 enclosures feature an internal chassis controller. It provides
+timing functionality, CAN and basic digital IO.</p>
+</section>
+<section id="get-trion-sdk">
+<h2 id="get-trion-sdk">Get TRION-SDK<a class="headerlink" href="#get-trion-sdk" title="Permalink to this headline">¶</a></h2>
+<p>DEWETRON TRION-SDK freely available on GitHub.</p>
+<p>Please clone the repository or download to zip package to try it!</p>
+<p><a class="reference external" href="https://github.com/DEWETRON/TRION-SDK">https://github.com/DEWETRON/TRION-SDK</a></p>
+<p>Enter TRION-SDK workspace, then create the quickstart workspace:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>$ cd trion\CXX
+$ mkdir build
+$ cd build
+$ cmake ..
+-- Selecting Windows SDK version 10.0.18362.0 to target Windows 10.0.19044.
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Development/TRION-SDK/trion/CXX/build
+</pre></div>
+</div>
+<p>Then double click or open the file TRION_SDK_CXX.sln with Visual Studio.</p>
+</section>
+<section id="quickstart-example">
+<h2 id="quickstart-example">Quickstart Example<a class="headerlink" href="#quickstart-example" title="Permalink to this headline">¶</a></h2>
+<p>The “Quickstart” example configures and runs a short measurement in just a
+few steps. It intended to run on the previously configured demo system:
+a DEWE3-A4 with a TRION3-1850-MULTI-4-D in its first slot.
+This example is reduced to the base minimum and does not do any error
+handling or setup optimizations.</p>
+<p>Step 1:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWePxiLoad</span><span class="p">();</span><span class="w"></span>
+<span class="n">DeWeDriverInit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">boards</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>DeWePxiLoad loads the libray but does not do any initialization. It calls
+dlopen and maps all exported C functions.</p>
+<p>DeWeDriverInit initializes API internals. It stores the number of detected
+devices in the <em>boards</em> variable. if the value stored in <em>boards</em> is negative,
+the API indicates that a simulation environment or demo system is active.
+Positive values mean that real hardware is active.</p>
+<p>Step 2:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_OPEN_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_RESET_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_OPEN_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_RESET_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In step 2 the individual boards have to be openend and reset to a valid default
+state. This is done using the DeWeSetParam_i32 function. The first argument a
+index number referencing a dedicated board. With the current demo system the board
+with index 0 is the internal chassis controller. Index 1 references the
+TRION3-1850-MULTI-4-D board.</p>
+<p>After CMD_RESET_BOARD the devices are ready for the next configuration steps.</p>
+<p>Step 3:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"True"</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In this step the first analog channel “AI0” is enabled. The other available
+analog channels are disabled. For this the api function DeWeSetParamStruct_str
+is used. The first argument is the target string referencing the first AI
+channel of the board with index 1. The second argument selects the used
+property, which is set to “True” by the third argument.</p>
+<p>“False” is the second allowed value and it is applied to the other AI channels
+to disable them.</p>
+<p>Step 4:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_BLOCK_SIZE</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_BLOCK_COUNT</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AcqProp"</span><span class="p">,</span><span class="w"> </span><span class="s">"SampleRate"</span><span class="p">,</span><span class="w"> </span><span class="s">"2000"</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Now the acquisition properties have to be configured. CMD_BUFFER_0_BLOCK_SIZE
+and CMD_BUFFER_0_BLOCK_COUNT are used to setup the acuisition buffer for the
+AI channel.</p>
+<p>The sample rate has to be configured by setting the <em>SampleRate</em> property of
+the <em>BoardID1/AcqProp</em> property.</p>
+<p>Step 5:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_UPDATE_PARAM_ALL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Up to this point channel and acquisition configuration was done. But it did not
+apply to the hardware device. The devices are still on the default settings
+made by using CMD_RESET_BOARD.
+The new configuration is applied to the hardware by using CMD_UPDATE_PARAM_ALL.</p>
+<p>Step 6:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_START_ACQUISITION</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Now it is time to start the aquisition. This is done by the command
+CMD_START_ACQUISITION.</p>
+<p>Usually this is done before entering a acqisition loop processing the
+measured samples.</p>
+<p>Step 7:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeGetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_AVAIL_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">avail_samples</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeGetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_FREE_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">avail_samples</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Just read the number of samples stored in the buffer since
+CMD_START_ACQUISITION. After processing the samples, the application has
+to free them with CMD_BUFFER_0_FREE_NO_SAMPLE to free buffer memory for new
+samples.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please note that the acquisition loop is missing in this example.
+It will be shown in following examples.</p>
+</div>
+<p>Step 8:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_STOP_ACQUISITION</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>CMD_STOP_ACQUISITION is used to end acquisition and therefore the measurement.
+No new samples will be stored in the buffer.</p>
+<p>Step 9:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_CLOSE_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_CLOSE_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeDriverDeInit</span><span class="p">();</span><span class="w"></span>
+<span class="n">DeWePxiUnload</span><span class="p">();</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Close the boards and uninitialize the API.</p>
+<section id="quickstart-example-source-code">
+<h3 id="quickstart-example-source-code">Quickstart Example Source Code<a class="headerlink" href="#quickstart-example-source-code" title="Permalink to this headline">¶</a></h3>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-number">Listing 1 </span><span class="caption-text">Quickstart example</span><a class="headerlink" href="#id9" title="Permalink to this code">¶</a></div>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"dewepxi_load.h"</span><span class="cp"></span>
+<span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"dewepxi_apicore.h"</span><span class="cp"></span>
+<span class="linenos"> 3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"dewepxi_apiutil.h"</span><span class="cp"></span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"></span>
+<span class="linenos"> 7</span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 8</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">boards</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 9</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">avail_samples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="w">    </span><span class="c1">// Step 1 : Basic SDK Initialization</span>
+<span class="linenos">12</span><span class="w">    </span><span class="n">DeWePxiLoad</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="w">    </span><span class="c1">// boards is negative for simulation</span>
+<span class="linenos">15</span><span class="w">    </span><span class="n">DeWeDriverInit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">boards</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="w">    </span><span class="c1">// Step 2: Open boards</span>
+<span class="linenos">18</span><span class="w">    </span><span class="c1">// 0: chassis controller</span>
+<span class="linenos">19</span><span class="w">    </span><span class="c1">// 1: TRION3-1850-MULTI</span>
+<span class="linenos">20</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_OPEN_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">21</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_RESET_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">22</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_OPEN_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">23</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_RESET_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="w">    </span><span class="c1">// Step 3: Enable AI0 channel on board 1, disable all other</span>
+<span class="linenos">26</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"True"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">27</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI1"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"False"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">28</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI2"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"False"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">29</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI3"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"False"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="w">    </span><span class="c1">// Step 4: Configure acquisition properties</span>
+<span class="linenos">32</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_BLOCK_SIZE</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">33</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_BLOCK_COUNT</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">34</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AcqProp"</span><span class="p">,</span><span class="w"> </span><span class="s">"SampleRate"</span><span class="p">,</span><span class="w"> </span><span class="s">"2000"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">35</span>
+<span class="linenos">36</span><span class="w">    </span><span class="c1">// Step 5: Apply settings</span>
+<span class="linenos">37</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_UPDATE_PARAM_ALL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="w">    </span><span class="c1">// Step 6: Start acquisition</span>
+<span class="linenos">40</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_START_ACQUISITION</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">41</span>
+<span class="linenos">42</span><span class="w">    </span><span class="c1">// Step 7: Measurement loop and sample processing</span>
+<span class="linenos">43</span><span class="w">    </span>
+<span class="linenos">44</span><span class="w">    </span><span class="c1">// This example is only shows howto get the number of samples available</span>
+<span class="linenos">45</span><span class="w">    </span><span class="c1">// and howto free them:</span>
+<span class="linenos">46</span>
+<span class="linenos">47</span><span class="w">    </span><span class="c1">// sleep for a short period, then:</span>
+<span class="linenos">48</span><span class="w">    </span><span class="n">DeWeGetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_AVAIL_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">avail_samples</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">49</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_FREE_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="n">avail_samples</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">50</span>
+<span class="linenos">51</span><span class="w">    </span><span class="c1">// Step 8: Stop acquisition</span>
+<span class="linenos">52</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_STOP_ACQUISITION</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">53</span>
+<span class="linenos">54</span><span class="w">    </span><span class="c1">// Step 9: Free boards and unload SDK</span>
+<span class="linenos">55</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_CLOSE_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">56</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_CLOSE_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">57</span><span class="w">    </span><span class="n">DeWeDriverDeInit</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">58</span><span class="w">    </span><span class="n">DeWePxiUnload</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">59</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">60</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Running the example is possible, but it generates no output.
+Its only purpose is to explain the setup.</p>
+</div>
+</section>
+</section>
+<section id="achievements-after-quickstart">
+<h2 id="achievements-after-quickstart">Achievements after Quickstart<a class="headerlink" href="#achievements-after-quickstart" title="Permalink to this headline">¶</a></h2>
+<p>Congratulations! With the help of this chapter you installed a
+working toolchain. Using DEWETRON explorer you configured a demo
+system. You validated the system using DEWETRON OXYGEN where you
+had a look at the different channels your measurement board provided.</p>
+<p>You generated a solution for Visual Studio and compiled the Quickstart
+example. You read about the highlighted steps of the example.</p>
+<p>You even run the example! Even though it didnt do a lot :-).</p>
+</section>
+<section id="next-step-acquisition-loop">
+<h2 id="next-step-acquisition-loop">Next Step: Acquisition Loop<a class="headerlink" href="#next-step-acquisition-loop" title="Permalink to this headline">¶</a></h2>
+<p>Have a look at the next example: QuickstartAcq.cpp</p>
+<p>This example improves on the first one by implementing a simple acquisition
+loop.</p>
+<p>After CMD_UPDATE_PARAM_ALL was used to apply the settings made,
+the necessary sample buffer parameters have to be requested.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeGetParam_i64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_END_POINTER</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buf_end_pos</span><span class="p">);</span><span class="w"></span>
+<span class="n">DeWeGetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_TOTAL_MEM_SIZE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buff_size</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Also supported is CMD_BUFFER_0_END_POINTER to retrieve a pointer to
+the buffer start. But it is not necessary to implement the buffer
+wrap around handling and therefore not used.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The samples are stored in a ring buffer. When iterating the buffer
+you have to look for the buffer end and implement the wrap around handling.</p>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeGetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_AVAIL_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">avail_samples</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Just read the number of samples stored in the buffer since
+CMD_START_ACQUISITION.
+if avail_samples is zero you can continue with the next loop iteration.
+A call to <em>Sleep</em> is optional.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeGetParam_i64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_ACT_SAMPLE_POS</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">read_pos</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>With CMD_BUFFER_0_ACT_SAMPLE_POS we get the address of the oldest unprocessed
+sample.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">avail_samples</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Handle the ring buffer wrap around</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_pos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">buf_end_pos</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">read_pos</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">buff_size</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">read_pos_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reinterpret_cast</span><span class="o">&lt;</span><span class="n">sint32</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">read_pos</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">sample_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">read_pos_ptr</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"AI0: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">dec</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">sample_value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"   "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">hex</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">sample_value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This loop iterates all the samples. <em>read_pos</em> has to be cast to a pointer
+to able to read from the sample position. i is added to the pointer to reach and
+read all samples.</p>
+<p><em>read_pos</em> has to be compared to <em>buf_end_pos</em>. If this boundary is reached
+<em>buff_size</em> has to be subtracted to return to the start of the buffer.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_FREE_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="n">avail_samples</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>After the inner loop completed, free the ring buffer with
+CMD_BUFFER_FREE_NO_SAMPLE. If you do not free the ring buffer
+it will get full and the acquisition will stop with a buffer
+overflow error.</p>
+<p>Everthing else is identically to the first quickstart example.</p>
+<section id="quickstart-with-simple-acquisition">
+<h3 id="quickstart-with-simple-acquisition">Quickstart with simple Acquisition<a class="headerlink" href="#quickstart-with-simple-acquisition" title="Permalink to this headline">¶</a></h3>
+<div class="literal-block-wrapper docutils container" id="id10">
+<div class="code-block-caption"><span class="caption-number">Listing 2 </span><span class="caption-text">Quickstart example with simple acquisition loop</span><a class="headerlink" href="#id10" title="Permalink to this code">¶</a></div>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"dewepxi_load.h"</span><span class="cp"></span>
+<span class="linenos">  2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"dewepxi_apicore.h"</span><span class="cp"></span>
+<span class="linenos">  3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"dewepxi_apiutil.h"</span><span class="cp"></span>
+<span class="linenos">  4</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="linenos">  5</span>
+<span class="linenos">  6</span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"></span>
+<span class="linenos">  7</span><span class="p">{</span><span class="w"></span>
+<span class="linenos">  8</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">boards</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">  9</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">avail_samples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 10</span><span class="w">    </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">buf_end_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">        </span><span class="c1">// Last position in the ring buffer</span>
+<span class="linenos"> 11</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">buff_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">              </span><span class="c1">// Total size of the ring buffer</span>
+<span class="linenos"> 12</span>
+<span class="linenos"> 13</span><span class="w">    </span><span class="c1">// Basic SDK Initialization</span>
+<span class="linenos"> 14</span><span class="w">    </span><span class="n">DeWePxiLoad</span><span class="p">();</span><span class="w"></span>
+<span class="linenos"> 15</span>
+<span class="linenos"> 16</span><span class="w">    </span><span class="c1">// boards is negative for simulation</span>
+<span class="linenos"> 17</span><span class="w">    </span><span class="n">DeWeDriverInit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">boards</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 18</span>
+<span class="linenos"> 19</span><span class="w">    </span><span class="c1">// Open boards</span>
+<span class="linenos"> 20</span><span class="w">    </span><span class="c1">// 0: chassis controller</span>
+<span class="linenos"> 21</span><span class="w">    </span><span class="c1">// 1: TRION3-1850-MULTI</span>
+<span class="linenos"> 22</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_OPEN_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 23</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_RESET_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 24</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_OPEN_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 25</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_RESET_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 26</span>
+<span class="linenos"> 27</span><span class="w">    </span><span class="c1">// Enable AI0 channel on board 1, disable all other</span>
+<span class="linenos"> 28</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI0"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"True"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 29</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI1"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"False"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 30</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI2"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"False"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 31</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AI3"</span><span class="p">,</span><span class="w"> </span><span class="s">"Used"</span><span class="p">,</span><span class="w"> </span><span class="s">"False"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 32</span>
+<span class="linenos"> 33</span><span class="w">    </span><span class="c1">// Configure acquisition properties</span>
+<span class="linenos"> 34</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_BLOCK_SIZE</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 35</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_BLOCK_COUNT</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 36</span><span class="w">    </span><span class="n">DeWeSetParamStruct_str</span><span class="p">(</span><span class="s">"BoardID1/AcqProp"</span><span class="p">,</span><span class="w"> </span><span class="s">"SampleRate"</span><span class="p">,</span><span class="w"> </span><span class="s">"100"</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 37</span>
+<span class="linenos"> 38</span><span class="w">    </span><span class="c1">// Apply settings</span>
+<span class="linenos"> 39</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_UPDATE_PARAM_ALL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 40</span>
+<span class="linenos"> 41</span><span class="w">    </span><span class="c1">// Get buffer configuration</span>
+<span class="linenos"> 42</span><span class="w">    </span><span class="n">DeWeGetParam_i64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_END_POINTER</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buf_end_pos</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 43</span><span class="w">    </span><span class="n">DeWeGetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_TOTAL_MEM_SIZE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buff_size</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 44</span>
+<span class="linenos"> 45</span><span class="w">    </span><span class="c1">// Start acquisition</span>
+<span class="linenos"> 46</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_START_ACQUISITION</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 47</span>
+<span class="linenos"> 48</span><span class="w">    </span><span class="c1">// Measurement loop and sample processing</span>
+<span class="linenos"> 49</span><span class="w">    </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">read_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 50</span><span class="w">    </span><span class="kt">int32_t</span><span class="o">*</span><span class="w"> </span><span class="n">read_pos_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 51</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sample_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 52</span>
+<span class="linenos"> 53</span><span class="w">    </span><span class="c1">// Break with CTRL+C only</span>
+<span class="linenos"> 54</span><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 55</span><span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 56</span><span class="w">        </span><span class="c1">// Get the number of samples available</span>
+<span class="linenos"> 57</span><span class="w">        </span><span class="n">DeWeGetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_AVAIL_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">avail_samples</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 58</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">avail_samples</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 59</span><span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 60</span><span class="w">            </span><span class="n">Sleep</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 61</span><span class="w">            </span><span class="k">continue</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 62</span><span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="linenos"> 63</span>
+<span class="linenos"> 64</span><span class="w">        </span><span class="c1">// Get the current read pointer</span>
+<span class="linenos"> 65</span><span class="w">        </span><span class="n">DeWeGetParam_i64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_ACT_SAMPLE_POS</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">read_pos</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 66</span>
+<span class="linenos"> 67</span><span class="w">        </span><span class="c1">// Read the current samples from the ring buffer</span>
+<span class="linenos"> 68</span><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">avail_samples</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 69</span><span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 70</span><span class="w">            </span><span class="c1">// Handle the ring buffer wrap around</span>
+<span class="linenos"> 71</span><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_pos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">buf_end_pos</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 72</span><span class="w">            </span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 73</span><span class="w">                </span><span class="n">read_pos</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">buff_size</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 74</span><span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="linenos"> 75</span>
+<span class="linenos"> 76</span><span class="w">            </span><span class="c1">// read_pos a variable containing the address of the first sample</span>
+<span class="linenos"> 77</span><span class="w">            </span><span class="c1">// of the new block.</span>
+<span class="linenos"> 78</span><span class="w">            </span><span class="c1">// It is necessary to cast it to a pointer (reinterpret_cast in C++)</span>
+<span class="linenos"> 79</span><span class="w">            </span><span class="c1">// nd to add i to process all samples.</span>
+<span class="linenos"> 80</span><span class="w">            </span><span class="n">read_pos_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">sint32</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">read_pos</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 81</span><span class="w">            </span><span class="n">sample_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">read_pos_ptr</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 82</span>
+<span class="linenos"> 83</span><span class="w">            </span><span class="c1">// Warning: This will not work for multiple AI channels with</span>
+<span class="linenos"> 84</span><span class="w">            </span><span class="c1">// 24Bit resolution</span>
+<span class="linenos"> 85</span><span class="w">            </span><span class="c1">// Please have a look at the acq with scan_descriptor example.</span>
+<span class="linenos"> 86</span>
+<span class="linenos"> 87</span><span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"AI0: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">dec</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">sample_value</span><span class="w"> </span>
+<span class="linenos"> 88</span><span class="w">                      </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"     "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">hex</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">sample_value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 89</span><span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="linenos"> 90</span>
+<span class="linenos"> 91</span><span class="w">        </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_BUFFER_0_FREE_NO_SAMPLE</span><span class="p">,</span><span class="w"> </span><span class="n">avail_samples</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 92</span><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="linenos"> 93</span>
+<span class="linenos"> 94</span>
+<span class="linenos"> 95</span><span class="w">    </span><span class="c1">// Stop acquisition</span>
+<span class="linenos"> 96</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_STOP_ACQUISITION</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 97</span>
+<span class="linenos"> 98</span><span class="w">    </span><span class="c1">// Free boards and unload SDK</span>
+<span class="linenos"> 99</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_CLOSE_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">100</span><span class="w">    </span><span class="n">DeWeSetParam_i32</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CMD_CLOSE_BOARD</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">101</span><span class="w">    </span><span class="n">DeWeDriverDeInit</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">102</span><span class="w">    </span><span class="n">DeWePxiUnload</span><span class="p">();</span><span class="w"></span>
+<span class="linenos">103</span>
+<span class="linenos">104</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">105</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="achievements-after-quickstart-with-acquisition">
+<h2 id="achievements-after-quickstart-with-acquisition">Achievements after Quickstart with Acquisition<a class="headerlink" href="#achievements-after-quickstart-with-acquisition" title="Permalink to this headline">¶</a></h2>
+<p>Using QuickstartAcq we implement our first measurement application
+using one volatge channel.</p>
+<p>Now we got an output like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ ./quickstart/Debug/QuickstartAcq.exe
+AI0: 0   0
+AI0: 421379   66e03
+AI0: 841096   cd588
+AI0: 1257494   133016
+AI0: 1668929   197741
+AI0: 2073777   1fa4b1
+AI0: 2470441   25b229
+AI0: 2857356   2b998c
+</pre></div>
+</div>
+<p>A list of the raw sample values. One column in decimal, the other in
+hexadecimal.</p>
+</section>
+<section id="what-is-still-missing">
+<h2 id="what-is-still-missing">What is still missing?<a class="headerlink" href="#what-is-still-missing" title="Permalink to this headline">¶</a></h2>
+<p>The example accessed the samples using CMD_BUFFER_0_ACT_SAMPLE_POS and
+pointer arithmetic. The algorithm for access the samples is board
+dependent. Please not that 24bit samples of a TRION-2402-dACC are packed
+a differentway in comparison to a TRION3-1850-MULTI. So a readout function
+for one board may not work for another type.</p>
+<p>There is a solution for that: The next example QuickstartAcq introduces
+a new concept, the <strong>scan descriptor</strong>. Its a set of rules telling you
+how the samples are organized in the sample ringbuffer. If an application
+implements and follows the rules, it is able to access the sample buffer in
+generic way that is guaranteed to work for all TRION and TRION3 boards.</p>
+<p>An example explaning the scan descripter is <em>QuickstartAcqScanDesc</em>.</p>
+<p><em>QuickstartAcqScanDescScaled</em> further extends the example showing
+a way how range scaling can be implemented.</p>
+<p>The scan descriptor concept itself is explaind in chapter
+<a class="reference internal" href="../03_DataAcquisition/DataAcquisition.html#data-aquisition-scan-descriptor"><span class="std std-ref">Data Acquisition Scan Descriptor</span></a></p>
+</section>
+</section>
+
+
+          </article>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer class="md-footer">
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+          
+            <a href="../00_InformationRights/InformationRights.html" title="Preface"
+               class="md-flex md-footer-nav__link md-footer-nav__link--prev"
+               rel="prev">
+              <div class="md-flex__cell md-flex__cell--shrink">
+                <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+              </div>
+              <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+                <span class="md-flex__ellipsis">
+                  <span
+                      class="md-footer-nav__direction"> Previous </span> Preface </span>
+              </div>
+            </a>
+          
+          
+            <a href="../02_ChannelTypes/ChannelTypes.html" title="Channel Types"
+               class="md-flex md-footer-nav__link md-footer-nav__link--next"
+               rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
+                class="md-flex__ellipsis"> <span
+                class="md-footer-nav__direction"> Next </span> Channel Types </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink"><i
+                class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          
+        </a>
+        
+      </nav>
+    </div>
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        <div class="md-footer-copyright">
+          <div class="md-footer-copyright__highlight">
+              &#169; Copyright 2021, DEWETRON GmbH.
+              
+          </div>
+            Created using
+            <a href="http://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+             and
+            <a href="https://github.com/bashtage/sphinx-material/">Material for
+              Sphinx</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../_static/javascripts/application.js"></script>
+  <script>app.initialize({version: "1.0.4", url: {base: ".."}})</script>
+  </body>
+</html>
