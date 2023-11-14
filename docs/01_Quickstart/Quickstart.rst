@@ -11,8 +11,8 @@ Quickstart
 ..   Focus on C or C++?
 
 
-Lets dive in fast! This quickstart guide will get you using the TRION-SDK
-in just a few steps:
+This quickstart guide will get you using the TRION-SDK
+and building an example in just a few steps:
 
 1. TRION Application package installation
 2. Setting a simulated measurement device
@@ -23,7 +23,7 @@ in just a few steps:
 Before running the SDK, please install the supported tool-chain (something
 like Visual Studio):
 
-* Visual Studio 2019 or better (for Windows)
+* Visual Studio 2022 or better (for Windows)
 * cmake
 
 The TRION API exports a C interface. TRION SDK contains examples for different
@@ -43,10 +43,9 @@ Install TRION API
 
 The first step is the installation of the DEWETRON TRION Application package.
 
-It is available on DEWETRON Customer Support portal. It is found under "TRION
-Module Driver and SDK".
+It is available on DEWETRON Customer Support portal:
 
-https://ccc.dewetron.com/pl/dewe3-series
+https://ccc.dewetron.com/pl/trion-3-modules
 
 
 After download please run the installer. When using its default settings it
@@ -84,8 +83,8 @@ will install
 
 
 
-Start DEWETRON Explorer
------------------------
+DEWETRON Explorer
+-----------------
 
 .. show GUI
 .. show simulation tab
@@ -162,6 +161,10 @@ simulation follows the rule that only PXIe boards may be put into compatible
 slots. DEWE2 enclosures support PXI only.
 
 
+
+DEWETRON Oxygen
+---------------
+
 The easiest way to verify your demo system is to install and run OXYGEN:
 
 https://www.dewetron.com/products/oxygen-measurement-software/
@@ -174,7 +177,7 @@ https://www.dewetron.com/products/oxygen-measurement-software/
     OXYGEN channel list
 
 
-Why is there an additional CAN and digital I/O connector shown?
+*Why is there an additional CAN and digital I/O connector shown?*
 
 New DEWE3-A4 enclosures feature an internal chassis controller. It provides
 timing functionality, CAN and basic digital IO.
