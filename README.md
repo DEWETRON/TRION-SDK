@@ -10,14 +10,15 @@ A development environment allowing to directly access DEWETRON hardware:
 * DEWETRON TRION3 PXIe boards
 * DEWETRON TRIONet devices
 * DEWETRON PUREC devices
+* DEWETRON NEXDAQ devices
 
 
 # NEWS
 
 New DEWETRON TRION API package:
 
-* 2022-04-05 Release of TRION API R6.1.0 
-* 2022-04-05 Release of TRIONET FIRMWARE R6.1.0 
+* 2023-10-23 Release of TRION API R6.7.1
+* 2023-10-23 Release of TRIONET FIRMWARE R6.7.1
 
 Get those for optimal results.
 
@@ -27,7 +28,7 @@ To use the DEWETRION TRION SDK you need a current TRION API installation.
 The TRION Application installer is available on DEWETRON's customer care center:
 
 TRION Application Installer:
-https://ccc.dewetron.com/pl/dewe3-series
+https://ccc.dewetron.com/pl/trion-3-modules
 
 TRIONET Firmware:
 https://ccc.dewetron.com/pr/trionet
