@@ -1,0 +1,21 @@
+name: Build Trion SDK C/C++ examples
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Configure CMake C Examples
+      run: cmake -B ${{github.workspace}}/build_c -DCMAKE_BUILD_TYPE=Release trion/C
+    - name: Build C Examples
+      run: cmake --build ${{github.workspace}}/build_c --target all --parallel
+    - name: Configure CMake C++ Examples
+      run: cmake -B ${{github.workspace}}/build_cxx -DCMAKE_BUILD_TYPE=Release trion/CCC
+    - name: Build C++ Examples
+      run: cmake --build ${{github.workspace}}/build_cxx --target all --parallel
