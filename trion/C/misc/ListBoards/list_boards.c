@@ -210,6 +210,14 @@ int doListBoards()
     nErrorCode = GetApiPath(TRION_BACKUP_PATH, sPath, sizeof(sPath));
     if (ERR_NONE == nErrorCode) printf("Trion API backup path : %s\n", sPath);
 
+    // enclosure info
+    {
+        char sEncName[32] = {0};
+        snprintf(sBoardID, sizeof(sBoardID), "BoardID%d/boardproperties/SystemInfo/EnclosureInfo", 0);
+        nErrorCode = DeWeGetParamXML_str(sBoardID, "Name", sEncName, sizeof(sEncName));
+        CheckError(nErrorCode); 
+        printf("Enclosure name: %s\n", sEncName);
+    }
 
     printf("%-7s %-7s %-8s %-30s %s\n", "EncID", "SlotNo[i]", "BoardID", "Name", "SerialNo");
     printf("------------------------------------------------------------------------\n");
@@ -250,6 +258,7 @@ int doListBoards()
             }
         }
     }
+
 
     // iterate all boards
     for (nBoardID = 0; nBoardID < nNoOfBoards; ++nBoardID)

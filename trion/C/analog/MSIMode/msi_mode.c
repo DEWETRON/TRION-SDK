@@ -21,6 +21,9 @@
 
 //needed Board-Type for this example
 const char* sBoardNameNeeded[] = {  "TRION-2402-MULTI",
+                                    "TRION-1850-MULTI",
+                                    "TRION3-1820-MULTI",
+                                    "TRION3-1850-MULTI",
                                     NULL};
 
 
@@ -139,7 +142,8 @@ int main(int argc, char* argv[])
 
     snprintf(sTarget, sizeof(sTarget), "%s/AI%d", sBoardId, nChannelNo);
     //snprintf(sTarget, sizeof(sTarget), "%s/AIALL", sBoardId);
-    nErrorCode = DeWeSetParamStruct_str( sTarget, "Mode", "MSI-BR-TH-B");
+    nErrorCode = DeWeSetParamStruct_str( sTarget, "Mode", "MSI-BR-LVDT");
+    //nErrorCode = DeWeSetParamStruct_str(sTarget, "Mode", "MSI-BR-CH-5-V2");
     CheckError(nErrorCode);
     // Enable Linearization with desired LinTable
     //"PTX" Default PT100 Tanble;   "PT_TEST" -> Custom Table;  "NONE" -> Linearization OFF;
@@ -147,8 +151,8 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParamStruct_str( sTarget, "Used", "True");
     CheckError(nErrorCode);
-    nErrorCode = DeWeSetParamStruct_str( sTarget, "Range", sRangeStr);
-    CheckError(nErrorCode);
+    //nErrorCode = DeWeSetParamStruct_str( sTarget, "Range", sRangeStr);
+    //CheckError(nErrorCode);
 
 #if 0
     nErrorCode = DeWeSetParamStruct_str(sTarget, "SensorRes0", "200 Ohm");
@@ -169,6 +173,7 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
 
     // Update Properties and Start Acquisition ..
+
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_UPDATE_PARAM_ALL, 0);
     CheckError(nErrorCode);
 

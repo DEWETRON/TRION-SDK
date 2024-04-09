@@ -441,7 +441,7 @@ int setupOffsetCompensation(
     startpos = strstr(raw_xml, "<Offset");
     startpos = strstr(startpos, ">") + 1;
     endpos = strchr(startpos, '<');
-    memcpy( &offsetstr_raw[0], startpos, MIN((endpos-startpos), sizeof(offsetstr_raw)-1));
+    memcpy( &offsetstr_raw[0], startpos, min((endpos-startpos), sizeof(offsetstr_raw)-1));
     printf(" Offset = %s\n", offsetstr_raw);
     snprintf( offsetstr, sizeof(offsetstr), "%s %s", offsetstr_raw, unit_str);
 

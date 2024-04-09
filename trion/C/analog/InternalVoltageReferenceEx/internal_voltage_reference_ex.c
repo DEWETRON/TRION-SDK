@@ -315,12 +315,12 @@ int main(int argc, char* argv[])
 
                 if (( loopcount > targetloopcount ) /*&& (AvgSamples < 200)*/)
                 {
-                    fminAbs = MIN(fVal, fminAbs);
-                    fmaxAbs = MAX(fVal, fmaxAbs);
+                    fminAbs = min(fVal, fminAbs);
+                    fmaxAbs = max(fVal, fmaxAbs);
                     fAvgTotal += (fVal - fAvgTotal)/(AvgSamples+1);
 
-                    fminBlk = MIN(fVal, fminAbs);
-                    fmaxBlk = MAX(fVal, fmaxAbs);
+                    fminBlk = min(fVal, fminAbs);
+                    fmaxBlk = max(fVal, fmaxAbs);
                     fAvgBlk += (fVal - fAvgBlk)/(AvgSamplesBlk+1);
 
                     ++AvgSamples;
