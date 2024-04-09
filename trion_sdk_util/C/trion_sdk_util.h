@@ -83,6 +83,28 @@ BOOL ARG_GetChannelNo(int argc, char **argv, int nNoOfBoards, int *ChannelNo);
 BOOL ARG_GetChannelNoEX(int argc, char **argv, int nNoOfBoards, int *ChannelNo1, int *ChannelNo2);
 
 /**
+ * Check for the given option in the form "--option value".
+ * Use this function like this ARG_GetOption(argc, argv, "--option", buffer, sizeof(buffer)).
+ * @param argc program argument count
+ * @param argv array of program arguments
+ * @param param is the name of the option. Prefixes have to be part of the string.
+ * @param value is the value of the option ( a string buffer)
+ * @param value_size is the size of the string buffer.
+ * @return TRUE is the the option was found and a value returned.
+ */
+BOOL ARG_GetOption(int argc, char** argv, const char* param, char* value, size_t value_size);
+
+/**
+ * Check for the given boolean option in the form "--option".
+ * Use this function like this ARG_GetOption(argc, argv, "--option", buffer, sizeof(buffer)).
+ * @param argc program argument count
+ * @param argv array of program arguments
+ * @param param is the name of the option. Prefixes have to be part of the string.
+ * @return TRUE is the the option was found and a value returned.
+ */
+BOOL ARG_GetBooleanOption(int argc, char** argv, const char* param);
+
+/**
 * If the board given by BoardID is a board that can be used for this example.
 * The comparison is only performed on the length of the entries in the list (so it can be fuzzy).
 * Example: "TRION-2402-dSTG" will accept all installed connector-panel types of TRION-dSTG boards like
@@ -92,8 +114,6 @@ BOOL ARG_GetChannelNoEX(int argc, char **argv, int nNoOfBoards, int *ChannelNo1,
 * @return TRUE if the board matches the list.
 */
 BOOL TestBoardType( int nBoardID, const char **sBoardNameNeeded );
-
-
 
 
 typedef struct ScaleInfo_tag
