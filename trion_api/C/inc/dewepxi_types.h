@@ -1,6 +1,10 @@
 /*
-Type - Definitions Used externaly as well...
-*/
+ * Copyright (c) 2013 DEWETRON
+ * License: MIT
+ * 
+ * API interface type definitions
+ */
+
 
 #ifndef __DEWEPXI_TYPES_H
 #define __DEWEPXI_TYPES_H

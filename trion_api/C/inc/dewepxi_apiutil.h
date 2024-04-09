@@ -1,4 +1,9 @@
-// Copyright (c) Dewetron 2013
+/*
+ * Copyright (c) 2013 DEWETRON
+ * License: MIT
+ * 
+ * Optional SDK utility functions.
+ */
 
 #ifndef _DEWEPXI_APIUTIL_H_
 #define _DEWEPXI_APIUTIL_H_
@@ -31,12 +36,14 @@
  #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
+#if _MSC_VER < 1900
 #ifndef snprintf
 #define snprintf _c99_snprintf
 #endif
 
 #ifndef vsnprintf
 #define vsnprintf _c99_vsnprintf
+#endif
 #endif
 
 #ifndef stricmp

@@ -1,6 +1,9 @@
-//DewePXI_apiCore.h
-//API core Interface
-//
+/*
+ * Copyright (c) 2018 DEWETRON
+ * License: MIT
+ * 
+ * Private header: Do not include directly!
+ */
 
 #ifndef DewePXI_apiCore_h__
 #define DewePXI_apiCore_h__
@@ -23,7 +26,7 @@
 # endif
 #endif
 
-//for C++ - compliance.
+// API functions "export" or not
 #ifndef __DEWE_PXI_LOAD
     // declare symbols
     #undef RTLOAD
@@ -33,6 +36,12 @@
     #undef RTLOAD
 	#define RTLOAD
 #endif
+
+#ifdef DEWE_PXI_SYMBOLS_EXTERN
+    #undef RTLOAD
+    #define RTLOAD	extern
+#endif
+
 
 #ifndef STATIC_DLL
 
@@ -97,6 +106,18 @@ typedef const char* (RT_IMPORT *PDEWEERRORCONSTANTTOSTRING) ( int );
 
 //###############################################################################################################################################
 
+#ifdef __cplusplus
+#  ifdef DEWE_PXI_NS
+#    ifdef DEWE_PXI_NS_NAME
+namespace DEWE_PXI_NS_NAME {
+    #error 1
+#    else
+namespace trion_c_api {
+
+#    endif
+#  endif
+#endif
+
 // Driver Init
 RTLOAD PDEWEDRIVERINIT				DeWeDriverInit;
 RTLOAD PDEWEDRIVERDEINIT			DeWeDriverDeInit;
@@ -155,7 +176,11 @@ RTLOAD PDEWEWRITEDMAUART			DeWeWriteDmaUart;
 // Obtain readable ErrorMessage from ErroCode
 RTLOAD PDEWEERRORCONSTANTTOSTRING		DeWeErrorConstantToString;
 
-
+#ifdef __cplusplus
+#  ifdef DEWE_PXI_NS
+}
+#  endif
+#endif
 
 #else
 
