@@ -11,11 +11,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Configure CMake C Examples
-      run: cmake -B ${{github.workspace}}/build_c -DCMAKE_BUILD_TYPE=Release trion/C
     - name: Build C Examples
-      run: cmake --build ${{github.workspace}}/build_c --target all --parallel
-    - name: Configure CMake C++ Examples
-      run: cmake -B ${{github.workspace}}/build_cxx -DCMAKE_BUILD_TYPE=Release trion/CXX
+      run: |
+        cmake -B ${{github.workspace}}/build_c -DCMAKE_BUILD_TYPE=Release trion/C
+        cmake --build ${{github.workspace}}/build_c --target all --parallel
     - name: Build C++ Examples
-      run: cmake --build ${{github.workspace}}/build_cxx --target all --parallel
+      run: |
+        cmake -B ${{github.workspace}}/build_cxx -DCMAKE_BUILD_TYPE=Release trion/CXX
+        cmake --build ${{github.workspace}}/build_cxx --target all --parallel
+    - name: Build TRIONET C Examples
+      run: |
+        cmake -B ${{github.workspace}}/build_trionet_c -DCMAKE_BUILD_TYPE=Release trionet/C
+        cmake --build ${{github.workspace}}/build_trionet_c --target all --parallel
