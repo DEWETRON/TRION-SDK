@@ -16,6 +16,6 @@ jobs:
     - name: Build C Examples
       run: cmake --build ${{github.workspace}}/build_c --target all --parallel
     - name: Configure CMake C++ Examples
-      run: cmake -B ${{github.workspace}}/build_cxx -DCMAKE_BUILD_TYPE=Release trion/CCC
+      run: cmake -B ${{github.workspace}}/build_cxx -DCMAKE_BUILD_TYPE=Release trion/CXX
     - name: Build C++ Examples
       run: cmake --build ${{github.workspace}}/build_cxx --target all --parallel
