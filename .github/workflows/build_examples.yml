@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-20.04]
+        os: [ubuntu-22.04, ubuntu-20.04, windows-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -18,12 +18,12 @@ jobs:
     - name: Build C Examples
       run: |
         cmake -B ${{github.workspace}}/build_c -DCMAKE_BUILD_TYPE=Release trion/C
-        cmake --build ${{github.workspace}}/build_c --target all --parallel
+        cmake --build ${{github.workspace}}/build_c --parallel
     - name: Build C++ Examples
       run: |
         cmake -B ${{github.workspace}}/build_cxx -DCMAKE_BUILD_TYPE=Release trion/CXX
-        cmake --build ${{github.workspace}}/build_cxx --target all --parallel
+        cmake --build ${{github.workspace}}/build_cxx --parallel
     - name: Build TRIONET C Examples
       run: |
         cmake -B ${{github.workspace}}/build_trionet_c -DCMAKE_BUILD_TYPE=Release trionet/C
-        cmake --build ${{github.workspace}}/build_trionet_c --target all --parallel
+        cmake --build ${{github.workspace}}/build_trionet_c --parallel
