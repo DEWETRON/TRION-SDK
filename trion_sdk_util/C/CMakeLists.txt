@@ -17,7 +17,7 @@ if (USECXX)
 endif()
 
 target_link_libraries(${LIBNAME}
-  trion_api_inc
+  trion_api_interface
   )
 
 if (TRION_STATIC_LIB)
