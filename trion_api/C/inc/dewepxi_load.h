@@ -1,8 +1,8 @@
 /*
 Header file for automatic function loading
 */
-#ifndef __DEWE_PXI_LOAD
-#define __DEWE_PXI_LOAD
+#ifndef __DEWE_PXI_LOAD_H__
+#define __DEWE_PXI_LOAD_H__
 
 
 //
@@ -29,6 +29,7 @@ Header file for automatic function loading
     static const char DEWE_TRION_DLL_NAME[]   = "libdwpxi_api_x64.so";
   #endif //UNIX
 #endif
+
 #ifdef BUILD_X86
   // 32bit API
   #ifdef WIN32
@@ -430,5 +431,4 @@ void DeWePxiUnload(void)
 
 #endif //DEWEPXI_NO_API_INJECTION
 
-#endif //__DEWE_PXI_LOAD
-
+#endif //__DEWE_PXI_LOAD_H__

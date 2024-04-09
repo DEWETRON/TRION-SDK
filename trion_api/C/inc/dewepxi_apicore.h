@@ -25,8 +25,12 @@
 
 //for C++ - compliance.
 #ifndef __DEWE_PXI_LOAD
+    // declare symbols
+    #undef RTLOAD
 	#define RTLOAD	extern
 #else
+    // define symbols
+    #undef RTLOAD
 	#define RTLOAD
 #endif
 
@@ -62,11 +66,18 @@ typedef int (RT_IMPORT *PDEWEGETCHANNELPROPCAN)(int board_no, int nChannelNo, PB
 typedef int (RT_IMPORT *PDEWESETCHANNELPROPCAN)(int board_no, int nChannelNo, BOARD_CAN_CHANNEL_PROP rProp);
 typedef int (RT_IMPORT *PDEWESTARTCAN)(int board_no, int nChannelNo);
 typedef int (RT_IMPORT *PDEWESTOPCAN)(int board_no, int nChannelNo);
-typedef int (RT_IMPORT *PDEWEREADCAN)(int board_no, PBOARD_CAN_FRAME pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 typedef int (RT_IMPORT *PDEWEFREEFRAMESCAN)(int board_no, int nFrameCount);
-typedef int (RT_IMPORT *PDEWEREADCANRAWFRAME)(int board_no, PBOARD_CAN_RAW_FRAME *pCanFrames, int *nRealFrameCount);
-typedef int (RT_IMPORT *PDEWEWRITECAN)(int board_no, PBOARD_CAN_FRAME pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 typedef int (RT_IMPORT *PDEWEERRORCNTCAN)(int board_no, int nChannelNo, int *nErrorCount);
+
+// CAN Read/Write
+typedef int (RT_IMPORT* PDEWEREADCAN)(int board_no, PBOARD_CAN_FRAME pCanFrames, int nMaxFrameCount, int* nRealFrameCount);
+typedef int (RT_IMPORT* PDEWEREADCANRAWFRAME)(int board_no, PBOARD_CAN_RAW_FRAME* pCanFrames, int* nRealFrameCount);
+typedef int (RT_IMPORT* PDEWEWRITECAN)(int board_no, PBOARD_CAN_FRAME pCanFrames, int nMaxFrameCount, int* nRealFrameCount);
+
+// CAN-FD Read/Write
+typedef int (RT_IMPORT *PDEWEREADCANEX)(int board_no, BOARD_CAN_FD_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
+typedef int (RT_IMPORT *PDEWEREADCANRAWFRAMEEX)(int board_no, BOARD_CAN_FD_RAW_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
+typedef int (RT_IMPORT *PDEWEWRITECANEX)(int board_no, BOARD_CAN_FD_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 
 // Asynchronous channel(UART) functions
 typedef int (RT_IMPORT *PDEWEOPENDMAUART)(int board_no);
@@ -116,11 +127,18 @@ RTLOAD PDEWEGETCHANNELPROPCAN		DeWeGetChannelPropCAN;
 RTLOAD PDEWESETCHANNELPROPCAN		DeWeSetChannelPropCAN;
 RTLOAD PDEWESTARTCAN				DeWeStartCAN;
 RTLOAD PDEWESTOPCAN					DeWeStopCAN;
-RTLOAD PDEWEREADCAN					DeWeReadCAN;
 RTLOAD PDEWEFREEFRAMESCAN           DeWeFreeFramesCAN;
+RTLOAD PDEWEERRORCNTCAN				DeWeErrorCntCAN;
+
+// CAN Read/Write
+RTLOAD PDEWEREADCAN					DeWeReadCAN;
 RTLOAD PDEWEREADCANRAWFRAME			DeWeReadCANRawFrame;
 RTLOAD PDEWEWRITECAN				DeWeWriteCAN;
-RTLOAD PDEWEERRORCNTCAN				DeWeErrorCntCAN;
+
+// CAN FD Read/Write
+RTLOAD PDEWEREADCANEX               DeWeReadCANEx;
+RTLOAD PDEWEREADCANRAWFRAMEEX       DeWeReadCANRawFrameEx;
+RTLOAD PDEWEWRITECANEX				DeWeWriteCANEx;
 
 // Asynchronous channel(UART) functions
 RTLOAD PDEWEOPENDMAUART				DeWeOpenDmaUart;
@@ -184,11 +202,18 @@ int RT_IMPORT DeWeGetChannelPropCAN(int board_no, int nChannelNo, PBOARD_CAN_CHA
 int RT_IMPORT DeWeSetChannelPropCAN(int board_no, int nChannelNo, BOARD_CAN_CHANNEL_PROP rProp);
 int RT_IMPORT DeWeStartCAN(int board_no, int nChannelNo);
 int RT_IMPORT DeWeStopCAN(int board_no, int nChannelNo);
-int RT_IMPORT DeWeReadCAN(int board_no, PBOARD_CAN_FRAME pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 int RT_IMPORT DeWeFreeFramesCAN(int board_no, int nFrameCount);
-int RT_IMPORT DeWeReadCANRawFrame(int board_no, PBOARD_CAN_RAW_FRAME *pCanFrames, int *nRealFrameCount);
-int RT_IMPORT DeWeWriteCAN(int board_no, PBOARD_CAN_FRAME pCanFrames, int nFrameCount, int *nRealFrameCount);
 int RT_IMPORT DeWeErrorCntCAN(int board_no, int nChannelNo, int *nErrorCount);
+
+// CAN Read/Write
+int RT_IMPORT DeWeReadCAN(int board_no, PBOARD_CAN_FRAME pCanFrames, int nMaxFrameCount, int* nRealFrameCount);
+int RT_IMPORT DeWeReadCANRawFrame(int board_no, PBOARD_CAN_RAW_FRAME* pCanFrames, int* nRealFrameCount);
+int RT_IMPORT DeWeWriteCAN(int board_no, PBOARD_CAN_FRAME pCanFrames, int nFrameCount, int* nRealFrameCount);
+
+// CAN FD Read/Write
+int RT_IMPORT DeWeReadCANEx(int board_no, BOARD_CAN_FD_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
+int RT_IMPORT DeWeReadCANRawFrameEx(int board_no, PBOARD_CAN_FD_RAW_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
+int RT_IMPORT DeWeWriteCANEx(int board, BOARD_CAN_FD_FRAME* frames, int max_frame_cnt, int* frame_cnt);
 
 // Asynchronous channel(UART) functions
 int RT_IMPORT DeWeOpenDmaUart(int board_no);
