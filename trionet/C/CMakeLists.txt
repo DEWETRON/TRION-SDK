@@ -74,7 +74,7 @@ endif()
 
 
 if (EXISTS ${TRION_SDK_ROOT}/trion_api/C/inc)
-  if (NOT TARGET trion_api_inc)
+  if (NOT TARGET trion_api_interface)
     add_subdirectory(${TRION_SDK_ROOT}/trion_api/C/inc trion_api)
   endif()
 else()
@@ -104,7 +104,7 @@ endif()
 macro(SampleBuildSettings SAMPLE FOLDER)
   set_target_properties(${SAMPLE} PROPERTIES FOLDER ${FOLDER})
   target_link_libraries(${SAMPLE}
-    trion_api_inc
+    trion_api_interface
     trion_sdk_util_C
     )
   if(UNIX)
@@ -132,7 +132,7 @@ endmacro()
 macro(TRIONET_SampleBuildSettings SAMPLE FOLDER)
   set_target_properties(${SAMPLE} PROPERTIES FOLDER ${FOLDER})
   target_link_libraries(${SAMPLE}
-    trion_api_inc
+    trion_api_interface
     trion_sdk_util_C
     )
   if(UNIX)

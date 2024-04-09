@@ -26,7 +26,7 @@ add_library(${LIBNAME_CXX}
 )
 
 target_link_libraries(${LIBNAME_CXX}
-    trion_api_inc
+    trion_api_interface
 )
 
 target_include_directories(${LIBNAME_CXX}

@@ -74,7 +74,7 @@ endif()
 
 
 if (EXISTS ${TRION_SDK_ROOT}/trion_api/C/inc)
-  if (NOT TARGET trion_api_inc)
+  if (NOT TARGET trion_api_interface)
     add_subdirectory(${TRION_SDK_ROOT}/trion_api/C/inc trion_api)
   endif()
 else()
@@ -104,7 +104,7 @@ endif()
 macro(SampleBuildSettings SAMPLE FOLDER)
   set_target_properties(${SAMPLE} PROPERTIES FOLDER ${FOLDER})
   target_link_libraries(${SAMPLE}
-    trion_api_inc
+    trion_api_interface
     trion_sdk_util_C
     )
   if(UNIX)
@@ -122,17 +122,24 @@ macro(SampleBuildSettings SAMPLE FOLDER)
       PROPERTY COMPILE_DEFINITIONS
       STATIC_DLL
       )
-    target_link_libraries(
-      ${SAMPLE}
-      dwpxi_api
-      )
+    if (BUILD_X64)
+      target_link_libraries(
+        ${SAMPLE}
+        dwpxi_api_x64
+        )
+    else()
+      target_link_libraries(
+        ${SAMPLE}
+        dwpxi_api
+        )
+    endif()
   endif()
 endmacro()
 
 macro(TRIONET_SampleBuildSettings SAMPLE)
   set_target_properties(${SAMPLE} PROPERTIES FOLDER "Examples TRIONET")
   target_link_libraries(${SAMPLE}
-    trion_api_inc
+    trion_api_interface
     trion_sdk_util_C
     )
   if(UNIX)
@@ -150,10 +157,17 @@ macro(TRIONET_SampleBuildSettings SAMPLE)
       PROPERTY COMPILE_DEFINITIONS
       STATIC_DLL
       )
-    target_link_libraries(
-      ${SAMPLE}
-      dwpxi_api
-      )
+    if (BUILD_X64)
+      target_link_libraries(
+        ${SAMPLE}
+        dwpxi_api_x64
+        )
+    else()
+      target_link_libraries(
+        ${SAMPLE}
+        dwpxi_api
+        )
+    endif()
   endif()
   set_property(TARGET ${SAMPLE}
     APPEND
