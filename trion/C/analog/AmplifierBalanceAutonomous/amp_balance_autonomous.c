@@ -28,7 +28,10 @@ const  char* sBoardNameNeeded[] = { "TRION-2402-dACC",
                                     "TRION-2402-MULTI",
                                     "TRION-1620-ACC",
                                     "TRION-1820-POWER",
+                                    "TRION-1820-MULTI",
+                                    "TRION-1850-MULTI",
                                     "TRION-1810M-POWER",
+                                    "TRION-1802-",
                                     NULL };
 
 

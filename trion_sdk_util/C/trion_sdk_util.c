@@ -69,7 +69,7 @@ BOOL CheckError(int nErrorCode)
 {
     if (nErrorCode > 0)
     {
-        fprintf(stderr, "Error: %s\n", DeWeErrorConstantToString(nErrorCode));
+        fprintf(stderr, "\nError: %s\n", DeWeErrorConstantToString(nErrorCode));
         fflush(stderr);
         return TRUE;
     }
@@ -78,7 +78,7 @@ BOOL CheckError(int nErrorCode)
 #ifdef REVEAL_WARNINGS
         if ( nErrorCode != 0 )
         {
-            fprintf(stderr, "Error: %s\n", DeWeErrorConstantToString(nErrorCode));
+            fprintf(stderr, "\nError: %s\n", DeWeErrorConstantToString(nErrorCode));
             fflush(stderr);
         }
 #endif
@@ -147,7 +147,7 @@ BOOL ARG_GetBoardIdEX(int argc, char **argv, int nNoOfBoards, int *nBoardId1, in
 
 /**
 * Check if the ChannelID is set by the command line. If not, use default ChannelId "0"
-* Possible ChannelID range [0..31]
+* Possible ChannelID range [0..7]
 * @param argc program argument count
 * @param argv array of program arguments
 * @param nNoOfBoards is the number of detected TRION boards
@@ -159,7 +159,7 @@ BOOL ARG_GetChannelNo(int argc, char **argv, int nNoOfBoards, int *ChannelNo)
     if (argc > 2)
     {
         sscanf(argv[2], "%d", ChannelNo);
-        if ((*ChannelNo > 31) || (*ChannelNo < 0))
+        if ((*ChannelNo > 7) || (*ChannelNo < 0))
         {
            return FALSE;
         }
@@ -173,7 +173,7 @@ BOOL ARG_GetChannelNo(int argc, char **argv, int nNoOfBoards, int *ChannelNo)
 
 /**
 * Check if two ChannelIDs are set by the command line. If not, use default ChannelId "0" and "1"
-* Possible ChannelID range [0..31]
+* Possible ChannelID range [0..7]
 * @param argc program argument count
 * @param argv array of program arguments
 * @param nNoOfBoards is the number of detected TRION boards
@@ -186,12 +186,12 @@ BOOL ARG_GetChannelNoEX(int argc, char **argv, int nNoOfBoards, int *ChannelNo1,
     if (argc > 3)
     {
         sscanf(argv[2], "%d", ChannelNo1);
-        if ((*ChannelNo1 > 31) || (*ChannelNo1 < 0))
+        if ((*ChannelNo1 > 7) || (*ChannelNo1 < 0))
         {
             return FALSE;
         }
         sscanf(argv[3], "%d", ChannelNo2);
-        if ((*ChannelNo2 > 31) || (*ChannelNo2 < 0))
+        if ((*ChannelNo2 > 7) || (*ChannelNo2 < 0))
         {
             return FALSE;
         }
@@ -219,6 +219,74 @@ BOOL ARG_GetChannelNoEX(int argc, char **argv, int nNoOfBoards, int *ChannelNo1,
     return TRUE;
 }
 
+
+static BOOL arg_GetOptionValue(int argc, char** argv, int i, char** v)
+{
+    if (i < argc)
+    {
+        *v = argv[i];
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
+/**
+ * Check for the given option in the form "--option value".
+ * Use this function like this ARG_GetOption(argc, argv, "--option", buffer, sizeof(buffer)).
+ * @param argc program argument count
+ * @param argv array of program arguments
+ * @param param is the name of the option. Prefixes have to be part of the string.
+ * @param value is the value of the option ( a string buffer)
+ * @param value_size is the size of the string buffer.
+ * @return TRUE is the the option was found and a value returned.
+ */
+BOOL ARG_GetOption(int argc, char** argv, const char* param, char* value, size_t value_size)
+{
+    BOOL ret = FALSE;
+    int i;
+    char* v = NULL;
+
+    for (i = 1; i < argc; ++i)
+    {
+        if (0 == strncmp(argv[i], param, strlen(param)))
+        {
+            if (arg_GetOptionValue(argc, argv, i+1, &v))
+            {
+                strncpy(value, v, value_size);
+                return TRUE;
+            }
+        }
+    }
+
+    return ret;
+}
+
+
+/**
+ * Check for the given boolean option in the form "--option".
+ * Use this function like this ARG_GetOption(argc, argv, "--option", buffer, sizeof(buffer)).
+ * @param argc program argument count
+ * @param argv array of program arguments
+ * @param param is the name of the option. Prefixes have to be part of the string.
+ * @return TRUE is the the option was found and a value returned.
+ */
+BOOL ARG_GetBooleanOption(int argc, char** argv, const char* param)
+{
+    int i;
+    char* v = NULL;
+
+    for (i = 1; i < argc; ++i)
+    {
+        if (0 == strncmp(argv[i], param, strlen(param)))
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
 
 /**
  * If the board given by BoardID is a board that can be used for this example.

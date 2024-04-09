@@ -3,7 +3,7 @@
 #
 cmake_minimum_required(VERSION 2.8.12)
 
-set(LIBNAME trion_api_inc)
+set(LIBNAME trion_api_interface)
 if (COMMAND SetProjectGuid)
   SetProjectGuid(${LIBNAME} "AC8A68FE-128A-4330-89DA-33DFF6D704FF")
 endif()
@@ -12,12 +12,12 @@ endif()
 set(API_HEADER_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_apicore.h
   ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_apiutil.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_commands.inc
   ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_const.h
   ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_err.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_err.inc
   ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_load.h
   ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_types.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_commands.inc
+  ${CMAKE_CURRENT_SOURCE_DIR}/dewepxi_err.inc
   ${CMAKE_CURRENT_SOURCE_DIR}/dewepxinet_load.h
 )
 

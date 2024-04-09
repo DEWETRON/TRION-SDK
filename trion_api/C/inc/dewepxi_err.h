@@ -1,9 +1,9 @@
 /*
-File containing all externally used error-codes
-Constants are stored separately
-in dewepxi_const.h / dewepxi_const.pas
-(Both files will also be used as internal sources for compiling the API itself)
-*/
+ * Copyright (c) 2013 DEWETRON
+ * License: MIT
+ * 
+ * File containing all externally used error-codes
+ */
 
 #ifndef __DEWEPXI_ERR_H
 #define __DEWEPXI_ERR_H

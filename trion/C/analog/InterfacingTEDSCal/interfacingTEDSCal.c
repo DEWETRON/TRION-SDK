@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
         printf("Usage example: interfacingTEDSCal ch=BoardId0/AI0 teds=TRION-POWER-SUB-CUR-20A-1 serial=1234 prop=AdcMinValue:-40.2 prop=AdcMaxValue:39.98\n");
         printf("Supported TEDS types:\n");
         printf("    TRION-POWER-SUB-CUR-20A-1, TRION-POWER-SUB-CUR-2A-1, TRION-POWER-SUB-CUR-1A-1, TRION-POWER-SUB-CUR-02A-1B\n");
-        printf("    TRION-POWER-SUB-dLV-1V, TRION-POWER-SUB-dLV-5V, TRION-SUB-5V, TRION-SUB-600V\n\n");
+        printf("    TRION-POWER-SUB-dLV-1V, TRION-POWER-SUB-dLV-5V, TRION-SUB-5V, TRION-SUB-600V, TRION-SUB-XV\n\n");
         printf("WARNING: All data on the specified channel is overwritten.\n");
         return EXIT_SUCCESS;
     }
@@ -351,7 +351,7 @@ int calibrateSingleTEDS(int nBoardId, int nChannelIndex, uint32 serial, struct C
             char s[80];
             printf("Setting serial = %d\n", serial);
             snprintf(s, sizeof(s), "%d", serial);
-            snprintf(sXPath, sizeof(sXPath), "TEDSInfo/@Serial");
+            snprintf(sXPath, sizeof(sXPath), "TEDSData/TEDSInfo/@Serial");
             nErrorCode = DeWeSetParamXML_str(sTarget, sXPath, s);
             if (CheckError(nErrorCode))
             {

@@ -9,6 +9,8 @@
  *  - Print of analog values.
  */
 
+#include "dewepxi_const.h"
+
 #include "dewepxi_apicore.h"
 #include "dewepxi_apiutil.h"
 #include "dewepxi_types.h"
@@ -31,7 +33,15 @@ const char* sBoardNameNeeded[] = {  "TRION-2402-dACC",
                                     "TRION-1802-dLV",
                                     "TRION-1820-POWER",
                                     "TRION-1810M-POWER",
+                                    "TRION3-1810M-POWER",
                                     "TRION-AVALON-DEV",
+                                    "TRION-1820-MULTI",
+                                    "TRION-1850-MULTI",
+                                    "TRION3-1850-MULTI",
+                                    "TRION3-1820-MULTI",
+                                    "PUREC-200",
+                                    "PUREC-50",
+                                    "NEXIO",
                                     NULL };
 
 
@@ -118,9 +128,9 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
 
 
+    snprintf(sTarget, sizeof(sTarget), "%s/%s", sBoardId, "AIAll");
+    nErrorCode = DeWeSetParamStruct_str( sTarget , "Used", "False");
 
-    // After reset all channels are disabled.
-    // So here 1 analog channel will be enabled (AI)
     snprintf(sTarget, sizeof(sTarget), "%s/%s", sBoardId, "AI0");
     nErrorCode = DeWeSetParamStruct_str( sTarget , "Used", "True");
     if (nErrorCode)

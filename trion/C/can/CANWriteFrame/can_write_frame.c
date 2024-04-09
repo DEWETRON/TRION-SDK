@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
         return UnloadTrionApi("Error at starting CAN\nAborting.....\n");
     }
 
-    BOARD_CAN_FRAME frame;
+    BOARD_CAN_FD_FRAME frame;
     frame.CanNo = 0;
     frame.MessageId = 42;
     frame.DataLength = 7;
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
     frame.SyncCounterEx = 0;
 
     int n_written = 666;
-    nErrorCode = DeWeWriteCAN(nBoardID, &frame, 1, &n_written);
+    nErrorCode = DeWeWriteCANEx(nBoardID, &frame, 1, &n_written);
     if ( CheckError(nErrorCode))
     {
         return UnloadTrionApi("Error writing CAN frame\nAborting.....\n");
