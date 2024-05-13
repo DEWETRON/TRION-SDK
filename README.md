@@ -17,8 +17,8 @@ A development environment allowing to directly access DEWETRON hardware:
 
 New DEWETRON TRION API package:
 
-* 2023-10-23 Release of TRION API R6.7.1
-* 2023-10-23 Release of TRIONET FIRMWARE R6.7.1
+* 2024-05-13 Release of TRION API R7.1.0
+* 2024-05-13 Release of TRIONET FIRMWARE R7.1.0
 
 Get those for optimal results.
 
@@ -110,13 +110,8 @@ support@dewetron.com
 
 **For technical questions please contact:**
 
-Michael Oberhofer 
-
-michael.oberhofer@dewetron.com
-
-Gunther Laure
-
-gunther.laure@dewetron.com
+- Gunther Laure <gunther.laure@dewetron.com>
+- Martin Poniz <martin.poniz@dewetron.com>
 
 
 
