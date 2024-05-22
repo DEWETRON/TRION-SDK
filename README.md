@@ -43,6 +43,8 @@ https://dewetron.github.io/TRION-SDK/
 
 The docs directory contains pdf and html versions of the complete documentation.
 
+For offline use we provide this pdf: https://github.com/DEWETRON/TRION-SDK/releases/download/TRION-R7.0.0/dewetrontrionsdk.pdf
+
 # Directory structure
 
 ## trion_api
