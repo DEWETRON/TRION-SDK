@@ -25,7 +25,7 @@ author = 'DEWETRON GmbH'
 nav_title = 'DEWETRON TRION SDK'
 
 # The full version, including alpha/beta/rc tags
-release = '6.0'
+release = '7.0'
 
 
 # -- General configuration ---------------------------------------------------

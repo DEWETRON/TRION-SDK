@@ -8,7 +8,7 @@ if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
 set SOURCEDIR=.
-set BUILDDIR=_build
+set BUILDDIR=build
 
 
 if "%1" == "" goto help
@@ -27,6 +27,7 @@ if errorlevel 9009 (
 )
 
 REM extend PATH to find latex tools
+set PATHBAK=%PATH%
 set PATH=%PATH%;C:\Program Files\MiKTeX\miktex\bin\x64;C:\Program Files\Git\usr\bin
 REM echo %PATH%
 
@@ -40,3 +41,6 @@ goto end
 
 :end
 popd
+
+REM restore
+set PATH=%PATHBAK%

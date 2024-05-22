@@ -6,7 +6,7 @@
 SPHINXOPTS    ?= -v
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
-BUILDDIR      = _build
+BUILDDIR      = build
 
 export PATH := $(HOME)/.local/bin:$(PATH)
 
