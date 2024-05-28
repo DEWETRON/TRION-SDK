@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 DEWETRON
  * License: MIT
- * 
+ *
  * Header file for automatic function loading
  */
 
@@ -22,7 +22,9 @@
 
 #ifdef BUILD_X64
   // 64bit API
-  #ifdef WIN32
+  #ifdef UNDER_RTSS
+    static const char DEWE_TRION_DLL_NAME[]   = "dwpxi_api_x64.rtdll";
+  #elif defined WIN32
     static const char DEWE_TRION_DLL_NAME[]   = "dwpxi_api_x64.dll";
   #elif defined(__APPLE__)
     static const char DEWE_TRION_DLL_NAME[]   = "libdwpxi_api_x64.dylib";
@@ -33,7 +35,9 @@
 
 #ifdef BUILD_X86
   // 32bit API
-  #ifdef WIN32
+  #ifdef UNDER_RTSS
+    static const char DEWE_TRION_DLL_NAME[]   = "dwpxi_api.rtdll";
+  #elif defined WIN32
     static const char DEWE_TRION_DLL_NAME[]   = "dwpxi_api.dll";
   #elif defined(__APPLE__)
     static const char DEWE_TRION_DLL_NAME[]   = "libdwpxi_api.dylib";
