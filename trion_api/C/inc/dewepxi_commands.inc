@@ -26,6 +26,7 @@ TRION_COMMAND(UPDATE_PARAM_CANFD,           0x0023)  // Set
 TRION_COMMAND(UPDATE_PARAM_UART,            0x0052)  // Set
 TRION_COMMAND(UPDATE_PARAM_AO_PATTERN,      0x0053)  // Set
 TRION_COMMAND(UPDATE_PARAM_AO_CONST_VALUE,  0x0054)  // Set
+TRION_COMMAND(UPDATE_PARAM_AO_SUM_COEFF,    0x0055)  // Set
 TRION_COMMAND(ASYNC_POLLING_TIME,           0x001C)  // Set
 TRION_COMMAND(ASYNC_FRAME_SIZE,             0x001D)  // Set
 TRION_COMMAND(UPDATE_PARAM_ACQ_TIMING,      0x001E)  // Set
@@ -126,6 +127,7 @@ TRION_COMMAND(BOARD_AITEDSEX_READ,                  0x0406)  // R        Reads t
 TRION_COMMAND(BOARD_AITEDSEX_WRITE,                 0x0407)  // W        Write the AiTEDSEx data back to the TEDS chip
 TRION_COMMAND(BOARD_AITEDSEX_SYNCHRONIZE,           0x0408)  // U        Synchronizes raw TEDS memory data with updated TEDSInfo data
 TRION_COMMAND(BOARD_FW_WRITE_PROTECT,               0x0409)  // W
+TRION_COMMAND(BOARD_AITEDSEX_READ_CHAIN,            0x040A)  // R        Reads the AiTEDSEx data from a chain of TEDS chips
 
 // Peripheral
 TRION_COMMAND(BOARD_PERIPHERAL_EEPROM_WRITE,        0x350)  // W        Write the Peripheral-File to EEProm

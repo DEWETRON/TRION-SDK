@@ -152,6 +152,8 @@ enum
 
 #define BID_TRION3_AOUT_8               0x0200000D
 
+#define BID_TRION3_18XX_ACC             0x02000010
+
 #define BID_NEXDAQ                      0x40000000
 
 #endif //__DEWEPXI_CONST_H
