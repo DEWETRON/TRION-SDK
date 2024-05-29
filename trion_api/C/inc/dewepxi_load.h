@@ -23,9 +23,9 @@
 #ifdef BUILD_X64
   // 64bit API
   #ifdef UNDER_RTSS
-      static const char DEWE_TRION_DLL_NAME[] = "dwpxi_api_x64.rtdll";
+    static const char DEWE_TRION_DLL_NAME[] = "dwpxi_api_x64.rtdll";
   #elif defined WIN32
-      static const char DEWE_TRION_DLL_NAME[] = "dwpxi_api_x64.dll";
+    static const char DEWE_TRION_DLL_NAME[] = "dwpxi_api_x64.dll";
   #elif defined(__APPLE__)
     static const char DEWE_TRION_DLL_NAME[]   = "libdwpxi_api_x64.dylib";
   #elif defined(UNIX)
@@ -36,9 +36,9 @@
 #ifdef BUILD_X86
   // 32bit API
   #ifdef UNDER_RTSS
-      static const char DEWE_TRION_DLL_NAME[] = "dwpxi_api.rtdll";
+    static const char DEWE_TRION_DLL_NAME[] = "dwpxi_api.rtdll";
   #elif defined WIN32
-      static const char DEWE_TRION_DLL_NAME[] = "dwpxi_api.dll";
+    static const char DEWE_TRION_DLL_NAME[] = "dwpxi_api.dll";
   #elif defined(__APPLE__)
     static const char DEWE_TRION_DLL_NAME[]   = "libdwpxi_api.dylib";
   #elif defined(UNIX)
