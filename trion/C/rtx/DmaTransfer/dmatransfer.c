@@ -11,6 +11,7 @@
  *  - Set first board (CHASSIS CONTROLLER) as master
  *  - Set remaining boards as slaves
  *  - Set sample rate to 200000 Samples/second on each board
+ *  - Acquisition configuration is done via XML
  */
 
 #ifndef UNDER_RTSS
@@ -26,7 +27,7 @@
 #define DWPXI_API_DLL "dwpxi_api_x64.rtdll"
 
 #define MAX_BOARDS 9
-#define SAMPLE_RATE 200000
+#define SAMPLE_RATE "200000"
 #define BLOCK_SIZE 200
 #define NUM_BLOCKS 3
 
@@ -182,28 +183,38 @@ int perform_dma_measurements(int num_boards)
             err = DeWeSetParam_i32(board_no, CMD_RESET_BOARD, 0);
             CheckError(err);
 
-            // Configure Acquisition
-            snprintf(target, sizeof(target), "BoardID%d/AcqProp", board_no);
-
-            if (master_board == board_no)
+            // Configure acquisition via XML
+            const char* xml_config;
+            if (board_no == master_board)
             {
-                err = DeWeSetParamStruct_str(target, "OperationMode", "Master");
-                CheckError(err);
-                err = DeWeSetParamStruct_str(target, "ExtTrigger", "False");
-                CheckError(err);
+                xml_config =
+                    "<Configuration>"
+                        "<Acquisition><AcqProp>"
+                            "<SampleRate Unit = \"Hz\">" SAMPLE_RATE "</SampleRate>"
+                            "<OperationMode>Master</OperationMode>"
+                            "<ExtTrigger>False</ExtTrigger>"
+                            "<ExtClk>False</ExtClk>"
+                        "</AcqProp></Acquisition>"
+                        "<Channel>"
+                        "</Channel>"
+                    "</Configuration>";
             }
             else
             {
-                err = DeWeSetParamStruct_str(target, "OperationMode", "Slave");
-                CheckError(err);
-                err = DeWeSetParamStruct_str(target, "ExtTrigger", "PosEdge");
-                CheckError(err);
+                xml_config =
+                    "<Configuration>"
+                        "<Acquisition><AcqProp>"
+                            "<SampleRate Unit = \"Hz\">" SAMPLE_RATE "</SampleRate>"
+                            "<OperationMode>Slave</OperationMode>"
+                            "<ExtTrigger>PosEdge</ExtTrigger>"
+                            "<ExtClk>False</ExtClk>"
+                        "</AcqProp></Acquisition>"
+                        "<Channel>"
+                        "</Channel>"
+                    "</Configuration>";
             }
-
-            err = DeWeSetParamStruct_str(target, "ExtClk", "False");
-            CheckError(err);
-            snprintf(buffer, sizeof(buffer), "%d", SAMPLE_RATE);
-            err = DeWeSetParamStruct_str(target, "SampleRate", buffer); // Each sample will generate a call back
+            snprintf(target, sizeof(target), "BoardID%d", board_no);
+            err = DeWeSetParamStruct_str(target, "config", xml_config);
             CheckError(err);
 
             // Configure channels
