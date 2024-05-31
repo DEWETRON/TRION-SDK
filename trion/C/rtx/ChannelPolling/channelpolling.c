@@ -379,5 +379,5 @@ cleanup:
 
     RtPrintf("Example finished. Exit code %d\n", err);
 
-    return err;
+	return err;
 }
