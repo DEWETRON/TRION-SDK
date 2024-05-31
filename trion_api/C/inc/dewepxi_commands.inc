@@ -136,8 +136,8 @@ TRION_COMMAND(BOARD_PERIPHERAL_EEPROM_WRITE,        0x350)  // W        Write th
 TRION_COMMAND(BOARD_ACT_SAMPLE_VALUE_COUNT,         0x0360)  // Get      Read the number of 32bit values in the SYNC_DATA_SAMPLES register (returns 0 if not supported)
 TRION_COMMAND(BOARD_ACT_SAMPLE_VALUE_POINTER,       0x0361)  // Get      Updates all used SYNC_DATA_SAMPLES registers and returns the address of a buffer with BOARD_ACT_SAMPLE_VALUE_COUNT 32bit values
 
-TRION_COMMAND(BOARD_ACT_SAMPLE_CALLBACK,            0x0362)  // Set/Get  Registers/Clears a function "void fn(int board_no, void* context)" that will be called when a new sample is available (sets NEW_SAMPLES_IRQ_CTRL accordingly)
-TRION_COMMAND(BOARD_ACT_SAMPLE_CALLBACK_CONTEXT,    0x0363)  // Set/Get  Read/Write the context pointer that is passed to the BOARD_ACT_SAMPLE_CALLBACK function each call
+TRION_COMMAND(BOARD_NEW_SAMPLE_CALLBACK,            0x0362)  // Set/Get  Registers/Clears a function "void fn(int board_no, void* context)" that will be called when a new sample is available (sets NEW_SAMPLES_IRQ_CTRL accordingly)
+TRION_COMMAND(BOARD_NEW_SAMPLE_CALLBACK_CONTEXT,    0x0363)  // Set/Get  Read/Write the context pointer that is passed to the BOARD_NEW_SAMPLE_CALLBACK function each call
 
 
 TRION_COMMAND(BOARD_REINIT,					0x0420)  // Set
