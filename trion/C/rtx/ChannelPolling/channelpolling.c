@@ -301,11 +301,11 @@ int perform_polling(int num_boards)
     // We simply attach to the interrupt of the master board and read across all boards (boards are synchronized)
 
     // set a context, which will be a void* parameter to the callback method
-    err = DeWeSetParam_i64(master_board, CMD_BOARD_ACT_SAMPLE_CALLBACK_CONTEXT, (sint64)&context);
+    err = DeWeSetParam_i64(master_board, CMD_BOARD_NEW_SAMPLE_CALLBACK_CONTEXT, (sint64)&context);
     CheckError(err);
 
     // set the actual callback function. Once the callback is set, it will be called for each sample during acquisition
-    err = DeWeSetParam_i64(master_board, CMD_BOARD_ACT_SAMPLE_CALLBACK, (sint64)&new_sample_callback);
+    err = DeWeSetParam_i64(master_board, CMD_BOARD_NEW_SAMPLE_CALLBACK, (sint64)&new_sample_callback);
     CheckError(err);
 
     RtPrintf("Starting acquisition...\n");
@@ -379,5 +379,5 @@ cleanup:
 
     RtPrintf("Example finished. Exit code %d\n", err);
 
-	return err;
+    return err;
 }
