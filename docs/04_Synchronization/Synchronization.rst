@@ -19,7 +19,30 @@ TRION-SYNC-BUS
 
 Using TRION-SYNC-BUS needs special setup for two different enclosure roles. There has to be one MASTER 
 instrument and one or more SLAVE instruments.
+Setup of MASTER or SLAVE instrument roles is handled differently, for DEWE2 enclosures and DEWE3 enclosures.
+The details are described within the chapter of the roles.
+DEWE3 chassis need to be setup differently, depending on the Chassis-Controller-Version present.
+This can bei either V1 or V2.
+The easiest way to query this information is, by querying the "type" information of BoardId0 from API.
 
+.. code:: c
+
+    DeWeGetParamStruct_str("BoardId0/boardproperties/Key2Name/KEY/InternalId", "Type", , Buf, sizeof(Buf));
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|
+
+.. table:: Enclosure Type via Chassis-Controller-Version
+   :widths: 30 30
+
+   +----------------------+----------------------------+
+   | Buf content          | Enclosure-Type             |
+   +======================+============================+
+   | CONTROLLER-V1        | DEWE3 with Controller-V1   |
+   +----------------------+----------------------------+
+   | CONTROLLER-V2        | DEWE3 with Controller-V2   |
+   +----------------------+----------------------------+
+   | anything else        | DEWE2                      |
+   +----------------------+----------------------------+
 
 Cabling
 ~~~~~~~
@@ -56,8 +79,43 @@ Slave board setup "BoardIDX" [for X from 1 to NrOfAvailableBoards]:
 
 SYNC-OUT has to be configured:
 
+DEWE2 enclosure
+^^^^^^^^^^^^^^^^
+
+On exactly one board
+
 * Set the trigger line TRIG7, Source to low
 * Set the trigger line TRIG7, Inverted to false
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-OUT DEWE2
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | Low          |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+On all other, but the one chosen for TRIG7 control.
+This is important to prevent multiple boards trying to drive the TRIG7-line to different levels.
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-OUT DEWE2
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
 
 These are the appropriate TRION-API commands:
 
@@ -67,6 +125,173 @@ These are the appropriate TRION-API commands:
     DeWeSetParamStruct_str("BoardID0/Trig7", "Inverted", "False");
     // Then apply the settings using:
     DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
+
+
+DEWE3 enclosure with Chassis-Controller-V1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+On the Chassis-Controller (BoardId0)
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-OUT DEWE3 with Controller-V1
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | TRIG_IN0             | Source       | TRIG_OUT0    |
+   +----------------------+--------------+--------------+
+   | TRIG_IN0             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN1             | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_IN1             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN2             | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_IN2             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN3             | Source       | TRIG_OUT3    |
+   +----------------------+--------------+--------------+
+   | TRIG_IN3             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN4             | Source       | TRIG_OUT4    |
+   +----------------------+--------------+--------------+
+   | TRIG_IN4             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN5             | Source       | TRIG_OUT5    |
+   +----------------------+--------------+--------------+
+   | TRIG_IN5             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN6             | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_IN6             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN7             | Source       | TRIG_OUT7    |
+   +----------------------+--------------+--------------+
+   | TRIG_IN7             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT0            | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT0            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT1            | Source       | TRIG_IN1     |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT1            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT2            | Source       | TRIG_IN2     |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT2            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT3            | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT3            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT4            | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT4            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT5            | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT5            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT6            | Source       | TRIG_IN6     |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT6            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT7            | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT7            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+These are the appropriate TRION-API commands:
+(only shown for the first table entry, the rest applies accordingly)
+
+.. code:: c
+
+    DeWeSetParamStruct_str("BoardID0/TRIG_IN0", "Source", "TRIG_OUT0");
+    DeWeSetParamStruct_str("BoardID0/TRIG_IN0", "Inverted", "False");
+    // ... repeat for all other signals
+    // ...
+    // ...
+    // Then apply the settings using:
+    DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
+
+
+On exactly one board, other than the Chassis-Controller
+
+* Set the trigger line TRIG7, Source to low
+* Set the trigger line TRIG7, Inverted to false
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-OUT
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Signal               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | Low          |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+On all other, but the one chosen for TRIG7 control.
+This is important to prevent multiple boards trying to drive the TRIG7-line to different levels.
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-OUT
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+DEWE3 enclosure with Chassis-Controller-V2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In such case, the chassis-controllter has to be utilized in the measurement with at least one activated channel,
+and shall be operated as measurement master.
+
+On the Chassis-Controller (BoardId0)
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-OUT DEWE3 with Controller-V2
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | SYNC_OUT5            | Source       | Acq_Sync     |
+   +----------------------+--------------+--------------+
+   | SYNC_OUT5            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | SYNC_OUT7            | Source       | Low          |
+   +----------------------+--------------+--------------+
+   | SYNC_OUT7            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+On all other boards
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-OUT
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
 
 
 Slave instrument
@@ -88,8 +313,42 @@ Slave board setup "BoardIDX" [for X from 0 to NrOfAvailableBoards]
 
 SYNC-OUT has to be configured:
 
-* Set the trigger line TRIG7, Source to high
+DEWE2 enclosure
+^^^^^^^^^^^^^^^^
+
+On exactly one board
+
+* Set the trigger line TRIG7, Source to hig
 * Set the trigger line TRIG7, Inverted to false
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-IN DEWE2
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | High         |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+On all other, but the one chosen for TRIG7 control.
+This is important to prevent multiple boards trying to drive the TRIG7-line to different levels.
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-IN DEWE2
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
 
 These are the appropriate TRION-API commands:
 
@@ -100,6 +359,190 @@ These are the appropriate TRION-API commands:
     // Then apply the settings using:
     DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
 
+DEWE3 enclosure with Chassis-Controller-V1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+On the Chassis-Controller (BoardId0)
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-IN DEWE3 with Controller-V1
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | TRIG_IN0             | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_IN0             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN1             | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_IN1             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN2             | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_IN2             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN3             | Source       | TRIG_OUT3    |
+   +----------------------+--------------+--------------+
+   | TRIG_IN3             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN4             | Source       | TRIG_OUT4    |
+   +----------------------+--------------+--------------+
+   | TRIG_IN4             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN5             | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_IN5             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN6             | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_IN6             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_IN7             | Source       | TRIG_OUT7    |
+   +----------------------+--------------+--------------+
+   | TRIG_IN7             | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT0            | Source       | TRIG_IN0     |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT0            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT1            | Source       | TRIG_IN1     |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT1            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT2            | Source       | TRIG_IN2     |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT2            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT3            | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT3            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT4            | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT4            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT5            | Source       | TRIG_IN5     |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT5            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT6            | Source       | TRIG_IN6     |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT6            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT7            | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | TRIG_OUT7            | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+These are the appropriate TRION-API commands:
+(only shown for the first table entry, the rest applies accordingly)
+
+.. code:: c
+
+    DeWeSetParamStruct_str("BoardID0/TRIG_IN0", "Source", "Disable");
+    DeWeSetParamStruct_str("BoardID0/TRIG_IN0", "Inverted", "False");
+    // ... repeat for all other signals
+    // ...
+    // ...
+    // Then apply the settings using:
+    DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
+
+
+On exactly one board, other than the Chassis-Controller
+
+* Set the trigger line TRIG7, Source to high
+* Set the trigger line TRIG7, Inverted to false
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-IN
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Signal               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | High         |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+On all other, but the one chosen for TRIG7 control.
+This is important to prevent multiple boards trying to drive the TRIG7-line to different levels.
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-IN
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
+
+.. code:: c
+
+    DeWeSetParamStruct_str("BoardID0/Trig7", "Source", "High");
+    DeWeSetParamStruct_str("BoardID0/Trig7", "Inverted", "False");
+    // Then apply the settings using:
+    DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
+
+DEWE3 enclosure with Chassis-Controller-V2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In such case, the chassis-controllter has to be utilized in the measurement with at least one activated channel,
+and shall be operated as measurement slave.
+
+On the Chassis-Controller (BoardId0)
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-IN DEWE3 with Controller-V2
+   :widths: 30 30 30
+
+   +----------------------+--------------+-------------------+
+   | Target               | Property     | Value             |
+   +======================+==============+===================+
+   | SYNC_OUT0            | Source       | Disable           |
+   +----------------------+--------------+-------------------+
+   | SYNC_OUT0            | Inverted     | False             |
+   +----------------------+--------------+-------------------+
+   | SYNC_OUT5            | Source       | Disable           |
+   +----------------------+--------------+-------------------+
+   | SYNC_OUT5            | Inverted     | False             |
+   +----------------------+--------------+-------------------+
+   | SYNC_OUT7            | Source       | High              |
+   +----------------------+--------------+-------------------+
+   | SYNC_OUT7            | Inverted     | False             |
+   +----------------------+--------------+-------------------+
+   | TRIG5                | Source       | Acq_SyncStart     |
+   +----------------------+--------------+-------------------+
+   | TRIG5                | Inverted     | False             |
+   +----------------------+--------------+-------------------+
+   | TRIG6                | Source       | CLK_EXT_In_Detetct|
+   +----------------------+--------------+-------------------+
+   | TRIG6                | Inverted     | False             |
+   +----------------------+--------------+-------------------+
+
+On all other boards
+
+.. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
+
+.. table:: Signalsettings for SYNC-IN
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Target               | Property     | Value        |
+   +======================+==============+==============+
+   | Trig7                | Source       | Disable      |
+   +----------------------+--------------+--------------+
+   | Trig7                | Inverted     | False        |
+   +----------------------+--------------+--------------+
 
 Acquisition on the Master instrument
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
