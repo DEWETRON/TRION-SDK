@@ -20,6 +20,13 @@ Dewetron provides signed ``rtx64pnp_trion.inf`` and ``rtx64pnp_trion.cat`` files
 After successful installation, TRION devices will be shown under the ``RTX64 Drivers`` section of the Windows Device Manager.
 Note that after TRION devices have been assigned to RTX64, they can no longer be accessed from a Windows process.
 
+Interrupt handling
+~~~~~~~~~~~~~~~~~~
+The driver prefers to set up (shared) line-base interrupts during interrupt attachment.
+Since the number of line-based interrupts supported by RTX is limited, there is a fallback to MSI interrupt handling when allocating a line-base interrupt fails for a board.
+
+In order to use the line-based interrupt mode, each TRION device needs to have the ``Use line-based interruts (IRQ)`` setting activated in the ``RTX64`` tab of the device driver settings.
+
 Enabling Multiple Inter-Processor Interrupts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default, there is a limitation in the RTX64 configuration that prevents the use of more than 13 PCI devices such as TRION boards at the same time from a real-time process.
@@ -86,6 +93,60 @@ Harddisk
 
 The RTX version of the API/Driver creates a directory structure under ``C:\RTX\Dewetron\Trion`` where current system setups are stored.
 If the directories do not exist, they are created automatically.
+
+
+DMA-based Measurement
+---------------------
+During measurement, each TRION board acquires samples at its configure sample-rate.
+Samples are transferred (via DMA) to a buffer on the computer RAM.
+The buffer consists of blocks that can be configured by the user via the ``CMD_BUFFER_BLOCK_SIZE`` (samples per block) and ``CMD_BUFFER_BLOCK_COUNT`` (number of blocks in buffer) commands.
+
+Unsynchronized DMA transfers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+By default, each board is handled independently in the API/driver and no assumption about synchronized operation is made (this information is only available to the user of the API).
+Therefore, it is possible to operate each board with its own settings, sample rate and individual block size settings.
+
+Each TRION board will emit a ``Samples ready`` interrupt after ``BUFFER_BLOCK_SIZE`` number of samples have been measured.
+An interrupt service thread (IST) dedicated to a board will set up a DMA request and start the DMA transaction.
+Note that it is possible that multiple blocks of samples will be transferred if the board already has more samples available at the time the transfer is set up.
+
+After completion of the DMA, each board will emit a ``DMA finished`` interrupt which will be handled by another IST.
+Once the data is available in RAM of the computer, it can be accessed by the user.
+It is possible to wait for new samples using the ``CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE`` (blocking) or poll the current number of available samples using the ``CMD_BUFFER_AVAIL_NO_SAMPLE`` command (non-blocking).
+When using a blocking call and at least one block of samples is already available, the call will return immediately without blocking.
+The samples can be accessed at the address returned by the ``CMD_BUFFER_ACT_SAMPLE_POS`` command.
+Sample are organized in scan lines (i.e. multiple channels) with a size queryable via the ``CMD_BUFFER_ONE_SCAN_SIZE`` command.
+After the samples are no longer needed, they can be returned for future use by the ``CMD_BUFFER_FREE_NO_SAMPLE`` command.
+
+Synchronizing DMA transfers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When all boards use compatible timing settings and are started synchroneously (e.g. all boards transfer data blocks at the same time each cycle), there is a special mode in the RTX version that allows to reduce interrupt resource usage and latencies.
+This mode can be activated by setting up a ``masterboard``:
+
+.. code:: cpp
+
+    DeWeSetParamStruct_str("driver/api/config/thread", "masterboard", "0");
+
+The example above assigns ``Board0`` a master role during acquisition (and all other board are in a slave role).
+This means that only Board0 will receive a ``Samples ready`` interrupt and set up DMA operations on all slave boards sequentially by assuming that their samples are also ready.
+Slave boards will no longer emit a ``Samples ready`` interrupt.
+
+Note that if the master board is not started (``CMD_START_ACQUISITION``), other boards cannot not transfer their samples via DMA and will eventually fail with a buffer overflow.
+If boards have incompatible block size settings, the behavior is undefined.
+By setting the ``masterboard`` value to "-1", synchronized DMA is deactivated (default).
+
+By default, each finished DMA will still cause each board to emit a ``DMA finished`` interrupt.
+It is possible to combine such DMA interrupts into a single interrupt by activating the ``CombineDmaInterrupts`` mode.
+In this mode, only the master board will emit an interrupt when its DMA is finished and the corresponding IST will actively wait for the DMA transaction of all slave boards to finish.
+Use the following code to active this combined mode:
+
+.. code:: cpp
+
+    DeWeSetParamStruct_str("driver/api/config/thread", "CombineDmaInterrupts", "true");
+
+By defining both a ``masterboard`` and enabling the ``CombineDmaInterrupts`` mode, it is possible to efficiently operate multiple TRION boards using a single CPU core (definable via the ``Affinity`` thread-setting).
+In this mode, only two interrupts are emitted.
+All DMA related setup and finalizing code is executed sequentially from a single thread for all boards that have been started.
 
 
 Interrupt-triggered Sample Polling
