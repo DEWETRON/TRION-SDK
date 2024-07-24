@@ -7,11 +7,14 @@
  *
  * Describes the following:
  *  - Configure the API for multi-threaded initialization with thread affinity
+ *  - Configure the API to use only a single CPU for interrupt handling
+ *  - Configure the API to use a dedicated DMA master board (slave boards will not emit any interrupt)
  *  - Setup of 8 AI channels and board counter per board
  *  - Set first board (CHASSIS CONTROLLER) as master
  *  - Set remaining boards as slaves
  *  - Set sample rate to 200000 Samples/second on each board
  *  - Acquisition configuration is done via XML
+ *  - Check every board counter value for validity
  */
 
 #ifndef UNDER_RTSS
@@ -26,7 +29,7 @@
 // TODO: Change this path to the actual location of the dwpxi_api_x64.rtdll file
 #define DWPXI_API_DLL "dwpxi_api_x64.rtdll"
 
-#define MAX_BOARDS 9
+#define MAX_BOARDS 13
 #define SAMPLE_RATE "200000"
 #define BLOCK_SIZE 200
 #define NUM_BLOCKS 3
@@ -40,6 +43,8 @@ struct BoardInfo
     int num_ai;
     int num_cnt;
     int num_bcnt;
+    sint32 scanline_size;
+    int64_t total_samples;
 };
 
 void print_error(int err)
@@ -108,9 +113,22 @@ int configure_api(int* num_boards)
     err = DeWeSetParamStruct_str("driver/api/config/thread", "enabled", "true");
     CheckError(err);
 
-    // Set thread affinity to three CPUs
-    snprintf(buffer, sizeof(buffer), "%d", 0x70); // 0111 0000
-    err = DeWeSetParamStruct_str("driver/api/config/thread", "affinity", buffer);
+    // Set thread affinity to four CPUs (uses during multi-threaded initialization)
+    snprintf(buffer, sizeof(buffer), "%d", 0x3C); // 0011 1100
+    err = DeWeSetParamStruct_str("driver/api/config/thread", "Affinity", buffer);
+    CheckError(err);
+
+    // Set interrupt affinity to one CPU
+    snprintf(buffer, sizeof(buffer), "%d", 0x10); // 0001 0000
+    err = DeWeSetParamStruct_str("driver/api/config/thread", "IrqAffinity", buffer);
+    CheckError(err);
+
+    // Set board 0 as the master board for interrupt handling (only the master board will now emit interrupts)
+    err = DeWeSetParamStruct_str("driver/api/config/thread", "masterboard", "0");
+    CheckError(err);
+
+    // Cobine "DMA finished" interrupts and process them only on the previously set master board
+    err = DeWeSetParamStruct_str("driver/api/config/thread", "CombineDmaInterrupts", "true");
     CheckError(err);
 
     err = DeWeDriverInit(num_boards);
@@ -125,6 +143,34 @@ int configure_api(int* num_boards)
     return ERR_NONE;
 }
 
+int verify_block(struct BoardInfo* board, const void* data, int num_samples)
+{
+    if (board->scanline_size < sizeof(uint32_t))
+    {
+        return ERR_BUFFER_NO_AVAIL_DATA;
+    }
+
+    // the board counter is always the last element in the scanline (production code should interpret the scanline descriptor)
+    const char* board_cnt_ptr = (const char*)data + board->scanline_size - sizeof(uint32_t);
+    for (int n = 0; n < num_samples; ++n)
+    {
+        uint32_t board_cnt = *reinterpret_cast<const uint32_t*>(board_cnt_ptr + n * board->scanline_size);
+
+        // Note: Due to the way TRION asynchroneously resets the Board-Counters, we may get the value 0 twice after acquisition start
+        // the following computation is needed to determine the expected board count value for each sample in case of two 0-counts after ACQ start
+        int64_t corrected_count = board->total_samples + n - 1; // board counts are shifted by 1
+        if (corrected_count == -1)
+        {
+            corrected_count = 0; // [0, 0, 1, 2, 3, ...] order on first block
+        }
+        if (board_cnt != (uint32_t)(board->total_samples + n) && board_cnt != (uint32_t)(corrected_count))
+        {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return ERR_NONE;
+}
+
 int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
 {
     int err = ERR_NONE;
@@ -135,6 +181,13 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
         for (board_no = 0; board_no < num_boards; ++board_no)
         {
             int samples_available = 0;
+            void* data = NULL;
+            struct BoardInfo* board = boards + board_no;
+
+            if (!board->valid)
+            {
+                continue;
+            }
             
             err = DeWeGetParam_i32(board_no, CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE, &samples_available);
             CheckError(err);
@@ -144,8 +197,23 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
                 RtPrintf("Board %d returned not exactly one block, not real-time?\n", board_no);
             }
 
+            err = DeWeGetParam_i64(board_no, CMD_BUFFER_ACT_SAMPLE_POS, (sint64*)&data);
+            CheckError(err);
+
+            // check if all board counter values are as expected
+            err = verify_block(board, data, samples_available);
+            CheckError(err);
+
             err = DeWeSetParam_i32(board_no, CMD_BUFFER_FREE_NO_SAMPLE, samples_available);
             CheckError(err);
+
+            board->total_samples += samples_available;
+        }
+
+        if (num_it % (1000 * 10) == 0)
+        {
+            // print progress after each 10 seconds
+            RtPrintf("%8u> running...\n", (uint32)num_it);
         }
     }
     return ERR_NONE;
@@ -245,6 +313,9 @@ int perform_dma_measurements(int num_boards, size_t num_iterations)
             // Commit settings to the board
             err = DeWeSetParam_i32(board_no, CMD_UPDATE_PARAM_ALL, 0);
             CheckError(err);
+
+            // read back the scanline size
+            err = DeWeGetParam_i32(board_no, CMD_BUFFER_ONE_SCAN_SIZE, &board->scanline_size);
         }
     }
 
