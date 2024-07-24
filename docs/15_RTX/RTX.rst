@@ -44,7 +44,8 @@ After a restart of the system, it should be possible to use a fully equipped RM1
 Resource usage of the TRION API
 -------------------------------
 
-This section describes the use of processing and memory resources required by TRION API.
+This section describes the use of processing and memory resources required by TRION API and their configuration options.
+Note that all ``driver/api/config/thread`` values must be set before the call to ``DeWeDriverInit``.
 
 CPU / Multi-Threading
 ~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +75,15 @@ The following example enables CPU 4 and 6 (01010000b = 0x50):
 If the ``Affinity`` is set to 0 (its default value), all available CPUs are utilized (via a query to ``RtGetProcessAffinityMask``).
 
 In addition to worker threads, each TRION board will be assigned an interrupt service thread (IST), where each thread has the affinity set to one CPU.
-The ISTs use the same affinity mask and CPU allocation method as worker threads.
+By default, ISTs use the same affinity mask and CPU allocation method as worker threads.
+It is possible to assign a different affinity to ISTs using the ``IrqAffinity`` setting:
+
+.. code:: cpp
+
+    DeWeSetParamStruct_str("driver/api/config/thread",
+                           "IrqAffinity", std::to_string(0x10));
+
+By specifing both ``Affinity`` and ``IrqAffinity``, a program can initalize multiple boards in parallel but only use a dedicated CPU for interrupt processing.
 
 RAM Memory
 ~~~~~~~~~~
