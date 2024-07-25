@@ -45,6 +45,8 @@ struct BoardInfo
     int num_bcnt;
     sint32 scanline_size;
     int64_t total_samples;
+    char* buffer_start;
+    char* buffer_end;
 };
 
 void print_error(int err)
@@ -154,7 +156,7 @@ int verify_block(struct BoardInfo* board, const void* data, int num_samples)
     const char* board_cnt_ptr = (const char*)data + board->scanline_size - sizeof(uint32_t);
     for (int n = 0; n < num_samples; ++n)
     {
-        uint32_t board_cnt = *reinterpret_cast<const uint32_t*>(board_cnt_ptr + n * board->scanline_size);
+        uint32_t board_cnt = *reinterpret_cast<const uint32_t*>(board_cnt_ptr);
 
         // Note: Due to the way TRION asynchroneously resets the Board-Counters, we may get the value 0 twice after acquisition start
         // the following computation is needed to determine the expected board count value for each sample in case of two 0-counts after ACQ start
@@ -166,6 +168,13 @@ int verify_block(struct BoardInfo* board, const void* data, int num_samples)
         if (board_cnt != (uint32_t)(board->total_samples + n) && board_cnt != (uint32_t)(corrected_count))
         {
             return ERR_INVALID_VALUE;
+        }
+
+        // advance data pointer to next scanline and correct for buffer wrap-around
+        board_cnt_ptr += board->scanline_size;
+        if (board_cnt_ptr >= board->buffer_end)
+        {
+            board_cnt_ptr = board_cnt_ptr - board->buffer_end + board->buffer_start;
         }
     }
     return ERR_NONE;
@@ -189,22 +198,22 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
                 continue;
             }
             
-            err = DeWeGetParam_i32(board_no, CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE, &samples_available);
+            err = DeWeGetParam_i32(board_no, CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE, &samples_available);
             CheckError(err);
 
             if (samples_available != BLOCK_SIZE)
             {
-                RtPrintf("Board %d returned not exactly one block, not real-time?\n", board_no);
+                RtPrintf("Board %d returned %d blocks, not real-time?\n", board_no, samples_available / BLOCK_SIZE);
             }
 
-            err = DeWeGetParam_i64(board_no, CMD_BUFFER_ACT_SAMPLE_POS, (sint64*)&data);
+            err = DeWeGetParam_i64(board_no, CMD_BUFFER_0_ACT_SAMPLE_POS, (sint64*)&data);
             CheckError(err);
 
             // check if all board counter values are as expected
             err = verify_block(board, data, samples_available);
             CheckError(err);
 
-            err = DeWeSetParam_i32(board_no, CMD_BUFFER_FREE_NO_SAMPLE, samples_available);
+            err = DeWeSetParam_i32(board_no, CMD_BUFFER_0_FREE_NO_SAMPLE, samples_available);
             CheckError(err);
 
             board->total_samples += samples_available;
@@ -305,9 +314,9 @@ int perform_dma_measurements(int num_boards, size_t num_iterations)
             CheckError(err);
 
             // Setup DMA transfer dimensions
-            err = DeWeSetParam_i32(board_no, CMD_BUFFER_BLOCK_SIZE, BLOCK_SIZE);
+            err = DeWeSetParam_i32(board_no, CMD_BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
             CheckError(err);
-            err = DeWeSetParam_i32(board_no, CMD_BUFFER_BLOCK_COUNT, NUM_BLOCKS);
+            err = DeWeSetParam_i32(board_no, CMD_BUFFER_0_BLOCK_COUNT, NUM_BLOCKS);
             CheckError(err);
 
             // Commit settings to the board
@@ -315,7 +324,14 @@ int perform_dma_measurements(int num_boards, size_t num_iterations)
             CheckError(err);
 
             // read back the scanline size
-            err = DeWeGetParam_i32(board_no, CMD_BUFFER_ONE_SCAN_SIZE, &board->scanline_size);
+            err = DeWeGetParam_i32(board_no, CMD_BUFFER_0_ONE_SCAN_SIZE, &board->scanline_size);
+            CheckError(err);
+
+            // read buffer address range
+            err = DeWeGetParam_i64(board_no, CMD_BUFFER_0_START_POINTER, (sint64*)&board->buffer_start);
+            CheckError(err);
+            err = DeWeGetParam_i64(board_no, CMD_BUFFER_0_END_POINTER, (sint64*)&board->buffer_end);
+            CheckError(err);
         }
     }
 
