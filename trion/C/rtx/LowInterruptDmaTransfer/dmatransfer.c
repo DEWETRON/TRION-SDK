@@ -186,34 +186,34 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
     size_t num_it;
     for (num_it = 0; num_it < num_runs; ++num_it)
     {
-        int board_no = 0;
-        for (board_no = 0; board_no < num_boards; ++board_no)
+        int n;
+        for (n = 0; n < num_boards; ++n)
         {
             int samples_available = 0;
             void* data = NULL;
-            struct BoardInfo* board = boards + board_no;
+            struct BoardInfo* board = boards + n;
 
             if (!board->valid)
             {
                 continue;
             }
             
-            err = DeWeGetParam_i32(board_no, CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE, &samples_available);
+            err = DeWeGetParam_i32(board->index, CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE, &samples_available);
             CheckError(err);
 
             if (samples_available != BLOCK_SIZE)
             {
-                RtPrintf("Board %d returned %d blocks, not real-time?\n", board_no, samples_available / BLOCK_SIZE);
+                RtPrintf("Board %d returned %d blocks, not real-time?\n", board->index, samples_available / BLOCK_SIZE);
             }
 
-            err = DeWeGetParam_i64(board_no, CMD_BUFFER_0_ACT_SAMPLE_POS, (sint64*)&data);
+            err = DeWeGetParam_i64(board->index, CMD_BUFFER_0_ACT_SAMPLE_POS, (sint64*)&data);
             CheckError(err);
 
             // check if all board counter values are as expected
             err = verify_block(board, data, samples_available);
             CheckError(err);
 
-            err = DeWeSetParam_i32(board_no, CMD_BUFFER_0_FREE_NO_SAMPLE, samples_available);
+            err = DeWeSetParam_i32(board->index, CMD_BUFFER_0_FREE_NO_SAMPLE, samples_available);
             CheckError(err);
 
             board->total_samples += samples_available;
