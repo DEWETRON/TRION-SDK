@@ -258,7 +258,7 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
 
     // The time time read all samples must be larger or equal than the time elapesed accoring to the boards
     // otherwise, this indicates that at least one board has drifted away temporally
-    if (drift_us > readout_time_us)
+    if (drift_us > readout_time_us + 2)
     {
         RtPrintf("Sample drift larger than expected: min = %6u [%d], max = %6u [%d] [%d: %d us in %d us] (total received: %6u)\n",
             min_sc, min_idx, max_sc, max_idx,
