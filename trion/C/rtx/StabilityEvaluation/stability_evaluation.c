@@ -38,7 +38,7 @@
 
 // Tune these values to enable shared IST handling
 #define DMA_MASTER_BOARD "0"
-#define COMBINE_DMA_START_INTERRUPT FALSE     // if TRUE, use shared IST for starting DMA
+#define COMBINE_DMA_START_INTERRUPT TRUE     // if TRUE, use shared IST for starting DMA
 #define COMBINE_DMA_FINISHED_INTERRUPTS FALSE // if TRUE, use shared IST for DMA finished handling
 #define USE_CHASSIS_CONTROLLER TRUE
 #define QUIT_ON_NUM_ERRORS 10 // do not quit when 0, otherwise quit when number of errors has reached this value
@@ -238,6 +238,7 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
     sint64 min_sc, max_sc, last_sc;
     int min_idx, max_idx;
     LARGE_INTEGER start_time, stop_time;
+    LARGE_INTEGER freq;
     int first_board = -1;
 
     if (num_boards == 0)
@@ -245,7 +246,8 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
         return ERR_NONE;
     }
 
-    RtGetClockTime(CLOCK_2, &start_time);
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&start_time);
 
     for (int n = 0; n < num_boards; ++n)
     {
@@ -289,14 +291,14 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
         }
     }
 
-    RtGetClockTime(CLOCK_2, &stop_time);
-    int readout_time_us = (stop_time.QuadPart - start_time.QuadPart) / (10);
+    QueryPerformanceCounter(&stop_time);
+    int readout_time_us = (1000000 * (stop_time.QuadPart - start_time.QuadPart)) / freq.QuadPart;
     int drift_samples = static_cast<int>(max_sc - min_sc);
     int drift_us = (drift_samples * 1000000) / SAMPLE_RATE;
 
     // The time time read all samples must be larger or equal than the time elapesed accoring to the boards
     // otherwise, this indicates that at least one board has drifted away temporally
-    if (first_board >= 0 && drift_us > readout_time_us + 2)
+    if (first_board >= 0 && drift_us > readout_time_us)
     {
         RtPrintf("Sample drift larger than expected: min = %6u [%d], max = %6u [%d] [%d: %d us in %d us] (total received: %6u)\n",
             min_sc, min_idx, max_sc, max_idx,
@@ -369,13 +371,13 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
         switch (err)
         {
         case WARNING_ACT_SAMPLE_NON_MONOTONOUS:
-            RtPrintf("%8u> ERR: Act sample counts are not monotonously increasing\n", (uint32)num_it);
             RtGenerateEvent(3, &n, 1);
+            RtPrintf("%8u> ERR: Act sample counts are not monotonously increasing\n", (uint32)num_it);
             ++num_errors;
             break;
         case WARNING_ACT_SAMPLE_OUT_OF_SYNC:
-            RtPrintf("%8u> ERR: Act sample count out of sync, boards are not synchronized correctly\n", (uint32)num_it);
             RtGenerateEvent(4, &n, 1);
+            RtPrintf("%8u> ERR: Act sample count out of sync, boards are not synchronized correctly\n", (uint32)num_it);
             ++num_errors;
             break;
         default:
