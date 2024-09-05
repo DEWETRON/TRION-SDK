@@ -40,16 +40,26 @@
 #define DMA_MASTER_BOARD "0"
 #define COMBINE_DMA_START_INTERRUPT FALSE     // if TRUE, use shared IST for starting DMA
 #define COMBINE_DMA_FINISHED_INTERRUPTS FALSE // if TRUE, use shared IST for DMA finished handling
+#define USE_CHASSIS_CONTROLLER TRUE
+#define QUIT_ON_NUM_ERRORS 10 // do not quit when 0, otherwise quit when number of errors has reached this value
 
 // Define custom warnings
 #define WARNING_BOARDCNT_UNEXPECTED_VALUE -1000000
 #define WARNING_ACT_SAMPLE_NON_MONOTONOUS -1000001
 #define WARNING_ACT_SAMPLE_OUT_OF_SYNC    -1000002
 
+//I32 Register Access (Bar0/Bar1)
+#define CMD_REG_BAR0                         0x0501 // R/W (Used as: CMD_REG_BAR0 | (Address << 16 ) )
+#define CMD_REG_BAR1                         0x0502 // R/W (Used as: CMD_REG_BAR1 | (Address << 16 ) )
+#define CMD_REG_BAR2                         0x0503 // R/W (Used as: CMD_REG_BAR1 | (Address << 16 ) )
+
+#define REG_FIRMWARE_VERSION 4
+
 struct BoardInfo
 {
     int index;
     int valid;
+    int firmware_version;
     char name[40];
     int num_ai;
     int num_cnt;
@@ -81,6 +91,9 @@ int board_initialize(struct BoardInfo* self, int board_no)
     char buffer[32] = { 0 };
 
     self->index = board_no;
+
+    err = DeWeGetParam_i32(board_no, CMD_REG_BAR1 | (REG_FIRMWARE_VERSION << 16), &self->firmware_version);
+    CheckError(err);
 
     snprintf(target, sizeof(target), "BoardID%d", board_no);
     err = DeWeGetParamStruct_str(target, "BoardName", self->name, sizeof(self->name));
@@ -169,6 +182,9 @@ int configure_api(int* num_boards)
     return ERR_NONE;
 }
 
+// dummy buffer to simulate converting samples to 32bit
+volatile static int sample_buffer[8];
+
 static int verify_block_boardcnt(struct BoardInfo* board, const void* data, int num_samples)
 {
     if (board->scanline_size < sizeof(uint32_t))
@@ -178,8 +194,19 @@ static int verify_block_boardcnt(struct BoardInfo* board, const void* data, int 
 
     // the board counter is always the last element in the scanline (production code should interpret the scanline descriptor)
     const char* board_cnt_ptr = (const char*)data + board->scanline_size - sizeof(uint32_t);
+    const char* data_ptr = (const char*)data;
     for (int n = 0; n < num_samples; ++n)
     {
+        if (board->num_ai > 0)
+        {
+            for (int ai = 0; ai < board->num_ai; ++ai)
+            {
+                const char* s_ptr = data_ptr + 3 * ai;
+                int sample = (s_ptr[0] << 8) | (s_ptr[1] << 16) | (s_ptr[2] << 24);
+                sample_buffer[ai] = sample;
+            }
+        }
+
         uint32_t board_cnt = *reinterpret_cast<const uint32_t*>(board_cnt_ptr);
 
         // Note: Due to the way TRION asynchroneously resets the Board-Counters, we may get the value 0 twice after acquisition start
@@ -196,9 +223,11 @@ static int verify_block_boardcnt(struct BoardInfo* board, const void* data, int 
 
         // advance data pointer to next scanline and correct for buffer wrap-around
         board_cnt_ptr += board->scanline_size;
+        data_ptr += board->scanline_size;
         if (board_cnt_ptr >= board->buffer_end)
         {
             board_cnt_ptr = board_cnt_ptr - board->buffer_end + board->buffer_start;
+            data_ptr = board->buffer_start;
         }
     }
     return ERR_NONE;
@@ -209,6 +238,7 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
     sint64 min_sc, max_sc, last_sc;
     int min_idx, max_idx;
     LARGE_INTEGER start_time, stop_time;
+    int first_board = -1;
 
     if (num_boards == 0)
     {
@@ -217,19 +247,27 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
 
     RtGetClockTime(CLOCK_2, &start_time);
 
-    for (auto n = 0; n < num_boards; ++n)
+    for (int n = 0; n < num_boards; ++n)
     {
         sint64 board_cnt;
-        auto err = DeWeGetParam_i64(boards[n].index, CMD_ACT_SAMPLE_COUNT, &board_cnt);
+        int err;
+
+        if (!boards[n].valid)
+        {
+            continue;
+        }
+
+        err = DeWeGetParam_i64(boards[n].index, CMD_ACT_SAMPLE_COUNT, &board_cnt);
         CheckError(err);
 
-        if (n == 0)
+        if (first_board < 0)
         {
             min_sc = board_cnt;
             max_sc = board_cnt;
             last_sc = board_cnt;
             min_idx = boards[n].index;
             max_idx = boards[n].index;
+            first_board = n;
         }
         else
         {
@@ -258,12 +296,12 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
 
     // The time time read all samples must be larger or equal than the time elapesed accoring to the boards
     // otherwise, this indicates that at least one board has drifted away temporally
-    if (drift_us > readout_time_us + 2)
+    if (first_board >= 0 && drift_us > readout_time_us + 2)
     {
         RtPrintf("Sample drift larger than expected: min = %6u [%d], max = %6u [%d] [%d: %d us in %d us] (total received: %6u)\n",
             min_sc, min_idx, max_sc, max_idx,
             drift_samples, drift_us, readout_time_us,
-            boards->total_samples);
+            boards[first_board].total_samples);
         return WARNING_ACT_SAMPLE_OUT_OF_SYNC;
     }
 
@@ -295,7 +333,7 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
             if (samples_available != BLOCK_SIZE)
             {
                 RtGenerateEvent(1, &n, 1);
-                RtPrintf("ERR: Board %d returned %d blocks, real-time violated\n", board->index, samples_available / BLOCK_SIZE);
+                RtPrintf("%8u> ERR: Board %d returned %d blocks, real-time violated\n", (uint32)num_it, board->index, samples_available / BLOCK_SIZE);
                 ++num_errors;
             }
 
@@ -310,7 +348,7 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
             {
             case WARNING_BOARDCNT_UNEXPECTED_VALUE:
                 RtGenerateEvent(2, &n, 1);
-                RtPrintf("ERR: Board-Counter of board %d has an unexpected value\n", board->index);
+                RtPrintf("%8u> ERR: Board-Counter of board %d has an unexpected value\n", (uint32)num_it, board->index);
                 ++num_errors;
                 break;
             default:
@@ -331,17 +369,22 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
         switch (err)
         {
         case WARNING_ACT_SAMPLE_NON_MONOTONOUS:
-            RtPrintf("ERR: Act sample counts are not monotonously increasing\n");
+            RtPrintf("%8u> ERR: Act sample counts are not monotonously increasing\n", (uint32)num_it);
             RtGenerateEvent(3, &n, 1);
             ++num_errors;
             break;
         case WARNING_ACT_SAMPLE_OUT_OF_SYNC:
-            RtPrintf("ERR: Act sample count out of sync, boards are not synchronized correctly\n");
+            RtPrintf("%8u> ERR: Act sample count out of sync, boards are not synchronized correctly\n", (uint32)num_it);
             RtGenerateEvent(4, &n, 1);
             ++num_errors;
             break;
         default:
             CheckError(err);
+            break;
+        }
+
+        if (QUIT_ON_NUM_ERRORS > 0 && num_errors >= QUIT_ON_NUM_ERRORS)
+        {
             break;
         }
 
@@ -365,6 +408,7 @@ int perform_stability_evaluation(int num_boards, size_t num_iterations)
     struct BoardInfo boards[MAX_BOARDS] = {0};
     int master_board = -1;
     int board_no = 0;
+    int num_valid_boards = 0;
 
     // open and reset all boards in the system
     err = DeWeSetParam_i32(board_no, CMD_OPEN_BOARD_ALL, 0);
@@ -381,100 +425,119 @@ int perform_stability_evaluation(int num_boards, size_t num_iterations)
         err = board_initialize(board, board_no);
         CheckError(err);
 
+#if USE_CHASSIS_CONTROLLER
         board->valid = board->num_bcnt > 0; // We will only use boards with board counters
-        
-        RtPrintf("Found board %d: %s with %d AI, %d CNT and %d BCNT channels\n",
-            board_no, board->name,
+#else
+        board->valid = board->num_ai > 0 && board->num_bcnt > 0; // We will only use boards with board counters
+#endif
+
+        if (!board->valid)
+        {
+            RtPrintf("Skipping board %d: %s (FW %x) with %d AI, %d CNT and %d BCNT channels\n",
+                board_no, board->name, board->firmware_version,
+                board->num_ai, board->num_cnt, board->num_bcnt);
+            continue;
+        }
+
+        ++num_valid_boards;
+        RtPrintf("Using board %d:    %s (FW %x) with %d AI, %d CNT and %d BCNT channels\n",
+            board_no, board->name, board->firmware_version,
             board->num_ai, board->num_cnt, board->num_bcnt);
 
-        if (board->valid)
+        if (master_board < 0)
         {
-            if (master_board < 0)
-            {
-                // define first board as SYNC master
-                master_board = board_no;
-            }
-
-            // Configure acquisition via XML
-            const char* xml_config;
-            if (board_no == master_board)
-            {
-                xml_config =
-                    "<Configuration>"
-                        "<Acquisition><AcqProp>"
-                            "<SampleRate Unit = \"Hz\">" SAMPLE_RATE_STR "</SampleRate>"
-                            "<OperationMode>Master</OperationMode>"
-                            "<ExtTrigger>False</ExtTrigger>"
-                            "<ExtClk>False</ExtClk>"
-                        "</AcqProp></Acquisition>"
-                        "<Channel>"
-                        "</Channel>"
-                    "</Configuration>";
-            }
-            else
-            {
-                xml_config =
-                    "<Configuration>"
-                        "<Acquisition><AcqProp>"
-                            "<SampleRate Unit = \"Hz\">" SAMPLE_RATE_STR "</SampleRate>"
-                            "<OperationMode>Slave</OperationMode>"
-                            "<ExtTrigger>PosEdge</ExtTrigger>"
-                            "<ExtClk>False</ExtClk>"
-                        "</AcqProp></Acquisition>"
-                        "<Channel>"
-                        "</Channel>"
-                    "</Configuration>";
-            }
-            snprintf(target, sizeof(target), "BoardID%d", board_no);
-            err = DeWeSetParamStruct_str(target, "config", xml_config);
-            CheckError(err);
-
-            // Configure channels
-            // enable all AI channels (unused in this demo, but they show realistic read load on the PCI bus)
-            snprintf(target, sizeof(target), "BoardID%d/AIAll", board_no);
-            err = DeWeSetParamStruct_str(target, "Used", "True");
-            CheckError(err);
-
-            // enable board counter and have it report the current sample number
-            snprintf(target, sizeof(target), "BoardID%d/BoardCNT0", board_no);
-            err = DeWeSetParamStruct_str(target, "Used", "True");
-            CheckError(err);
-            err = DeWeSetParamStruct_str(target, "Reset", "OnReStart");
-            CheckError(err);
-            err = DeWeSetParamStruct_str(target, "Source_A", "ACQ_CLK");
-            CheckError(err);
-
-            // Setup DMA transfer dimensions
-            err = DeWeSetParam_i32(board_no, CMD_BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
-            CheckError(err);
-            err = DeWeSetParam_i32(board_no, CMD_BUFFER_0_BLOCK_COUNT, NUM_BLOCKS);
-            CheckError(err);
-
-            // Commit settings to the board
-            err = DeWeSetParam_i32(board_no, CMD_UPDATE_PARAM_ALL, 0);
-            CheckError(err);
-
-            // read back the scanline size
-            err = DeWeGetParam_i32(board_no, CMD_BUFFER_0_ONE_SCAN_SIZE, &board->scanline_size);
-            CheckError(err);
-
-            // read buffer address range
-            err = DeWeGetParam_i64(board_no, CMD_BUFFER_0_START_POINTER, (sint64*)&board->buffer_start);
-            CheckError(err);
-            err = DeWeGetParam_i64(board_no, CMD_BUFFER_0_END_POINTER, (sint64*)&board->buffer_end);
-            CheckError(err);
+            // define first board as SYNC master
+            master_board = board_no;
         }
+
+        // Configure acquisition via XML
+        const char* xml_config;
+        if (board_no == master_board)
+        {
+            xml_config =
+                "<Configuration>"
+                    "<Acquisition><AcqProp>"
+                        "<SampleRate Unit = \"Hz\">" SAMPLE_RATE_STR "</SampleRate>"
+                        "<OperationMode>Master</OperationMode>"
+                        "<ExtTrigger>False</ExtTrigger>"
+                        "<ExtClk>False</ExtClk>"
+                    "</AcqProp></Acquisition>"
+                    "<Channel>"
+                    "</Channel>"
+                "</Configuration>";
+        }
+        else
+        {
+            xml_config =
+                "<Configuration>"
+                    "<Acquisition><AcqProp>"
+                        "<SampleRate Unit = \"Hz\">" SAMPLE_RATE_STR "</SampleRate>"
+                        "<OperationMode>Slave</OperationMode>"
+                        "<ExtTrigger>PosEdge</ExtTrigger>"
+                        "<ExtClk>False</ExtClk>"
+                    "</AcqProp></Acquisition>"
+                    "<Channel>"
+                    "</Channel>"
+                "</Configuration>";
+        }
+        snprintf(target, sizeof(target), "BoardID%d", board_no);
+        err = DeWeSetParamStruct_str(target, "config", xml_config);
+        CheckError(err);
+
+        // Configure channels
+        // enable all AI channels (unused in this demo, but they show realistic read load on the PCI bus)
+        snprintf(target, sizeof(target), "BoardID%d/AIAll", board_no);
+        err = DeWeSetParamStruct_str(target, "Used", "True");
+        CheckError(err);
+
+        // enable board counter and have it report the current sample number
+        snprintf(target, sizeof(target), "BoardID%d/BoardCNT0", board_no);
+        err = DeWeSetParamStruct_str(target, "Used", "True");
+        CheckError(err);
+        err = DeWeSetParamStruct_str(target, "Reset", "OnReStart");
+        CheckError(err);
+        err = DeWeSetParamStruct_str(target, "Source_A", "ACQ_CLK");
+        CheckError(err);
+
+        // Setup DMA transfer dimensions
+        err = DeWeSetParam_i32(board_no, CMD_BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
+        CheckError(err);
+        err = DeWeSetParam_i32(board_no, CMD_BUFFER_0_BLOCK_COUNT, NUM_BLOCKS);
+        CheckError(err);
+
+        // Commit settings to the board
+        err = DeWeSetParam_i32(board_no, CMD_UPDATE_PARAM_ALL, 0);
+        CheckError(err);
+
+        // read back the scanline size
+        err = DeWeGetParam_i32(board_no, CMD_BUFFER_0_ONE_SCAN_SIZE, &board->scanline_size);
+        CheckError(err);
+
+        // read buffer address range
+        err = DeWeGetParam_i64(board_no, CMD_BUFFER_0_START_POINTER, (sint64*)&board->buffer_start);
+        CheckError(err);
+        err = DeWeGetParam_i64(board_no, CMD_BUFFER_0_END_POINTER, (sint64*)&board->buffer_end);
+        CheckError(err);
+    }
+
+    if (num_valid_boards == 0)
+    {
+        RtPrintf("No valid boards found. Quitting.\n");
+        return ERR_NONE;
     }
 
     // Start slaves first
-    RtPrintf("Starting slaves...\n");
-    for (board_no = 0; board_no < num_boards; ++board_no)
+    if (num_valid_boards > 1)
     {
-        struct BoardInfo* board = boards + board_no;
-        if (board->valid && board_no != master_board)
+        RtPrintf("Starting %d slaves...\n", num_valid_boards);
+        for (board_no = 0; board_no < num_boards; ++board_no)
         {
-            err = DeWeSetParam_i32(board_no, CMD_START_ACQUISITION, 0);
-            CheckError(err);
+            struct BoardInfo* board = boards + board_no;
+            if (board->valid && board_no != master_board)
+            {
+                err = DeWeSetParam_i32(board_no, CMD_START_ACQUISITION, 0);
+                CheckError(err);
+            }
         }
     }
 
