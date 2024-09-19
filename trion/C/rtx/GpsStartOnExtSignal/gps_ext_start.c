@@ -313,11 +313,16 @@ int run_example()
 
             //It is important, to do this *after* setting GPS-Mode, as mode-settings overwrite
             //those signal sources
-            snprintf(target, sizeof(target), "%s/AcqSync", board_no);
-            nErrorCode = DeWeSetParamStruct_str(sChannelStr, "Source", "IRIG_IO");
+            snprintf(target, sizeof(target), "BoardID%d/AcqSync", board_no);
+            nErrorCode = DeWeSetParamStruct_str(target, "Source", "IRIG_IO");
             CheckError(nErrorCode);
-            snprintf(target, sizeof(target), "%s/AcqStart", board_no);
-            nErrorCode = DeWeSetParamStruct_str(sChannelStr, "Source", "IRIG_IO");
+            nErrorCode = DeWeSetParamStruct_str(target, "Inverted", "False");
+            CheckError(nErrorCode);
+
+            snprintf(target, sizeof(target), "BoardID%d/AcqStart", board_no);
+            nErrorCode = DeWeSetParamStruct_str(target, "Source", "IRIG_IO");
+            CheckError(nErrorCode);
+            nErrorCode = DeWeSetParamStruct_str(target, "Inverted", "False");
             CheckError(nErrorCode);
         }
         else
