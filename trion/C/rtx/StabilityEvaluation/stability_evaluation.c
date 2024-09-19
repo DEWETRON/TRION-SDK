@@ -25,12 +25,14 @@
 
 #include <stdio.h>
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 // TODO: Change this path to the actual location of the dwpxi_api_x64.rtdll file
 #define DWPXI_API_DLL "dwpxi_api_x64.rtdll"
 
 #define MAX_BOARDS 17
 #define SAMPLE_RATE 200000
-#define SAMPLE_RATE_STR "200000"
 #define BLOCK_SIZE 200
 #define NUM_BLOCKS 20
 #define RUNTIME_IN_SECONDS 60
@@ -41,7 +43,7 @@
 #define COMBINE_DMA_START_INTERRUPT TRUE     // if TRUE, use shared IST for starting DMA
 #define COMBINE_DMA_FINISHED_INTERRUPTS FALSE // if TRUE, use shared IST for DMA finished handling
 #define USE_CHASSIS_CONTROLLER TRUE
-#define QUIT_ON_NUM_ERRORS 10 // do not quit when 0, otherwise quit when number of errors has reached this value
+#define QUIT_ON_NUM_ERRORS 5 // do not quit when 0, otherwise quit when number of errors has reached this value
 
 // Define custom warnings
 #define WARNING_BOARDCNT_UNEXPECTED_VALUE -1000000
@@ -390,7 +392,7 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
             break;
         }
 
-        if (num_it % (1000 * 10) == 0)
+        if (num_it % (1000 * 60) == 0)
         {
             // print progress after each 10 seconds
             RtPrintf("%8u> running...\n", (uint32)num_it);
@@ -459,7 +461,7 @@ int perform_stability_evaluation(int num_boards, size_t num_iterations)
             xml_config =
                 "<Configuration>"
                     "<Acquisition><AcqProp>"
-                        "<SampleRate Unit = \"Hz\">" SAMPLE_RATE_STR "</SampleRate>"
+                        "<SampleRate Unit = \"Hz\">" STR(SAMPLE_RATE) "</SampleRate>"
                         "<OperationMode>Master</OperationMode>"
                         "<ExtTrigger>False</ExtTrigger>"
                         "<ExtClk>False</ExtClk>"
@@ -473,7 +475,7 @@ int perform_stability_evaluation(int num_boards, size_t num_iterations)
             xml_config =
                 "<Configuration>"
                     "<Acquisition><AcqProp>"
-                        "<SampleRate Unit = \"Hz\">" SAMPLE_RATE_STR "</SampleRate>"
+                        "<SampleRate Unit = \"Hz\">" STR(SAMPLE_RATE) "</SampleRate>"
                         "<OperationMode>Slave</OperationMode>"
                         "<ExtTrigger>PosEdge</ExtTrigger>"
                         "<ExtClk>False</ExtClk>"
