@@ -267,7 +267,7 @@ int perform_polling(int num_boards)
 
             err = DeWeSetParamStruct_str(target, "ExtClk", "False");
             CheckError(err);
-            snprintf(buffer, sizeof(buffer), "%d Hz", SAMPLE_RATE);
+            snprintf(buffer, sizeof(buffer), "%d", SAMPLE_RATE);
             err = DeWeSetParamStruct_str(target, "SampleRate", buffer); // Each sample will generate a call back
             CheckError(err);
             err = DeWeSetParamStruct_str(target, "DMABuffer0Enabled", "False"); // Disable DMA since we will poll channel values directly
