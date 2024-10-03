@@ -6,7 +6,7 @@ dewepxi_load module
 
 
 import ctypes
-from dewepxi_apicore import *
+from .dewepxi_apicore import *
 import os
 import platform
 import sys
