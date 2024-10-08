@@ -6,10 +6,10 @@ dewepxi_load module
 
 
 import ctypes
-from .dewepxi_apicore import *
 import os
 import platform
 import sys
+from .dewepxi_apicore import *
 
 
 if "64" in platform.architecture()[0]:
