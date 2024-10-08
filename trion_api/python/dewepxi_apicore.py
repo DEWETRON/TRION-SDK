@@ -6,6 +6,7 @@ dewepxi_api_core module
 
 
 from .dewepxi_const import *
+from .dewepxi_errorcodes import *
 from .dewepxi_types import *
 from ctypes import *
 
