@@ -22,6 +22,8 @@ New DEWETRON TRION API package:
 
 Get those for optimal results.
 
+Python now supports installing a `trion_sdk` package that can be installed using `pip`. 
+
 
 # Prerequisites
 To use the DEWETRION TRION SDK you need a current TRION API installation.
@@ -45,7 +47,7 @@ The docs directory contains pdf and html versions of the complete documentation.
 
 For offline use we provide this pdf: https://github.com/DEWETRON/TRION-SDK/releases/download/TRION-R7.0.0/dewetrontrionsdk.pdf
 
-# Directory structure
+# Directory Structure
 
 ## trion_api
 
@@ -60,7 +62,7 @@ Usually for programms directly running on DEWE2 & DEWE3 enclosures.
 This directory contains examples for accessing TRIONET devices.
 
 
-# Building the examples
+# Building the Examples
 
 ## Examples in C 
 Building the C examples require CMAKE (https://cmake.org/).
@@ -79,6 +81,8 @@ Open the generated solution:
 ```cmd
 start TRION_SDK_C.sln
 ```
+See [trion/C](https://github.com/DEWETRON/TRION-SDK/tree/master/trion/C) for available examples.
+
 
 ## Examples in C#
 Building the C# examples also require CMAKE (https://cmake.org/).
@@ -97,11 +101,37 @@ Open the generated solution:
 ```cmd
 start TRION_SDK_CSHARP.sln
 ```
+See [trionet/CS](https://github.com/DEWETRON/TRION-SDK/tree/master/trionet/CS) for available examples.
 
+## Examples in Python
+Running the python examples requires an installed TRION API and the `trion_sdk` package installed via `pip` (for the current user or in a virtual environment):
+```cmd
+pip install git+https://github.com/DEWETRON/TRION-SDK.git
+```
+You can the use the TRION SDK in Python as follows:
+```python
+from trion_sdk import *
+
+DeWePxiLoad()
+
+error_code, num_boards = DeWeDriverInit()
+
+if num_boards != 0:
+    error_code = DeWeSetParam_i32( 0, CMD_OPEN_BOARD_ALL )
+    error_code = DeWeSetParam_i32( 0, CMD_RESET_BOARD_ALL )
+
+    # Your program goes here
+
+    error_code = DeWeSetParam_i32( 0, CMD_CLOSE_BOARD_ALL )
+
+DeWePxiUnload()
+```
+
+See [trion/python](https://github.com/DEWETRON/TRION-SDK/tree/master/trion/python) for available examples.
 
 # Contact
 
-**Company information**
+**Company Information**
 
 [www.dewetron.com](https://www.dewetron.com)
 
@@ -114,13 +144,13 @@ support@dewetron.com
 
 - Gunther Laure <gunther.laure@dewetron.com>
 - Martin Poniz <martin.poniz@dewetron.com>
-
+- Matthias Straka <matthias.straka@dewetron.com>
 
 
 # License
 MIT License
 
-Copyright (c) 2018 DEWETRON
+Copyright (c) 2024 DEWETRON
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

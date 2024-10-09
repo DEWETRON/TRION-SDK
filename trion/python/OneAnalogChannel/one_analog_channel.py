@@ -13,7 +13,7 @@
 import sys
 import time
 import numpy as np
-from trion_api import *
+from trion_sdk import *
 
 BLOCK_SIZE = 1000
 BLOCK_COUNT = 10
