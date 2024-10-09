@@ -228,7 +228,7 @@ int readSingleTEDS(int nBoardId, int nChannelIndex, const char* pszOutputFile)
             }
         }
         TRION_StopWatch_Stop(sw);
-        printf("TedsReadEx      %llu ms\n", TRION_StopWatch_GetMS(sw));
+        printf("TedsReadEx      %lu ms\n", TRION_StopWatch_GetMS(sw));
         TRION_StopWatch_Destroy(&sw);
 
         TRION_StopWatch_Create(&sw);
@@ -251,7 +251,7 @@ int readSingleTEDS(int nBoardId, int nChannelIndex, const char* pszOutputFile)
         }
 
         TRION_StopWatch_Stop(sw);
-        printf("TedsReadExChain %llu ms\n", TRION_StopWatch_GetMS(sw));
+        printf("TedsReadExChain %lu ms\n", TRION_StopWatch_GetMS(sw));
         TRION_StopWatch_Destroy(&sw);
 
 
