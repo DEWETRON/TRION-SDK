@@ -12,7 +12,7 @@ persistent=yes
 
 # Minimum Python version to use for version dependent checks. Will default to
 # the version used to run pylint.
-py-version=3.6
+py-version=3.9
 
 [MESSAGES CONTROL]
 disable = global-statement,
