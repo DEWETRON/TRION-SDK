@@ -5,7 +5,7 @@ dewepxi_api_core module
 """
 
 
-from ctypes import *
+from ctypes import byref, cast, c_char_p, c_int, c_longlong, c_short, create_string_buffer, POINTER
 from .dewepxi_const import *
 from .dewepxi_errorcodes import ERROR_BUFFER_TOO_SMALL
 from .dewepxi_types import *
@@ -551,7 +551,9 @@ def DeWeErrorConstantToString(ErrorCode: int) -> str:
     if f_dewe_error_constant_to_string is None:
         raise NotImplementedError
     raw = c_char_p(f_dewe_error_constant_to_string(c_int(ErrorCode)))
-    return raw.value.decode("utf-8")
+    if isinstance(raw.value, bytes):
+        return raw.value.decode("utf-8")
+    return f"UNKNOWN ({ErrorCode})"
 
 # API helper
 def DeWeGetSampleData(nReadPos: int):
@@ -568,7 +570,7 @@ def DeWeGetSampleDataArray(nReadPos: int):
     # return 1
 
 
-def DeWeGetSampleArray(nReadPos: int, res: int | str):
+def DeWeGetSampleArray(nReadPos: int, res):
     """Raw access the DMA buffer at the given nReadPos."""
     p = None
     if res in (24, "24"):

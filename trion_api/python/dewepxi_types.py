@@ -5,7 +5,7 @@ dewepxi_types module
 """
 
 
-from ctypes import *
+from ctypes import c_ubyte, c_uint, c_uint64, c_ushort, Structure
 
 
 class BOARD_CAN_CHANNEL_PROP(Structure):

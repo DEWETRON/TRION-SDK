@@ -10,6 +10,7 @@
 #  - Setup of 1 AI channel
 #  - Print of analog values.
 
+import ctypes
 import sys
 import time
 import numpy as np
@@ -106,7 +107,7 @@ def main(argv):
         print(f"nErrorCode = {nErrorCode}, nBufSize = {nBufSize}")
 
         # Acquisition loops
-        for loop_count in range(1, 10):
+        for _ in range(1, 10):
             # wait for 100ms
             time.sleep(0.1)
 
@@ -140,7 +141,7 @@ def main(argv):
                     data = None
 
                 # Print the first 100 values
-                np.set_printoptions(formatter={'float': '{: 0.2f}'.format})
+                np.set_printoptions(formatter={"float": "{: 0.2f}".format})
                 print(data[:100])
 
                 # Free the ring buffer after read of values

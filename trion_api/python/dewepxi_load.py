@@ -62,19 +62,19 @@ def DeWePxiLoad(lib:str="TRION"):
                 script_name = sys.argv[0]
                 path_name = os.path.dirname(script_name)
                 located_at = os.path.normpath(os.path.join(path_name, dll_file))
-                g_trion_api_dll = windll.LoadLibrary(located_at)
+                g_trion_api_dll = ctypes.windll.LoadLibrary(located_at)
             except:
-                g_trion_api_dll = windll.LoadLibrary(dll_file)
+                g_trion_api_dll = ctypes.windll.LoadLibrary(dll_file)
         elif TRION_DLL_NAME.endswith(".dll"):
             try:
                 script_name = sys.argv[0]
                 path_name = os.path.dirname(script_name)
                 located_at = os.path.normpath(os.path.join(path_name, dll_file))
-                g_trion_api_dll = cdll.LoadLibrary(located_at)
+                g_trion_api_dll = ctypes.cdll.LoadLibrary(located_at)
             except:
-                g_trion_api_dll = cdll.LoadLibrary(dll_file)
+                g_trion_api_dll = ctypes.cdll.LoadLibrary(dll_file)
         else:
-            g_trion_api_dll = cdll.LoadLibrary(dll_file)
+            g_trion_api_dll = ctypes.cdll.LoadLibrary(dll_file)
 
         # load dll functions
 
