@@ -6,10 +6,10 @@ dewepxi_load module
 
 
 import ctypes
-from .dewepxi_apicore import *
 import os
 import platform
 import sys
+from .dewepxi_apicore import *
 
 
 if "64" in platform.architecture()[0]:
@@ -23,7 +23,7 @@ if "64" in platform.architecture()[0]:
         TRION_DLL_NAME = "libdwpxi_api_x64.dylib"
         TRIONET_DLL_NAME = "libdwpxi_netapi_x64.dylib"
     else:
-        raise Exception("Unknown OS")
+        raise OSError("Unknown OS")
 else:
     if sys.platform.startswith("win"):
         TRION_DLL_NAME = "dwpxi_api.dll"
@@ -35,13 +35,13 @@ else:
         TRION_DLL_NAME = "libdwpxi_api.dylib"
         TRIONET_DLL_NAME = "libdwpxi_netapi.dylib"
     else:
-        raise Exception("Unknown OS")
+        raise OSError("Unknown OS")
 
 
 g_trion_api_dll = None
 
 
-def DeWePxiLoad(lib="TRION"):
+def DeWePxiLoad(lib:str="TRION"):
     """
     Load the trion API dll and bind its public functions
     lib can be "TRION" or "TRIONET"
@@ -55,26 +55,26 @@ def DeWePxiLoad(lib="TRION"):
         elif lib == "TRIONET":
             dll_file = TRIONET_DLL_NAME
         else:
-            raise Exception("Given lib ({}) not supported".format(lib))
+            raise ValueError(f"Given lib ({lib}) not supported")
 
         if os.name == "nt":
             try:
                 script_name = sys.argv[0]
                 path_name = os.path.dirname(script_name)
                 located_at = os.path.normpath(os.path.join(path_name, dll_file))
-                g_trion_api_dll = windll.LoadLibrary(located_at)
+                g_trion_api_dll = ctypes.windll.LoadLibrary(located_at)
             except:
-                g_trion_api_dll = windll.LoadLibrary(dll_file)
+                g_trion_api_dll = ctypes.windll.LoadLibrary(dll_file)
         elif TRION_DLL_NAME.endswith(".dll"):
             try:
                 script_name = sys.argv[0]
                 path_name = os.path.dirname(script_name)
                 located_at = os.path.normpath(os.path.join(path_name, dll_file))
-                g_trion_api_dll = cdll.LoadLibrary(located_at)
+                g_trion_api_dll = ctypes.cdll.LoadLibrary(located_at)
             except:
-                g_trion_api_dll = cdll.LoadLibrary(dll_file)
+                g_trion_api_dll = ctypes.cdll.LoadLibrary(dll_file)
         else:
-            g_trion_api_dll = cdll.LoadLibrary(dll_file)
+            g_trion_api_dll = ctypes.cdll.LoadLibrary(dll_file)
 
         # load dll functions
 

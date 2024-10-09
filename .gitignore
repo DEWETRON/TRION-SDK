@@ -45,6 +45,9 @@ CmakeCache.txt
 # Python pyc files
 *.pyc
 
+# Python virtual environments
+**/.venv
+
 # Executables
 *.exe
 *.out

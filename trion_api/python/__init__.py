@@ -5,5 +5,7 @@ TRION SDK - API access
 """
 __copyright__ = "Copyright 2024 DEWETRON GmbH"
 
-from .dewepxi_load import *
+from .dewepxi_apicore import *
+from .dewepxi_load import DeWePxiLoad, DeWePxiUnload
 from .dewepxi_const import *
+from .dewepxi_errorcodes import *

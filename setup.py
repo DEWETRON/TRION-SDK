@@ -6,8 +6,8 @@ TRION SDK - Setup Tools Definition
 import setuptools
 
 setuptools.setup(
-    name="trion_api",
-    version="7.0.0",
+    name="trion_sdk",
+    version="7.1.0",
     author="Matthias Straka",
     author_email="matthias.straka@dewetron.com",
     description="Python module to access the Dewetron TRION API",
@@ -40,7 +40,7 @@ setuptools.setup(
         "Operating System :: POSIX :: Linux",
     ],
     platforms=["Windows", "Linux"],
-    packages=["trion_api"],
-    package_dir={"trion_api": "trion_api/python"},
+    packages=["trion_sdk"],
+    package_dir={"trion_sdk": "trion_api/python"},
     python_requires=">=3.6",
 )

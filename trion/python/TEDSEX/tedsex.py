@@ -1,36 +1,28 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Copyright DEWETRON GmbH 2021
 #
-# Short example to describe how use the oards TEDS interface
+# Short example to describe how use the boards' TEDS interface
 #
 
 
 import sys
-sys.path.append('../../../trion_api/python')
-import time
-from dewepxi_load import *
-from dewepxi_apicore import *
-#import msvcrt
-
+from trion_sdk import *
 
 def main(argv):
     """
     Main function
     """
-    nErrorCode  = 0
-    nBoardId = 0  
-    nNoOfBoards = 0
-    nNoOfChannels = 0
+
+    nBoardId = 0
 
     # Load pxi_api.dll
     if not DeWePxiLoad():
         print("trion api dll could not be found. Exiting...")
         sys.exit(-1)
 
-
     # Initialize driver and retrieve the number of TRION boards
     # nNoOfBoards is a negative number if system is in DEMO mode!
-    [nErrorCode, nNoOfBoards] = DeWeDriverInit()
+    nErrorCode, nNoOfBoards = DeWeDriverInit()
 
     # Check if TRION cards are in the system
     if abs(nNoOfBoards) == 0:
@@ -45,23 +37,23 @@ def main(argv):
 
     # After reset all channels are disabled.
     # So enable all channels
-    target = "BoardID%d/AI" % nBoardId
+    target = f"BoardID{nBoardId}/AI"
     nErrorCode = DeWeSetParamStruct_str(target +"/AIAll", "Used", "True")
 
     # Get number of channels
-    [nErrorCode, nNoOfChannels] = DeWeGetParamStruct_str(target, "Channels")
+    nErrorCode, nNoOfChannels = DeWeGetParamStruct_str(target, "Channels")
 
     # Update the hardware with settings
-    nErrorCode = DeWeSetParam_i32( nBoardId, CMD_UPDATE_PARAM_ALL, 0)
+    nErrorCode = DeWeSetParam_i32( nBoardId, CMD_UPDATE_PARAM_ALL )
 
-    if nErrorCode != 0:
+    if nErrorCode != ERROR_NONE:
         return nErrorCode
 
     # read TEDS
     nErrorCode = readTEDS(nBoardId, int(nNoOfChannels))
 
     # Close and deinit
-    nErrorCode = DeWeSetParam_i32( 0, CMD_CLOSE_BOARD, 0 )
+    nErrorCode = DeWeSetParam_i32( nBoardId, CMD_CLOSE_BOARD )
 
     # Unload pxi_api.dll
     DeWePxiUnload()
@@ -69,10 +61,7 @@ def main(argv):
     return nErrorCode
 
 
-def readTEDS(nBoardId, nNoOfChannels):
-
-    
-
+def readTEDS(nBoardId: int, nNoOfChannels: int):
     for i in range(0, nNoOfChannels):
 
         # err = readSingleTEDSEX_str(nBoardId, i)
@@ -80,73 +69,83 @@ def readTEDS(nBoardId, nNoOfChannels):
         #     return err
 
         err = updateSingleTEDSEX_i32(nBoardId, i)
-        if err > 0:
+        if err > ERROR_NONE:
             return err
 
     return 0
 
 
-def readSingleTEDSEX_str(nBoardId, channel_no):
+def readSingleTEDSEX_str(nBoardId: int, channel_no: int):
     """
     Read TEDS using TedsReadEx str command
     """
-    target = "BoardID%d/AI%d" % (nBoardId, channel_no)
-
-    ret = DeWeGetParamStruct_str(target, "TedsReadEx")
-    if ret[0] == 0:
-        print(str(ret))
+    target = f"BoardID{nBoardId}/AI{channel_no}"
+    err, ret = DeWeGetParamStruct_str(target, "TedsReadEx")
+    if err == ERROR_NONE:
+        print(ret)
 
     return 0
 
 
-def updateSingleTEDSEX_i32(nBoardId, channel_no):
+def updateSingleTEDSEX_i32(nBoardId: int, channel_no: int):
     """
     Read TEDS i32 and XML commands
     """
     enable_write = False    # so the TEDS EEPROM is not changed by accident
+    simulate_teds = False   # Set to True to simulate a TEDS chip
 
-    target = "BoardID%d/aitedsex/AI%d" % (nBoardId, channel_no)
+    if simulate_teds:
+        err = DeWeSetParamStruct_str("driver/api/TrionSystemSim/1WireDevice", f"BoardID{nBoardId}/AI{channel_no}", "DS2431")
+        if err != ERROR_NONE:
+            print("Simulating TEDS failed: " + DeWeErrorConstantToString(err))
+            return err
+
+    target = f"BoardID{nBoardId}/aitedsex/AI{channel_no}"
 
     err = DeWeSetParam_i32(nBoardId, CMD_BOARD_AITEDSEX_READ, channel_no)
-    if err != 0:
-        printf("Reading TEDS FAILED")
+    if err != ERROR_NONE:
+        print("Reading TEDS FAILED")
         return err
 
-    ret = DeWeGetParamXML_str(target, "TEDSData")
-    if ret[0] == 0:
-        print(str(ret))
+    err, ret = DeWeGetParamXML_str(target, "TEDSData")
+    if err != ERROR_NONE:
+        print(DeWeErrorConstantToString(err))
+        return
+
+    print(f"TEDS Data on BoardId{nBoardId}/AI{channel_no}:")
+    print(ret)
 
     # early return if write is disabled
     if not enable_write:
-        return ret[0]
+        return ERROR_NONE
 
     # example: update serial number
     err = DeWeSetParamXML_str(target, "TEDSData/TEDSInfo/@Serial", "654321")
-    if err != 0:
-        print("Setting new serial FAILED" + str(err))
+    if err != ERROR_NONE:
+        print("Setting new serial FAILED" + DeWeErrorConstantToString(err))
         return err
 
     err = DeWeSetParam_i32(nBoardId, CMD_BOARD_AITEDSEX_SYNCHRONIZE, channel_no)
-    if err != 0:
-        print("Syncing TEDS FAILED" + str(err))
+    if err != ERROR_NONE:
+        print("Syncing TEDS FAILED" + DeWeErrorConstantToString(err))
         return err
 
     err = DeWeSetParam_i32(nBoardId, CMD_BOARD_AITEDSEX_WRITE, channel_no)
-    if err != 0:
-        print("Writing TEDS FAILED" + str(err))
+    if err != ERROR_NONE:
+        print("Writing TEDS FAILED" + DeWeErrorConstantToString(err))
         return err
 
     # verify
     err = DeWeSetParam_i32(nBoardId, CMD_BOARD_AITEDSEX_READ, channel_no)
-    if err != 0:
-        print("Reading TEDS FAILED" + str(err))
+    if err != ERROR_NONE:
+        print("Reading TEDS FAILED" + DeWeErrorConstantToString(err))
         return err
 
-    ret = DeWeGetParamXML_str(target, "TEDSData/TEDSInfo/@Serial")
-    if ret[0] == 0:
-        print(str(ret))
+    err, ret = DeWeGetParamXML_str(target, "TEDSData/TEDSInfo/@Serial")
+    if err == ERROR_NONE:
+        print(ret)
 
-    return 0
+    return ERROR_NONE
 
 
 #----------------------------------------------------------------------
