@@ -149,5 +149,7 @@ TRION_COMMAND(UART_CLOSE,                   0x0471)  // Set
 TRION_COMMAND(UART_START,                   0x0472)  // Set
 TRION_COMMAND(UART_STOP,                    0x0473)  // Set
 
+TRION_COMMAND(RESCAN_CHANNEL_MODULES,       0x0483)  // Set
+
 //Strict Test Commands
 TRION_COMMAND(BOARD_BASEEEPROM_DESTROY,     0x0499)  // W        Corrupt the BaseE2Prom

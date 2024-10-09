@@ -415,7 +415,7 @@ def DeWeStartCAN(nBoardNo: int, nChannelNo: int) -> int:
         raise NotImplementedError
     return f_dewe_start_can(c_int(nBoardNo), c_int(nChannelNo))
 
-def DeWeStopCAN(nBoardNo: int , nChannelNo: int) -> int:
+def DeWeStopCAN(nBoardNo: int, nChannelNo: int) -> int:
     """Dewe stop CAN"""
     if f_dewe_stop_can is None:
         raise NotImplementedError
