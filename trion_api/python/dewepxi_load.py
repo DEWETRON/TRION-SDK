@@ -23,7 +23,7 @@ if "64" in platform.architecture()[0]:
         TRION_DLL_NAME = "libdwpxi_api_x64.dylib"
         TRIONET_DLL_NAME = "libdwpxi_netapi_x64.dylib"
     else:
-        raise Exception("Unknown OS")
+        raise OSError("Unknown OS")
 else:
     if sys.platform.startswith("win"):
         TRION_DLL_NAME = "dwpxi_api.dll"
@@ -35,13 +35,13 @@ else:
         TRION_DLL_NAME = "libdwpxi_api.dylib"
         TRIONET_DLL_NAME = "libdwpxi_netapi.dylib"
     else:
-        raise Exception("Unknown OS")
+        raise OSError("Unknown OS")
 
 
 g_trion_api_dll = None
 
 
-def DeWePxiLoad(lib="TRION"):
+def DeWePxiLoad(lib:str="TRION"):
     """
     Load the trion API dll and bind its public functions
     lib can be "TRION" or "TRIONET"
@@ -55,7 +55,7 @@ def DeWePxiLoad(lib="TRION"):
         elif lib == "TRIONET":
             dll_file = TRIONET_DLL_NAME
         else:
-            raise Exception("Given lib ({}) not supported".format(lib))
+            raise ValueError(f"Given lib ({lib}) not supported")
 
         if os.name == "nt":
             try:

@@ -7,7 +7,7 @@ dewepxi_api_core module
 
 from ctypes import *
 from .dewepxi_const import *
-from .dewepxi_errorcodes import *
+from .dewepxi_errorcodes import ERROR_BUFFER_TOO_SMALL
 from .dewepxi_types import *
 
 
