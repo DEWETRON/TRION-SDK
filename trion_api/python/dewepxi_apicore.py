@@ -261,7 +261,7 @@ def DeWeDriverInit() -> tuple[int, int]:
     tuple with error code and number of detected boards
     """
     if f_dewe_driver_init is None:
-        return -1, 0
+        raise NotImplementedError
     no_of_boards = c_int()
     error_code = f_dewe_driver_init(byref(no_of_boards))
     return error_code, no_of_boards.value
@@ -269,13 +269,13 @@ def DeWeDriverInit() -> tuple[int, int]:
 def DeWeDriverDeInit() -> int:
     """DeWe Trion API DeInitialization"""
     if f_dewe_driver_deinit is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_driver_deinit()
 
 def DeWeSetParam_i32(nBoardNo: int, nCommandId: int, nVal: int = 0) -> int:
     """Dewe set param i32"""
     if f_dewe_set_param_i32 is None:
-        return -1
+        raise NotImplementedError
     board_id = c_int(nBoardNo)
     command_id = c_uint(nCommandId)
     val = c_int(nVal)
@@ -285,7 +285,7 @@ def DeWeSetParam_i32(nBoardNo: int, nCommandId: int, nVal: int = 0) -> int:
 def DeWeGetParam_i32(nBoardNo: int, nCommandId: int) -> tuple[int, int]:
     """Dewe get param i32"""
     if f_dewe_set_param_i32 is None:
-        return -2, 0
+        raise NotImplementedError
     board_id = c_int(nBoardNo)
     command_id = c_uint(nCommandId)
     val = c_int()
@@ -295,7 +295,7 @@ def DeWeGetParam_i32(nBoardNo: int, nCommandId: int) -> tuple[int, int]:
 def DeWeSetParam_i64(nBoardNo: int, nCommandId: int, nVal: int = 0) -> int:
     """Dewe set param i64"""
     if f_dewe_set_param_i64 is None:
-        return -1
+        raise NotImplementedError
     board_id = c_int(nBoardNo)
     command_id = c_uint(nCommandId)
     val = c_longlong(nVal)
@@ -304,7 +304,7 @@ def DeWeSetParam_i64(nBoardNo: int, nCommandId: int, nVal: int = 0) -> int:
 def DeWeGetParam_i64(nBoardNo: int, nCommandId: int) -> tuple[int, int]:
     """Dewe get param i64"""
     if f_dewe_set_param_i64 is None:
-        return -3, 0
+        raise NotImplementedError
     board_id = c_int(nBoardNo)
     command_id = c_uint(nCommandId)
     val = c_longlong()
@@ -314,7 +314,7 @@ def DeWeGetParam_i64(nBoardNo: int, nCommandId: int) -> tuple[int, int]:
 def DeWeSetParamStruct_str(Target: str, Command: str, Var: str) -> int:
     """Dewe set param struct str"""
     if f_dewe_set_param_struct_str is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_set_param_struct_str(
         c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), c_char_p(Var.encode("utf-8"))
     )
@@ -322,7 +322,7 @@ def DeWeSetParamStruct_str(Target: str, Command: str, Var: str) -> int:
 def DeWeGetParamStruct_str(Target: str, Command: str) -> tuple[int, str]:
     """Dewe get param struct str"""
     if f_dewe_get_param_struct_str is None:
-        return -1, ""
+        raise NotImplementedError
     s = create_string_buffer(__MAX_STRING_BUF)
     error_code = f_dewe_get_param_struct_str(
         c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), s, c_int(__MAX_STRING_BUF)
@@ -339,7 +339,7 @@ def DeWeGetParamStruct_str(Target: str, Command: str) -> tuple[int, str]:
 def DeWeGetParamStruct_strLEN(Target: str, Command: str) -> tuple[int, int]:
     """Dewe get param struct str len"""
     if f_dewe_get_param_struct_strlen is None:
-        return -1, 0
+        raise NotImplementedError
     val = c_int()
     error_code = f_dewe_get_param_struct_strlen(
         c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), byref(val)
@@ -349,7 +349,7 @@ def DeWeGetParamStruct_strLEN(Target: str, Command: str) -> tuple[int, int]:
 def DeWeSetParamXML_str(Target: str, Command: str, Var: str) -> int:
     """Dewe set param XML str"""
     if f_dewe_set_param_xml_str is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_set_param_xml_str(c_char_p(
         Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), c_char_p(Var.encode("utf-8"))
     )
@@ -357,7 +357,7 @@ def DeWeSetParamXML_str(Target: str, Command: str, Var: str) -> int:
 def DeWeGetParamXML_str(Target: str, Command: str) -> tuple[int, str]:
     """Dewe get param XML str"""
     if f_dewe_get_param_xml_str is None:
-        return -1, ""
+        raise NotImplementedError
     s = create_string_buffer(__MAX_STRING_BUF)
     error_code = f_dewe_get_param_xml_str(c_char_p(
         Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), s, c_int(__MAX_STRING_BUF)
@@ -374,7 +374,7 @@ def DeWeGetParamXML_str(Target: str, Command: str) -> tuple[int, str]:
 def DeWeGetParamXML_strLEN(Target: str, Command: str) -> tuple[int, int]:
     """Dewe get param XML str len"""
     if f_dewe_get_param_xml_strlen is None:
-        return -1, 0
+        raise NotImplementedError
     val = c_int()
     error_code = f_dewe_get_param_xml_strlen(
         c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), byref(val)
@@ -386,19 +386,19 @@ def DeWeGetParamXML_strLEN(Target: str, Command: str) -> tuple[int, int]:
 def DeWeOpenCAN(nBoardNo: int) -> int:
     """Dewe open CAN"""
     if f_dewe_open_can is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_open_can(c_int(nBoardNo))
 
 def DeWeCloseCAN(nBoardNo: int) -> int:
     """Dewe close CAN"""
     if f_dewe_close_can is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_close_can(c_int(nBoardNo))
 
 def DeWeGetChannelPropCAN(nBoardNo: int, nChannelNo: int):
     """Dewe get channel prop CAN"""
     if f_dewe_get_channel_prop_can is None:
-        return -1, BOARD_CAN_CHANNEL_PROP()
+        raise NotImplementedError
     c_prop = BOARD_CAN_CHANNEL_PROP()
     error_code = f_dewe_get_channel_prop_can(c_int(nBoardNo), c_int(nChannelNo), byref(c_prop))
     return error_code, c_prop
@@ -406,25 +406,25 @@ def DeWeGetChannelPropCAN(nBoardNo: int, nChannelNo: int):
 def DeWeSetChannelPropCAN(nBoardNo: int, nChannelNo: int, cProp) -> int:
     """Dewe set channel prop CAN"""
     if f_dewe_set_channel_prop_can is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_set_channel_prop_can(c_int(nBoardNo), c_int(nChannelNo), cProp)
 
 def DeWeStartCAN(nBoardNo: int, nChannelNo: int) -> int:
     """Dewe start CAN"""
     if f_dewe_start_can is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_start_can(c_int(nBoardNo), c_int(nChannelNo))
 
 def DeWeStopCAN(nBoardNo: int , nChannelNo: int) -> int:
     """Dewe stop CAN"""
     if f_dewe_stop_can is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_stop_can(c_int(nBoardNo), c_int(nChannelNo))
 
 def DeWeReadCAN(nBoardNo: int, nMaxFrameCount: int):
     """Dewe read CAN"""
     if f_dewe_read_can is None:
-        return -1, None, 0
+        raise NotImplementedError
     p_can_frames = (BOARD_CAN_FRAME * nMaxFrameCount)()
     n_real_frame_count = c_int()
     error_code = f_dewe_read_can(
@@ -435,7 +435,7 @@ def DeWeReadCAN(nBoardNo: int, nMaxFrameCount: int):
 def DeWeReadCANRawFrame(nBoardNo: int):
     """Dewe read CAN raw frame"""
     if f_dewe_read_can_raw_frame is None:
-        return -1, None, 0
+        raise NotImplementedError
     # f_dewe_read_can_raw_frame.argtypes = [c_int, POINTER(POINTER(BOARD_CAN_RAW_FRAME)), POINTER(c_int)]
     # f_dewe_read_can_raw_frame.restype  = c_int
     p_can_frames = POINTER(BOARD_CAN_RAW_FRAME)()
@@ -447,13 +447,13 @@ def DeWeReadCANRawFrame(nBoardNo: int):
 def DeWeFreeFramesCAN(nBoardNo: int, nFrameCount: int) -> int:
     """Dewe free frames CAN"""
     if f_dewe_free_can_frames is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_free_can_frames(c_int(nBoardNo), c_int(nFrameCount))
 
 def DeWeWriteCAN(nBoardNo: int, CanFrameList: list) -> tuple[int, int]:
     """Dewe write CAN"""
     if f_dewe_write_can is None:
-        return -1, 0
+        raise NotImplementedError
 
     n_real_frame_count = c_int()
     n_frame_count = len(CanFrameList)
@@ -472,7 +472,7 @@ def DeWeWriteCAN(nBoardNo: int, CanFrameList: list) -> tuple[int, int]:
 def DeWeErrorCntCAN(nBoardNo: int, nChannelNo: int) -> tuple[int, int]:
     """Dewe error cnt CAN"""
     if f_dewe_error_cnt_can is None:
-        return -1, 0
+        raise NotImplementedError
     n_error_count = c_int()
     error_code = f_dewe_error_cnt_can(c_int(nBoardNo), c_int(nChannelNo), byref(n_error_count))
     return error_code, n_error_count
@@ -481,19 +481,19 @@ def DeWeErrorCntCAN(nBoardNo: int, nChannelNo: int) -> tuple[int, int]:
 def DeWeOpenDmaUart(nBoardNo: int) -> int:
     """Dewe open dmd uart"""
     if f_dewe_open_dma_uart is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_open_dma_uart(c_int(nBoardNo))
 
 def DeWeCloseDmaUart(nBoardNo: int) -> int:
     """Dewe close dma uart"""
     if f_dewe_close_dma_uart is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_close_dma_uart(c_int(nBoardNo))
 
 def DeWeGetChannelPropDmaUart(nBoardNo: int, nChannelNo: int):
     """Dewe get channel prop dma uart"""
     if f_dewe_get_channel_prop_dma_uart is None:
-        return -1, BOARD_UART_CHANNEL_PROP()
+        raise NotImplementedError
     p_prop = BOARD_UART_CHANNEL_PROP()
     error_code = f_dewe_get_channel_prop_dma_uart(c_int(nBoardNo), c_int(nChannelNo), byref(p_prop))
     return error_code, p_prop
@@ -501,25 +501,25 @@ def DeWeGetChannelPropDmaUart(nBoardNo: int, nChannelNo: int):
 def DeWeSetChannelPropDmaUart(nBoardNo: int, nChannelNo: int, pProp) -> int:
     """Dewe set channel prop dma uart"""
     if f_dewe_set_channel_prop_dma_uart is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_set_channel_prop_dma_uart(c_int(nBoardNo), c_int(nChannelNo), pProp)
 
 def DeWeStartDmaUart(nBoardNo: int, nChannelNo: int) -> int:
     """Dewe start dma uart"""
     if f_dewe_start_dma_uart is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_start_dma_uart(c_int(nBoardNo), c_int(nChannelNo))
 
 def DeWeStopDmaUart(nBoardNo: int, nChannelNo: int) -> int:
     """Dewe stop dma uart"""
     if f_dewe_stop_dma_uart is None:
-        return -1
+        raise NotImplementedError
     return f_dewe_stop_dma_uart(c_int(nBoardNo), c_int(nChannelNo))
 
 def DeWeReadDmaUart(nBoardNo: int, nMaxFrameCount: int):
     """Dewe read dma uart"""
     if f_dewe_read_dma_uart is None:
-        return -1, BOARD_UART_FRAME(), 0
+        raise NotImplementedError
     p_uart_frames = (BOARD_UART_FRAME * nMaxFrameCount)()
     n_real_frame_count = c_int()
     error_code = f_dewe_read_dma_uart(
@@ -530,7 +530,7 @@ def DeWeReadDmaUart(nBoardNo: int, nMaxFrameCount: int):
 def DeWeReadDmaUartRawFrame(nBoardNo: int):
     """Dewe read dma uart raw frame"""
     if f_dewe_read_dma_uart_raw_frame is None:
-        return -1, None
+        raise NotImplementedError
     f_dewe_read_dma_uart_raw_frame.argtypes = [c_int, POINTER(POINTER(BOARD_UART_RAW_FRAME)), POINTER(c_int)]
     f_dewe_read_dma_uart_raw_frame.restype = c_int
     p_uart_frames = POINTER(BOARD_UART_RAW_FRAME)()
@@ -541,7 +541,7 @@ def DeWeReadDmaUartRawFrame(nBoardNo: int):
 def DeWeWriteDmaUart(nBoardNo: int, pUartFrames, nFrameCount: int) -> tuple[int, int]:
     """Dewe write dma uart"""
     if f_dewe_write_dma_uart is None:
-        return -1, 0
+        raise NotImplementedError
     n_real_frame_count = c_int()
     error_code = f_dewe_write_dma_uart(c_int(nBoardNo), pUartFrames, c_int(nFrameCount), byref(n_real_frame_count))
     return error_code, n_real_frame_count
@@ -550,7 +550,7 @@ def DeWeWriteDmaUart(nBoardNo: int, pUartFrames, nFrameCount: int) -> tuple[int,
 def DeWeErrorConstantToString(ErrorCode: int) -> str:
     """Dewe error constant to string"""
     if f_dewe_error_constant_to_string is None:
-        return ""
+        raise NotImplementedError
     raw = c_char_p(f_dewe_error_constant_to_string(c_int(ErrorCode)))
     return raw.value.decode("utf-8")
 
