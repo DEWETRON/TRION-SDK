@@ -14,7 +14,6 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.6
         cache: 'pip'
     - run: python -m pip install setuptools pylint numpy
     - name: Analyzing trion_sdk with pylint
