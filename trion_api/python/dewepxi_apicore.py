@@ -546,9 +546,8 @@ def DeWeWriteDmaUart(nBoardNo: int, pUartFrames, nFrameCount: int) -> tuple[int,
     error_code = f_dewe_write_dma_uart(c_int(nBoardNo), pUartFrames, c_int(nFrameCount), byref(n_real_frame_count))
     return error_code, n_real_frame_count
 
-# Obtain readable ErrorMessage from ErrorCode
 def DeWeErrorConstantToString(ErrorCode: int) -> str:
-    """Dewe error constant to string"""
+    """Obtain readable ErrorMessage from ErrorCode"""
     if f_dewe_error_constant_to_string is None:
         raise NotImplementedError
     raw = c_char_p(f_dewe_error_constant_to_string(c_int(ErrorCode)))
