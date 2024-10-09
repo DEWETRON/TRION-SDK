@@ -328,7 +328,7 @@ def DeWeGetParamStruct_str(Target: str, Command: str) -> tuple[int, str]:
         c_char_p(Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), s, c_int(__MAX_STRING_BUF)
     )
 
-    if error_code == ERR_BUFFER_TOO_SMALL:
+    if error_code == ERROR_BUFFER_TOO_SMALL:
         error_code, result_len = DeWeGetParamStruct_strLEN(Target, Command)
         s = create_string_buffer(result_len + 2)
         error_code = f_dewe_get_param_struct_str(
@@ -363,7 +363,7 @@ def DeWeGetParamXML_str(Target: str, Command: str) -> tuple[int, str]:
         Target.encode("utf-8")), c_char_p(Command.encode("utf-8")), s, c_int(__MAX_STRING_BUF)
     )
 
-    if error_code == ERR_BUFFER_TOO_SMALL:
+    if error_code == ERROR_BUFFER_TOO_SMALL:
         error_code, result_len = DeWeGetParamXML_strLEN(Target, Command)
         s = create_string_buffer(result_len + 2)
         error_code = f_dewe_get_param_xml_str(c_char_p(
