@@ -24,8 +24,7 @@
 #include <time.h>
 
  // TODO: Change this path to the actual location of the dwpxi_api_x64.rtdll file
-//#define DWPXI_API_DLL "dwpxi_api_x64.rtdll"
-#define DWPXI_API_DLL "C:\\Dewetron\\SW_APP\\api\\trion_api\\build64\\Release\\dwpxi_api_x64.rtdll"
+#define DWPXI_API_DLL "dwpxi_api_x64.rtdll"
 
 #define NUM_BOARDS 2
 #define SAMPLE_RATE "1000" // the sample rate in Hz, the polling callback will be called at the same rate
