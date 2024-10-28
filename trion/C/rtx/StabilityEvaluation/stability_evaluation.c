@@ -37,6 +37,7 @@
 #define NUM_BLOCKS 20
 #define RUNTIME_IN_SECONDS 60
 #define NUM_ITERATIONS (1000*RUNTIME_IN_SECONDS)
+#define US_PER_ITERATION (1000000 * BLOCK_SIZE / SAMPLE_RATE)
 
 // Tune these values to enable shared IST handling
 #define DMA_MASTER_BOARD "0"
@@ -57,6 +58,8 @@
 
 #define REG_FIRMWARE_VERSION 4
 
+static LARGE_INTEGER s_perf_freq;
+
 struct BoardInfo
 {
     int index;
@@ -66,10 +69,11 @@ struct BoardInfo
     int num_ai;
     int num_cnt;
     int num_bcnt;
-    sint32 scanline_size;
+    int32_t scanline_size;
     int64_t total_samples;
     char* buffer_start;
     char* buffer_end;
+    LARGE_INTEGER last_sample_time;
 };
 
 void print_error(int err)
@@ -174,7 +178,7 @@ int configure_api(int* num_boards)
 
     err = DeWeDriverInit(num_boards);
     CheckError(err);
-    
+
     if (*num_boards < 0)
     {
         // In simulations, the number of boards is negative
@@ -240,7 +244,6 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
     sint64 min_sc, max_sc, last_sc;
     int min_idx, max_idx;
     LARGE_INTEGER start_time, stop_time;
-    LARGE_INTEGER freq;
     int first_board = -1;
 
     if (num_boards == 0)
@@ -248,7 +251,6 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
         return ERR_NONE;
     }
 
-    QueryPerformanceFrequency(&freq);
     QueryPerformanceCounter(&start_time);
 
     for (int n = 0; n < num_boards; ++n)
@@ -294,7 +296,7 @@ static int verify_act_sample_count(struct BoardInfo* boards, int num_boards)
     }
 
     QueryPerformanceCounter(&stop_time);
-    int readout_time_us = (1000000 * (stop_time.QuadPart - start_time.QuadPart)) / freq.QuadPart;
+    int readout_time_us = (1000000 * (stop_time.QuadPart - start_time.QuadPart)) / s_perf_freq.QuadPart;
     int drift_samples = static_cast<int>(max_sc - min_sc);
     int drift_us = (drift_samples * 1000000) / SAMPLE_RATE;
 
@@ -325,14 +327,17 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
             int samples_available = 0;
             void* data = NULL;
             struct BoardInfo* board = boards + n;
+            LARGE_INTEGER current_time;
 
             if (!board->valid)
             {
                 continue;
             }
-            
+
             err = DeWeGetParam_i32(board->index, CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE, &samples_available);
             CheckError(err);
+
+            QueryPerformanceCounter(&current_time);
 
             if (samples_available != BLOCK_SIZE)
             {
@@ -340,6 +345,18 @@ int acquisition_loop(struct BoardInfo* boards, int num_boards, size_t num_runs)
                 RtPrintf("%8u> ERR: Board %d returned %d blocks, real-time violated\n", (uint32)num_it, board->index, samples_available / BLOCK_SIZE);
                 ++num_errors;
             }
+
+            if (board->last_sample_time.QuadPart > 0)
+            {
+                int delta_us = (1000000 * (current_time.QuadPart - board->last_sample_time.QuadPart)) / s_perf_freq.QuadPart;
+                if (delta_us - US_PER_ITERATION > US_PER_ITERATION/2)
+                {
+                    RtGenerateEvent(100, &delta_us, 4);
+                    RtPrintf("%8u> ERR: Board %d jitter of %d us\n", (uint32)num_it, board->index, delta_us);
+                    ++num_errors;
+                }
+            }
+            board->last_sample_time = current_time;
 
             err = DeWeGetParam_i64(board->index, CMD_BUFFER_0_ACT_SAMPLE_POS, (sint64*)&data);
             CheckError(err);
@@ -586,6 +603,8 @@ int main(int argc, char* argv[])
     }
 
     retrieve_driver_info();
+
+    QueryPerformanceFrequency(&s_perf_freq);
 
     err = configure_api(&nNoOfBoards);
     if (err > ERR_NONE)
