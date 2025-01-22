@@ -144,6 +144,7 @@ enum
 #define BID_TRION_TIMING_V3             0x0200000B
 
 #define BID_TRION_1802_DLV              0x02000005
+#define BID_TRION_PUREC_DLV             0x0200000E
 
 #define BID_TRION3_1810M_SUB            0x0200000F
 #define BID_TRION3_1810M_POWER          0x02000009

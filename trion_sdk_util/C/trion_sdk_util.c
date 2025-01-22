@@ -1090,7 +1090,7 @@ typedef struct
 
 void TRION_StopWatch_Create(TRION_StopWatchHandle* sw)
 {
-    TRION_StopWatchHandleImp* handle_imp = malloc(sizeof(TRION_StopWatchHandleImp));
+    TRION_StopWatchHandleImp* handle_imp = (TRION_StopWatchHandleImp*)malloc(sizeof(TRION_StopWatchHandleImp));
     QueryPerformanceFrequency(&handle_imp->m_time_freq);
     *sw = handle_imp;
 }
