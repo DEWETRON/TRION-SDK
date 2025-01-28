@@ -55,6 +55,7 @@ CmakeCache.txt
 
 # vscode projects
 **/.vscode
+**/.vs
 
 # build directories
 **/build
