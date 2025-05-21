@@ -17,8 +17,9 @@ A development environment allowing to directly access DEWETRON hardware:
 
 New DEWETRON TRION API package:
 
-* 2024-05-13 Release of TRION API R7.1.0
-* 2024-05-13 Release of TRIONET FIRMWARE R7.1.0
+* 2025-05-21 Release of TRION API R7.5.1
+* 2025-05-21 Release of TRIONET FIRMWARE R7.5.1
+* 2025-05-21 Release of NexDAQ FIRMWARE R7.5.1
 
 Get those for optimal results.
 
@@ -34,6 +35,9 @@ https://ccc.dewetron.com/pl/trion-3-modules
 
 TRIONET Firmware:
 https://ccc.dewetron.com/pr/trionet
+
+NEXDAQ Firmware:
+https://ccc.dewetron.com/pl/nexdaq
 
 Or get it from this projects Releases section.
 
