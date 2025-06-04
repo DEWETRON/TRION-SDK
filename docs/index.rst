@@ -56,5 +56,6 @@ devices:
    12_TRIONet/TRIONet_Enclosure.rst
    13_PUREC/PUREC_Enclosure.rst
    14_ConnectorBoxes/ConnectorBoxes.rst
+   15_RTX/RTX.rst
    19_DevelopmentTips/DevelopmentTips.rst
    20_Support/Support.rst
