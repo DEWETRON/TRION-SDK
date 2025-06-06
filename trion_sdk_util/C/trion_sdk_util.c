@@ -1081,7 +1081,7 @@ int TRION_ChanProp_GetEntry(int nBoardID, int chan_index, const char* ch_name, c
 
 #define US_PER_SECOND 1000000
 
-typedef struct 
+typedef struct
 {
     LARGE_INTEGER m_time_start;
     LARGE_INTEGER m_time_freq;

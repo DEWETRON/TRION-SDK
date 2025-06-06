@@ -62,3 +62,6 @@ CmakeCache.txt
 **/build64
 **/_build
 **/Debug
+
+# backup files
+*.bak

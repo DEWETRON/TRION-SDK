@@ -132,6 +132,13 @@ TRION_COMMAND(BOARD_AITEDSEX_READ_CHAIN,            0x040A)  // R        Reads t
 // Peripheral
 TRION_COMMAND(BOARD_PERIPHERAL_EEPROM_WRITE,        0x350)  // W        Write the Peripheral-File to EEProm
 
+// Sync Data Samples readout
+TRION_COMMAND(BOARD_ACT_SAMPLE_VALUE_COUNT,         0x0360)  // Get      Read the number of 32bit values in the SYNC_DATA_SAMPLES register (returns 0 if not supported)
+TRION_COMMAND(BOARD_ACT_SAMPLE_VALUE_POINTER,       0x0361)  // Get      Updates all SYNC_DATA_SAMPLES registers and returns the address of a buffer with BOARD_ACT_SAMPLE_VALUE_COUNT 32bit values
+
+TRION_COMMAND(BOARD_NEW_SAMPLE_CALLBACK,            0x0362)  // Get/Set  Registers/Clears a function that will be called when a new sample is available (sets NEW_SAMPLES_IRQ_CTRL accordingly)
+TRION_COMMAND(BOARD_NEW_SAMPLE_CALLBACK_CONTEXT,    0x0363)  // Get/Set  Read/Write the context that is passed to the BOARD_NEW_SAMPLE_CALLBACK function each call
+
 
 TRION_COMMAND(BOARD_REINIT,					0x0420)  // Set
 

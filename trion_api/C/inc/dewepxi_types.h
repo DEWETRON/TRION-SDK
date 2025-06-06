@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013 DEWETRON
  * License: MIT
- * 
+ *
  * API interface type definitions
  */
 
@@ -86,6 +86,7 @@ typedef struct tagBOARD_CAN_FRAME {
  * CAN-FD Frame FrameType Bit-Encoding
  */
 // Normal / Remote Flag
+// RTR
 #define CAN_FD_FRAMETYPE_NORMAL_REMOTE_OFFSET   0
 #define CAN_FD_FRAMETYPE_NORMAL_REMOTE_MASK     (1 << CAN_FD_FRAMETYPE_NORMAL_REMOTE_OFFSET)
 #define CAN_FD_FRAMETYPE_NORMAL_REMOTE_NORMAL   (0 << CAN_FD_FRAMETYPE_NORMAL_REMOTE_OFFSET)
@@ -93,10 +94,23 @@ typedef struct tagBOARD_CAN_FRAME {
 
 // CAN / CAN-FD flag
 // used for TX only
+// FDF Flexible Data-rate Format. Distinguishes between CAN 2.0 and CAN FD Frames.
 #define CAN_FD_FRAMETYPE_CAN_CAN_FD_OFFSET      1
-#define CAN_FD_FRAMETYPE_CAN_CAN_FD_MASK        (1 << CAN_FD_FRAMETYPE_CAN_CAN_FD_OFFSET)
-#define CAN_FD_FRAMETYPE_CAN_CAN_FD_CAN         (0 << CAN_FD_FRAMETYPE_CAN_CAN_FD_OFFSET)
-#define CAN_FD_FRAMETYPE_CAN_CAN_FD_CAN_FD      (1 << CAN_FD_FRAMETYPE_CAN_CAN_FD_OFFSET)
+#define CAN_FD_FRAMETYPE_CAN_FDF_MASK           (1 << CAN_FD_FRAMETYPE_CAN_CAN_FD_OFFSET)
+#define CAN_FD_FRAMETYPE_CAN_NO_FDF             (0 << CAN_FD_FRAMETYPE_CAN_CAN_FD_OFFSET)
+#define CAN_FD_FRAMETYPE_CAN_FDF                (1 << CAN_FD_FRAMETYPE_CAN_CAN_FD_OFFSET)
+
+// BRS Bitrate Switch. In case of CAN FD frames indicates whether bit rate is switched.
+#define CAN_FD_FRAMETYPE_BRS_OFFSET             2
+#define CAN_FD_FRAMETYPE_BRS_MASK               (1 << CAN_FD_FRAMETYPE_BRS_OFFSET)
+#define CAN_FD_FRAMETYPE_NO_BRS                 (0 << CAN_FD_FRAMETYPE_BRS_OFFSET)
+#define CAN_FD_FRAMETYPE_BRS                    (1 << CAN_FD_FRAMETYPE_BRS_OFFSET)
+
+// ESI_RSV Error State Indicator bit for received CAN FD frames. Bit has no meaning for CAN frames.
+#define CAN_FD_FRAMETYPE_ESI_RSV_OFFSET         3
+#define CAN_FD_FRAMETYPE_ESI_RSV_MASK           (1 << CAN_FD_FRAMETYPE_ESI_RSV_OFFSET)
+#define CAN_FD_FRAMETYPE_NO_ESI_RSV             (0 << CAN_FD_FRAMETYPE_ESI_RSV_OFFSET)
+#define CAN_FD_FRAMETYPE_ESI_RSV                (1 << CAN_FD_FRAMETYPE_ESI_RSV_OFFSET)
 
 /**
  * CAN-FD Frame data structure
