@@ -1,5 +1,5 @@
 /**
- * Short example to describe how to trigger an sensor balance 
+ * Short example to describe how to trigger an sensor balance
  *
  * for analogue channels of a TRION-dSTG or TRION-MULTI board
  *
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
 
             // in parallel the application can poll about the state of the balancing process
             // limit to every 10th cycle (expensive str-operation)
-            if ( (loopcounter % 10 )== 0) 
+            if ( (loopcounter % 10 )== 0)
             {
                 didString = TRUE;
                 snprintf(sBoardID, sizeof(sBoardID),"BoardID%d/AIAll", nBoardID);
@@ -218,9 +218,9 @@ int main(int argc, char* argv[])
                 // example as a stop-condition
                 if ( NULL != strstr(sSettingStr, "EstDuration") )
                 {
-                    //printf("%s\n", sSettingStr);
+                    printf("%s\n", sSettingStr);
                 } else {
-                    //dump_xml_tree(sSettingStr);
+                    DumpXmlTree(sSettingStr);
                     printf("\n\n   Done Balancing\n\n");
                     printf("Min Latency: %d Samples\n", minspls);
                     printf("Max Latency: %d Samples\n", maxspls);
@@ -228,7 +228,7 @@ int main(int argc, char* argv[])
                     loopcounter = 0;
                     minspls = 9999999;
                     maxspls = 0;
-                    //break;
+                    break;
                 }
             }
 
@@ -290,7 +290,7 @@ int process_samples(int boardno, int nosamples, const ScaleInfo* scaleinfo, BOOL
     int nSizeScan = 0;
     sint32 nRawData = 0;
     double fVal = 0;
-    
+
 
     // Get detailed information about the ring buffer
     // to be able to handle the wrap around
@@ -324,7 +324,7 @@ int process_samples(int boardno, int nosamples, const ScaleInfo* scaleinfo, BOOL
         for ( j = 0; j < nSizeScan; j+=4 )
         {
             // Get the sample value at the read pointer of the ring buffer
-            // The sample value is 24Bit (little endian, encoded in 32bit). 
+            // The sample value is 24Bit (little endian, encoded in 32bit).
             nRawData = formatRawData( *(sint32*)(nReadPos + j), (int)24, 8 );
             fVal = ((((double)(nRawData) * scaleinfo->fScaling)) - scaleinfo->fd);
 
