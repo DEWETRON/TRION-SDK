@@ -36,6 +36,39 @@ to develop against a specific board-type. The property-set for analog
 channels basically describes the whole chain from signal-conditioning
 to postprocessing in an uniform way.
 
+Scaling principles
+~~~~~~~~~~~~~~~~~~
+
+All information regarding the used gain and offset(s) are abstracted from 
+the user with the more abstract **Range** and **InputOffset** information.
+The API will always setup the hardware in a way, so that the digital
+values map in their full range to the selected **Range**, in the approbiate
+unit.
+
+The following example shows the scaling in 32, 24 and 16 bit
+
+.. table:: Scaling Examples
+   :widths: 30 30 30
+
+   +----------------------+--------------+--------------+
+   | Selecte Range        | | 0xffffffff | | 0x7fffffff |
+   |                      | | 0xffffff   | | 0x7fffff   |
+   |                      | | 0xffff     | | 0x7fff     |
+   +======================+==============+==============+
+   | 10V (= -10V .. 10V)  | -10V         | 10V          |
+   +----------------------+--------------+--------------+
+   | -5 .. 10V            | -5V          | 10V          |
+   +----------------------+--------------+--------------+
+   | 0 .. 100000 Ohm      | 0V           | 100000 Ohm   |
+   +----------------------+--------------+--------------+
+   | 3 .. 10 mV/mA        | 3 mV/mA      | 10 mV/mA     |
+   +----------------------+--------------+--------------+
+   | -10 .. 5A            | -10A         | 5A           |
+   +----------------------+--------------+--------------+
+   | -10 .. 0V            | -10V         | 0V           |
+   +----------------------+--------------+--------------+
+
+
 
 Channel Properties
 ~~~~~~~~~~~~~~~~~~
@@ -135,6 +168,122 @@ with unit = “mV/V” and once with the unit = “mV/mA”.
         Unit = "V">
     </Range>
 
+Channel Specific commands
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Additionally to the properties listed, analog channels support a couple 
+of operations, that are addressed via string-commands, and executed 
+by the API or the hardware.
+Availability of those commands can depend on the type of TRION™-board and 
+the mode used.
+
+The available options are listed as **ChannelFeatures** on channel-level, and
+on mode level.
+The applicable set in a specific mode is the superset of those two table. This
+is all entries from channel-level **plus** all entries from mode-level.
+The order of entries is arbitrary, and has no underlying meaning.
+
+.. table:: possible channel features
+   :widths: 30 30
+
+   +----------------------+----------------------------------------------------------------------+
+   | Name (entry in xml)  | Description                                                          |
+   +======================+======================================================================+
+   | SupportTEDS          | TedsAccess commands can be executed on this channel.                 |
+   +----------------------+----------------------------------------------------------------------+
+   | AmplifierZero        | Amplifier Offset compensation                                        |
+   |                      | This operation performs a brief measurment with input set to short   |
+   |                      | and updates the internal e2prom information to compensate for any    |
+   |                      | offset.                                                              |
+   |                      | This command is triggered, when executing "Self Test"->"Auto Zero"   |
+   |                      | in **DewetronExplorer**                                              |
+   +----------------------+----------------------------------------------------------------------+
+   | SensorUnbalance      | also refered to as **Sensor Offset** or **Bridge Balance**           |
+   |                      | for details see: `Sensor Offset determination`_                      |
+   |                      | This command averages the current input signal over a brief          |
+   |                      | period of time (usually 100ms).                                      |
+   |                      | At the end the average is reported back to the application.          |
+   |                      | It is at the discretion of the application to apply this information |
+   |                      | to the **InputOffset** to request compensation                       |
+   +----------------------+----------------------------------------------------------------------+
+
+
+Sensor Offset determination
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Command: "sensoroffset"
+
+.. note:: the commands are case insensitive
+
+Example Usage: 
+    | Execute command: DeweSetParamStruct_str("BoardId0/AI1", **"SensorOffset"**, "100 msec");
+    | Query result: DeweGetParamStruct_str("BoardId0/AI1", **"SensorOffset"**, var, sizeof(var));
+
+This operation starts a brief internal averaging of the current signal, over a given period (defualt 100ms).
+If the currently measured average is clipped at max or min of range, the amplifier settings will escalate
+to higher ranges up to 2 times, and try to get an unclipped average. After the averaging, API will restore
+the original range setting.
+This way offsets, that exceed the currently set range can be measured, and subsquentually be compensate for.
+
+After execution the application needs to query the result.
+
+.. note:: If the signal keeps clipping after 2 range escalations, 
+    the operation is considered to have failed. This is done to prevent
+    accuracy loss due to an unfafourable rate between range and applied offset.
+    For example a offset of 5V on a Range of 0.1 V would neet the amplifier
+    to operate in a range higher than 5 V. So effectifly only the accuracy
+    of the higher range is applicable, but the range of 0.1V may suggest otherwise.
+
+Example:
+    configured InputOffset = 0mV/V
+    configured Range = 10mV/V
+    Offset of sensor = 12mV/V
+
+    With such a setup, the signal would constantly clip at 10mV/V.
+    When executing the command "SensorOffset", API will internally start an averaging process.
+    As the signal clips, it will escalate the Range to the next higher range (TRION-board type specific),
+    and will be able to measure 12mV/V.
+    This will be stored as queryable result, the range will be reset to 10mV/V
+
+This is also refered to as **Bridge Balance**, albeit only being the part of determining the current offset.
+The operation itself does **not** apply any correction value.
+
+Result document
+^^^^^^^^^^^^^^^
+
+For each channel the measured average will be found in the node "Offset".
+This offset will need to be applied to the property **InputOffset** by the application.
+
+.. code-block:: XML
+    :caption: Sensor Offset result document
+
+        <SensorOffset>
+            <BoardId0 ID = "BoardId0" BrdName = "TRION-2402-MULTI-8-L0B" Slot = "1" SerialNumber = "12345678" Passed = "True">
+                <Check Target = "AI0" Type = "Sensor Balance Test" Test = "BalanceCheck" Passed = "True">
+                    <Averaging>100msec</Averaging>
+                    <Date>03.07.2025</Date>
+                    <Time>15:24:15</Time>
+                    <BaseBoardTemp>25</BaseBoardTemp>
+                    <ConPanelTemp>0</ConPanelTemp>
+                    <ID0 Device = "SensorBalance" Range = "1000 mV/V" Passed = "True">
+                        <Offset Unit = "mV/V" Passed = "True">0.000000</Offset>
+                    </ID0>
+                </Check>
+                .......
+                <Check Target = "AI7" Type = "Sensor Balance Test" Test = "BalanceCheck" Passed = "True">
+                    <Averaging>100msec</Averaging>
+                    <Date>03.07.2025</Date>
+                    <Time>15:24:15</Time>
+                    <BaseBoardTemp>25</BaseBoardTemp>
+                    <ConPanelTemp>0</ConPanelTemp>
+                    <ID0 Device = "SensorBalance" Range = "1000 mV/V" Passed = "True">
+                        <Offset Unit = "mV/V" Passed = "True">0.000000</Offset>
+                    </ID0>
+                </Check>
+            </BoardId0>
+        </SensorOffset>
+
+
 
 Voltage Mode
 ~~~~~~~~~~~~
@@ -199,9 +348,10 @@ Unit: N/A
 
 This property indicates the possible input-type-configurations.
 For example: Single-Ended, Differential
-Note: some TRION-boards only support one non-switchable input type.
-In this case the property still will be present, but only feature
-one entry.
+
+.. note:: some TRION™-boards only support one non-switchable input type. 
+    In this case the property still will be present, but only feature
+    one entry.
 
 
 Excitation Attribute
@@ -431,7 +581,7 @@ CAN Mode
 .. _advanced_contraints:
 
 Advanced Constraints
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 In Voltage-measurement mode, the exact amplifier-setting only
 depends on the range-property and the input-offset-attribute.
@@ -454,18 +604,18 @@ Each range-property-node holds several attributes relevant for
 constraints checking:
 
 AmplRangeMax, AmplRangeMin, AmplRangeUnit
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 These attributes indicate the legal maximum and minimum values for the
 final amplifier-setup. The AmplRangeUnit is always in volt [V].
 
 MaxInputOffset
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
 Maximum allowed input-offset. This is always given in %-of-range.
 On most TRION™-boards this is +/-200%, unless already in the highest
 possible range, where usually no further input-offset is allowed.
 
 MaxOutputOffset
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 The output-offset is the virtual offset introduce by asymmetrical custom
 ranges. For example a custom range of 0..10V would yield a output-offset
 of -100%. The limit for the output-offset usually is +/-150%
@@ -477,7 +627,7 @@ of -100%. The limit for the output-offset usually is +/-150%
 
 
 Range calculation
------------------
+~~~~~~~~~~~~~~~~~
 
 
 As the TRION-API supports asymmetrical custom ranges, the range is split
@@ -511,7 +661,7 @@ raw-value-full-scale.
 
 
 HWRangeMin, HWRangeMax, HWInputOffset
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 As the properties Range (RangeMin..RangeMx) and InputOffset are always in
 logical units (eg Ohms for resistance mode), a intermediate step of conversion
 is necessary, to translate them to the underlying voltage-measurements.
@@ -521,7 +671,7 @@ comprehensible.
 
 
 Amplifier Range
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 The result of the calculated AmplifierRange must always satisfy following
 condition:
 
@@ -529,7 +679,7 @@ condition:
 
 
 Voltage Mode, Calibration Mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Depending on properties: Range, InputOffset
 
     .. math:: HWRangeMin[V] = RangeMin[V]
@@ -539,7 +689,7 @@ Depending on properties: Range, InputOffset
 
 
 Resistance Mode
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 Depending on properties: Range, InputOffset, Excitation
 
     .. math:: HWRangeMin[V] = RangeMin[\Omega] * Excitation[A]
@@ -550,7 +700,7 @@ Depending on properties: Range, InputOffset, Excitation
 .. _range_calculation_bridge:
 
 Bridge Mode
-~~~~~~~~~~~
+^^^^^^^^^^^
 Depending on properties: Range, InputOffset, Excitation
 
 Note: Excitation and Range are related.
@@ -578,7 +728,7 @@ The calculation is shown for mA-unit. Formulas also apply for V-excitations
 
 
 Potentiometer Mode
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 Depending on properties: Range, InputOffset, Excitation
 
     .. math:: HWRangeMin[V] = \frac{RangeMin[\%] * Excitation[V]}{100}-\frac{Excitation[V]}{2}
@@ -589,13 +739,13 @@ Depending on properties: Range, InputOffset, Excitation
 
 
 RTD-Temperature Mode
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
 TBD
 
 
 Current Mode, ExcCurrentMonitor Mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Depending on properties: Range, ShuntRes
 
     .. math:: HWRangeMin[V] = RangeMin[A] * ShuntRes[\Omega]

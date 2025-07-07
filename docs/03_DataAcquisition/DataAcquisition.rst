@@ -7,20 +7,51 @@ Data Acquisition
 Buffer
 ------
 
+The sample of all enabled channel on a TRION module are accessible via a ringbuffer.
+These buffers are managed by the TRION API or the driver, and exposed to the application
+via pointer information.
+Synchronous data and asynchronous data are kept in seperate ringbuffers.
+
+.. warning:: The actual layout of data within the buffer is specific to
+    to each model-type of TRION, and can change in future with changes to
+    the firmare. 
+    The rules regarding how different data-widths are handled, and how data
+    is padded for dma-transfer are complex, module specific and subject to
+    change.
+    Therefore the only safe way to navigate the binary stream is by utilizing
+    the runtinme information provied by the API .
+    API provides a dynamically generated xml document for each
+    board to describe the data-layout. Please refer to the chapter `Scan Descriptor`_
+    for detailed information.
+
+
+Buffer for synchronous data
+---------------------------
+
+Synchronous data uses the ringbuffer "BUFFER0".
+This buffer uses the i32/i64 commands, prefixed with CMD_BUFFER_0.
+(eg CMD_BUFFER_0_START_POINTER, BUFFER_0_END_POINTER, ...)
 
 .. figure:: _img/acquisition_ring_buffer.png
     :align: center
 
     Acquisition ringbuffer
 
+Terminology
+~~~~~~~~~~~
 
 Scan and Scan Size
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 One scan is the portion of data that consists of exactly one sample for
 each sampled channel on a board.
 
-So if there are 2 analog channels and 1 counter channel active, the
+.. note::
+    For modules, that allow for using channel-based sample-rate dividers
+    the term scan is ambiguous, as one "super scan" holds 1 sample of
+    the "slowest" channel(s), but multiple of the faster ones.
+
+So if there are 2 analog channels and 1 counter channel active, one
 scan would logically hold three values. (AI0, AI1, CNT0).
 
 The scan-size therefore directly derives from this information. It
@@ -48,13 +79,13 @@ information from the API in an abstracted way at runtime.
 
 
 Block and Block Size
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
 One block is a collection of *n* scans.
 
-It is only meant as a logical unit and does not directly influence the
-driver in any way. Usually it is set up in accordance with the
-polling-interval of the application.
+The blocksize determines the granularity of DMA-transactions for the
+datatransfer from the on-board-memory of the TRION-modules into the RAM of
+the PC.
 
 The block-size can be set to any arbitrary value > 0. A standard use
 case would set it to SampleRate \* pollingIntervall. For Example:
@@ -68,9 +99,8 @@ BlockSize := 200
 This has to be set by the application.
 
 
-
 Block Count
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 This defines how many blocks the buffer shall be able to hold. This
 allows the application to control how big the backlog of data shall be
@@ -187,7 +217,7 @@ The detailed layout-information will be returned as an XML-string.
 
     <ScanDescriptor>
         <BoardId0>
-            <ScanDescription version="2" scan_size="96" byte_order="little_endian" unit="bit">
+            <ScanDescription version="3" buffer = "BUFFER0" buffer_direction = "from_trion_board" scan_size="96" byte_order="little_endian" unit="bit">
                 <Channel type="Analog" index="3" name="AI3">
                     <Sample offset="32" size="24" />
                 </Channel>
@@ -205,7 +235,7 @@ specific Board:
 
 .. code:: c
 
-    DeWeGetParamStruct_str( "BoardId0", "ScanDescriptor_V2", Buf, sizeof(Buf));
+    DeWeGetParamStruct_str( "BoardId0", "ScanDescriptor_V3", Buf, sizeof(Buf));
 
 
 The returned XML document correlates with the following hierarchy:
@@ -242,7 +272,11 @@ attributes and values of the returned scan descriptor XML document:
    +-------------------+--------------------------+------------------------------------------------------+
    | ScanDescription   |                          | Describes the scan for the requested board           |
    +-------------------+--------------------------+------------------------------------------------------+
-   |                   | version                  | Scan descriptor’s document version (Should be 2)     |
+   |                   | version                  | Scan descriptor’s document version (Should be 3)     |
+   +-------------------+--------------------------+------------------------------------------------------+
+   |                   | buffer                   | which DMA buffer this snippet refers to              |
+   +-------------------+--------------------------+------------------------------------------------------+
+   |                   | buffer_direction         | eiter from_trion_board or to_trion_board (TRION_AO)  |
    +-------------------+--------------------------+------------------------------------------------------+
    |                   | scan_size                | The size of the scan expressed in unit               |
    +-------------------+--------------------------+------------------------------------------------------+
@@ -271,12 +305,16 @@ attributes and values of the returned scan descriptor XML document:
 .. warning::
     When requesting a scan descriptor with command “ScanDescriptor” (Version
     1), some boards may not be able to return a valid scan descriptor
-    for analog 24bit channels. Therefore, always use “ScanDescriptor_V2”.
+    for analog 24bit channels. 
+    When requesting a scan descriptor with command “ScanDescriptor_V2” (Version
+    2), some boards may not be able to return a valid scan descriptor
+    when used with channel-samplerate-dividers.
+    Therefore, always use “ScanDescriptor_V3”.
 
 
 .. warning::
-    "ScanDescriptor" version 1 is deprecated and will be removed. It will return
-    the V2 document in future.
+    "ScanDescriptor" version 1 and 2 are deprecated and will be removed. They will return
+    the V3 document in future.
 
 
 Scan Descriptor Example Source Code
