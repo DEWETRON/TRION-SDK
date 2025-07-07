@@ -298,7 +298,7 @@ After CMD_RESET_BOARD the devices are ready for the next configuration steps.
     DeWeSetParamStruct_str("BoardID1/AI0", "Used", "True");
 
 In this step the first analog channel "AI0" is enabled. The other available
-analog channels are disabled. For this the api function **DeWeSetParamStruct_str**
+analog channels are left on their default. For this the api function **DeWeSetParamStruct_str**
 is used. The first argument is the target string referencing the first AI
 channel of the board with index 1. The second argument selects the used
 property, which is set to "True" by the third argument.

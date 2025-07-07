@@ -4,7 +4,7 @@
 .. https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 
 ======================
-DEWETRON TRION-SDK 6
+DEWETRON TRION-SDK 7
 ======================
 
 **TRION Software Development Kit**

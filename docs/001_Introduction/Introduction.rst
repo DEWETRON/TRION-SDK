@@ -65,6 +65,11 @@ Examples are provided for:
  * C#
  * Python
 
+.. note:: To keep the code-noise low, the C examples omit processing the xml-information
+    provided by the API.
+    As a result, there will be hardcoded assumptions about the TRION-Modules used for
+    execution. Those will usually be annotated with comments.
+
 
 Supported Operating Systems
 ---------------------------
