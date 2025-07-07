@@ -65,3 +65,4 @@ CmakeCache.txt
 
 # backup files
 *.bak
+docs/.iis/applicationhost.config
