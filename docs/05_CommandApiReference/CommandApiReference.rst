@@ -19,7 +19,7 @@ Expert clarification
 Another distinction is whether it is an atomic command or a composite
 command.
 Composite commands are a collection of atomic commands executed within
-the context of the API. Hardwareupdates in general are more time-consuming,
+the context of the API. Hardware updates in general are more time-consuming,
 as they involve hardware-access, and board-specific guard-times between
 those accesses, determined by the components used on the board itself.
 Composite commands allow the API to perform order-optimization, and thereby
@@ -27,7 +27,7 @@ cut the time spent in the actual function, compared to using the
 atomic-commands on application level.
 
 When invoking a composite command, API will try to perform the underlying
-atomic commands with a best-effortpolicy. So every atomic command will be
+atomic commands with a best-effort policy. So every atomic command will be
 tried to execute, even if any of the prior executed atomic operation
 returned an error. (Except if there are internal hard-dependencies, which
 would render an operation as potentially harmful to the hardware).
@@ -150,7 +150,7 @@ DeWeSetParam_i64
 
     int DeWeSetParam_i64( [in] int board, [in] int command, [in] sint64 val);
 
-DeWeSetParam_i32 is used to set a value or trigger a command.
+DeWeSetParam_i64 is used to set a value or trigger a command.
 A board is accessed by an integer index >= 0.
 The second parameter command must be a valid command from the file
 *dewexpi_commands.inc*
@@ -492,7 +492,7 @@ Usable during acquisition: no
 
 This function updates the whole hardware to match the logical settings.
 It allocates the sample ring buffer according to the specified parameters
-and inherent parameters like samplerate, number of used channels and channel
+and inherent parameters like sample-rate, number of used channels and channel
 data width.
 
 This is equivalent to calling:
@@ -741,7 +741,7 @@ be stopped on all boards and restarted. Another method is to call
 CMD_BUFFER_0_CLEAR_ERROR.
 
 This value can be queried at any time during a running acquisition. Calling
-this command on a stopped boardwill result in an error code indicating that
+this command on a stopped board will result in an error code indicating that
 no acquisition is running (ERR_DAQ_NOT_STARTED).
 
 CMD_BUFFER_AVAL_NO_SAMPLE is deprecated. CMD_BUFFER_0_AVAL_NO_SAMPLE should be
@@ -782,7 +782,7 @@ be stopped on all boards and restarted. Another method is to call
 CMD_BUFFER_0_CLEAR_ERROR.
 
 This value can be queried at any time during a running acquisition. Calling
-this command on a stopped boardwill result in an error code indicating that
+this command on a stopped board will result in an error code indicating that
 no acquisition is running (ERR_DAQ_NOT_STARTED).
 
 
@@ -1081,7 +1081,7 @@ Usable during acquisition: no
 This command updates the board hardware to reflect all acquisition
 related logical settings.
 This includes the signal-routing on the PXI-plane (eg for synchronization
-purposes), configuring the hardware to the selected samplingrate and
+purposes), configuring the hardware to the selected sampling-rate and
 preparing the DMA-ring-buffer.
 
 
@@ -1891,7 +1891,7 @@ CMD_DISCRET_STATE_SET/CMD_DISCRET_STATE_CLEAR commands. Therefore an
 application has to have a higher awareness about the detailed hardware
 capabilities of the given board.
 
-Note: the second group of 32-Discreets can be addressed by incrementing the
+Note: the second group of 32-Discreet channels can be addressed by incrementing the
 command ID by 1 (CMD_DISCRET_GROUP32_Set +1).
 
 
