@@ -272,7 +272,7 @@ attributes and values of the returned scan descriptor XML document:
    +-------------------+--------------------------+------------------------------------------------------+
    | ScanDescription   |                          | Describes the scan for the requested board           |
    +-------------------+--------------------------+------------------------------------------------------+
-   |                   | version                  | Scan descriptor's document version (Should be 2)     |
+   |                   | version                  | Scan descriptor's document version (Should be 3)     |
    +-------------------+--------------------------+------------------------------------------------------+
    |                   | scan_size                | The size of the scan expressed in unit               |
    +-------------------+--------------------------+------------------------------------------------------+

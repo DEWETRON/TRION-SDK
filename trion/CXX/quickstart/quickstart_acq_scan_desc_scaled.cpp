@@ -26,7 +26,7 @@ using AddSampleFunctor = std::function<void(const char*, uint32_t,
 
 /**
  * ScanDescripterDecode
- * Uses ScanDescriptor_V2 xml allowing generic
+ * Uses ScanDescriptor_V3 xml allowing generic
  * sample decoding and processing.
  */
 class ScanDescriptorDecoder
@@ -39,7 +39,7 @@ public:
     }
 
     /**
-     * parseScanDescriptor - parses V2 xml and build internal processing vector
+     * parseScanDescriptor - parses V3 xml and build internal processing vector
      */
     void parseScanDescriptor(const std::string& sd_xml)
     {
@@ -50,7 +50,7 @@ public:
                 sd_doc.select_node("ScanDescriptor/*/ScanDescription").node();
             if (scan_description_node)
             {
-                if (2 != scan_description_node.attribute("version").as_int())
+                if (3 != scan_description_node.attribute("version").as_int())
                 {
                     throw std::runtime_error("Unsupported version");
                 }
@@ -148,7 +148,7 @@ public:
         , m_block_size(block_size)
     {
         m_output_buffer.resize(m_num_channels);
-        
+
         // default scale values
         m_lin_scale_values = std::vector<LinearScaleValue>(m_num_channels, { 1.0, 0});
     }
@@ -203,7 +203,7 @@ public:
                     // raw value
                     auto value = m_output_buffer[chn].chn_sample_buffer[i];
                     std::cout << std::setw(10) << std::hex << value << ", ";
-                    
+
                     // range scaled value
                     auto scaled_value = value * m_lin_scale_values[channel_index].gain + m_lin_scale_values[channel_index].offset;
                     std::cout << std::setw(10) << std::dec << scaled_value << "V, ";
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
     int num_ai_channel = 1;         // Determine AI channels
     std::vector<LinearScaleValue> channel_scale_values;
     FormattedScaledOutput output(num_ai_channel, buffer_block_size);
-        
+
 
     // Basic SDK Initialization
     DeWePxiLoad();
@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
     DeWeGetParam_i32(1, CMD_BUFFER_0_TOTAL_MEM_SIZE, &buff_size);
 
     // Get scan descriptor
-    DeWeGetParamStruct_str("BoardId1", "ScanDescriptor_V2", scan_descriptor, sizeof(scan_descriptor));
+    DeWeGetParamStruct_str("BoardId1", "ScanDescriptor_V3", scan_descriptor, sizeof(scan_descriptor));
 
     // Get scaling and offset parameters for all AI channels
     for (int i=0; i < num_ai_channel; ++i)

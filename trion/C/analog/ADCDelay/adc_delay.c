@@ -1,13 +1,13 @@
 /**
  * Short example to describe how to correctly handle the ADC Delay
  *
- * This example should be used with a TRION-board featured with analoge channels
+ * This example should be used with a TRION-board featured with analog channels
  *
  * ADC Delay:
  * As ADCs suffer from a conversion time (=ADC Delay). So analog samples are
  * added to the ring buffer with a constant offset.
  *
- * Example Ringbuffer for AI1, CNT0, (ADC Delay == 3):
+ * Example circular buffer for AI1, CNT0, (ADC Delay == 3):
  *
  * Sample No  |   AI1   |   CNT0
  * --------------------------------
@@ -41,11 +41,11 @@
 #define DATAWIDTH        24
 
 //needed Board-Type for this example
-const char* sBoardNameNeeded[] = {  "TRION-2402-dACC", 
-                                    "TRION-2402-dSTG", 
-                                    "TRION-1620-LV", 
+const char* sBoardNameNeeded[] = {  "TRION-2402-dACC",
+                                    "TRION-2402-dSTG",
+                                    "TRION-1620-LV",
                                     "TRION-1620-ACC",
-                                    "TRION-1603-LV", 
+                                    "TRION-1603-LV",
                                     NULL };
 
 int main(int argc, char* argv[])
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
         snprintf(sErrorText, sizeof(sErrorText), "Invalid BoardId: %d\nNumber of found boards: %d", nBoardID, nNoOfBoards);
         return UnloadTrionApi(sErrorText);
     }
-    
+
     // Build a string in the format: "BoardID0", "BoardID1", ...
     snprintf(sBoardID, sizeof(sBoardID),"BoardID%d", nBoardID);
 
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
     // Close the board connection
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_CLOSE_BOARD, 0);
     CheckError(nErrorCode);
-    
+
     // Unload pxi_api.dll
     UnloadTrionApi("\nEnd Of Example\n");
 
