@@ -32,7 +32,7 @@ Synchronous data uses the ringbuffer "BUFFER0".
 This buffer uses the i32/i64 commands, prefixed with CMD_BUFFER_0.
 (eg CMD_BUFFER_0_START_POINTER, BUFFER_0_END_POINTER, ...)
 
-.. figure:: _img/acquisition_ring_buffer.png
+.. figure:: _img/acquisition_circular_buffer.svg
     :align: center
 
     Acquisition circular buffer
