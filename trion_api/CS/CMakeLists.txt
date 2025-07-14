@@ -61,4 +61,4 @@ target_compile_options(trion_api_csharp
 
 #
 # .Net Framwork wanted
-set_property(TARGET trion_api_csharp PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.5.2")
+set_property(TARGET trion_api_csharp PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
