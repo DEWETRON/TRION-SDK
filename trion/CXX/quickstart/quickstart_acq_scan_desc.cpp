@@ -20,13 +20,13 @@
 /**
  * Functor to be implemented by applications interested in sample data.
  */
-using AddSampleFunctor = std::function<void(const char*, uint32_t, 
+using AddSampleFunctor = std::function<void(const char*, uint32_t,
     const void*, uint32_t, uint32_t, uint32_t, uint32_t)>;
 
 
 /**
  * ScanDescripterDecode
- * Uses ScanDescriptor_V2 xml allowing generic
+ * Uses ScanDescriptor_V3 xml allowing generic
  * sample decoding and processing.
  */
 class ScanDescriptorDecoder
@@ -34,28 +34,28 @@ class ScanDescriptorDecoder
 public:
     ScanDescriptorDecoder(const std::string& sd_xml, AddSampleFunctor f)
         : m_datasink(f)
-    {    
+    {
         parseScanDescriptor(sd_xml);
     }
 
     /**
-     * parseScanDescriptor - parses V2 xml and build internal processing vector
+     * parseScanDescriptor - parses V3 xml and build internal processing vector
      */
     void parseScanDescriptor(const std::string& sd_xml)
     {
         pugi::xml_document sd_doc;
         if (pugi::status_ok == sd_doc.load_string(sd_xml.c_str()).status)
         {
-            auto scan_description_node = 
+            auto scan_description_node =
                 sd_doc.select_node("ScanDescriptor/*/ScanDescription").node();
             if (scan_description_node)
             {
-                if (2 != scan_description_node.attribute("version").as_int())
+                if (3 != scan_description_node.attribute("version").as_int())
                 {
                     throw std::runtime_error("Unsupported version");
                 }
 
-                m_scan_size_bytes 
+                m_scan_size_bytes
                     = scan_description_node.attribute("scan_size").as_int() / 8;
                 // Can be safely ignored:
                 // bit
@@ -71,7 +71,7 @@ public:
                     auto sample = channel.child("Sample");
 
                     m_scan_desc_vec.push_back(
-                        SDData{ std::string(channel.attribute("name").as_string()) 
+                        SDData{ std::string(channel.attribute("name").as_string())
                                 , std::string(channel.attribute("type").as_string())
                                 , channel.attribute("index").as_uint()
                                 , sample.attribute("size").as_uint()
@@ -91,7 +91,7 @@ public:
     }
 
     /**
-     * Process sample blocks 
+     * Process sample blocks
      * @param avail_samples a continuous block of samples
      * @return incremented read_pos
      */
@@ -277,12 +277,12 @@ int main(int argc, char* argv[])
     DeWeGetParam_i32(1, CMD_BUFFER_0_TOTAL_MEM_SIZE, &buff_size);
 
     // Get scan descriptor
-    DeWeGetParamStruct_str("BoardId1", "ScanDescriptor_V2", scan_descriptor, sizeof(scan_descriptor));
-    
+    DeWeGetParamStruct_str("BoardId1", "ScanDescriptor_V3", scan_descriptor, sizeof(scan_descriptor));
+
 #if 1
     // Connect to formatted output
     ScanDescriptorDecoder sd_decoder(scan_descriptor, output);
-    
+
 #else
     // or addSample function
     //ScanDescriptorDecoder sd_decoder(scan_descriptor, &addSample);

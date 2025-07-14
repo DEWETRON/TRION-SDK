@@ -7,7 +7,7 @@ A transducer electronic data sheet (TEDS) is a standardized method of storing tr
 Prerequisites
 -------------
 
-TEDS is available for TRION analog channels that support TEDS in dedicated measurment modes. Modes supporting it have
+TEDS is available for TRION analog channels that support TEDS in dedicated measurement modes. Modes supporting it have
 the channel feature "SupportTEDS" listed in the channel properties xml.
 
 
@@ -15,7 +15,7 @@ the channel feature "SupportTEDS" listed in the channel properties xml.
     :caption: ChannelProperties - ChannelFeatures Node
 
     <Mode Mode = "Voltage">
-        
+
         ...
 
         <ChannelFeatures Config = "False" Count = "2">
@@ -44,7 +44,7 @@ API Functions
 TedsReadEx
 ~~~~~~~~~~
 
-TedsReadEx reads a TEDSData XML document. The target string addresses the dedicated analog channel to ask for TEDS 
+TedsReadEx reads a TEDSData XML document. The target string addresses the dedicated analog channel to ask for TEDS
 information. TEDS_DATA should be string buffer large enough for the read document.
 
 
@@ -164,7 +164,7 @@ TedsWriteEx - Writing <Data>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 TedsWriteEx writes the <Data> content of a TEDSData XML document into a attached TEDS eeprom.
-The target string addresses the dedicated analog channel to write the TEDS 
+The target string addresses the dedicated analog channel to write the TEDS
 information to. TEDS_DATA has to contain the necessary XML document.
 
 .. code:: c
@@ -199,7 +199,7 @@ The i32 commands: CMD_BOARD_AITEDSEX_READ, CMD_BOARD_AITEDSEX_SYNCHRONIZE and CM
 developers to edit TEDS properties without the need to create the <Data> hexadecimal representation.
 
 For this mode the changes have to be written into an API internal TEDS document addressable by the target string:
-"BoardId0/aitedsex/AI0". 
+"BoardId0/aitedsex/AI0".
 
 Do all changes to this document and then the changes can be applied to the EEPROM.
 
@@ -231,7 +231,7 @@ TedsReadExChain
 
 It is allowed to physically chain TEDS EEPROMs. For this case TedsReadExChain has to be used.
 
-TedsReadExChain reads a TEDSChain XML document. The target string addresses the dedicated analog channel to ask for TEDS 
+TedsReadExChain reads a TEDSChain XML document. The target string addresses the dedicated analog channel to ask for TEDS
 information. TEDS_DATA should be string buffer large enough for the read document.
 
 The XML document presents all found TEDS EEPROMs as TEDSData child elements of TEDSChain.
@@ -284,7 +284,7 @@ The XML document presents all found TEDS EEPROMs as TEDSData child elements of T
 TedsType
 ~~~~~~~~
 
-Low level functionality to only access the romcode.
+Low level functionality to only access the ROM-code.
 
 
 .. code:: c
@@ -330,6 +330,6 @@ The use of the TRION API TEDS interface is shown in following examples:
 
     * interfacingTEDSEx
     * interfacingTEDS
-    * InterfacingTEDSCal 
+    * InterfacingTEDSCal
 
 

@@ -1,14 +1,12 @@
-TRION manual with Sphinx
-========================
+# TRION manual with Sphinx
 
 
-Setup for Windows
-=================
+## Setup for Windows
  * GitHub Desktop       https://desktop.github.com/
     - Version control system
  * Python3              https://www.python.org/downloads/
     - Sphinx is written in Python3
-    - Download and install latest Python (Python 3.9.4) at the time of writing
+    - Download and install latest Python (Python 3.13.5) at the time of writing
  * MikTeX               https://miktex.org/
     - LaTeX distribution for Windows
     - Install for all users
@@ -23,13 +21,17 @@ After this please open a cmd shell "Eingabeauforderung":
  * Install Sphinx
      - "pip install -U sphinx"
  * Install Sphinx material theme
-     - "pip install -U sphinx-theme-material"
+     - "pip install -U sphinx-material"
+
+Additional Packages for miktex:
+* amscls
+* anyfontsize
+* zhmetrics
 
 
-Setup for Linux (Ubuntu 20.04)
-==============================
-
-Note: Python3 will already be installed in Linux.
+## Setup for Linux (Ubuntu 20.04)
+*Note: Python3 will already be installed in Linux.* <br>
+*Note: for a simple experience there is a setup.sh file available*
 
  * TexStudio            https://www.texstudio.org/
     - LaTeX Editor
@@ -37,8 +39,9 @@ Note: Python3 will already be installed in Linux.
  * Visual Studio Code   https://code.visualstudio.com/download
     - IDE with Sphinx Preview
     - get the .deb package
-    - "sudo apt install ~/Dowloads/code_*_amd64.deb"
+    - "sudo apt install ~/Downloads/code_*_amd64.deb"
  * Latex tools
+    - "sudo apt install texstudio"
     - "sudo apt install dvipng"
     - "sudo apt install texlive-luatex"
     - "sudo apt install texlive-latex-extra"
@@ -46,6 +49,7 @@ Note: Python3 will already be installed in Linux.
     - "sudo apt install latexmk"
 
 After this please open a terminal:
+
  * Install Sphinx
      - "pip3 install -U sphinx"
  * Install Sphinx material theme
@@ -56,51 +60,34 @@ After this please open a terminal:
 
 If sphinx-build cannot be found, at "$HOME/.local/bin" to PATH.
 
-
 Info and help - reStructuredText Primer:
 https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 
 
 
-Create html
-===========
-
-In any commandshell enter:
-
-make.bat html
-
-The latex output is created in the sub directory build/html
+## Create html
+- In any commandshell enter:
+- ./make.bat html
+- The latex output is created in the sub directory build/html
 
 
-Create pdf
-==========
-
-In TeXstudio "lualatex" should be used as standard compiler.
-
-In any commandshell enter:
-
-make.bat latex
-
-The latex output is created in the sub directory build/latex
-
-Open build/latex/oxygenmanual.tex in TexStudio
-
-and press F5
-
+## Create pdf
+- In TeXstudio "lualatex" should be used as standard compiler.
+- In any commandshell enter:
+- ./make.bat latex
+- The latex output is created in the sub directory build/latex
+- Open build/latex/oxygenmanual.tex in TexStudio
+- and press F5
 
 make.bat latexpdf
-
-Directly create pdf cocument.
-
+Directly create pdf document.
 
 
-Documentation Standard
-======================
-1. Chapter              =============
-1.1 Subchapter          -------------
-1.1.1 Section           ~~~~~~~~~~~~~
-1.1.1.1 Subsection      ^^^^^^^^^^^^^
 
+## Documentation Standard
+1. Chapter              ============= <br>
+1.1 Subchapter          ------------- <br>
+1.1.1 Section           ~~~~~~~~~~~~~ <br>
+1.1.1.1 Subsection      ^^^^^^^^^^^^^ <br>
 
-rst files should use UNIX file format or validators report
-problems in every line.
+*rst files should use UNIX file format or validators report problems in every line.*

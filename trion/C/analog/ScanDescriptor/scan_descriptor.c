@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
         snprintf(sTarget, sizeof(sTarget), "BoardID%d", nBoardID);
 
         // First, try to retrieve the latest version of the ScanDescriptor
-        csScanDescriptorCommand = "ScanDescriptor_V2";
+        csScanDescriptorCommand = "ScanDescriptor_V3";
         nErrorCode = DeWeGetParamStruct_strLEN(sTarget, csScanDescriptorCommand, &nScanDescriptorLen);
         if (nErrorCode != 0)
         {

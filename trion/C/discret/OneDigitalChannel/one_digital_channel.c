@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
         return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.\n");
     }
 
-    // Build BoardId -> Either comming from command line (arg 1) or default "0"
+    // Build BoardId -> Either coming from command line (arg 1) or default "0"
     if( TRUE != ARG_GetBoardId(argc, argv, nNoOfBoards, &nBoardID) )
     {
         snprintf(sErrorText, sizeof(sErrorText), "Invalid BoardId: %d\nNumber of found boards: %d", nBoardID, nNoOfBoards);
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 
     char sScanDescriptor[5000] = { 0 };
 
-    nErrorCode = DeWeGetParamStruct_str(sBoardID, "ScanDescriptor_V2", sScanDescriptor, sizeof(sScanDescriptor));
+    nErrorCode = DeWeGetParamStruct_str(sBoardID, "ScanDescriptor_V3", sScanDescriptor, sizeof(sScanDescriptor));
     CheckError(nErrorCode);
 
     // Data Acquisition - stopped with any key
