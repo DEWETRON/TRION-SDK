@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
         // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
         nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_SIZE, nBlockSize);
         CheckError(nErrorCode);
-        // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+        // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
         // for 5 seconds
         nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_COUNT, nBlockCount);
         CheckError(nErrorCode);
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
         {
             for (int nBoardId = 0; nBoardId < nNoOfBoards; ++nBoardId)
             {
-                sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+                sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
                 int nAvailSamples=0;
 
                 nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
                     {
                         nAvailSamplesMax = std::max(nAvailSamplesMax, nAvailSamples);
                     }
-                    else 
+                    else
                     {
                         --max_after;
                     }
@@ -135,15 +135,15 @@ int main(int argc, char* argv[])
 
                     // Get the current read pointer
                     nErrorCode = DeWeGetParam_i64( nBoardId, CMD_BUFFER_ACT_SAMPLE_POS, &nReadPos );
-                    if (CheckError(nErrorCode)) 
+                    if (CheckError(nErrorCode))
                     {
                         stop_on_error = true;
                         break;
                     }
 
-                    // Free the ring buffer after read of all values
+                    // Free the circular buffer after read of all values
                     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
-                    if (CheckError(nErrorCode)) 
+                    if (CheckError(nErrorCode))
                     {
                         stop_on_error = true;
                         break;
@@ -230,7 +230,7 @@ void configureNetwork()
         address = "127.0.0.1";
         mask = "255.255.255.0";
     }
-    
+
 
     std::cout << "Example is listening for TRIONET devices on:\n" << address << "," << mask << std::endl;
 

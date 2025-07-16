@@ -85,7 +85,7 @@ def main(argv):
     # For the samplerate 10000 samples per second, 1000 is a buffer for
     # 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoard, CMD_BUFFER_BLOCK_SIZE, BLOCK_SIZE)
-    # Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    # Set the circular buffer size to 50 blocks. So the circular buffer can store samples
     # for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoard, CMD_BUFFER_BLOCK_COUNT, BLOCK_COUNT)
 
@@ -99,7 +99,7 @@ def main(argv):
     nErrorCode = DeWeSetParam_i32( nBoard, CMD_START_ACQUISITION)
 
     if nErrorCode <= ERROR_NONE:
-        # Get detailed information about the ring buffer
+        # Get detailed information about the circular buffer
         # to be able to handle the wrap around
         nErrorCode, nBufEndPos = DeWeGetParam_i64( nBoard, CMD_BUFFER_END_POINTER)
         print(f"nErrorCode = {nErrorCode}, nBufEndPos = {nBufEndPos}")
@@ -111,7 +111,7 @@ def main(argv):
             # wait for 100ms
             time.sleep(0.1)
 
-            # Get the number of samples already stored in the ring buffer
+            # Get the number of samples already stored in the circular buffer
             nErrorCode, nAvailSamples = DeWeGetParam_i32( nBoard, CMD_BUFFER_AVAIL_NO_SAMPLE)
             print(f"nErrorCode = {nErrorCode}, nAvailSamples = {nAvailSamples}")
 
@@ -123,7 +123,7 @@ def main(argv):
             nErrorCode, nReadPos = DeWeGetParam_i64( nBoard, CMD_BUFFER_ACT_SAMPLE_POS)
             print(f"nErrorCode = {nErrorCode}, nReadPos = {nReadPos}")
 
-            # Read the current samples from the ring buffer
+            # Read the current samples from the circular buffer
             # do not read across buffer boundaries
             while nAvailSamples > 0:
                 read_samples = min(nAvailSamples, (nBufEndPos - nReadPos) // nSizeScan)
@@ -144,7 +144,7 @@ def main(argv):
                 np.set_printoptions(formatter={"float": "{: 0.2f}".format})
                 print(data[:100])
 
-                # Free the ring buffer after read of values
+                # Free the circular buffer after read of values
                 nErrorCode = DeWeSetParam_i32( nBoard, CMD_BUFFER_FREE_NO_SAMPLE, read_samples)
 
                 nReadPos += nSizeScan * read_samples

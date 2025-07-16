@@ -2,7 +2,7 @@
  * Short example to showcase a current-meassuremente on a TRION-Module module
  *
  * This example should be used with a TRION-2402-MULTI-XXXX as board 0
- * 
+ *
  * Describes following:
  */
 
@@ -18,21 +18,21 @@
 
 
 //needed Board-Type for this example
-const  char* sBoardNameNeeded[] = { "TRION-2402-MULTI", 
+const  char* sBoardNameNeeded[] = { "TRION-2402-MULTI",
                                     NULL };
 
 
 // set the give channel on the given board to poti mode
 // all const char parameters are optional, and may be NULL (in this case the board-defaults are taken)
-int setupAICurrent( int nBoardNo, 
-                    int nChannelNo, 
+int setupAICurrent( int nBoardNo,
+                    int nChannelNo,
                     const char* Range
                     );
 
 
-int setupAIShuntTypeVal(  
-                        int nBoardNo, 
-                        int nChannelNo, 
+int setupAIShuntTypeVal(
+                        int nBoardNo,
+                        int nChannelNo,
                         const char* ShuntType,
                         const char* ShuntRes
                         );
@@ -148,13 +148,13 @@ int main(int argc, char* argv[])
     dumpAICurrentSettings(nBoardID, 0);
     setupAIShuntTypeVal(nBoardID, 0, "Internal", NULL);
     dumpAICurrentSettings(nBoardID, 0);
-    
+
     nErrorCode = DeWeSetParamStruct_str( sTargetString , "Samplerate", "1000");
     CheckError(nErrorCode);
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 100);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 10 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 10 blocks. So circular buffer can store samples
     // for 2 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 200);
     CheckError(nErrorCode);
@@ -176,22 +176,22 @@ int main(int argc, char* argv[])
     printf("running\n\n\n\n\n");
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos=0;         // Last position in the ring buffer
+        sint64 nBufEndPos=0;         // Last position in the circular buffer
         sint64 nBufSize=0;           // Total buffer size
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
         nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_TOTAL_MEM_SIZE, &nBufSize);
         CheckError(nErrorCode);
 
-        // Just for displaying .. 
+        // Just for displaying ..
         printf("                           -100%%                           +100%%\n");
 
         while( !kbhit() )
         {
-            sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
             int nAvailSamples=0;
             sint32 nRawData=0;
             double fScaledVal=0.0;
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
 
             Sleep(100);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             CheckError(nErrorCode);
 
@@ -218,17 +218,17 @@ int main(int argc, char* argv[])
 
             // recalculate nReadPos to handle ADC delay
             nReadPos = nReadPos + nADCDelay * Scansize;
-            // Handle the ring buffer wrap around
+            // Handle the circular buffer wrap around
             if (nReadPos > nBufEndPos)
             {
                 nReadPos -= nBufSize;
             }
 
-            // Read the current samples from the ring buffer
+            // Read the current samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
-                // Get the sample value at the read pointer of the ring buffer
-                // The sample value is 24Bit (little endian, encoded in 32bit). 
+                // Get the sample value at the read pointer of the circular buffer
+                // The sample value is 24Bit (little endian, encoded in 32bit).
                 nRawData = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH , 8);
                 fScaledVal = ((((double)(nRawData) * scaleinfo.fScaling)) - scaleinfo.fd);
 
@@ -243,14 +243,14 @@ int main(int argc, char* argv[])
                 // Increment the read pointer
                 nReadPos += Scansize;
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos > nBufEndPos)
                 {
                     nReadPos -= nBufSize;
                 }
             }
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
         }
@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
     // Stop data acquisition
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_STOP_ACQUISITION, 0);
     CheckError(nErrorCode);
-    
+
     // Close the board connection
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_CLOSE_BOARD, 0);
     CheckError(nErrorCode);
@@ -270,9 +270,9 @@ int main(int argc, char* argv[])
     return nErrorCode;
 }
 
-int setupAICurrent(  
-        int nBoardNo, 
-        int nChannelNo, 
+int setupAICurrent(
+        int nBoardNo,
+        int nChannelNo,
         const char* Range)
 {
     int nErrorCode = 0;
@@ -282,7 +282,7 @@ int setupAICurrent(
     {
         snprintf( sTargetString, sizeof(sTargetString), "BoardId%d/AIAll", nBoardNo );
     }
-    else 
+    else
     {
         snprintf( sTargetString, sizeof(sTargetString), "BoardId%d/AI%d", nBoardNo, nChannelNo );
     }
@@ -298,17 +298,17 @@ int setupAICurrent(
     if ( NULL != Range )
     {
         nErrorCode = DeWeSetParamStruct_str( sTargetString, "Range", Range );
-        if (CheckError(nErrorCode)) 
+        if (CheckError(nErrorCode))
             return 1;
     }
 
     //no aliasing
     nErrorCode = DeWeSetParamStruct_str( sTargetString, "LPFilter_Val", "auto");
-    if (CheckError(nErrorCode)) 
+    if (CheckError(nErrorCode))
         return 1;
 
     nErrorCode = DeWeSetParamStruct_str( sTargetString, "Excitation", "10 V" );
-    if (CheckError(nErrorCode)) 
+    if (CheckError(nErrorCode))
         return 1;
 
     //dump out the current configuration to the console to show the now-effective settings
@@ -316,9 +316,9 @@ int setupAICurrent(
 }
 
 
-int setupAIShuntTypeVal(  
-    int nBoardNo, 
-    int nChannelNo, 
+int setupAIShuntTypeVal(
+    int nBoardNo,
+    int nChannelNo,
     const char* ShuntType,
     const char* ShuntRes)
 {
@@ -329,7 +329,7 @@ int setupAIShuntTypeVal(
     {
         snprintf( sTargetString, sizeof(sTargetString), "BoardId%d/AIAll", nBoardNo );
     }
-    else 
+    else
     {
         snprintf( sTargetString, sizeof(sTargetString), "BoardId%d/AI%d", nBoardNo, nChannelNo );
     }
@@ -339,14 +339,14 @@ int setupAIShuntTypeVal(
     if ( ShuntType )
     {
         nErrorCode = DeWeSetParamStruct_str( sTargetString, "ShuntType", ShuntType);
-        if (CheckError(nErrorCode)) 
+        if (CheckError(nErrorCode))
             return 1;
     }
 
     if ( ShuntRes )
     {
         nErrorCode = DeWeSetParamStruct_str( sTargetString, "ShuntResistance", ShuntRes);
-        if (CheckError(nErrorCode)) 
+        if (CheckError(nErrorCode))
             return 1;
     }
     //dump out the current configuration to the console to show the now-effective settings

@@ -4,7 +4,7 @@
  * The Board is selectable over cmd line parameter 1. Default Board Nr. = 0
  * The AIChannel is selectable over cmd line parameter 2. Default Channel Nr. = 0
  * This example should be used with a TRION-2402-MULTI
- * 
+ *
  * Describes following:
  */
 
@@ -51,16 +51,16 @@ int main(int argc, char* argv[])
     double r_value=0.0f;
     double res0_back=0.0f;
     sint64 nBufStartPos=0;
-    sint64 nBufEndPos=0;         
-    int nBufSize=0;             
+    sint64 nBufEndPos=0;
+    int nBufSize=0;
     double fVal=0;
     ScaleInfo scaleinfo;
     RangeSpan rangespan;
 
-    // To be adopted to user's demands .. 
+    // To be adopted to user's demands ..
     const double fRangeMin = 0;   // -200 //Ohm
     const double fRangeMax = 200;  // 850  //Ohm
-    const float fExcitation = 0.5;//0.5;   
+    const float fExcitation = 0.5;//0.5;
 
 
     // Load pxi_api.dll
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     {
         return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.\n");
     }
-      
+
     // Build BoardId -> Either comming from command line (arg 1) or default "0"
     if( TRUE != ARG_GetBoardId(argc, argv, nNoOfBoards, &nBoardId) )
     {
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
         snprintf(sErrorText, sizeof(sErrorText), "Invalid Channel Number: Allowed channel numbers are from [0..7]\n");
         return UnloadTrionApi(sErrorText);
     }
-       
+
 
     // Open & Reset the board
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_OPEN_BOARD, 0 );
@@ -110,23 +110,23 @@ int main(int argc, char* argv[])
         return UnloadTrionApi(NULL);
     }
 
-    // Set Acquisition Properties 
+    // Set Acquisition Properties
     snprintf(sPropertyStr, sizeof(sPropertyStr),"BoardID%d/AcqProp", nBoardId);
     nErrorCode = DeWeSetParamStruct_str( sPropertyStr , "Samplerate", "1000");
     CheckError(nErrorCode);
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_SIZE, 100);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 10 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 10 blocks. So the circular buffer can store samples
     // for 2 seconds
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_COUNT, 200);
     CheckError(nErrorCode);
 
     // Set Properties for channel AIx
     snprintf(sExcitationStr, sizeof(sExcitationStr),"%f %s", fExcitation, sUnitExcitation);
-    snprintf(sTarget, sizeof(sTarget), "%s/AI%d", sBoardId, nChannelNo); 
+    snprintf(sTarget, sizeof(sTarget), "%s/AI%d", sBoardId, nChannelNo);
     snprintf(sRangeStr, sizeof(sRangeStr), "%f..%f Ohm", fRangeMin, fRangeMax);
-    
+
     nErrorCode = DeWeSetParamStruct_str( sTarget , "Mode", "Resistance");
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParamStruct_str( sTarget , "Used", "True");
@@ -144,10 +144,10 @@ int main(int argc, char* argv[])
     // Update Properties and Start Acquisition ..
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_UPDATE_PARAM_ALL, 0);
     CheckError(nErrorCode);
-    
+
     // Do some checks here .. :-)
     printf("\nINFO Print-Outs:\n");
-      
+
     nErrorCode = DeWeGetParamStruct_str( sTarget , "Range", sResultStr, sizeof(sResultStr));
     CheckError(nErrorCode);
     printf("Adjusted Range:     %s\n", sResultStr);
@@ -163,8 +163,8 @@ int main(int argc, char* argv[])
     }
 
     printf("\nTemperature Measurement started on BoardId%s/AI%d ..\n\n\n",sBoardId, nChannelNo);
-    
-    // Get detailed information about the ring buffer
+
+    // Get detailed information about the circular buffer
     // to be able to handle the wrap around
     nErrorCode = DeWeGetParam_i64( nBoardId, CMD_BUFFER_START_POINTER, &nBufStartPos);
     CheckError(nErrorCode);
@@ -175,14 +175,14 @@ int main(int argc, char* argv[])
 
     while( !kbhit() )
     {
-        sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+        sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
         int nAvailSamples=0;
         int i=0;
         sint32 nRawData=0;
 
         Sleep(100);
 
-        // Get the number of samples already stored in the ring buffer
+        // Get the number of samples already stored in the circular buffer
         nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
         CheckError(nErrorCode);
         if (ERR_BUFFER_OVERWRITE == nErrorCode)
@@ -207,17 +207,17 @@ int main(int argc, char* argv[])
         // recalculate nReadPos to handle ADC delay
         nReadPos = nReadPos + nADCDelay * sizeof(uint32);
 
-        // Read the current samples from the ring buffer
+        // Read the current samples from the circular buffer
         for (i = 0; i < nAvailSamples; ++i)
         {
-            // Handle the ring buffer wrap around
+            // Handle the circular buffer wrap around
             if (nReadPos >= nBufEndPos)
             {
                 nReadPos -= nBufSize;
             }
 
-            // Get the sample value at the read pointer of the ring buffer
-            // The sample value is 24Bit (little endian, encoded in 32bit). 
+            // Get the sample value at the read pointer of the circular buffer
+            // The sample value is 24Bit (little endian, encoded in 32bit).
             nRawData = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH, 8 );
             fVal = (((double)(nRawData) * scaleinfo.fScaling)) - scaleinfo.fd;
 
@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
             nReadPos += sizeof(uint32);
         }
 
-        // Free the ring buffer after read of all values
+        // Free the circular buffer after read of all values
         nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
         CheckError(nErrorCode);
     }

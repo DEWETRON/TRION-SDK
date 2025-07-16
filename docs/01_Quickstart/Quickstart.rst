@@ -443,7 +443,7 @@ the buffer start. But it is not necessary to implement the buffer
 wrap around handling and therefore not used.
 
 
-.. note:: The samples are stored in a ring buffer. When iterating the buffer
+.. note:: The samples are stored in a circular buffer. When iterating the buffer
     you have to look for the buffer end and implement the wrap around handling.
 
 
@@ -469,7 +469,7 @@ sample.
 
     for (int i = 0; i < avail_samples; ++i)
     {
-        // Handle the ring buffer wrap around
+        // Handle the circular buffer wrap around
         if (read_pos >= buf_end_pos)
         {
             read_pos -= buff_size;
@@ -494,8 +494,8 @@ read all samples.
 
     DeWeSetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, avail_samples);
 
-After the inner loop completed, free the ring buffer with
-CMD_BUFFER_FREE_NO_SAMPLE. If you do not free the ring buffer
+After the inner loop completed, free the circular buffer with
+CMD_BUFFER_FREE_NO_SAMPLE. If you do not free the circular buffer
 it will get full and the acquisition will stop with a buffer
 overflow error.
 

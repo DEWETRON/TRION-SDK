@@ -174,17 +174,17 @@ calculated by the API and the buffer is allocated.
 Buffer Readout from Application Point of View
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ring-buffer is exposed to the application by providing the related
+The circular-buffer is exposed to the application by providing the related
 pointer information.
 
 The API will provide:
 
--  Start-pointer of the ring buffer
--  End-Pointer of the ring buffer
+-  Start-pointer of the circular buffer
+-  End-Pointer of the circular buffer
 -  Pointer to the first unprocessed scan
 
 Together with the information how many unprocessed samples are available
-the application iterates directly over the ring buffer.
+the application iterates directly over the circular buffer.
 
 This approach allows a minimal internal overhead on data-access.
 

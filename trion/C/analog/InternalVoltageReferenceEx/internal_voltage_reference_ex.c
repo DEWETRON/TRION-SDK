@@ -2,9 +2,9 @@
  * Short example to describe how to setup the internal voltage reference
  * and utilize one channel to measure it back
  *
- * This example should be used with a TRION-2402-dACC, TRION-2402-dSTG, 
+ * This example should be used with a TRION-2402-dACC, TRION-2402-dSTG,
  * TRION-16XX-LV, TRION-2402-MULTI or TRION-1620-ACC as board 0
- * 
+ *
  * Describes following:
  *  - Setup of 1 AI channel
  *  - Setup of Aref (Voltage Reference channel)
@@ -23,12 +23,12 @@
 #define DATAWIDTH   24
 
 //needed Board-Type for this example
-const char* sBoardNameNeeded[] = {  "TRION-2402-dACC", 
-                                    "TRION-2402-dSTG", 
-                                    "TRION-1620-LV", 
-                                    "TRION-1620-ACC", 
-                                    "TRION-1603-LV", 
-                                    "TRION-2402-MULTI", 
+const char* sBoardNameNeeded[] = {  "TRION-2402-dACC",
+                                    "TRION-2402-dSTG",
+                                    "TRION-1620-LV",
+                                    "TRION-1620-ACC",
+                                    "TRION-1603-LV",
+                                    "TRION-2402-MULTI",
                                     NULL };
 
 //same order as BoardName(needed), sBoardNameNeeded is PK
@@ -71,17 +71,17 @@ int main(int argc, char* argv[])
     {
         return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.\n");
     }
-   
+
     // Build BoardId -> Either comming from command line (arg 1) or default "0"
     if( TRUE != ARG_GetBoardId(argc, argv, nNoOfBoards, &nBoardId) )
     {
         snprintf(sErrorText, sizeof(sErrorText), "Invalid BoardId: %d\nNumber of found boards: %d", nBoardId, nNoOfBoards);
         return UnloadTrionApi(sErrorText);
     }
-   
+
     // Build BoardIDX string for _str functions
     snprintf(sBoardId, sizeof(sBoardId), "BoardID%d", nBoardId);
-    
+
     // Get Cahnnel ID -> Either comming from aommand line (arg 2) or default "0"
     // Note ... the ID has to be within the following range [0..7]
     if( TRUE != ARG_GetChannelNo(argc, argv, nNoOfBoards, &chnno) )
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
     MaxCalSourceVal = GetMaxARef(nBoardId, sBoardId, sBoardNameNeeded, maxArefVal );
 
     // Get ARef max Value from cmd line / otherwise use default
-    if (argc > 3) 
+    if (argc > 3)
     {
         sscanf(argv[3], "%lf", &CalSourceVal);
         if (CalSourceVal <= 0.0f || CalSourceVal > MaxCalSourceVal )
@@ -114,8 +114,8 @@ int main(int argc, char* argv[])
         }
     }
 
-    // Get HW Range from cmd line / otherwise use default  
-    if (argc > 4) 
+    // Get HW Range from cmd line / otherwise use default
+    if (argc > 4)
     {
         sscanf(argv[4], "%lf", &targetrange);
         if (targetrange <= CalSourceVal )
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
     // 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_SIZE, 200);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
 
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos=0;         // Last position in the ring buffer
+        sint64 nBufEndPos=0;         // Last position in the circular buffer
         int nBufSize=0;              // Total buffer size
         double fVal=0.0;
 
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
         int targetloopcount = 12;
         int loopcount = 0;
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i64( nBoardId, CMD_BUFFER_START_POINTER, &nBufStartPos);
         CheckError(nErrorCode);
@@ -266,14 +266,14 @@ int main(int argc, char* argv[])
 
         while( !kbhit() )
         {
-            sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
             int nAvailSamples=0;
             int i=0;
             sint32 nRawData=0;
 
             Sleep(33);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             if (ERR_BUFFER_OVERWRITE == nErrorCode)
             {
@@ -299,17 +299,17 @@ int main(int argc, char* argv[])
             // recalculate nReadPos to handle ADC delay
             nReadPos = nReadPos + nADCDelay * sizeof(uint32);
 
-            // Read the current samples from the ring buffer
+            // Read the current samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos >= nBufEndPos)
                 {
                     nReadPos -= nBufSize;
                 }
 
-                // Get the sample value at the read pointer of the ring buffer
-                // The sample value is 24 or 16Bit (little endian, encoded in 32bit). 
+                // Get the sample value at the read pointer of the circular buffer
+                // The sample value is 24 or 16Bit (little endian, encoded in 32bit).
                 nRawData = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH, 8 );
                 fVal = (( (double)((double)(nRawData) * scaleinfo.fScaling)) - scaleinfo.fd);
 
@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
                 // Print the sample value:
                 if ( 0 == ((i + 1) % 200) )
                 {
-                    printf("\rRaw %8.8x, Scaled %12.12lf  MaxAbs %12.12lf  MinAbs %12.12lf  AvgAbs %12.12lf  MaxBlk %12.12lf  MinBlk %12.12lf  AvgBlk %12.12lf\n", 
+                    printf("\rRaw %8.8x, Scaled %12.12lf  MaxAbs %12.12lf  MinAbs %12.12lf  AvgAbs %12.12lf  MaxBlk %12.12lf  MinBlk %12.12lf  AvgBlk %12.12lf\n",
                         nRawData, fVal, fmaxAbs, fminAbs, fAvgTotal, fmaxBlk, fminBlk, fAvgBlk );
                     fflush(stdout);
 
@@ -346,7 +346,7 @@ int main(int argc, char* argv[])
                 nReadPos += ScanSize;
             }
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
 

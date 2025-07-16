@@ -1,5 +1,5 @@
 /**
- * Short example to describe how to trigger an amplifier balance 
+ * Short example to describe how to trigger an amplifier balance
  *
  * for analogue channels of a specific board
  *
@@ -13,7 +13,7 @@
 
 
 //needed Board-Type for this example
-const  char* sBoardNameNeeded[] = { "TRION-2402-dACC", 
+const  char* sBoardNameNeeded[] = { "TRION-2402-dACC",
                                     NULL };
 
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 
     // Build a string in the format: "BoardID0", "BoardID1", ...
     snprintf(sBoardID, sizeof(sBoardID),"BoardID%d", nBoardID);
-    
+
     // Open & Reset the board
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_OPEN_BOARD, 0 );
     CheckError(nErrorCode);
@@ -99,8 +99,8 @@ int main(int argc, char* argv[])
     // 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 200);
     CheckError(nErrorCode);
-    
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+
+    // Set the circular buffer size to 50 blocks. So circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
     if (nErrorCode <= 0)
     {
-        // not strictly necessary - just to illustrate, that the AmplifierOffset command can 
+        // not strictly necessary - just to illustrate, that the AmplifierOffset command can
         // be used during any time after Acquisition-Start
         Sleep(100);
 
@@ -128,11 +128,11 @@ int main(int argc, char* argv[])
         // only the channels 0,1,2 will actually be affected by this command now
         // reason: as the application currently holds the control over a running
         // acquisition, the API is not able to change the active/inactive state
-        // of the various channels, and can only perform the operation on the 
+        // of the various channels, and can only perform the operation on the
         // channels that have been activated by the application istself
 
         // the actual measured data won't be processed in this example anyway
-        // therefore all the ring-buffer handling is skipped. please refer to
+        // therefore all the circular-buffer handling is skipped. please refer to
         // one_analogue_channel how to actually process data
 
         do
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 
             Sleep(200);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             CheckError(nErrorCode);
 
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
             // in parallel the application can poll about the state of the ballancing process
             nErrorCode = DeWeGetParamStruct_str( sChannelStr, "AmplifierOffset", sSettingStr, sizeof(sSettingStr));
             CheckError(nErrorCode);
-            if ( nErrorCode > 0 ) 
+            if ( nErrorCode > 0 )
             {
                 //Error - Trap
                 printf("Error during Balancing: %s\nAborting.....\n", DeWeErrorConstantToString(nErrorCode));
@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
             if ( NULL != strstr(sSettingStr, "EstDuration") )
             {
                 printf("%s\n", sSettingStr);
-            } 
+            }
             else
             {
                 //here we have a result-set and are finished
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
                 break;
             }
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
 

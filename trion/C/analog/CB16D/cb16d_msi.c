@@ -8,7 +8,7 @@
  * Note: CB16D has to be connected before running this example.
  * The example has to process the MSI adapters TEDS response.
  * The example hat to know the supported MSI adapters or process the accompanied
- * msidb.xml. 
+ * msidb.xml.
  *
  * Features:
  *  - Scan and show MSI Adapter on given channel
@@ -169,7 +169,7 @@ int configureAcquisition(int nBoardId)
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     nErrorCode = DeWeSetParam_i32(nBoardId, CMD_BUFFER_BLOCK_SIZE, 20);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32(nBoardId, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);
@@ -227,7 +227,7 @@ int configureChannel(int nBoardId, int nChannelNo, const char* teds_xml, ScaleIn
     CheckError(nErrorCode);
 
     // Access special msi type information
-    // MinMsiRange & MaxMsiRange 
+    // MinMsiRange & MaxMsiRange
     min_range = MSI_GetMinRange(sMSIData);
     max_range = MSI_GetMaxRange(sMSIData);
     scaleinfo->unit = MSI_GetMaxRangeUnit(sMSIData);
@@ -294,7 +294,7 @@ int runAcquisition(int nBoardId, int nChannelNo, ScaleInfo* scaleinfo)
 
     printf("\nMeasurement started on Board%d/AI%d ..\n\n\n", nBoardId, nChannelNo);
 
-    // Get detailed information about the ring buffer
+    // Get detailed information about the circular buffer
     // to be able to handle the wrap around
     nErrorCode = DeWeGetParam_i64( nBoardId, CMD_BUFFER_START_POINTER, &nBufStartPos);
     CheckError(nErrorCode);
@@ -306,14 +306,14 @@ int runAcquisition(int nBoardId, int nChannelNo, ScaleInfo* scaleinfo)
 
     while( !kbhit() )
     {
-        sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+        sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
         int nAvailSamples=0;
         sint32 nRawData=0;
         int i=0;
 
         Sleep(10);
 
-        // Get the number of samples already stored in the ring buffer
+        // Get the number of samples already stored in the circular buffer
         nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
         CheckError(nErrorCode);
         if (ERR_BUFFER_OVERWRITE == nErrorCode)
@@ -338,16 +338,16 @@ int runAcquisition(int nBoardId, int nChannelNo, ScaleInfo* scaleinfo)
         // recalculate nReadPos to handle ADC delay
         nReadPos = nReadPos + nADCDelay * nSizeScan;
 
-        // Read the current samples from the ring buffer
+        // Read the current samples from the circular buffer
         for (i = 0; i < nAvailSamples; ++i)
         {
-            // Handle the ring buffer wrap around
+            // Handle the circular buffer wrap around
             if (nReadPos >= nBufEndPos)
             {
                 nReadPos -= nBufSize;
             }
 
-            // Get the sample value at the read pointer of the ring buffer
+            // Get the sample value at the read pointer of the circular buffer
             // The sample value is 24Bit (little endian, encoded in 32bit).
             nRawData = formatRawData( *(uint32*)nReadPos, (int)DATAWIDTH, 8);
             fVal = (((double)(nRawData) * scaleinfo->fScaling)) - scaleinfo->fd;
@@ -362,7 +362,7 @@ int runAcquisition(int nBoardId, int nChannelNo, ScaleInfo* scaleinfo)
             nReadPos += nSizeScan;
         }
 
-        // Free the ring buffer after read of all values
+        // Free the circular buffer after read of all values
         nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
         CheckError(nErrorCode);
 

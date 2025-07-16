@@ -114,7 +114,7 @@ namespace Examples
             // 0.1 seconds
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_BLOCK_SIZE, 200);
             trion_api.API.CheckError(nErrorCode);
-            // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+            // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
             // for 5 seconds
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_BLOCK_COUNT, 50);
             trion_api.API.CheckError(nErrorCode);
@@ -144,7 +144,7 @@ namespace Examples
             nErrorCode = trion_api.API.DeWeOpenCAN(nBoardId);
             trion_api.API.CheckError(nErrorCode);
 
-            
+
             // Configure the ASYNC-Polling Time to 100ms
             nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.ASYNC_POLLING_TIME, 100);
             trion_api.API.CheckError(nErrorCode);
@@ -183,11 +183,11 @@ namespace Examples
                     // wait for 100ms
                     System.Threading.Thread.Sleep(100);
 
-                    // Get the number of samples already stored in the ring buffer
+                    // Get the number of samples already stored in the circular buffer
                     nErrorCode = trion_api.API.DeWeGetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_AVAIL_NO_SAMPLE, out nAvailSamples);
                     trion_api.API.CheckError(nErrorCode);
 
-                    // Free the ring buffer after read of all values
+                    // Free the circular buffer after read of all values
                     nErrorCode = trion_api.API.DeWeSetParam_i32(nBoardId, Trion.TrionCommand.BUFFER_FREE_NO_SAMPLE, nAvailSamples);
                     trion_api.API.CheckError(nErrorCode);
 
@@ -250,8 +250,8 @@ namespace Examples
 
         unsafe private static Int32 GetDataAtPos( Int64 nReadPos)
         {
-            // Get the sample value at the read pointer of the ring buffer
-            // The sample value is 24Bit (little endian, encoded in 32bit). 
+            // Get the sample value at the read pointer of the circular buffer
+            // The sample value is 24Bit (little endian, encoded in 32bit).
             return *((Int32*)nReadPos);
         }
     }

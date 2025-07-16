@@ -2,7 +2,7 @@
  * Short example to showcase a bridge-meassuremente on a TRION-dSTG module
  *
  * This example should be used with a TRION-2402-dSTG-XXXX as board 0
- * 
+ *
  * Describes following:
  *  - Setup of all AI channel in bridge-mode
  *  - Setup the channel properties for bridge measurement
@@ -23,18 +23,18 @@
 
 
 //needed Board-Type for this example
-const  char* sBoardNameNeeded[] = { "TRION-2402-dSTG", 
+const  char* sBoardNameNeeded[] = { "TRION-2402-dSTG",
                                     NULL };
 
 
 // set the give channel on the given board to bridge mode
 // all const char parameters are optional, and may be NULL (in this case the board-defaults are taken)
-int setupAIBridge(  int nBoardNo, 
-                    int nChannelNo, 
-                    const char* Range, 
-                    const char* Excitation, 
-                    const char* InputType, 
-                    const char* BridgeResistance 
+int setupAIBridge(  int nBoardNo,
+                    int nChannelNo,
+                    const char* Range,
+                    const char* Excitation,
+                    const char* InputType,
+                    const char* BridgeResistance
                     );
 
 int setupOffsetCompensation(
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
     }
 
     // Set configuration to use one board in standalone operation
-    snprintf(sChannelStr, sizeof(sChannelStr),"%s/AcqProp", sBoardID); 
+    snprintf(sChannelStr, sizeof(sChannelStr),"%s/AcqProp", sBoardID);
     nErrorCode = DeWeSetParamStruct_str( sChannelStr, "OperationMode", "Slave");
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParamStruct_str( sChannelStr, "ExtTrigger", "False");
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
     {
         return UnloadTrionApi("CMD FAIL\n.Aborting.....\n");
     }
-    // Set the ring buffer size to 10 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 10 blocks. So circular buffer can store samples
     // for 2 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 200);
     CheckError(nErrorCode);
@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
     {
        return UnloadTrionApi("CMD FAIL\n.Aborting.....\n");
     }
-    // Set the ring buffer size to 10 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 10 blocks. So circular buffer can store samples
     // for 2 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 200);
     CheckError(nErrorCode);
@@ -256,10 +256,10 @@ int main(int argc, char* argv[])
     printf("running\n\n\n\n\n");
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos=0;         // Last position in the ring buffer
+        sint64 nBufEndPos=0;         // Last position in the circular buffer
         sint64 nBufSize=0;           // Total buffer size
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
 
         while( !kbhit() )
         {
-            sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
             int nAvailSamples=0;
             int i=0;
             sint32 nRawData=0;
@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
 
             // Sleep(100);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE, &nAvailSamples );
             if (CheckError(nErrorCode))
             {
@@ -299,20 +299,20 @@ int main(int argc, char* argv[])
 
             // recalculate nReadPos to handle ADC delay
             nReadPos = nReadPos + nADCDelay * Scansize;
-            // Handle the ring buffer wrap around
+            // Handle the circular buffer wrap around
             if (nReadPos > nBufEndPos)
             {
                 nReadPos -= nBufSize;
             }
 
-            // Read the current samples from the ring buffer
+            // Read the current samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
-                // Get the sample value at the read pointer of the ring buffer
-                // The sample value is 24Bit (little endian, encoded in 32bit). 
+                // Get the sample value at the read pointer of the circular buffer
+                // The sample value is 24Bit (little endian, encoded in 32bit).
                 nRawData = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH, 8 );
                 fScaledVal = (( (double)((double)(nRawData) * scaleinfo.fScaling)) - scaleinfo.fd);
-                
+
                 // Print the sample value:
                 if ( 0 == i%10 ){
                     int mpos = (int)((fScaledVal/scaleinfo.fk) * 15) + 15;
@@ -325,14 +325,14 @@ int main(int argc, char* argv[])
                 // Increment the read pointer
                 nReadPos += Scansize;
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos > nBufEndPos)
                 {
                     nReadPos -= nBufSize;
                 }
             }
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
         }
@@ -352,12 +352,12 @@ int main(int argc, char* argv[])
     return nErrorCode;
 }
 
-int setupAIBridge(  
-    int nBoardNo, 
-    int nChannelNo, 
-    const char* Range, 
-    const char* Excitation, 
-    const char* InputType, 
+int setupAIBridge(
+    int nBoardNo,
+    int nChannelNo,
+    const char* Range,
+    const char* Excitation,
+    const char* InputType,
     const char* BridgeResistance )
 {
     int nErrorCode=0;

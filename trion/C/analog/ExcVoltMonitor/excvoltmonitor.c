@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
     // 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 2000);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 1000);
     CheckError(nErrorCode);
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos=0;         // Last position in the ring buffer
+        sint64 nBufEndPos=0;         // Last position in the circular buffer
         sint64 nBufSize=0;           // Total buffer size
         int runcount = 0;
         int ExcCount = 4;
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
                                         "0.5 V", "1 V", "2 V", "3 V", "5 V", "10 V", "15 V", "20 V", "32 V" };
 
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 
         while( !kbhit() )
         {
-            sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
             int nAvailSamples=0;
             int i=0;
             char *ptr=NULL;
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
 
             Sleep(20);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             if ( nErrorCode > 0 )
             {
@@ -219,10 +219,10 @@ int main(int argc, char* argv[])
             // recalculate nReadPos to handle ADC delay
             nReadPos = nReadPos + nADCDelay * sizeof(uint32);
 
-            // Read the current samples from the ring buffer
+            // Read the current samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
-                // Get the sample value at the read pointer of the ring buffer
+                // Get the sample value at the read pointer of the circular buffer
                 // The sample value is 24Bit (little endian, encoded in 32bit).
                 nRawData = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH, 8);
                 fScaledVal = (( (double)((double)(nRawData) * scaleinfo.fScaling)) - scaleinfo.fd);
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
                 // Increment the read pointer
                 nReadPos += sizeof(uint32);
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos > nBufEndPos)
                 {
                     nReadPos -= nBufSize;
@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
                 }
             }
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             if ( nErrorCode > 0 )
             {

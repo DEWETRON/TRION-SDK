@@ -241,8 +241,8 @@ int main(int argc, char* argv[])
     int boards = 0;
     int avail_samples = 0;
     const int32_t buffer_block_size = 10;
-    int64_t buf_end_pos = 0;        // Last position in the ring buffer
-    int buff_size = 0;              // Total size of the ring buffer
+    int64_t buf_end_pos = 0;        // Last position in the circular buffer
+    int buff_size = 0;              // Total size of the circular buffer
     char scan_descriptor[8192] = { 0 };
 
     FormattedOutput output(4, buffer_block_size);
@@ -311,14 +311,14 @@ int main(int argc, char* argv[])
         DeWeGetParam_i64(1, CMD_BUFFER_0_ACT_SAMPLE_POS, &read_pos);
 
         // Process samples in CMD_0_BUFFER_BLOCK_SIZE
-        // to handle ring buffer wrap arounds only here:
+        // to handle circular buffer wrap arounds only here:
         auto avail_samples_to_process = avail_samples;
         while (avail_samples_to_process > 0)
         {
             read_pos = sd_decoder.processSamples(read_pos, buffer_block_size);
             avail_samples_to_process -= buffer_block_size;
 
-            // Handle the ring buffer wrap around
+            // Handle the circular buffer wrap around
             if (read_pos >= buf_end_pos)
             {
                 read_pos -= buff_size;

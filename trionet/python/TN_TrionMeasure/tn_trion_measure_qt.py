@@ -104,7 +104,7 @@ class MainDialog(QWidget):
         main_layout.addWidget(self.statusbar)
         self.setLayout(main_layout)
 
-    
+
     @Slot(str, str)
     def showStatus(self, text, style = "color:black"):
         """
@@ -164,14 +164,14 @@ class TrionMeasurementWorker(QThread):
         nRawData      = 0
         sample_index  = 0
 
-        # Get detailed information about the ring buffer
+        # Get detailed information about the circular buffer
         # to be able to handle the wrap around
         [nErrorCode, nBufEndPos] = DeWeGetParam_i64( self.board_id, CMD_BUFFER_END_POINTER)
         [nErrorCode, nBufSize]   = DeWeGetParam_i32( self.board_id, CMD_BUFFER_TOTAL_MEM_SIZE)
 
         nErrorCode = DeWeSetParam_i32( self.board_id, CMD_START_ACQUISITION, 0)
         while self.exiting==False:
-            # Get the number of samples already stored in the ring buffer
+            # Get the number of samples already stored in the circular buffer
             [nErrorCode, nAvailSamples] = DeWeGetParam_i32( self.board_id, CMD_BUFFER_AVAIL_NO_SAMPLE)
 
             if nAvailSamples > 0:
@@ -180,9 +180,9 @@ class TrionMeasurementWorker(QThread):
 
                 channel_data = []
 
-                # Read the current samples from the ring buffer
+                # Read the current samples from the circular buffer
                 for i in range(0, nAvailSamples):
-                    # Get the sample value at the read pointer of the ring buffer
+                    # Get the sample value at the read pointer of the circular buffer
                     nRawData = DeWeGetSampleData(nReadPos)
 
                     # Print the sample value
@@ -194,10 +194,10 @@ class TrionMeasurementWorker(QThread):
 
                     # Increment the read pointer
                     nReadPos = nReadPos + 4
-                    # Handle the ring buffer wrap around
+                    # Handle the circular buffer wrap around
                     if nReadPos > nBufEndPos:
                         nReadPos -= nBufSize
-                    # Free the ring buffer after read of all values
+                    # Free the circular buffer after read of all values
 
                 nErrorCode = DeWeSetParam_i32( self.board_id, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples)
 
@@ -233,7 +233,7 @@ class TrionMeasurementWorker(QThread):
         if self.is_api_loaded:
             DeWeSetParam_i32(0, CMD_CLOSE_BOARD_ALL, 0)
             DeWeDriverDeInit()
-        
+
         DeWePxiUnload()
 
         if not DeWePxiLoad(api_name):
@@ -252,7 +252,7 @@ class TrionMeasurementWorker(QThread):
 
     def initTrion(self):
         """
-        Initialize TRION (or TRIONET)       
+        Initialize TRION (or TRIONET)
         """
         if self.isRunning():
             self.showStatus("initTrion not possible with active worker thread")
