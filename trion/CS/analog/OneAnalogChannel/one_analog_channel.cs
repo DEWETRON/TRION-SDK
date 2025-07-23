@@ -6,6 +6,9 @@ namespace Examples
 {
     class ADCDelayExample
     {
+        private const int SAMPLE_RATE = 2000; // Sample rate in Hz
+        private const int BLOCK_SIZE = 200; // Number of samples per block
+        private const int BLOCK_COUNT = 50; // Number of blocks in the circular buffer
         private static byte[] StringToByteArray(string str)
         {
             System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
@@ -22,9 +25,9 @@ namespace Examples
         {
             //fixed byte srate[27];
             byte[] srate = new byte[255];
-            Trion.TrionError error = trion_api.API.DeWeGetParamStruct_str(target, "SampleRate", srate, 255);
+            Trion.TrionError error_code = trion_api.API.DeWeGetParamStruct_str(target, "SampleRate", srate, 255);
             sample_rate = ByteArrayToString(srate);
-            return error;
+            return error_code;
         }
 
         unsafe private static Int32 GetDataAtPos(Int64 read_pos)
@@ -32,6 +35,12 @@ namespace Examples
             // Get the sample value at the read pointer of the circular buffer
             // The sample value is 24Bit (little endian, encoded in 32bit).
             return *(Int32*)read_pos;
+        }
+
+        private static int GetPollingIntervalMs(int block_size, int sample_rate)
+        {
+            // Returns interval in milliseconds
+            return (int)(block_size / (double)sample_rate * 1000);
         }
 
         static int Main(string[] args)
@@ -114,11 +123,11 @@ namespace Examples
             // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
             // For the default samplerate 2000 samples per second, 200 is a buffer for
             // 0.1 seconds
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, 200);
+            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, BLOCK_SIZE);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set buffer block size: {error_code}"); return 1; }
             // Set the circular buffer size to 50 blocks. So circular buffer can store samples
             // for 5 seconds
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, 50);
+            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, BLOCK_COUNT);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set buffer block count: {error_code}"); return 1; }
 
             // Update the hardware with settings
@@ -152,6 +161,7 @@ namespace Examples
             }
 
             float value;
+            int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
 
             // Get detailed information about the circular buffer
             // to be able to handle the wrap around
@@ -165,14 +175,11 @@ namespace Examples
             error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_TOTAL_MEM_SIZE, out Int32 buffer_size);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer total memory size: {error_code}"); return 1; }
 
-            while (true)
+            while (!Console.KeyAvailable)
             {
-                if (Console.KeyAvailable)
-                {
-                    break; // Exit loop if a key is pressed
-                }
-
-                System.Threading.Thread.Sleep(100); // Sleep for 100 ms to avoid busy waiting
+                // sleep to avoid busy waiting
+                // see: /TRION-SDK/03_DataAcquisition/DataAcquisition.html#block-and-block-size
+                System.Threading.Thread.Sleep(polling_interval_ms);
 
                 Int32 i = 0;
 
@@ -223,7 +230,7 @@ namespace Examples
                 Console.WriteLine("CMD_BUFFER_FREE_NO_SAMPLE {0}  (err={1})", available_samples, error_code);
             }
 
-             // Stop data acquisition
+            // Stop data acquisition
             error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
 
