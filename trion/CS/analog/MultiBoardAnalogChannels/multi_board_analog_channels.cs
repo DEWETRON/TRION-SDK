@@ -6,7 +6,7 @@ namespace Examples
 {
     class ADCDelayExample
     {
-        private const int SAMPLE_RATE = 2000; // Sample rate in Hz
+        private const int SAMPLE_RATE = 50000; // Sample rate in Hz
         private const int BLOCK_SIZE = 200; // Number of samples per block
         private const int BLOCK_COUNT = 50; // Number of blocks in the circular buffer
         private const int NUM_OF_BOARDS = 2; // Number of boards to use
@@ -175,10 +175,10 @@ namespace Examples
             // The acquisition buffer is used to store the acquired samples.
             // the ADC delay and scan size are stored for later
             int[] board_ids = { board_id1, board_id2 };
-            int[] adc_delay = new int[board_ids.Length];
-            int[] scan_size = new int[board_ids.Length];
+            int[] adc_delay = new int[NUM_OF_BOARDS];
+            int[] scan_size = new int[NUM_OF_BOARDS];
 
-            for (int i = 0; i < board_ids.Length; ++i)
+            for (int i = 0; i < NUM_OF_BOARDS; ++i)
             {
                 int tmp_id = board_ids[i];
 
@@ -283,10 +283,9 @@ namespace Examples
                 // see: /TRION-SDK/03_DataAcquisition/DataAcquisition.html#block-and-block-size
                 System.Threading.Thread.Sleep(polling_interval_ms);
 
-                for (int nbrd = 0; nbrd < board_ids.Length; ++nbrd)
+                for (int nbrd = 0; nbrd < NUM_OF_BOARDS; ++nbrd)
                 {
                     int tmp_id = board_ids[nbrd];
-                    Int64 readPosAI = 0;
 
                     // Get buffer details
                     error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_END_POINTER, out Int64 buf_end_pos);
@@ -312,6 +311,7 @@ namespace Examples
 
                     // Adjust for ADC delay
                     avail_samples[nbrd] -= adc_delay[nbrd];
+                    // skip if no samples are available
                     if (avail_samples[nbrd] <= 0) continue;
 
                     // Get current read pointer
@@ -319,19 +319,21 @@ namespace Examples
                     if (error_code != Trion.TrionError.NONE) continue;
 
                     // Adjust read pointer for ADC delay
-                    readPosAI = read_pos + adc_delay[nbrd] * scan_size[nbrd] * sizeof(UInt32);
+                    long read_pos_AI = read_pos + adc_delay[nbrd] * scan_size[nbrd] * sizeof(Int32);
 
                     for (int i = 0; i < avail_samples[nbrd]; ++i)
                     {
-                        channel_buffer[i + BUFFER_OFFSET_BOARD_1 * nbrd + CHANNEL_SIZE * 0] = GetDataAtPos(readPosAI + 0 * sizeof(Int32));
-                        channel_buffer[i + BUFFER_OFFSET_BOARD_1 * nbrd + CHANNEL_SIZE * 1] = GetDataAtPos(readPosAI + 1 * sizeof(Int32));
-                        channel_buffer[i + BUFFER_OFFSET_BOARD_1 * nbrd + CHANNEL_SIZE * 2] = GetDataAtPos(readPosAI + 2 * sizeof(Int32));
-                        readPosAI += scan_size[nbrd] * sizeof(Int32);
+                        // save the samples to the channel buffer
+                        // each channel has a size of CHANNEL_SIZE samples
+                        channel_buffer[i + (BUFFER_OFFSET_BOARD_1 * nbrd) + (CHANNEL_SIZE * 0)] = GetDataAtPos(read_pos_AI + (0 * sizeof(Int32)));
+                        channel_buffer[i + (BUFFER_OFFSET_BOARD_1 * nbrd) + (CHANNEL_SIZE * 1)] = GetDataAtPos(read_pos_AI + (1 * sizeof(Int32)));
+                        channel_buffer[i + (BUFFER_OFFSET_BOARD_1 * nbrd) + (CHANNEL_SIZE * 2)] = GetDataAtPos(read_pos_AI + (2 * sizeof(Int32)));
+                        read_pos_AI += scan_size[nbrd] * sizeof(Int32);
 
                         // handle the circular buffer
-                        if (readPosAI >= buf_end_pos)
+                        if (read_pos_AI >= buf_end_pos)
                         {
-                            readPosAI -= buf_size; // wrap around
+                            read_pos_AI -= buf_size; // wrap around
                         }
                     }
 
@@ -339,15 +341,17 @@ namespace Examples
                     error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_FREE_NO_SAMPLE, avail_samples[nbrd]);
                 }
                 int min_samples = Math.Min(avail_samples[0], avail_samples[1]);
-                for (int i = 0; i < min_samples; i += 500)
+                for (int i = 0; i < min_samples; i += 100)
                 {
                     Console.WriteLine(
-                        $"B0_AI1: {channel_buffer[i],12}   B0_AI2: {channel_buffer[CHANNEL_SIZE + i],12}   B0_AI3: {channel_buffer[CHANNEL_SIZE * 2 + i],12}   " +
-                        $"B1_AI1: {channel_buffer[CHANNEL_SIZE * 3 + i],12}   B1_AI2: {channel_buffer[CHANNEL_SIZE * 4 + i],12}   B1_AI3: {channel_buffer[CHANNEL_SIZE * 5 + i],12}"
+                        $"B0_AI1: {channel_buffer[CHANNEL_SIZE * 0 + i],12}   " +
+                        $"B0_AI2: {channel_buffer[CHANNEL_SIZE * 1 + i],12}   " +
+                        $"B0_AI3: {channel_buffer[CHANNEL_SIZE * 2 + i],12}   " +
+                        $"B1_AI1: {channel_buffer[CHANNEL_SIZE * 3 + i],12}   " +
+                        $"B1_AI2: {channel_buffer[CHANNEL_SIZE * 4 + i],12}   " +
+                        $"B1_AI3: {channel_buffer[CHANNEL_SIZE * 5 + i],12} "
                     );
                 }
-
-
             }
 
             Console.WriteLine("We good");
