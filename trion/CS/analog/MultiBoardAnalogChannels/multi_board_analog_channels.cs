@@ -6,6 +6,15 @@ namespace Examples
 {
     class ADCDelayExample
     {
+        private const int SAMPLE_RATE = 2000; // Sample rate in Hz
+        private const int BLOCK_SIZE = 200; // Number of samples per block
+        private const int BLOCK_COUNT = 50; // Number of blocks in the circular buffer
+        private const int NUM_OF_BOARDS = 2; // Number of boards to use
+        private const int NUM_OF_CHANNELS = 3; // Number of channels to use per board
+        private const int CHANNEL_SIZE = 1024 * 32; // Size of one channel buffer in samples
+        private const int BUFFER_OFFSET_BOARD_1 = CHANNEL_SIZE * NUM_OF_CHANNELS; // Offset for the second board in the circular buffer
+        private const int memsize = CHANNEL_SIZE * NUM_OF_CHANNELS * sizeof(Int32);
+        private static readonly int[] channel_buffer = new int[memsize];
         private static byte[] StringToByteArray(string str)
         {
             System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
@@ -34,6 +43,12 @@ namespace Examples
             return *(Int32*)read_pos;
         }
 
+        private static int GetPollingIntervalMs(int block_size, int sample_rate)
+        {
+            // Returns interval in milliseconds
+            return (int)(block_size / (double)sample_rate * 1000);
+        }
+
         static int Main(string[] args)
         {
             // select the TRION backend
@@ -43,10 +58,12 @@ namespace Examples
             // initialize the driver
             // this will also detect the number of TRION boards connected
             Trion.TrionError error_code = trion_api.API.DeWeDriverInit(out Int32 board_count);
+            board_count = Math.Abs(board_count); // ensure board count is positive
 
             // check for errors during initialization
             if (error_code != Trion.TrionError.NONE)
             { Console.WriteLine($"Driver initialization error: {error_code}"); return 1; }
+
 
             // if no boards are found, exit the program
             if (board_count < 2)
@@ -65,9 +82,9 @@ namespace Examples
             {
                 board_id1 = Convert.ToInt32(args[0]);
                 board_id2 = Convert.ToInt32(args[1]);
-                if ((board_id2 >= Math.Abs(board_count)) || (board_id2 = Math.Abs(board_count)) || (board_id < 0))
+                if ((board_id2 >= Math.Abs(board_count)) || (board_id1 < 0) || (board_id2 < 0) || (board_id1 >= Math.Abs(board_count)))
                 {
-                    Console.WriteLine($"Invalid board ID: {board_id} or {board_id2}");
+                    Console.WriteLine($"Invalid board ID: {board_id1} or {board_id2}");
                     Console.WriteLine($"Board count: {board_count}");
                     Console.WriteLine("Please provide a valid board ID as an argument.");
                     return 1;
@@ -97,7 +114,7 @@ namespace Examples
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set ExtTrigger: {error_code}"); return 1; }
             error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "ExtClk", "False");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set ExtClk: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "SampleRate", "2000");
+            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "SampleRate", SAMPLE_RATE.ToString());
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set SampleRate: {error_code}"); return 1; }
             error_code = ReadSR(target_01, out global::System.String sample_rate);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error reading sample rate: {error_code}"); return 1; }
@@ -109,7 +126,7 @@ namespace Examples
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set ExtTrigger: {error_code}"); return 1; }
             error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "ExtClk", "False");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set ExtClk: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "SampleRate", "2000");
+            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "SampleRate", SAMPLE_RATE.ToString());
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set SampleRate: {error_code}"); return 1; }
             error_code = ReadSR(target_02, out global::System.String sample_rate2);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error reading sample rate: {error_code}"); return 1; }
@@ -153,37 +170,77 @@ namespace Examples
                 }
             }
 
-            // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
-            // For the default samplerate 2000 samples per second, 200 is a buffer for
-            // 0.1 seconds
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, 200);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set buffer block size: {error_code}"); return 1; }
-            // Set the circular buffer size to 50 blocks. So circular buffer can store samples
-            // for 5 seconds
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, 50);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set buffer block count: {error_code}"); return 1; }
 
-            // Update the hardware with settings
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to update parameters: {error_code}"); return 1; }
+            // setup the acquisition buffer for both boards
+            // The acquisition buffer is used to store the acquired samples.
+            // the ADC delay and scan size are stored for later
+            int[] board_ids = { board_id1, board_id2 };
+            int[] adc_delay = new int[board_ids.Length];
+            int[] scan_size = new int[board_ids.Length];
 
-            // Get the ADC delay. The typical conversion time of the ADC.
-            // The ADCDelay is the offset of analog samples to digital or counter samples.
-            // It is measured in number of samples,
-            error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY, out Int32 adc_delay);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get ADC delay: {error_code}"); return 1; }
+            for (int i = 0; i < board_ids.Length; ++i)
+            {
+                int tmp_id = board_ids[i];
 
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
+                // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
+                // For the default samplerate 2000 samples per second, 200 is a buffer for
+                // 0.1 seconds
+                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, BLOCK_SIZE);
+                if (error_code != Trion.TrionError.NONE)
+                {
+                    Console.WriteLine($"Failed to set buffer block size for board {tmp_id}: {error_code}");
+                    return 1;
+                }
+
+                // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
+                // for 5 seconds
+                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, BLOCK_COUNT);
+                if (error_code != Trion.TrionError.NONE)
+                {
+                    Console.WriteLine($"Failed to set buffer block count for board {tmp_id}: {error_code}");
+                    return 1;
+                }
+
+                // Update the hardware with settings
+                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
+                if (error_code != Trion.TrionError.NONE)
+                {
+                    Console.WriteLine($"Failed to update parameters for board {tmp_id}: {error_code}");
+                    return 1;
+                }
+
+                // Get the ADC delay. The typical conversion time of the ADC.
+                // The ADCDelay is the offset of analog samples to digital or counter samples.
+                // It is measured in number of samples,
+                error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BOARD_ADC_DELAY, out adc_delay[i]);
+                if (error_code != Trion.TrionError.NONE)
+                {
+                    Console.WriteLine($"Failed to get ADC delay for board {tmp_id}: {error_code}");
+                    return 1;
+                }
+
+                // Determine the size of a sample scan
+                error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_ONE_SCAN_SIZE, out scan_size[i]);
+                if (error_code != Trion.TrionError.NONE)
+                {
+                    Console.WriteLine($"Failed to get scan size for board {tmp_id}: {error_code}");
+                    return 1;
+                }
+            }
+
+            // start data acquisition start. slave first!!
+            // see: /TRION-SDK/04_Synchronization/Synchronization.html
+            error_code = trion_api.API.DeWeSetParam_i32(board_id2, Trion.TrionCommand.START_ACQUISITION, 0);
             if (error_code != Trion.TrionError.NONE)
             {
                 Console.WriteLine($"Failed to start acquisition: {error_code}");
 
                 // Stop data acquisition
-                error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
+                error_code = trion_api.API.DeWeSetParam_i32(board_id2, Trion.TrionCommand.STOP_ACQUISITION, 0);
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
 
                 // Close the board connection
-                error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.CLOSE_BOARD, 0);
+                error_code = trion_api.API.DeWeSetParam_i32(board_id2, Trion.TrionCommand.CLOSE_BOARD, 0);
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
 
                 // Uninitialize
@@ -193,89 +250,105 @@ namespace Examples
                 return (int)error_code;
             }
 
-            float value;
-
-            // Get detailed information about the circular buffer
-            // to be able to handle the wrap around
-            // First position in the circular buffer
-            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_START_POINTER, out Int64 buffer_start_pos);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer start pointer: {error_code}"); return 1; }
-            // Last position in the circular buffer
-            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_END_POINTER, out Int64 buffer_end_pos);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer end pointer: {error_code}"); return 1; }
-            // total buffer size
-            error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_TOTAL_MEM_SIZE, out Int32 buffer_size);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer total memory size: {error_code}"); return 1; }
-
-            while (true)
+            // start master
+            error_code = trion_api.API.DeWeSetParam_i32(board_id1, Trion.TrionCommand.START_ACQUISITION, 0);
+            if (error_code != Trion.TrionError.NONE)
             {
-                if (Console.KeyAvailable)
-                {
-                    break; // Exit loop if a key is pressed
-                }
+                Console.WriteLine($"Failed to start acquisition: {error_code}");
 
-                System.Threading.Thread.Sleep(100); // Sleep for 100 ms to avoid busy waiting
+                // Stop data acquisition
+                error_code = trion_api.API.DeWeSetParam_i32(board_id1, Trion.TrionCommand.STOP_ACQUISITION, 0);
+                error_code = trion_api.API.DeWeSetParam_i32(board_id2, Trion.TrionCommand.STOP_ACQUISITION, 0);
+                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
 
-                Int32 i = 0;
+                // Close the board connection
+                error_code = trion_api.API.DeWeSetParam_i32(board_id1, Trion.TrionCommand.CLOSE_BOARD, 0);
+                error_code = trion_api.API.DeWeSetParam_i32(board_id2, Trion.TrionCommand.CLOSE_BOARD, 0);
+                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
 
-                // Get the number of samples already stored in the circular buffer
-                error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_AVAIL_NO_SAMPLE, out Int32 available_samples);
-                if (Trion.TrionError.BUFFER_OVERWRITE == error_code) { Console.WriteLine("Measurement Buffer Overflow happened - stopping measurement"); break; }
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get available samples: {error_code}"); break; }
+                // Uninitialize
+                error_code = trion_api.API.DeWeDriverDeInit();
+                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
 
-                available_samples -= adc_delay; // Adjust for ADC delay
-
-                if (available_samples <= 0)
-                {
-                    continue; // No samples available, continue to next iteration
-                }
-
-
-                error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_ACT_SAMPLE_POS, out Int64 read_pos);
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get active sample position: {error_code}"); break; }
-
-                // recalculate read_pos to handle ADC delay
-                read_pos += adc_delay * sizeof(UInt32);
-
-                // Read the current samples from the circular buffer
-                for (i = 0; i < available_samples; ++i)
-                {
-                    // Handle the circular buffer wrap around
-                    if (read_pos >= buffer_end_pos)
-                    {
-                        read_pos -= buffer_size;
-                    }
-
-                    Int32 raw_data = GetDataAtPos(read_pos);
-                    value = (float)((float)raw_data / 0x7FFFFF00 * 10.0);
-
-                    // Print the sample value:
-                    string out_str = String.Format("Raw {0,12} {1,17:#.000000000000}", raw_data, value);
-                    Console.WriteLine(out_str);
-
-                    // Increment the read pointer
-                    read_pos += sizeof(UInt32);
-
-                }
-
-
-                // Free the circular buffer after read of all values
-                error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_FREE_NO_SAMPLE, available_samples);
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to free buffer: {error_code}"); break; }
-                Console.WriteLine("CMD_BUFFER_FREE_NO_SAMPLE {0}  (err={1})", available_samples, error_code);
+                return (int)error_code;
             }
 
-             // Stop data acquisition
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
+            int[] avail_samples = new int[board_ids.Length];
+            int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
+            Console.WriteLine($"Polling interval: {polling_interval_ms} ms");
 
-            // Close the board connection
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.CLOSE_BOARD, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
+            while (!Console.KeyAvailable)
+            {
+                // sleep to avoid busy waiting
+                // see: /TRION-SDK/03_DataAcquisition/DataAcquisition.html#block-and-block-size
+                System.Threading.Thread.Sleep(polling_interval_ms);
 
-            // Uninitialize
-            error_code = trion_api.API.DeWeDriverDeInit();
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
+                for (int nbrd = 0; nbrd < board_ids.Length; ++nbrd)
+                {
+                    int tmp_id = board_ids[nbrd];
+                    Int64 readPosAI = 0;
+
+                    // Get buffer details
+                    error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_END_POINTER, out Int64 buf_end_pos);
+                    if (error_code != Trion.TrionError.NONE) continue;
+                    error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_TOTAL_MEM_SIZE, out Int32 buf_size);
+                    if (error_code != Trion.TrionError.NONE) continue;
+
+                    // Get available samples
+                    error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
+                    if (error_code != Trion.TrionError.NONE) continue;
+                    if (error_code == Trion.TrionError.BUFFER_OVERWRITE)
+                    {
+                        Console.WriteLine("Buffer Overflow happened");
+                        // TODO: deinit the driver and exit
+                        error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
+                        if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
+                        error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.CLOSE_BOARD, 0);
+                        if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
+                        error_code = trion_api.API.DeWeDriverDeInit();
+                        if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
+                        return 1;
+                    }
+
+                    // Adjust for ADC delay
+                    avail_samples[nbrd] -= adc_delay[nbrd];
+                    if (avail_samples[nbrd] <= 0) continue;
+
+                    // Get current read pointer
+                    error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_ACT_SAMPLE_POS, out Int64 read_pos);
+                    if (error_code != Trion.TrionError.NONE) continue;
+
+                    // Adjust read pointer for ADC delay
+                    readPosAI = read_pos + adc_delay[nbrd] * scan_size[nbrd] * sizeof(UInt32);
+
+                    for (int i = 0; i < avail_samples[nbrd]; ++i)
+                    {
+                        channel_buffer[i + BUFFER_OFFSET_BOARD_1 * nbrd + CHANNEL_SIZE * 0] = GetDataAtPos(readPosAI + 0 * sizeof(Int32));
+                        channel_buffer[i + BUFFER_OFFSET_BOARD_1 * nbrd + CHANNEL_SIZE * 1] = GetDataAtPos(readPosAI + 1 * sizeof(Int32));
+                        channel_buffer[i + BUFFER_OFFSET_BOARD_1 * nbrd + CHANNEL_SIZE * 2] = GetDataAtPos(readPosAI + 2 * sizeof(Int32));
+                        readPosAI += scan_size[nbrd] * sizeof(Int32);
+
+                        // handle the circular buffer
+                        if (readPosAI >= buf_end_pos)
+                        {
+                            readPosAI -= buf_size; // wrap around
+                        }
+                    }
+
+                    // Free the buffer after reading
+                    error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_FREE_NO_SAMPLE, avail_samples[nbrd]);
+                }
+                int min_samples = Math.Min(avail_samples[0], avail_samples[1]);
+                for (int i = 0; i < min_samples; i += 500)
+                {
+                    Console.WriteLine(
+                        $"B0_AI1: {channel_buffer[i],12}   B0_AI2: {channel_buffer[CHANNEL_SIZE + i],12}   B0_AI3: {channel_buffer[CHANNEL_SIZE * 2 + i],12}   " +
+                        $"B1_AI1: {channel_buffer[CHANNEL_SIZE * 3 + i],12}   B1_AI2: {channel_buffer[CHANNEL_SIZE * 4 + i],12}   B1_AI3: {channel_buffer[CHANNEL_SIZE * 5 + i],12}"
+                    );
+                }
+
+
+            }
 
             Console.WriteLine("We good");
             return (int)error_code;
