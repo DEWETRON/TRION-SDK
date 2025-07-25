@@ -9,8 +9,6 @@ CmakeCache.txt
 
 # Project Files
 *.suo
-*.sln
-*.vcxproj
 *.vcxproj.*
 
 # VS Databases
