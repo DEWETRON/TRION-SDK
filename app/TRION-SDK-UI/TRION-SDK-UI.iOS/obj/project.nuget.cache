@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "dgSpecHash": "uyWzIZ2Tjl4=",
+  "success": true,
+  "projectFilePath": "C:\\Development\\glaure-TRION-SDK\\app\\TRION-SDK-UI\\TRION-SDK-UI.iOS\\TRION-SDK-UI.iOS.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.configuration\\8.0.0\\microsoft.extensions.configuration.8.0.0.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.1\\microsoft.extensions.dependencyinjection.8.0.1.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.logging\\8.0.1\\microsoft.extensions.logging.8.0.1.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.logging.debug\\8.0.1\\microsoft.extensions.logging.debug.8.0.1.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.options\\8.0.2\\microsoft.extensions.options.8.0.2.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.controls\\8.0.100\\microsoft.maui.controls.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.controls.build.tasks\\8.0.100\\microsoft.maui.controls.build.tasks.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.controls.compatibility\\8.0.100\\microsoft.maui.controls.compatibility.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.controls.core\\8.0.100\\microsoft.maui.controls.core.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.controls.xaml\\8.0.100\\microsoft.maui.controls.xaml.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.core\\8.0.100\\microsoft.maui.core.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.essentials\\8.0.100\\microsoft.maui.essentials.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.graphics\\8.0.100\\microsoft.maui.graphics.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.maui.resizetizer\\8.0.100\\microsoft.maui.resizetizer.8.0.100.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.18\\microsoft.net.illink.tasks.8.0.18.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.ios.ref.net8.0_18.0\\18.0.8324\\microsoft.ios.ref.net8.0_18.0.18.0.8324.nupkg.sha512",
+    "C:\\Users\\glaure\\.nuget\\packages\\microsoft.ios.runtime.iossimulator-x64.net8.0_18.0\\18.0.8324\\microsoft.ios.runtime.iossimulator-x64.net8.0_18.0.18.0.8324.nupkg.sha512"
+  ],
+  "logs": []
+}
