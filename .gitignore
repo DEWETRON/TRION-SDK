@@ -66,3 +66,8 @@ CmakeCache.txt
 # backup files
 *.bak
 docs/.iis/applicationhost.config
+
+# NuGet
+*.nuget.props
+*.nuget.targets
+**/project.nuget.cache
