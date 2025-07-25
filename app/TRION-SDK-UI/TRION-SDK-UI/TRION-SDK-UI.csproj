@@ -9,6 +9,11 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<PropertyGroup>
+	  <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.26100.0</TargetFrameworks>
+	  <TargetFrameworks />
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
