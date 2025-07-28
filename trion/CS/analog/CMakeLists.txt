@@ -11,3 +11,8 @@ add_executable(MultiBoardAnalogChannels
   MultiBoardAnalogChannels/multi_board_analog_channels.cs
   )
 SampleBuildSettings(MultiBoardAnalogChannels "analog")
+
+add_executable(ADCDelay
+  ADCDelay/adc_delay.cs
+  )
+SampleBuildSettings(ADCDelay "analog")
