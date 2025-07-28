@@ -279,10 +279,6 @@ namespace Examples
 
             while (!Console.KeyAvailable)
             {
-                // sleep to avoid busy waiting
-                // see: /TRION-SDK/03_DataAcquisition/DataAcquisition.html#block-and-block-size
-                System.Threading.Thread.Sleep(polling_interval_ms);
-
                 for (int nbrd = 0; nbrd < NUM_OF_BOARDS; ++nbrd)
                 {
                     int tmp_id = board_ids[nbrd];
@@ -292,6 +288,49 @@ namespace Examples
                     if (error_code != Trion.TrionError.NONE) continue;
                     error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE, out Int32 buf_size);
                     if (error_code != Trion.TrionError.NONE) continue;
+
+                    bool use_wait = true;
+                    // check if the user wants to use the wait command
+                    if (!use_wait)
+                    {
+                        error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
+                        if (error_code != Trion.TrionError.NONE) continue;
+                        if (error_code == Trion.TrionError.BUFFER_OVERWRITE)
+                        {
+                            Console.WriteLine("Buffer Overflow happened");
+                            // TODO: deinit the driver and exit
+                            error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
+                            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
+                            error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.CLOSE_BOARD, 0);
+                            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
+                            error_code = trion_api.API.DeWeDriverDeInit();
+                            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
+                            return 1;
+                        }
+
+                    }
+                    else
+                    {
+                        // sleep to avoid busy waiting
+                        // see: /TRION-SDK/03_DataAcquisition/DataAcquisition.html#block-and-block-size
+                        System.Threading.Thread.Sleep(polling_interval_ms);
+                        // Get the number of samples already stored in the circular buffer
+                        error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
+                        if (error_code != Trion.TrionError.NONE) continue;
+                        if (error_code == Trion.TrionError.BUFFER_OVERWRITE)
+                        {
+                            Console.WriteLine("Buffer Overflow happened");
+                            // TODO: deinit the driver and exit
+                            error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
+                            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
+                            error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.CLOSE_BOARD, 0);
+                            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
+                            error_code = trion_api.API.DeWeDriverDeInit();
+                            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
+                            return 1;
+                        }
+
+                    }
 
                     // Get available samples
                     error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
@@ -354,7 +393,7 @@ namespace Examples
                 }
             }
 
-            Console.WriteLine("We good");
+            Console.WriteLine("End Example");
             return (int)error_code;
         }
     }

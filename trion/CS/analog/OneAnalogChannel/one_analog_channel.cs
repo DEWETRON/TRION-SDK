@@ -181,16 +181,30 @@ namespace Examples
 
             while (!Console.KeyAvailable)
             {
-                // sleep to avoid busy waiting
-                // see: /TRION-SDK/03_DataAcquisition/DataAcquisition.html#block-and-block-size
-                System.Threading.Thread.Sleep(polling_interval_ms);
+                bool use_wait = true;
+                // check if the user wants to use the wait command
+                if (!use_wait)
+                {
+                    error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE, out available_samples);
+
+                    // Get the number of samples already stored in the circular buffer
+                    if (Trion.TrionError.BUFFER_OVERWRITE == error_code) { Console.WriteLine("Measurement Buffer Overflow happened - stopping measurement"); break; }
+                    if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get available samples: {error_code}"); break; }
+
+                }
+                else
+                {
+                    // sleep to avoid busy waiting
+                    // see: /TRION-SDK/03_DataAcquisition/DataAcquisition.html#block-and-block-size
+                    System.Threading.Thread.Sleep(polling_interval_ms);
+                    // Get the number of samples already stored in the circular buffer
+                    error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out available_samples);
+                    if (Trion.TrionError.BUFFER_OVERWRITE == error_code) { Console.WriteLine("Measurement Buffer Overflow happened - stopping measurement"); break; }
+                    if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get available samples: {error_code}"); break; }
+
+                }
 
                 Int32 i = 0;
-
-                // Get the number of samples already stored in the circular buffer
-                error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out Int32 available_samples);
-                if (Trion.TrionError.BUFFER_OVERWRITE == error_code) { Console.WriteLine("Measurement Buffer Overflow happened - stopping measurement"); break; }
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get available samples: {error_code}"); break; }
 
                 available_samples -= adc_delay; // Adjust for ADC delay
 
@@ -246,7 +260,7 @@ namespace Examples
             error_code = trion_api.API.DeWeDriverDeInit();
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
 
-            Console.WriteLine("We good");
+            Console.WriteLine("End Example");
             return (int)error_code;
         }
     }
