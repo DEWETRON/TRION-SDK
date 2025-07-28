@@ -7,3 +7,8 @@ add_executable(OneDigitalChannel
   )
 SampleBuildSettings(OneDigitalChannel "discret")
 
+add_executable(MultiBoardDigitalChannels
+  MultiBoardDigitalChannels/multi_board_digital_channels.cs
+  )
+SampleBuildSettings(MultiBoardDigitalChannels "discret")
+
