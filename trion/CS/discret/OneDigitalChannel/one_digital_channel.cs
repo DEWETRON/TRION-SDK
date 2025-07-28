@@ -8,8 +8,8 @@ namespace Examples
     {
 
         private const int SAMPLE_RATE = 2000; // Sample rate in Hz
-        private const int BLOCK_SIZE = 200; // Number of samples per block
-        private const int BLOCK_COUNT = 50; // Number of blocks in the circular buffer
+        private const int BLOCK_SIZE = 1000; // Number of samples per block
+        private const int BLOCK_COUNT = 100; // Number of blocks in the circular buffer
         private const int RESOLUTION_AI = 24; // Resolution of the analog input channels in bits
         private static byte[] StringToByteArray(string str)
         {
@@ -32,7 +32,7 @@ namespace Examples
             return error_code;
         }
 
-        unsafe private static Int32 GetDataAtPos(Int64 read_pos)
+        unsafe private static Int32 GetDataAtPos(long read_pos)
         {
             // Get the sample value at the read pointer of the circular buffer
             // The sample value is 24Bit (little endian, encoded in 32bit).
@@ -55,11 +55,7 @@ namespace Examples
             // this will also detect the number of TRION boards connected
             Trion.TrionError error_code = trion_api.API.DeWeDriverInit(out int board_count);
             board_count = Math.Abs(board_count); // Ensure board count is positive
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error initializing TRION driver: {error_code}");
-                return 1;
-            }
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error initializing TRION driver: {error_code}"); return 1; }
 
             Console.WriteLine($"Number of TRION boards found: {board_count}");
             // if no boards are found, exit the program
@@ -85,6 +81,8 @@ namespace Examples
                     return 1;
                 }
             }
+
+            Console.WriteLine($"Using board ID: {board_id}");
 
             // Open & Reset the board
             error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.OPEN_BOARD, 0);
@@ -114,9 +112,6 @@ namespace Examples
 
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "SampleRate", SAMPLE_RATE.ToString());
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting SampleRate: {error_code}"); return 1; }
-
-            /* error_code = trion_api.API.DeWeSetParamStruct_str(target, "Resolution", "24");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting Resolution: {error_code}"); return 1; } */
 
             // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
             // For the default samplerate 2000 samples per second, 200 is a buffer for
@@ -158,12 +153,12 @@ namespace Examples
             int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
             while (!Console.KeyAvailable)
             {
-                uint raw_data = 0;
+                int raw_data = 0;
                 uint bit = 0;
                 bool use_wait = true;
                 long available_samples = 0;
 
-                if (!use_wait)
+                if (use_wait)
                 {
                     // get the number of samples already stored in the circular buffer
                     // using CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLES no sleep is necessary
@@ -195,39 +190,44 @@ namespace Examples
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error getting Buffer Active Sample Position: {error_code}"); return 1; }
 
                 trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.DISCRET_STATE_SET, 0);
-                Console.WriteLine("Available samples: " + available_samples);
+                //Console.WriteLine("Available samples: " + available_samples);
 
                 for (long i = 0; i < available_samples; i++)
                 {
+                    raw_data = GetDataAtPos(read_pos);
+
+                    // Extract Discret0 (bit 0)
+                    bit = (uint)(raw_data & 0x1);
+
+                    // Print every 100th sample on the same line
+                    if (i % 100 == 0)
+                    {
+                        Console.Write($"\rDiscret0 = {bit}");
+                    }
 
                     // Handle circular buffer wrap-around
                     if (read_pos >= buffer_end_pointer)
                     {
                         read_pos -= buffer_total_mem_size;
                     }
-                    // Read the sample value at the current buffer position
-                    // Unsafe context required for pointer access
-                    unsafe
-                    {
-                        // read_pos is a byte address, so cast to IntPtr and then to int*
-                        raw_data = *(uint*)read_pos;
-
-                        bit = (raw_data & 0x4) >> 2;
-
-                        // Print every 100th sample for demonstration
-                        if (i % 100 == 0)
-                        {
-                            Console.WriteLine($"Sample {i}: Discret0 = {bit}");
-                        }
-                    }
 
                     // Move to the next sample (assuming 4 bytes per sample)
-                    read_pos += sizeof(long);
-
+                    read_pos += sizeof(uint);
                 }
+                // Free the samples after reading
+                error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error freeing samples: {error_code}"); break; }
             }
+            // Stop data acquisition
+            error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
 
-            return 0;
+            // Close the board connection
+            error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.CLOSE_BOARD, 0);
+
+            // Uninitialize
+            error_code = trion_api.API.DeWeDriverDeInit();
+
+            return (int)error_code;
         }
     }
 }
