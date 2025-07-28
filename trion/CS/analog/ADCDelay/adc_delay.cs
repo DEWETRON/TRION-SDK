@@ -50,7 +50,7 @@ namespace Examples
         static unsafe int Main(string[] args)
         {
             // select the TRION backend
-            trion_api.API.DeWeConfigure(trion_api.API.TrionBackend.TRION);
+            trion_api.API.DeWeConfigure(trion_api.API.Backend.TRION);
 
             // initialize the driver
             // this will also detect the number of TRION boards connected
@@ -92,24 +92,24 @@ namespace Examples
 
             // after reset, all channels are disabled
             // enable the first analog channel (AI1)
-            string target = $"Board{board_id}/AI1";
+            string target = $"BoardID{board_id}/AI0";
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "Used", "True");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to enable channel {target}: {error_code}"); return 1; }
 
             // additionally add a counter: CNT0
             // and set its input to ACQ-Clock
-            target = $"Board{board_id}/CNT0";
+            target = $"BoardID{board_id}/CNT0";
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "Used", "True");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to enable channel {target}: {error_code}"); return 1; }
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "Source_A", "Acq_Clk");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set source for channel {target}: {error_code}"); return 1; }
 
             // Set configuration to use one board in standalone mode
-            // it isnt really important if it is in Slave or Master mode
-            // ExtTrigger meanst an external trigger is used, to note is that if you use a slave card the signal from the Master is still handles as
+            // it isn't really important if it is in Slave or Master mode
+            // ExtTrigger means an external trigger is used, to note is that if you use a slave card the signal from the Master is still handles as
             // an external trigger, even tho they are in the same housing
             // ExtClk means an external clock is used
-            tartget = $"Board{board_id}/AcqProp";
+            target = $"BoardID{board_id}/AcqProp";
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "OperationMode", "Master");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set operation mode for board {board_id}: {error_code}"); return 1; }
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "ExtTrigger", "False");
@@ -134,10 +134,10 @@ namespace Examples
 
             // get the ADC delay. The typical conversion time of the ADC
             // The ADC delay is the offset of analog samples to digital or counter samples.
-            // it is measured in number of samples
-            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.ADC_DELAY, out long adc_delay);
+            // it is measured in number of scans
+            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BOARD_ADC_DELAY, out long adc_delay);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get ADC delay for board {board_id}: {error_code}"); return 1; }
-            Console.WriteLine($"ADC delay for board {board_id}: {adc_delay} samples");
+            Console.WriteLine($"ADC delay for board {board_id}: {adc_delay} scans");
 
             // Determine the size of a sample scan
             error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ONE_SCAN_SIZE, out long one_scan_size);
@@ -156,16 +156,25 @@ namespace Examples
                 error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.CLOSE_BOARD, 0);
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board {board_id}: {error_code}"); return 1; }
                 // unload the api
-                error_code = trion_api.API.DeWeDriverUnload();
+                error_code = trion_api.API.DeWeDriverDeInit();
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to unload driver: {error_code}"); return 1; }
                 Console.WriteLine("Acquisition could not be started. Aborting...");
                 return 1;
             }
 
+            // get detailed information about the circular buffer
+            // to be able to handle the wrap around
+            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER, out long buffer_end_pointer);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer end pointer for board {board_id}: {error_code}"); return 1; }
+            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE, out long buffer_total_size);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer total size for board {board_id}: {error_code}"); return 1; }
+
             int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
             long read_pos_AI = 0;
+            long[] ai_channel_buffer = new long[CHANNEL_BUFFER_SIZE];
+            long[] cnt_channel_buffer = new long[CHANNEL_BUFFER_SIZE];
             Console.WriteLine("Acquisition started ..\n\n");
-            while (!Konsole.KeyAvailable)
+            while (!Console.KeyAvailable)
             {
                 // wait for the samples
                 Thread.Sleep(polling_interval_ms);
@@ -186,9 +195,13 @@ namespace Examples
                 error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS, out long read_pos);
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get active sample position for board {board_id}: {error_code}"); return 1; }
 
-                // recalculate the position according to the ADC delay, remember the delay is measured in samples
+                // recalculate the position according to the ADC delay, remember the delay is measured in scans
                 read_pos_AI = read_pos + adc_delay * one_scan_size;
 
+                // read the current AI samples from the circular buffer
+                for (long i = 0; i < avail_samples; ++i)
+                {
+                }
             }
 
 
