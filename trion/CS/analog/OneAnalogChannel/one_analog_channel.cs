@@ -106,8 +106,8 @@ namespace Examples
             error_code = ReadSR(target, out global::System.String sample_rate);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error reading sample rate: {error_code}"); return 1; }
 
-            error_code = trion_api.API.DeWeSetParamStruct_str(target, "Resolution", "24");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set Resolution: {error_code}"); return 1; }
+            //error_code = trion_api.API.DeWeSetParamStruct_str(target, "Resolution", "24");
+            //if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set Resolution: {error_code}"); return 1; }
 
             // configure the analog input channels
             // disable all AI channels and enable only AI0 with a range of 10 V
@@ -165,17 +165,18 @@ namespace Examples
 
             float value;
             int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
+            int available_samples = 0;
 
             // Get detailed information about the circular buffer
             // to be able to handle the wrap around
             // First position in the circular buffer
-            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_START_POINTER, out Int64 buffer_start_pos);
+            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_START_POINTER, out Int64 buffer_start_pos);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer start pointer: {error_code}"); return 1; }
             // Last position in the circular buffer
-            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_END_POINTER, out Int64 buffer_end_pos);
+            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER, out Int64 buffer_end_pos);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer end pointer: {error_code}"); return 1; }
             // total buffer size
-            error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_TOTAL_MEM_SIZE, out Int32 buffer_size);
+            error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE, out Int32 buffer_size);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get buffer total memory size: {error_code}"); return 1; }
 
             while (!Console.KeyAvailable)
@@ -187,7 +188,7 @@ namespace Examples
                 Int32 i = 0;
 
                 // Get the number of samples already stored in the circular buffer
-                error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_AVAIL_NO_SAMPLE, out Int32 available_samples);
+                error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out Int32 available_samples);
                 if (Trion.TrionError.BUFFER_OVERWRITE == error_code) { Console.WriteLine("Measurement Buffer Overflow happened - stopping measurement"); break; }
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get available samples: {error_code}"); break; }
 
@@ -199,7 +200,7 @@ namespace Examples
                 }
 
 
-                error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_ACT_SAMPLE_POS, out Int64 read_pos);
+                error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS, out Int64 read_pos);
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to get active sample position: {error_code}"); break; }
 
                 // recalculate read_pos to handle ADC delay
@@ -228,7 +229,7 @@ namespace Examples
 
 
                 // Free the circular buffer after read of all values
-                error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_FREE_NO_SAMPLE, available_samples);
+                error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
                 if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to free buffer: {error_code}"); break; }
                 Console.WriteLine("CMD_BUFFER_FREE_NO_SAMPLE {0}  (err={1})", available_samples, error_code);
             }

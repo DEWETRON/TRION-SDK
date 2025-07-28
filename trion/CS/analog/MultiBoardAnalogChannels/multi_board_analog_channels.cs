@@ -185,7 +185,7 @@ namespace Examples
                 // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
                 // For the default samplerate 2000 samples per second, 200 is a buffer for
                 // 0.1 seconds
-                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, BLOCK_SIZE);
+                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
                 if (error_code != Trion.TrionError.NONE)
                 {
                     Console.WriteLine($"Failed to set buffer block size for board {tmp_id}: {error_code}");
@@ -194,7 +194,7 @@ namespace Examples
 
                 // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
                 // for 5 seconds
-                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, BLOCK_COUNT);
+                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_BLOCK_COUNT, BLOCK_COUNT);
                 if (error_code != Trion.TrionError.NONE)
                 {
                     Console.WriteLine($"Failed to set buffer block count for board {tmp_id}: {error_code}");
@@ -288,13 +288,13 @@ namespace Examples
                     int tmp_id = board_ids[nbrd];
 
                     // Get buffer details
-                    error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_END_POINTER, out Int64 buf_end_pos);
+                    error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_0_END_POINTER, out Int64 buf_end_pos);
                     if (error_code != Trion.TrionError.NONE) continue;
-                    error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_TOTAL_MEM_SIZE, out Int32 buf_size);
+                    error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE, out Int32 buf_size);
                     if (error_code != Trion.TrionError.NONE) continue;
 
                     // Get available samples
-                    error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
+                    error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
                     if (error_code != Trion.TrionError.NONE) continue;
                     if (error_code == Trion.TrionError.BUFFER_OVERWRITE)
                     {
@@ -315,7 +315,7 @@ namespace Examples
                     if (avail_samples[nbrd] <= 0) continue;
 
                     // Get current read pointer
-                    error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_ACT_SAMPLE_POS, out Int64 read_pos);
+                    error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS, out Int64 read_pos);
                     if (error_code != Trion.TrionError.NONE) continue;
 
                     // Adjust read pointer for ADC delay
@@ -338,7 +338,7 @@ namespace Examples
                     }
 
                     // Free the buffer after reading
-                    error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_FREE_NO_SAMPLE, avail_samples[nbrd]);
+                    error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_FREE_NO_SAMPLE, avail_samples[nbrd]);
                 }
                 int min_samples = Math.Min(avail_samples[0], avail_samples[1]);
                 for (int i = 0; i < min_samples; i += 100)
