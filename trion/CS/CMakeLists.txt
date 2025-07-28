@@ -78,3 +78,4 @@ macro(TRIONET_SampleBuildSettings SAMPLE)
 endmacro()
 
 add_subdirectory(analog)
+add_subdirectory(discret)

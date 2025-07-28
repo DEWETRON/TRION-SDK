@@ -106,6 +106,9 @@ namespace Examples
             error_code = ReadSR(target, out global::System.String sample_rate);
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error reading sample rate: {error_code}"); return 1; }
 
+            error_code = trion_api.API.DeWeSetParamStruct_str(target, "Resolution", "24");
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set Resolution: {error_code}"); return 1; }
+
             // configure the analog input channels
             // disable all AI channels and enable only AI0 with a range of 10 V
             string target_AI_ALL = $"BoardID{board_id}/AIAll";
