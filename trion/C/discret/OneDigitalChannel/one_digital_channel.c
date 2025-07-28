@@ -74,21 +74,7 @@ int main(int argc, char* argv[])
     }
 
     // After reset all channels are disabled.
-    // So here 1 digital channel will be enabled (Discret2 )
-
-    snprintf(sChannelStr, sizeof(sChannelStr), "%s/Discret1", sBoardID);
-    nErrorCode = DeWeSetParamStruct_str(sChannelStr, "Used", "True");
-    snprintf(sChannelStr, sizeof(sChannelStr),"%s/Discret2", sBoardID);
-    nErrorCode = DeWeSetParamStruct_str( sChannelStr, "Used", "True");
-    if (nErrorCode)
-    {
-        snprintf(sErrorText, sizeof(sErrorText), "Error: %s\n", DeWeErrorConstantToString(nErrorCode));
-        return UnloadTrionApi(sErrorText);
-    }
-
-    //snprintf(sChannelStr, sizeof(sChannelStr), "%s/AI0", sBoardID);
-    //nErrorCode = DeWeSetParamStruct_str(sChannelStr, "Used", "True");
-
+    // So here 1 digital channel will be enabled (Discret0)
 
     snprintf(sChannelStr, sizeof(sChannelStr), "%s/Discret0", sBoardID);
     nErrorCode = DeWeSetParamStruct_str(sChannelStr, "Mode", "DIO");
@@ -110,12 +96,12 @@ int main(int argc, char* argv[])
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     // For the default samplerate 2000 samples per second, 200 is a buffer for
     // 0.1 seconds
-    nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 1);
+    nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_0_BLOCK_SIZE, 1);
     CheckError(nErrorCode);
 
     // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
     // for 5 seconds
-    nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 200);
+    nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_0_BLOCK_COUNT, 200);
     CheckError(nErrorCode);
 
     //char BUFFER[50000] = { 0 };
@@ -144,9 +130,9 @@ int main(int argc, char* argv[])
 
         // Get detailed information about the circular buffer
         // to be able to handle the wrap around
-        nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_END_POINTER, &nBufEndPos);
+        nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_0_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
-        nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_TOTAL_MEM_SIZE, &nBufSize);
+        nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_0_TOTAL_MEM_SIZE, &nBufSize);
         CheckError(nErrorCode);
 
         printf("\nAcquisition started. Waiting for CNTer Samples\n\n\n");
@@ -162,14 +148,14 @@ int main(int argc, char* argv[])
 
             // Get the number of samples already stored in the circular buffer
             // using CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE no sleep is necessary
-            nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE, &nAvailSamples );
+            nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE, &nAvailSamples );
             if (CheckError(nErrorCode))
             {
                 break;
             }
 
             // Get the current read pointer
-            nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_ACT_SAMPLE_POS, &nReadPos );
+            nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_0_ACT_SAMPLE_POS, &nReadPos );
             if (CheckError(nErrorCode))
             {
                 break;
@@ -187,11 +173,11 @@ int main(int argc, char* argv[])
                 // Get the sample value at the read pointer of the circular buffer
                 nRawData = *(uint32*)nReadPos;
 
-                // mask the bit for Discret2
-                nBit = (nRawData & 0x4) >> 2;
+                // mask the bit for Discret0
+                nBit = (nRawData & 0x1);
 
                 // Print the sample value
-                if (0 == i%100)
+                if (0 == i % 100)
                 {
                     printf("\rReceived Data: 0x%2.2X", nBit);
                     fflush(stdout);
@@ -208,7 +194,7 @@ int main(int argc, char* argv[])
             }
 
             // Free the circular buffer after read of all values
-            nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
+            nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_0_FREE_NO_SAMPLE, nAvailSamples );
             if (CheckError(nErrorCode))
             {
                 break;
