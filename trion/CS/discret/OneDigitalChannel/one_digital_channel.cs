@@ -53,7 +53,7 @@ namespace Examples
 
             // initialize the driver
             // this will also detect the number of TRION boards connected
-            Trion.TrionError error_code = trion_api.API.DeWeDriverInit(out Int32 board_count);
+            Trion.TrionError error_code = trion_api.API.DeWeDriverInit(out int board_count);
             board_count = Math.Abs(board_count); // Ensure board count is positive
             if (error_code != Trion.TrionError.NONE)
             {
@@ -61,12 +61,6 @@ namespace Examples
                 return 1;
             }
 
-            // check for errors during initialization
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error initializing TRION driver: {error_code}");
-                return 1;
-            }
             Console.WriteLine($"Number of TRION boards found: {board_count}");
             // if no boards are found, exit the program
             if (0 == board_count)
@@ -93,160 +87,144 @@ namespace Examples
             }
 
             // Open & Reset the board
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.OPEN_BOARD, 0);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error opening board {board_id}: {error_code}");
-                return 1;
-            }
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.RESET_BOARD, 0);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error resetting board {board_id}: {error_code}");
-                return 1;
-            }
+            error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.OPEN_BOARD, 0);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error opening board {board_id}: {error_code}"); return 1; }
 
-            // after reset all channels are disabled
-            // so here 2 digital channels will be enabled (Discret2)
+            error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.RESET_BOARD, 0);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error resetting board {board_id}: {error_code}"); return 1; }
 
-            string discret1_target = $"BoardID{board_id}/Discret1";
-            string discret2_target = $"BoardID{board_id}/Discret2";
-            error_code = trion_api.API.DeWeSetParamStruct_str(discret1_target, "Used", "True");
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error setting Discret1 Used: {error_code}");
-                return 1;
-            }
-            error_code = trion_api.API.DeWeSetParamStruct_str(discret2_target, "Used", "True");
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error setting Discret2 Used: {error_code}");
-                return 1;
-            }
-
+            // Set the board to use the first digital channel (Discret0)
             string discret0_target = $"BoardID{board_id}/Discret0";
             error_code = trion_api.API.DeWeSetParamStruct_str(discret0_target, "Mode", "DIO");
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error setting Discret0 Mode: {error_code}");
-                return 1;
-            }
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting Discret0 Mode: {error_code}"); return 1; }
+
             error_code = trion_api.API.DeWeSetParamStruct_str(discret0_target, "Used", "True");
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error setting Discret0 Used: {error_code}");
-                return 1;
-            }
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting Discret0 Used: {error_code}"); return 1; }
 
             // Set configuration to use one board in standalone operation
             string target = $"BoardID{board_id}/AcqProp";
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "OperationMode", "Slave");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting OperationMode: {error_code}"); return 1; }
+
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "ExtTrigger", "False");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting ExtTrigger: {error_code}"); return 1; }
+
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "ExtClk", "False");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting ExtClk: {error_code}"); return 1; }
+
             error_code = trion_api.API.DeWeSetParamStruct_str(target, "SampleRate", SAMPLE_RATE.ToString());
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting SampleRate: {error_code}"); return 1; }
+
             /* error_code = trion_api.API.DeWeSetParamStruct_str(target, "Resolution", "24");
             if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting Resolution: {error_code}"); return 1; } */
 
             // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
             // For the default samplerate 2000 samples per second, 200 is a buffer for
             // 0.1 seconds
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, BLOCK_SIZE);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error setting Buffer Block Size: {error_code}");
-                return 1;
-            }
+            error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, BLOCK_SIZE);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting Buffer Block Size: {error_code}"); return 1; }
 
             // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
             // for 5 seconds
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, BLOCK_COUNT);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error setting Buffer Block Count: {error_code}");
-                return 1;
-            }
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error updating parameters: {error_code}");
-                return 1;
-            }
+            error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, BLOCK_COUNT);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error setting Buffer Block Count: {error_code}"); return 1; }
+
+            error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error updating parameters: {error_code}"); return 1; }
 
             // Allocate a buffer for the scan descriptor
             byte[] scan_descriptor = new byte[5000];
 
             // Retrieve the scan descriptor
             error_code = trion_api.API.DeWeGetParamStruct_str($"BoardID{board_id}", "ScanDescriptor_V3", scan_descriptor, (uint)scan_descriptor.Length);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error retrieving ScanDescriptor: {error_code}");
-                return 1;
-            }
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error retrieving ScanDescriptor: {error_code}"); return 1; }
 
             // Convert the byte array to a string for further use
             string scan_descriptor_str = System.Text.Encoding.ASCII.GetString(scan_descriptor);
             Console.WriteLine($"Scan Descriptor: {scan_descriptor_str}");
 
             // Start the acquisition
-            error_code = trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error starting acquisition: {error_code}");
-                return 1;
-            }
+            error_code = trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error starting acquisition: {error_code}"); return 1; }
 
             // get detailed description about the circular buffer
             // to be able to handle wrap around
-            error_code = DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_END_POINTER, out long buffer_end_pointer);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error getting Buffer End Pointer: {error_code}");
-                return 1;
-            }
-            error_code = DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_TOTAL_MEM_SIZE, out long buffer_total_mem_size);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Error getting Buffer Total Memory Size: {error_code}");
-                return 1;
-            }
+            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_END_POINTER, out long buffer_end_pointer);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error getting Buffer End Pointer: {error_code}"); return 1; }
+
+            error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_TOTAL_MEM_SIZE, out long buffer_total_mem_size);
+            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error getting Buffer Total Memory Size: {error_code}"); return 1; }
 
             int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
             while (!Console.KeyAvailable)
             {
-                int i = 0;
                 uint raw_data = 0;
                 uint bit = 0;
+                bool use_wait = true;
+                long available_samples = 0;
 
-                System.Threading.Thread.Sleep(polling_interval_ms);
-
-                // get the number of samples already stored in the circular buffer
-                // using CMD_BUFFER_WAIT_AVAIL_NO_SAMPLES no sleep is necessary
-                error_code = trion_api.API.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_WAIT_AVAIL_NO_SAMPLES, out long available_samples);
-                if (error_code != Trion.TrionError.NONE)
+                if (!use_wait)
                 {
-                    Console.WriteLine($"Error waiting for available samples: {error_code}");
-                    break;
+                    // get the number of samples already stored in the circular buffer
+                    // using CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLES no sleep is necessary
+                    error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE, out available_samples);
+                    if (error_code != Trion.TrionError.NONE)
+                    {
+                        Console.WriteLine($"Error waiting for available samples: {error_code}");
+                        // TODO: handle error appropriately
+                        break;
+                    }
+                }
+                else
+                {
+                    // if not using wait, we need to sleep for the polling interval
+                    // to avoid busy waiting
+                    System.Threading.Thread.Sleep(polling_interval_ms);
+                    error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out available_samples);
+                    if (error_code != Trion.TrionError.NONE)
+                    {
+                        Console.WriteLine($"Failed to get available samples: {error_code}");
+                        // TODO: handle error appropriately
+                        break;
+                    }
+
                 }
 
                 // get the current read position of the circular buffer
                 error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_ACT_SAMPLE_POS, out long read_pos);
-                if (error_code != Trion.TrionError.NONE)
-                {
-                    Console.WriteLine($"Error getting Buffer Active Sample Position: {error_code}");
-                    return 1;
-                }
+                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Error getting Buffer Active Sample Position: {error_code}"); return 1; }
 
-                trion_api.API.DeWeSetParam_i32(board_id, Trion.TrionCommand.DISCRET_STATE_SET, 0);
+                trion_api.API.DeWeSetParam_i64(board_id, Trion.TrionCommand.DISCRET_STATE_SET, 0);
+                Console.WriteLine("Available samples: " + available_samples);
 
-                for (i = 0; i < available_samples; i++)
+                for (long i = 0; i < available_samples; i++)
                 {
 
-                }
+                    // Handle circular buffer wrap-around
+                    if (read_pos >= buffer_end_pointer)
+                    {
+                        read_pos -= buffer_total_mem_size;
+                    }
+                    // Read the sample value at the current buffer position
+                    // Unsafe context required for pointer access
+                    unsafe
+                    {
+                        // read_pos is a byte address, so cast to IntPtr and then to int*
+                        raw_data = *(uint*)read_pos;
 
+                        bit = (raw_data & 0x4) >> 2;
+
+                        // Print every 100th sample for demonstration
+                        if (i % 100 == 0)
+                        {
+                            Console.WriteLine($"Sample {i}: Discret0 = {bit}");
+                        }
+                    }
+
+                    // Move to the next sample (assuming 4 bytes per sample)
+                    read_pos += sizeof(long);
+
+                }
             }
 
             return 0;
