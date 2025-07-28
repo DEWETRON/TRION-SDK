@@ -30,6 +30,9 @@ void dumpAICurrentSettings (
 //needed Board-Type for this example
 const  char* sBoardNameNeeded[] = { "TRION-2402-dSTG",
                                     "TRION-2402-MULTI",
+                                    "TRION3-1810-MULTI",
+                                    "TRION3-1820-MULTI",
+                                    "TRION3-1850-MULTI",
                                     NULL };
 
 
