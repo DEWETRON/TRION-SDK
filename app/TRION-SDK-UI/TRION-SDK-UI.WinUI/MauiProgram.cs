@@ -1,4 +1,7 @@
-﻿namespace TRION_SDK_UI.WinUI
+﻿using LiveChartsCore.SkiaSharpView.Maui;
+using SkiaSharp.Views.Maui.Controls.Hosting;
+
+namespace TRION_SDK_UI.WinUI
 {
     public static class MauiProgram
     {
@@ -7,7 +10,9 @@
             var builder = MauiApp.CreateBuilder();
 
             builder
-                .UseSharedMauiApp();
+                .UseSharedMauiApp()
+                .UseLiveCharts()
+                .UseSkiaSharp();
 
             return builder.Build();
         }

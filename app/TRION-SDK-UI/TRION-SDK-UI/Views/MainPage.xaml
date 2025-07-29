@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
              x:Class="TRION_SDK_UI.MainPage">
 
     <Grid x:Name="RootGrid">
@@ -39,6 +40,12 @@
                     </VerticalStackLayout>
                 </Frame>
 
+
+                <!-- Add this inside your main content area -->
+                <lvc:CartesianChart
+                    Series="{Binding MeasurementSeries}"
+                    HeightRequest="200"
+                    Margin="0,20,0,0"/>
 
                 <!-- Log View -->
                 <CollectionView x:Name="LogView"
