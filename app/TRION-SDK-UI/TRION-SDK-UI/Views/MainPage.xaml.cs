@@ -4,22 +4,14 @@ namespace TRION_SDK_UI
 {
     public partial class MainPage : ContentPage
     {
-        public ObservableCollection<string> ChannelNames { get; } = new();
-        public ObservableCollection<string> LogMessages { get; } = new();
-
         double _startX;
         double _startWidth;
 
         public MainPage()
         {
             InitializeComponent();
-            BindingContext = this;
-
-            ChannelNames.Add("Channel 1");
-            ChannelNames.Add("Channel 2");
-            ChannelNames.Add("Channel 3");
-
-            LogMessages.Add("App started.");
+            //BindingContext = this;
+            BindingContext = new MainViewModel();
 
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += OnDragHandlePanUpdated;
@@ -44,7 +36,7 @@ namespace TRION_SDK_UI
 
         private void OnCounterClicked(object sender, EventArgs e)
         {
-            LogMessages.Add($"Button clicked at {DateTime.Now:T}");
+            //LogMessages.Add($"Button clicked at {DateTime.Now:T}");
         }
     }
 }
