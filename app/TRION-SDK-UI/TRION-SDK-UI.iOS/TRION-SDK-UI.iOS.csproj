@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0-ios</TargetFramework>
+    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
 		<SupportedOSPlatformVersion>11.0</SupportedOSPlatformVersion>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>TRION_SDK_UI</RootNamespace>
