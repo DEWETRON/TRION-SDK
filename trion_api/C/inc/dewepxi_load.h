@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 DEWETRON
  * License: MIT
- * 
+ *
  * Header file for automatic function loading
  */
 
