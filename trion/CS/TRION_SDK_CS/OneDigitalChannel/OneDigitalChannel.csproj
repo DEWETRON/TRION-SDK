@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TrionApi\TrionApi.csproj" />
+    <ProjectReference Include="..\..\..\..\trion_api\CS\TrionApi\TrionApi.csproj" />
   </ItemGroup>
 
 </Project>
