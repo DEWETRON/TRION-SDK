@@ -404,69 +404,69 @@ namespace Trion
         }
 
         public delegate Trion.TrionError DeWeDriverInitType(out Int32 nNumOfBoard);
-        static DeWeDriverInitType _dewe_driver_init = null;
+        static DeWeDriverInitType? _dewe_driver_init = null;
         public delegate Trion.TrionError DeWeDriverDeInitType();
-        static DeWeDriverDeInitType _dewe_driver_deinit = null;
+        static DeWeDriverDeInitType? _dewe_driver_deinit = null;
 
         public delegate Trion.TrionError DeWeGetParam_i32Type(Int32 nBoardNo, Trion.TrionCommand nCommandId, out Int32 pVal);
-        static DeWeGetParam_i32Type _dewe_get_param_i32 = null;
+        static DeWeGetParam_i32Type? _dewe_get_param_i32 = null;
         public delegate Trion.TrionError DeWeSetParam_i32Type(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int32 pVal);
-        static DeWeSetParam_i32Type _dewe_set_param_i32 = null;
+        static DeWeSetParam_i32Type? _dewe_set_param_i32 = null;
 
         public delegate Trion.TrionError DeWeGetParam_i64Type(Int32 nBoardNo, Trion.TrionCommand nCommandId, out Int64 pVal);
-        static DeWeGetParam_i64Type _dewe_get_param_i64 = null;
+        static DeWeGetParam_i64Type? _dewe_get_param_i64 = null;
         public delegate Trion.TrionError DeWeSetParam_i64Type(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int64 pVal);
-        static DeWeSetParam_i64Type _dewe_set_param_i64 = null;
+        static DeWeSetParam_i64Type? _dewe_set_param_i64 = null;
 
         public delegate Trion.TrionError DeWeSetParamStruct_strType(string Target, string Command, string Var);
-        static DeWeSetParamStruct_strType _dewe_set_param_struct_str = null;
+        static DeWeSetParamStruct_strType? _dewe_set_param_struct_str = null;
         public delegate Trion.TrionError DeWeGetParamStruct_strType(string Target, string Item, byte[] Var, UInt32 num);
-        static DeWeGetParamStruct_strType _dewe_get_param_struct_str = null;
+        static DeWeGetParamStruct_strType? _dewe_get_param_struct_str = null;
         public delegate Trion.TrionError DeWeGetParamStructEx_strType(string Target, string Item, string Arg, byte[] val, UInt32 num);
-        static DeWeGetParamStructEx_strType _dewe_get_param_struct_ex_str = null;
+        static DeWeGetParamStructEx_strType? _dewe_get_param_struct_ex_str = null;
         public delegate Trion.TrionError DeWeGetParamStruct_strLENType(string Target, string Item, out UInt32 Len);
-        static DeWeGetParamStruct_strLENType _dewe_get_param_struct_str_len = null;
+        static DeWeGetParamStruct_strLENType? _dewe_get_param_struct_str_len = null;
 
         public delegate Trion.TrionError DeWeSetParamXML_strType(string Target, string Command, string Var);
-        static DeWeSetParamXML_strType _dewe_set_param_xml_str = null;
+        static DeWeSetParamXML_strType? _dewe_set_param_xml_str = null;
         public delegate Trion.TrionError DeWeGetParamXML_strType(string Target, string Item, byte[] Var, UInt32 num);
-        static DeWeGetParamXML_strType _dewe_get_param_xml_str = null;
+        static DeWeGetParamXML_strType? _dewe_get_param_xml_str = null;
         public delegate Trion.TrionError DeWeGetParamXML_strLENType(string Target, string Item, out UInt32 Len);
-        static DeWeGetParamXML_strLENType _dewe_get_param_xml_str_len = null;
+        static DeWeGetParamXML_strLENType? _dewe_get_param_xml_str_len = null;
 
         public delegate Trion.TrionError DeWeOpenCANType(Int32 nBoardNo);
-        static DeWeOpenCANType _dewe_open_can = null;
+        static DeWeOpenCANType? _dewe_open_can = null;
         public delegate Trion.TrionError DeWeCloseCANType(Int32 nBoardNo);
-        static DeWeCloseCANType _dewe_close_can = null;
+        static DeWeCloseCANType? _dewe_close_can = null;
         public delegate Trion.TrionError DeWeStartCANType(Int32 nBoardNo, Int32 nChannelNo);
-        static DeWeStartCANType _dewe_start_can = null;
+        static DeWeStartCANType? _dewe_start_can = null;
         public delegate Trion.TrionError DeWeStopCANType(Int32 nBoardNo, Int32 nChannelNo);
-        static DeWeStopCANType _dewe_stop_can = null;
+        static DeWeStopCANType? _dewe_stop_can = null;
         public delegate Trion.TrionError DeWeReadCANType(Int32 nBoardNo, Trion.BOARD_CAN_FRAME[] pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
-        static DeWeReadCANType _dewe_read_can = null;
+        static DeWeReadCANType? _dewe_read_can = null;
 
         //public delegate Trion.TrionError DeWeReadCANRawFrame(Int32 nBoardNo, PBOARD_CAN_RAW_FRAME* pCanFrames, out Int32 nRealFrameCount);
         //public delegate Trion.TrionError DeWeWriteCAN(Int32 nBoardNo, PBOARD_CAN_FRAME pCanFrames, Int32 nMaxFrameCount, out Int32 nRealFrameCount);
         public delegate Trion.TrionError DeWeErrorCntCANType(Int32 nBoardNo, Int32 nChannelNo, out Int32 nErrorCount);
-        static DeWeErrorCntCANType _dewe_error_cnt_can = null;
+        static DeWeErrorCntCANType? _dewe_error_cnt_can = null;
 
         public delegate Trion.TrionError DeWeOpenDmaUartType(Int32 nBoardNo);
-        static DeWeOpenDmaUartType _dewe_open_dma_uart = null;
+        static DeWeOpenDmaUartType? _dewe_open_dma_uart = null;
         public delegate Trion.TrionError DeWeCloseDmaUartType(Int32 nBoardNo);
-        static DeWeCloseDmaUartType _dewe_close_dma_uart = null;
+        static DeWeCloseDmaUartType? _dewe_close_dma_uart = null;
         public delegate Trion.TrionError DeWeStartDmaUartType(Int32 nBoardNo, Int32 nChannelNo);
-        static DeWeStartDmaUartType _dewe_start_dma_uart = null;
+        static DeWeStartDmaUartType? _dewe_start_dma_uart = null;
         public delegate Trion.TrionError DeWeStopDmaUartType(Int32 nBoardNo, Int32 nChannelNo);
-        static DeWeStopDmaUartType _dewe_stop_dma_uart = null;
+        static DeWeStopDmaUartType? _dewe_stop_dma_uart = null;
         //public delegate Trion.TrionError DeWeReadDmaUart(Int32 nBoardNo, PBOARD_UART_FRAME pUartFrames, Int32 nMaxFrameCount, Int32* nRealFrameCount);
         //public delegate Trion.TrionError DeWeReadDmaUartRawFrame(Int32 nBoardNo, PBOARD_UART_RAW_FRAME* pUartFrames, Int32* nRealFrameCount);
         public delegate Trion.TrionError DeWeFreeDmaUartRawFrameType(Int32 nBoardNo, Int32 framestofree);
-        static DeWeFreeDmaUartRawFrameType _dewe_free_dma_uart_raw_frame = null;
+        static DeWeFreeDmaUartRawFrameType? _dewe_free_dma_uart_raw_frame = null;
         //public delegate Trion.TrionError DeWeWriteDmaUart(Int32 nBoardNo, PBOARD_UART_FRAME pUartFrames, Int32 nFrameCount, Int32* nRealFrameCount);
 
 
         public delegate string DeWeErrorConstantToStringType(Trion.TrionError nErrorCode);
-        static DeWeErrorConstantToStringType _dewe_error_constant_to_string = null;
+        static DeWeErrorConstantToStringType? _dewe_error_constant_to_string = null;
     }
 
 }
