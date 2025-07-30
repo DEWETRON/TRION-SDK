@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
                 printf("  --runs NUM    number of re-runs of this example\n");
                 printf("  --cache       use cached merge documents\n");
                 printf("  --key         show board key info\n");
-                printf("  --help    s   how this usage screen\n");
+                printf("  --help        show this usage screen\n");
                 return 0;
             }
         }
@@ -215,7 +215,7 @@ int doListBoards()
         char sEncName[32] = {0};
         snprintf(sBoardID, sizeof(sBoardID), "BoardID%d/boardproperties/SystemInfo/EnclosureInfo", 0);
         nErrorCode = DeWeGetParamXML_str(sBoardID, "Name", sEncName, sizeof(sEncName));
-        CheckError(nErrorCode); 
+        CheckError(nErrorCode);
         printf("Enclosure name: %s\n", sEncName);
     }
 
