@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 DEWETRON
  * License: MIT
- * 
+ *
  * Private header: Do not include directly!
  */
 
@@ -87,6 +87,7 @@ typedef int (RT_IMPORT* PDEWEWRITECAN)(int board_no, PBOARD_CAN_FRAME pCanFrames
 typedef int (RT_IMPORT *PDEWEREADCANEX)(int board_no, BOARD_CAN_FD_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 typedef int (RT_IMPORT *PDEWEREADCANRAWFRAMEEX)(int board_no, BOARD_CAN_FD_RAW_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 typedef int (RT_IMPORT *PDEWEWRITECANEX)(int board_no, BOARD_CAN_FD_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
+typedef int (RT_IMPORT *PDEWEREADCANNG)(int board_no, BOARD_CAN_FD_FRAME_NG* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 
 // Asynchronous channel(UART) functions
 typedef int (RT_IMPORT *PDEWEOPENDMAUART)(int board_no);
@@ -160,6 +161,7 @@ RTLOAD PDEWEWRITECAN				DeWeWriteCAN;
 RTLOAD PDEWEREADCANEX               DeWeReadCANEx;
 RTLOAD PDEWEREADCANRAWFRAMEEX       DeWeReadCANRawFrameEx;
 RTLOAD PDEWEWRITECANEX				DeWeWriteCANEx;
+RTLOAD PDEWEREADCANNG               DeWeReadCANNg;
 
 // Asynchronous channel(UART) functions
 RTLOAD PDEWEOPENDMAUART				DeWeOpenDmaUart;
@@ -239,6 +241,7 @@ int RT_IMPORT DeWeWriteCAN(int board_no, PBOARD_CAN_FRAME pCanFrames, int nFrame
 int RT_IMPORT DeWeReadCANEx(int board_no, BOARD_CAN_FD_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 int RT_IMPORT DeWeReadCANRawFrameEx(int board_no, PBOARD_CAN_FD_RAW_FRAME* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 int RT_IMPORT DeWeWriteCANEx(int board, BOARD_CAN_FD_FRAME* frames, int max_frame_cnt, int* frame_cnt);
+int RT_IMPORT DeWeReadCANNg(int board_no, BOARD_CAN_FD_FRAME_NG* pCanFrames, int nMaxFrameCount, int *nRealFrameCount);
 
 // Asynchronous channel(UART) functions
 int RT_IMPORT DeWeOpenDmaUart(int board_no);
