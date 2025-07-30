@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using trion_api = Trion;
 
@@ -17,38 +17,38 @@ namespace Examples
         private static readonly int[] CHANNEL_BUFFER = new int[MEMSIZE];
 
         private static byte[] StringToByteArray(string str)
-            {
-                System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
-                return enc.GetBytes(str);
-            }
+        {
+            System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+            return enc.GetBytes(str);
+        }
 
-            private static string ByteArrayToString(byte[] arr)
-            {
-                System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
-                return enc.GetString(arr);
-            }
+        private static string ByteArrayToString(byte[] arr)
+        {
+            System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+            return enc.GetString(arr);
+        }
 
-            unsafe private static Trion.TrionError ReadSR(string target, out string sample_rate)
-            {
-                //fixed byte srate[27];
-                byte[] srate = new byte[255];
-                Trion.TrionError error = trion_api.API.DeWeGetParamStruct_str(target, "SampleRate", srate, 255);
-                sample_rate = ByteArrayToString(srate);
-                return error;
-            }
+        unsafe private static Trion.TrionError ReadSR(string target, out string sample_rate)
+        {
+            //fixed byte srate[27];
+            byte[] srate = new byte[255];
+            Trion.TrionError error = trion_api.API.DeWeGetParamStruct_str(target, "SampleRate", srate, 255);
+            sample_rate = ByteArrayToString(srate);
+            return error;
+        }
 
-            unsafe private static Int32 GetDataAtPos(Int64 read_pos)
-            {
-                // Get the sample value at the read pointer of the circular buffer
-                // The sample value is 24Bit (little endian, encoded in 32bit).
-                return *(Int32*)read_pos;
-            }
+        unsafe private static Int32 GetDataAtPos(Int64 read_pos)
+        {
+            // Get the sample value at the read pointer of the circular buffer
+            // The sample value is 24Bit (little endian, encoded in 32bit).
+            return *(Int32*)read_pos;
+        }
 
-            private static int GetPollingIntervalMs(int block_size, int sample_rate)
-            {
-                // Returns interval in milliseconds
-                return (int)(block_size / (double)sample_rate * 1000);
-            }
+        private static int GetPollingIntervalMs(int block_size, int sample_rate)
+        {
+            // Returns interval in milliseconds
+            return (int)(block_size / (double)sample_rate * 1000);
+        }
 
         static int Main(string[] args)
         {

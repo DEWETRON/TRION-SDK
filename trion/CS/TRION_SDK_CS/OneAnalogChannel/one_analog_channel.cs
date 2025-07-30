@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Threading;
 using trion_api = Trion;
+using Trion;
 
 namespace Examples
 {
