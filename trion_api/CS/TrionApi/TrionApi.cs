@@ -45,6 +45,20 @@ public class TrionApi
         return (error);
     }
 
+    public static (Trion.TrionError error, Int64 value) DeWeGetParam_i64(Int32 nBoardNo, Trion.TrionCommand nCommandId)
+    {
+        Int64 value = 0;
+        Trion.TrionError error = Trion.API.DeWeGetParam_i64(nBoardNo, nCommandId, out value);
+        return (error, value);
+    }
+
+    public static Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int64 value)
+    {
+        Trion.TrionError error = Trion.API.DeWeSetParam_i64(nBoardNo, nCommandId, value);
+        return (error);
+    }
+
+
     public static (Trion.TrionError error, string value) DeWeGetParamStruct_String(string target, string item)
     {
         // First, get the required buffer size
