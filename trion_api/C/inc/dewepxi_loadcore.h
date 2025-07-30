@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020 DEWETRON
  * License: MIT
- * 
+ *
  * Header file for automatic function loading
  * Private header: Do not include directly!
  */
@@ -357,6 +357,7 @@ int DeWePxiLoadByName(const char* name)
         LOADDLLFUNCTION(hLib, PDEWEREADCANEX, DeWeReadCANEx);
         LOADDLLFUNCTION(hLib, PDEWEREADCANRAWFRAMEEX, DeWeReadCANRawFrameEx);
         LOADDLLFUNCTION(hLib, PDEWEWRITECANEX, DeWeWriteCANEx );
+        LOADDLLFUNCTION(hLib, PDEWEREADCANNG, DeWeReadCANNg);
     }
 
 
@@ -429,6 +430,7 @@ void DeWePxiUnload(void)
     UNLOADDLLFUNCTION(DeWeReadCANEx);
     UNLOADDLLFUNCTION(DeWeReadCANRawFrameEx);
     UNLOADDLLFUNCTION(DeWeWriteCANEx);
+    UNLOADDLLFUNCTION(DeWeReadCANNg);
 
     // Asynchronous channel(UART) functions
     UNLOADDLLFUNCTION(DeWeOpenDmaUart);

@@ -94,6 +94,7 @@ TRION_COMMAND(ACQ_STATE,                    0x0032)  // Get
 TRION_COMMAND(UPDATE_PARAM_AREF,            0x0033)  // Set
 TRION_COMMAND(TIMING_TIME,                  0x0034)  // Get
 TRION_COMMAND(GPS_RECEIVER_RESET,           0x0035)  //Set
+TRION_COMMAND(IS_BUS_FAULT_ALL,             0x0038)  // Get
 
 TRION_COMMAND(PXI_LINE_STATE,               0x0040)  // Get
 
