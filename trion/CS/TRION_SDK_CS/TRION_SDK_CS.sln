@@ -4,18 +4,30 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.14.36327.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneAnalogChannel", "OneAnalogChannel\OneAnalogChannel.csproj", "{3DA72BA6-5977-4095-B990-4FFB87BBFF42}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9F188831-338E-C037-D807-5DFE1B601DCE} = {9F188831-338E-C037-D807-5DFE1B601DCE}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiBoardAnalogChannels", "MultiBoardAnalogChannels\MultiBoardAnalogChannels.csproj", "{FF64DFDB-49BC-4B5A-937B-1DB47E584554}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9F188831-338E-C037-D807-5DFE1B601DCE} = {9F188831-338E-C037-D807-5DFE1B601DCE}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADCDelay", "ADCDelay\ADCDelay.csproj", "{6AD5F3A6-FC3E-41C2-9DC5-6DDAA3AA8706}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiBoardDigitalChannels", "MultiBoardDigitalChannels\MultiBoardDigitalChannels.csproj", "{5D659098-65BE-4FE6-A34C-3F5F1CD37806}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9F188831-338E-C037-D807-5DFE1B601DCE} = {9F188831-338E-C037-D807-5DFE1B601DCE}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDigitalChannel", "OneDigitalChannel\OneDigitalChannel.csproj", "{B0F4628A-0651-4E67-A2B2-FA7DB607A7B6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9F188831-338E-C037-D807-5DFE1B601DCE} = {9F188831-338E-C037-D807-5DFE1B601DCE}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrionApi", "TrionApi\TrionApi.csproj", "{BEE07A5B-D299-45F7-A25A-050297A4ECF4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrionApi", "..\..\..\trion_api\CS\TrionApi\TrionApi.csproj", "{9F188831-338E-C037-D807-5DFE1B601DCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,10 +55,10 @@ Global
 		{B0F4628A-0651-4E67-A2B2-FA7DB607A7B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0F4628A-0651-4E67-A2B2-FA7DB607A7B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0F4628A-0651-4E67-A2B2-FA7DB607A7B6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BEE07A5B-D299-45F7-A25A-050297A4ECF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BEE07A5B-D299-45F7-A25A-050297A4ECF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BEE07A5B-D299-45F7-A25A-050297A4ECF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BEE07A5B-D299-45F7-A25A-050297A4ECF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F188831-338E-C037-D807-5DFE1B601DCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F188831-338E-C037-D807-5DFE1B601DCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F188831-338E-C037-D807-5DFE1B601DCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F188831-338E-C037-D807-5DFE1B601DCE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
