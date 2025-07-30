@@ -15,8 +15,8 @@ int main(int argc, char* argv[])
 {
     int boards = 0;
     int avail_samples = 0;
-    int64_t buf_end_pos = 0;        // Last position in the ring buffer
-    int buff_size = 0;              // Total size of the ring buffer
+    int64_t buf_end_pos = 0;        // Last position in the circular buffer
+    int buff_size = 0;              // Total size of the circular buffer
 
     // Basic SDK Initialization
     DeWePxiLoad();
@@ -72,10 +72,10 @@ int main(int argc, char* argv[])
         // Get the current read pointer
         DeWeGetParam_i64(1, CMD_BUFFER_0_ACT_SAMPLE_POS, &read_pos);
 
-        // Read the current samples from the ring buffer
+        // Read the current samples from the circular buffer
         for (int i = 0; i < avail_samples; ++i)
         {
-            // Handle the ring buffer wrap around
+            // Handle the circular buffer wrap around
             if (read_pos >= buf_end_pos)
             {
                 read_pos -= buff_size;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
             // 24Bit resolution
             // Please have a look at the acq with scan_descriptor example.
 
-            std::cout << "AI0: " << std::dec << sample_value 
+            std::cout << "AI0: " << std::dec << sample_value
                       << "     " << std::hex << sample_value << std::endl;
         }
 

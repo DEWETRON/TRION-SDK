@@ -1,6 +1,6 @@
 /**
  * Example how the board-counter can be use to derive
- * information about the number of lost samples, and 
+ * information about the number of lost samples, and
  * the thus the related time-period due to buffer-overrun
  *
  * This example should be used with any board that
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     int nBlockSize=0;
     uint32 uLastSampleCount = 0;
     int nBdCNTOffset = 0;
-    int nSampleCount = 0;   
+    int nSampleCount = 0;
 
     // initialize random generator
     srand ( (int)(time(NULL)) );
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
         snprintf(sBoardID, sizeof(sBoardID),"BoardID%d", nBoardID);
 
         // Request the number of AI Channels
-        snprintf(sChannelStr, sizeof(sChannelStr),"BoardID%d/AI", nBoardID);   
+        snprintf(sChannelStr, sizeof(sChannelStr),"BoardID%d/AI", nBoardID);
         nErrorCode = DeWeGetParamStruct_str(sChannelStr, "Channels", sBuffer, sizeof(sBuffer));
         CheckError(nErrorCode);
         if ( nErrorCode > 0 )
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
             return UnloadTrionApi("Error obtaining number of AI channels.\nAborting...\n");
         }
 
-        sscanf(sBuffer, "%d", &nNumAIChannels); 
+        sscanf(sBuffer, "%d", &nNumAIChannels);
         if ( nNumAIChannels == 0 )
         {
             return UnloadTrionApi("This Trion-Board does not offer analogue input channels.\nAborting...");
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 
         // Request the number of Board-Counter Channels
         // One of them will be used for data-lost information
-        snprintf(sChannelStr, sizeof(sChannelStr),"BoardID%d/BoardCNT", nBoardID);   
+        snprintf(sChannelStr, sizeof(sChannelStr),"BoardID%d/BoardCNT", nBoardID);
         nErrorCode = DeWeGetParamStruct_str(sChannelStr, "Channels", sBuffer, sizeof(sBuffer));
         CheckError(nErrorCode);
         if ( nErrorCode > 0 )
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
             return UnloadTrionApi("Error obtaining number of Board-Counter channels.\nAborting...\n");
         }
 
-        sscanf(sBuffer, "%d", &nNumBrdCNTChannels); 
+        sscanf(sBuffer, "%d", &nNumBrdCNTChannels);
         if ( nNumBrdCNTChannels == 0 )
         {
             return UnloadTrionApi("This Trion-Board does not offer an board-counter channel.\nAborting...");
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
     printf( "Number of AI-channels:     %d\n", nNumAIChannels);
     printf( "Number of BrdCNT-channels: %d\n", nNumBrdCNTChannels);
     sprintf(sformatString, "AI0: %s AI%d: %s SampleCount: %s", "%12d", (nNumAIChannels-1), "%12d", " %10d");
-   
+
     // Set configuration to use one board in standalone operation
     snprintf(sPropStr, sizeof(sPropStr), "BoardID%d/AcqProp",nBoardID);
     nErrorCode = DeWeSetParamStruct_str( sPropStr, "OperationMode", "Slave");
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
     // get the Sample-rate
     // Calculate a feasible Blocksize for this Sample-rate
     // BlockSize[Scans] := SampleRate * nPollIntervall[ms] / 1000
-    snprintf(sChannelStr, sizeof(sChannelStr),"BoardID%d/AcqProp", nBoardID );   
+    snprintf(sChannelStr, sizeof(sChannelStr),"BoardID%d/AcqProp", nBoardID );
     nErrorCode = DeWeSetParamStruct_str( sChannelStr, "SampleRate", "10000" );
     CheckError(nErrorCode);
     nErrorCode = DeWeGetParamStruct_str( sChannelStr, "SampleRate", sGetResultString, sizeof(sGetResultString));
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, nBlockSize);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);
@@ -234,13 +234,13 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos=0;        // Last position in the ring buffer
+        sint64 nBufEndPos=0;        // Last position in the circular buffer
         int nBufSize=0;             // Total buffer size
         int nLoopCounter = 0;       // only used to force a data-lost with a really long sleep
         BOOLEAN bDataLost = FALSE;
         BOOLEAN bFirstReadAfterDataLost = FALSE;
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
 
         while( !kbhit() )
         {
-            sint64 nReadPos=0; 
+            sint64 nReadPos=0;
             int nAvailSamples=0;
             int i=0;
             sint32 nRawData0=0;
@@ -270,7 +270,7 @@ int main(int argc, char* argv[])
                 Sleep(nPollIntervall);
             }
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             CheckError(nErrorCode);
 
@@ -309,7 +309,7 @@ int main(int argc, char* argv[])
                 printf( "Acknowledge Data-lost condition\n");
                 nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_CLEAR_ERROR, 0 );
                 CheckError(nErrorCode);
-    
+
                 bDataLost = FALSE;
                 bFirstReadAfterDataLost = TRUE;
                 //omit any read-operation for now (as new data is not gathered yet)
@@ -319,11 +319,11 @@ int main(int argc, char* argv[])
             // recalculate nReadPos to handle ADC delay
             nReadPos = nReadPos + nADCDelay * nSizeScan;
 
-            // Read the current samples from the ring buffer
+            // Read the current samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
                 ++nSampleCount;
-                // Get the sample value at the read pointer of the ring buffer
+                // Get the sample value at the read pointer of the circular buffer
                 // Here the complete scan is 4 * 32 bit : 3 analog values and 1 CNT Value
                 nRawData0 = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH, 8);
                 if ( nNoOfActiveChannelsAI > 1 )
@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
                     //determine, how many samples had been lost
                     int     nLostSamples = uSampleCount - uLastSampleCount;
                     float   fduration = nLostSamples / fSampleRate;
-                                                                        
+
                     printf( "Lost %d samples (duration = %f sec)\n", nLostSamples, fduration);
                 }
 
@@ -352,7 +352,7 @@ int main(int argc, char* argv[])
                 // Increment the read pointer
                 nReadPos += nSizeScan;
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos >= nBufEndPos)
                 {
                     nReadPos -= nBufSize;
@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
             //remember the last position that has been processed
             uLastSampleCount = uSampleCount;
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
         }

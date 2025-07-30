@@ -95,7 +95,7 @@ DEWETRON Explorer
 
 
 If you are lucky and have DEWETRON TRION hardware available you are ready to
-go. You can start OXYGEN or the quickstart example to test your measurment
+go. You can start OXYGEN or the quickstart example to test your measurement
 hardware.
 
 All others have to setup a demo system first. DEWETRON Explorer is the tool
@@ -197,7 +197,7 @@ Get TRION-SDK
 .. fun with seeing sample data
 
 
-.. note:: For the next steps you need to have a working development environment. Please check if you 
+.. note:: For the next steps you need to have a working development environment. Please check if you
     have Visual Studio 2022 and cmake installed (for Windows).
 
 
@@ -259,7 +259,7 @@ Walk through the Source Code
     DeWeDriverInit(&boards);
 
 
-**DeWePxiLoad** loads the libray. It calls
+**DeWePxiLoad** loads the library. It calls
 dlopen and maps all exported C functions, but does not do any initialization.
 
 
@@ -282,7 +282,7 @@ Positive values mean that real hardware is active.
     DeWeSetParam_i32(1, CMD_OPEN_BOARD, 0);
     DeWeSetParam_i32(1, CMD_RESET_BOARD, 0);
 
-In step 2 the individual boards have to be openend and reset to a valid default
+In step 2 the individual boards have to be opened and reset to a valid default
 state. This is done using the **DeWeSetParam_i32** function. The first argument a
 index number referencing a dedicated board. With the current demo system the board
 with index 0 is the internal chassis controller. Index 1 references the
@@ -316,7 +316,7 @@ to disable them.
     DeWeSetParamStruct_str("BoardID1/AcqProp", "SampleRate", "2000");
 
 Now the acquisition properties have to be configured. CMD_BUFFER_0_BLOCK_SIZE
-and CMD_BUFFER_0_BLOCK_COUNT are used to setup the acuisition buffer for the
+and CMD_BUFFER_0_BLOCK_COUNT are used to setup the acquisition buffer for the
 AI channel.
 
 The sample rate has to be configured by setting the *SampleRate* property of
@@ -339,10 +339,10 @@ The new configuration is applied to the hardware by using CMD_UPDATE_PARAM_ALL.
 
     DeWeSetParam_i32(1, CMD_START_ACQUISITION, 0);
 
-Now it is time to start the aquisition. This is done by the command
+Now it is time to start the acquisition. This is done by the command
 CMD_START_ACQUISITION.
 
-Usually this is done before entering a acqisition loop processing the
+Usually this is done before entering a acquisition loop processing the
 measured samples.
 
 **Step 7:**
@@ -387,7 +387,7 @@ Then **DeWePxiUnload** unloads the library.
 
 
 
-Lessions Learned!
+Lessons Learned!
 ~~~~~~~~~~~~~~~~~
 
 Congratulations! With the help of this chapter you installed a
@@ -443,7 +443,7 @@ the buffer start. But it is not necessary to implement the buffer
 wrap around handling and therefore not used.
 
 
-.. note:: The samples are stored in a ring buffer. When iterating the buffer
+.. note:: The samples are stored in a circular buffer. When iterating the buffer
     you have to look for the buffer end and implement the wrap around handling.
 
 
@@ -469,7 +469,7 @@ sample.
 
     for (int i = 0; i < avail_samples; ++i)
     {
-        // Handle the ring buffer wrap around
+        // Handle the circular buffer wrap around
         if (read_pos >= buf_end_pos)
         {
             read_pos -= buff_size;
@@ -494,13 +494,13 @@ read all samples.
 
     DeWeSetParam_i32(1, CMD_BUFFER_FREE_NO_SAMPLE, avail_samples);
 
-After the inner loop completed, free the ring buffer with
-CMD_BUFFER_FREE_NO_SAMPLE. If you do not free the ring buffer
+After the inner loop completed, free the circular buffer with
+CMD_BUFFER_FREE_NO_SAMPLE. If you do not free the circular buffer
 it will get full and the acquisition will stop with a buffer
 overflow error.
 
 
-Everthing else is identically to the first quickstart example.
+Everything else is identically to the first quickstart example.
 
 
 
@@ -508,7 +508,7 @@ Achievements after Quickstart with Acquisition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Using QuickstartAcq we implement our first measurement application
-using one volatge channel.
+using one voltage channel.
 
 Now we got an output like this:
 
@@ -536,22 +536,22 @@ What is still missing?
 The example accessed the samples using CMD_BUFFER_0_ACT_SAMPLE_POS and
 pointer arithmetic. The algorithm for access the samples is board
 dependent. Please not that 24bit samples of a TRION-2402-dACC are packed
-a differentway in comparison to a TRION3-1850-MULTI. So a readout function
+a different way in comparison to a TRION3-1850-MULTI. So a readout function
 for one board may not work for another type.
 
 There is a solution for that: The next example *QuickstartAcqScanDesc* introduces
 a new concept, the **scan descriptor**. Its a set of rules telling you
-how the samples are organized in the sample ringbuffer. If an application
+how the samples are organized in the sample circular buffer. If an application
 implements and follows the rules, it is able to access the sample buffer in
 generic way that is guaranteed to work for all TRION and TRION3 boards.
 
 
-An example explaining the scan descripter is *QuickstartAcqScanDesc*.
+An example explaining the scan descriptor is *QuickstartAcqScanDesc*.
 
 
 *QuickstartAcqScanDescScaled* further extends the example showing
 a way how range scaling can be implemented.
 
 
-The scan descriptor concept itself is explaind in chapter
+The scan descriptor concept itself is explained in chapter
 :ref:`Data Acquisition Scan Descriptor <data_aquisition_scan_descriptor>`

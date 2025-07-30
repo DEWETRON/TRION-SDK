@@ -10,14 +10,14 @@ Supported methods are:
 * IRIG A/B
 
 
-TRION-SYNC-BUS is part of all enclosures. All other options need dedicated enclosures or TRION-TIMING boards in 
+TRION-SYNC-BUS is part of all enclosures. All other options need dedicated enclosures or TRION-TIMING boards in
 the enclosures first slot.
 
 
 TRION-SYNC-BUS
 --------------
 
-Using TRION-SYNC-BUS needs special setup for two different enclosure roles. There has to be one MASTER 
+Using TRION-SYNC-BUS needs special setup for two different enclosure roles. There has to be one MASTER
 instrument and one or more SLAVE instruments.
 Setup of MASTER or SLAVE instrument roles is handled differently, for DEWE2 enclosures and DEWE3 enclosures.
 The details are described within the chapter of the roles.
@@ -47,15 +47,15 @@ The easiest way to query this information is, by querying the "type" information
 Cabling
 ~~~~~~~
 
-Connect the SYNC cable to the sync-out plug at the master instrument to the sync-in plug of the first slave 
-instrument. For further slave instruments follow the pattern and connect the slave’s sync-out plug to the next 
-slaves’ sync-in plug.
+Connect the SYNC cable to the sync-out plug at the master instrument to the sync-in plug of the first slave
+instrument. For further slave instruments follow the pattern and connect the slave's sync-out plug to the next
+slave's sync-in plug.
 
 
 Master instrument
 ~~~~~~~~~~~~~~~~~
 
-The board setup is the same when multiple TRION boards are used. The first board has to be set to Master mode, 
+The board setup is the same when multiple TRION boards are used. The first board has to be set to Master mode,
 all others to Slave:
 
 Master board setup "BoardID0":
@@ -89,7 +89,7 @@ On exactly one board
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-OUT DEWE2
+.. table:: Signal settings for SYNC-OUT DEWE2
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -105,7 +105,7 @@ This is important to prevent multiple boards trying to drive the TRIG7-line to d
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-OUT DEWE2
+.. table:: Signal settings for SYNC-OUT DEWE2
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -134,7 +134,7 @@ On the Chassis-Controller (BoardId0)
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-OUT DEWE3 with Controller-V1
+.. table:: Signal settings for SYNC-OUT DEWE3 with Controller-V1
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -226,7 +226,7 @@ On exactly one board, other than the Chassis-Controller
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-OUT
+.. table:: Signal settings for SYNC-OUT
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -242,7 +242,7 @@ This is important to prevent multiple boards trying to drive the TRIG7-line to d
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-OUT
+.. table:: Signal settings for SYNC-OUT
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -256,14 +256,14 @@ This is important to prevent multiple boards trying to drive the TRIG7-line to d
 DEWE3 enclosure with Chassis-Controller-V2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In such case, the chassis-controllter has to be utilized in the measurement with at least one activated channel,
+In such case, the chassis-controller has to be utilized in the measurement with at least one activated channel,
 and shall be operated as measurement master.
 
 On the Chassis-Controller (BoardId0)
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-OUT DEWE3 with Controller-V2
+.. table:: Signal settings for SYNC-OUT DEWE3 with Controller-V2
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -282,7 +282,7 @@ On all other boards
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-OUT
+.. table:: Signal settings for SYNC-OUT
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -323,7 +323,7 @@ On exactly one board
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-IN DEWE2
+.. table:: Signal settings for SYNC-IN DEWE2
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -339,7 +339,7 @@ This is important to prevent multiple boards trying to drive the TRIG7-line to d
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-IN DEWE2
+.. table:: Signal settings for SYNC-IN DEWE2
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -366,7 +366,7 @@ On the Chassis-Controller (BoardId0)
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-IN DEWE3 with Controller-V1
+.. table:: Signal settings for SYNC-IN DEWE3 with Controller-V1
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -458,7 +458,7 @@ On exactly one board, other than the Chassis-Controller
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-IN
+.. table:: Signal settings for SYNC-IN
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -474,7 +474,7 @@ This is important to prevent multiple boards trying to drive the TRIG7-line to d
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-IN
+.. table:: Signal settings for SYNC-IN
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -495,14 +495,14 @@ This is important to prevent multiple boards trying to drive the TRIG7-line to d
 DEWE3 enclosure with Chassis-Controller-V2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In such case, the chassis-controllter has to be utilized in the measurement with at least one activated channel,
+In such case, the chassis-controller has to be utilized in the measurement with at least one activated channel,
 and shall be operated as measurement slave.
 
 On the Chassis-Controller (BoardId0)
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-IN DEWE3 with Controller-V2
+.. table:: Signal settings for SYNC-IN DEWE3 with Controller-V2
    :widths: 30 30 30
 
    +----------------------+--------------+-------------------+
@@ -524,7 +524,7 @@ On the Chassis-Controller (BoardId0)
    +----------------------+--------------+-------------------+
    | TRIG5                | Inverted     | False             |
    +----------------------+--------------+-------------------+
-   | TRIG6                | Source       | CLK_EXT_In_Detetct|
+   | TRIG6                | Source       | CLK_EXT_In_Detect |
    +----------------------+--------------+-------------------+
    | TRIG6                | Inverted     | False             |
    +----------------------+--------------+-------------------+
@@ -533,7 +533,7 @@ On all other boards
 
 .. tabularcolumns:: |p{3cm}|p{3cm}|p{3cm}|
 
-.. table:: Signalsettings for SYNC-IN
+.. table:: Signal settings for SYNC-IN
    :widths: 30 30 30
 
    +----------------------+--------------+--------------+
@@ -575,7 +575,7 @@ Acquisition on the slave instruments has to be started using:
 For each board of the instrument start:
 
 .. code:: c
-    
+
     for (int BoardID = 0; BoardID < NrOfAvailableBoards; ++BoardID)
     {
         DeWeSetParam_i32(BoardID, CMD_START_ACQUISITION, 0);
@@ -599,24 +599,24 @@ On each slave instrument use the following commands:
     }
 
 
-PPS based syncronization methodes
+PPS based synchronization methods
 ---------------------------------
 
-PTP, GPS and IRIG are synchronization methodes, where the actual synchronziation between
+PTP, GPS and IRIG are synchronization methods, where the actual synchronization between
 the instruments or 3rd party instruments is achieved by the PPS signal.
 
-After issuing a start-acquisition command the first subsequent PPS will be used as an 
+After issuing a start-acquisition command the first subsequent PPS will be used as an
 internal synchronization signal, and the actual acquisition will start one second after this.
 
-This "one second later" is realized by setting the property "StartCounter" to a value equeal
+This "one second later" is realized by setting the property "StartCounter" to a value equal
 to the "SampleRate" of the TRION-board used as sync-board.
 
 .. code:: c
 
-    //Startcounter has to be set equal to Samplerate (eg 2000)
+    //StartCounter has to be set equal to SampleRate (eg 2000)
     DeWeSetParamStruct_str("BoardID0/AcqProp", "StartCounter", "2000");
 
-All PPS based modes share a couple of characteristics, which will show as a repeted pattern in
+All PPS based modes share a couple of characteristics, which will show as a repeated pattern in
 in the subsequent chapters:
 
 An explicit command is used to force the TRION-board to synchronize itself to the external source.
@@ -626,7 +626,7 @@ An explicit command is used to force the TRION-board to synchronize itself to th
     DeWeSetParam_i32(0, CMD_TIMING_STATE, 0);
 
 Before performing an acquisition start the application has to check, whether the instrument managed
-to synchronize itself to the external timesource.
+to synchronize itself to the external time source.
 
 .. code:: c
 
@@ -655,18 +655,18 @@ Slave instrument
 ^^^^^^^^^^^^^^^^
 
 The TRION board used for the PTP slave role needs at least one synchronous channel activated.
-From perspective of the instrument the PTP slave board is considere being a Master board.
+From perspective of the instrument the PTP slave board is considered being a Master board.
 
 PTP slave board setup (instrument master):
 
 .. code:: c
 
     DeWeSetParamStruct_str("BoardID0/AcqProp/SyncSettings/SyncIn", "Mode", "PTP");
-    //Startcounter has to be set equal to Samplerate (eg 2000)
+    //StartCounter has to be set equal to SampleRate (eg 2000)
     DeWeSetParamStruct_str("BoardID0/AcqProp", "StartCounter", "2000");
     DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
 
-Force synchronisation of TRION-board-internal time to provided PTP time:
+Force synchronization of TRION-board-internal time to provided PTP time:
 
 .. code:: c
 
@@ -691,7 +691,7 @@ was already able to synchronize itself with the provided PTP time.
     int timing_state;
     DeWeSetParam_i32(0, CMD_TIMING_STATE, &timing_state);
 
-When timing_state has the value TIMINGSTATE_LOCKED the system is 
+When timing_state has the value TIMINGSTATE_LOCKED the system is
 synchronized to the PTP Master. This may take a couple of seconds.
 
 Acquisition on the instrument
@@ -714,7 +714,7 @@ For each (slave) board of the instrument start:
 Please keep in mind:
 
 * Acquisition on the slave boards has to be started before starting acquisition on the master board.
-* When using any PPS based synchronization-method like PTP to synchronize multiple instruments their 
+* When using any PPS based synchronization-method like PTP to synchronize multiple instruments their
   respective start may be off by 1 second to each other. The application has to take care to detect this
   and compensate for it.
 
@@ -730,9 +730,9 @@ This shows the set of typical properties for PTP-sync-in mode.
    +-------------------------+------------------------------------------------------+
    | **Property Name**       | **Description**                                      |
    +=========================+======================================================+
-   | CorrectionLimit         | Maximum absolute difference between TRION internal   | 
+   | CorrectionLimit         | Maximum absolute difference between TRION internal   |
    |                         | generated PPS and the PPS derived from the           |
-   |                         | inputsignal before a deviation will be indicated     |
+   |                         | input signal before a deviation will be indicated    |
    |                         | with a result-value of TIMINGSTATE_LOCKEDOOR or      |
    |                         | TIMINGSTATE_RELOCKOOR when querying CMD_TIMING_STATE |
    +-------------------------+------------------------------------------------------+
@@ -752,14 +752,14 @@ Cabling
 ^^^^^^^
 
 Connect a GPS antenna to the GPS connector on your TRION-System..
-This can either be on the enclosure, or if the enclosure does not provide a GPS connector on a 
+This can either be on the enclosure, or if the enclosure does not provide a GPS connector on a
 TRION-TIMING-family board in the first slot of the enclosure.
 
 Slave instrument
 ^^^^^^^^^^^^^^^^
 
-The TRION board used for the GPS sync-in role needs at least one synchronuos channel activated.
-From perspective of the instrument the GPS-synced board is considere being a Master board.
+The TRION board used for the GPS sync-in role needs at least one synchronous channel activated.
+From perspective of the instrument the GPS-synced board is considered being a Master board.
 
 GPS board setup (instrument master):
 
@@ -768,7 +768,7 @@ GPS board setup (instrument master):
     DeWeSetParamStruct_str("BoardID0/AcqProp/SyncSettings/SyncIn", "Mode", "GPS");
     DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
 
-Force synchronisation of TRION-board-internal time to provided GPS time:
+Force synchronization of TRION-board-internal time to provided GPS time:
 
 .. code:: c
 
@@ -793,7 +793,7 @@ was already able to synchronize itself with the provided GPS time.
     int timing_state;
     DeWeSetParam_i32(0, CMD_TIMING_STATE, &timing_state);
 
-When timing_state has the value TIMINGSTATE_LOCKED the system is 
+When timing_state has the value TIMINGSTATE_LOCKED the system is
 synchronized to the GPS time. This may take a couple of seconds.
 
 Acquisition on the instrument
@@ -816,7 +816,7 @@ For each (slave) board of the instrument start:
 Please keep in mind:
 
 * Acquisition on the slave boards has to be started before starting acquisition on the master board.
-* When using any PPS based synchronization-method like GPS to synchronize multiple instruments their 
+* When using any PPS based synchronization-method like GPS to synchronize multiple instruments their
   respective start may be off by 1 second to each other. The application has to take care to detect this
   and compensate for it.
 
@@ -832,9 +832,9 @@ This shows the set of typical properties for GPS-sync-in mode.
    +-------------------------+------------------------------------------------------+
    | **Property Name**       | **Description**                                      |
    +=========================+======================================================+
-   | CorrectionLimit         | Maximum absolute difference between TRION internal   | 
+   | CorrectionLimit         | Maximum absolute difference between TRION internal   |
    |                         | generated PPS and the PPS derived from the           |
-   |                         | inputsignal before a deviation will be indicated     |
+   |                         | input signal before a deviation will be indicated    |
    |                         | with a result-value of TIMINGSTATE_LOCKEDOOR or      |
    |                         | TIMINGSTATE_RELOCKOOR when querying CMD_TIMING_STATE |
    +-------------------------+------------------------------------------------------+
@@ -845,14 +845,14 @@ This shows the set of typical properties for GPS-sync-in mode.
    |                         | at 0ms.                                              |
    +-------------------------+------------------------------------------------------+
    | PropCoeff               | This is an internally used parameter of the pi-      |
-   |                         | controller and should be left alone by applications. |   
+   |                         | controller and should be left alone by applications. |
    +-------------------------+------------------------------------------------------+
    | IntCoeff                | This is an internally used parameter of the pi-      |
-   |                         | controller and should be left alone by applications. |   
-   +-------------------------+------------------------------------------------------+ 
+   |                         | controller and should be left alone by applications. |
+   +-------------------------+------------------------------------------------------+
    | ControlValue            | This is an internally used parameter of the pi-      |
-   |                         | controller and should be left alone by applications. |   
-   +-------------------------+------------------------------------------------------+ 
+   |                         | controller and should be left alone by applications. |
+   +-------------------------+------------------------------------------------------+
    | DefaultSettings         | This XML node is no settable property and is used    |
    |                         | API internally.                                      |
    |                         | This element shall be ignored by applications        |
@@ -865,14 +865,14 @@ Cabling
 ^^^^^^^
 
 Connect an IRIG-Signal to the IRIG-connector (typically BNC) on the TRION-system.
-This can either be on the enclosure, or if the enclosure does not provide an IRIG connector on a 
+This can either be on the enclosure, or if the enclosure does not provide an IRIG connector on a
 TRION-TIMING-family board in the first slot of the enclosure.
 
 Slave instrument
 ^^^^^^^^^^^^^^^^
 
-The TRION board used for the IRIG sync-in role needs at least one synchronuos channel activated.
-From perspective of the instrument the IRIG-synced board is considere being a Master board.
+The TRION board used for the IRIG sync-in role needs at least one synchronous channel activated.
+From perspective of the instrument the IRIG-synced board is considered being a Master board.
 
 IRIG board setup (instrument master):
 
@@ -881,10 +881,10 @@ IRIG board setup (instrument master):
     //Set mode
     DeWeSetParamStruct_str("BoardID0/AcqProp/SyncSettings/SyncIn", "Mode", "IRIG");
     //Select the format
-    DeWeSetParamStruct_str("BoardID0/AcqProp/SyncSettings/SyncIn", "IRIGFormat", "IRIG_B_DC"); 
+    DeWeSetParamStruct_str("BoardID0/AcqProp/SyncSettings/SyncIn", "IRIGFormat", "IRIG_B_DC");
     DeWeSetParam_i32(0, CMD_UPDATE_PARAM_ALL, 0);
 
-Force synchronisation of TRION-board-internal time to provided IRIG time:
+Force synchronization of TRION-board-internal time to provided IRIG time:
 
 .. code:: c
 
@@ -909,7 +909,7 @@ was already able to synchronize itself with the provided IRIG time.
     int timing_state;
     DeWeSetParam_i32(0, CMD_TIMING_STATE, &timing_state);
 
-When timing_state has the value TIMINGSTATE_LOCKED the system is 
+When timing_state has the value TIMINGSTATE_LOCKED the system is
 synchronized to the IRIG source. This may take a couple of seconds.
 
 Acquisition on the instrument
@@ -932,7 +932,7 @@ For each (slave) board of the instrument start:
 Please keep in mind:
 
 * Acquisition on the slave boards has to be started before starting acquisition on the master board.
-* When using any PPS based synchronization-method like IRIG to synchronize multiple instruments their 
+* When using any PPS based synchronization-method like IRIG to synchronize multiple instruments their
   respective start may be off by 1 second to each other. The application has to take care to detect this
   and compensate for it.
 
@@ -948,13 +948,13 @@ This shows the set of typical properties for IRIG-sync-in mode.
    +-------------------------+------------------------------------------------------+
    | **Property Name**       | **Description**                                      |
    +=========================+======================================================+
-   | IRIGFormat              | This is a composite of the IRIG code and the used    | 
+   | IRIGFormat              | This is a composite of the IRIG code and the used    |
    |                         | modulation.                                          |
    |                         | eg IRIG_B_DC, IRIG_A_AC                              |
    +-------------------------+------------------------------------------------------+
-   | CorrectionLimit         | Maximum absolute difference between TRION internal   | 
+   | CorrectionLimit         | Maximum absolute difference between TRION internal   |
    |                         | generated PPS and the PPS derived from the           |
-   |                         | inputsignal before a deviation will be indicated     |
+   |                         | input signal before a deviation will be indicated    |
    |                         | with a result-value of TIMINGSTATE_LOCKEDOOR or      |
    |                         | TIMINGSTATE_RELOCKOOR when querying CMD_TIMING_STATE |
    +-------------------------+------------------------------------------------------+
@@ -965,25 +965,25 @@ This shows the set of typical properties for IRIG-sync-in mode.
    |                         | at 0ms.                                              |
    +-------------------------+------------------------------------------------------+
    | PropCoeff               | This is an internally used parameter of the pi-      |
-   |                         | controller and should be left alone by applications. |   
+   |                         | controller and should be left alone by applications. |
    +-------------------------+------------------------------------------------------+
    | IntCoeff                | This is an internally used parameter of the pi-      |
-   |                         | controller and should be left alone by applications. |   
-   +-------------------------+------------------------------------------------------+ 
+   |                         | controller and should be left alone by applications. |
+   +-------------------------+------------------------------------------------------+
    | ControlValue            | This is an internally used parameter of the pi-      |
-   |                         | controller and should be left alone by applications. |   
-   +-------------------------+------------------------------------------------------+ 
+   |                         | controller and should be left alone by applications. |
+   +-------------------------+------------------------------------------------------+
    | DefaultSettings         | This XML node is no settable property and is used    |
    |                         | API internally.                                      |
    |                         | This element shall be ignored by applications        |
    +-------------------------+------------------------------------------------------+
 
-Exmple
-~~~~~~
+Example
+~~~~~~~~~~~~~
 
 PTP, GPS and IRIG are similar to setup.
 
-The follwing exmample covers the basic setup and acquisition start sequence.
+The following example covers the basic setup and acquisition start sequence.
 
 .. literalinclude:: ../../trion/CXX/synchronization/synchronization_ptp.cpp
     :caption: PTP slave setup example

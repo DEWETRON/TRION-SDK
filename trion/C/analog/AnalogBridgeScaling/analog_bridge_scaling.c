@@ -1,10 +1,10 @@
 /**
- * Short example to describe how raw ADC data acquired 
+ * Short example to describe how raw ADC data acquired
  * on analog channels can be scaled to measurement values
  * This example will use the first TRION-dSTG-board in system
  * that offers analog channels and will configure the 1st
  * channel to bridge-mode
- * 
+ *
  * Describes following:
  *  - Setup of 1 AI channel
  *  - Query for the ADC delay
@@ -24,12 +24,12 @@
 
 // set the give channel on the given board to bridge mode
 // all const char parameters are optional, and may be NULL (in this case the board-defaults are taken)
-int setupAIBridge(  int nBoardNo, 
-                    int nChannelNo, 
-                    const char* Range, 
-                    const char* Excitation, 
-                    const char* InputType, 
-                    const char* BridgeResistance 
+int setupAIBridge(  int nBoardNo,
+                    int nChannelNo,
+                    const char* Range,
+                    const char* Excitation,
+                    const char* InputType,
+                    const char* BridgeResistance
                     );
 
 // dumping the current bridge-settings to console
@@ -40,7 +40,7 @@ void dumpAIBridgeSettings ( int nBoardNo,
 
 
 //needed Board-Type for this example
-const  char* sBoardNameNeeded[] = { "TRION-2402-dSTG", 
+const  char* sBoardNameNeeded[] = { "TRION-2402-dSTG",
                                     NULL };
 
 
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
     // 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 200);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);
@@ -161,10 +161,10 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
     if (nErrorCode <= 0)
     {
-        int nBufEndPos=0;         // Last position in the ring buffer
+        int nBufEndPos=0;         // Last position in the circular buffer
         int nBufSize=0;           // Total buffer size
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 
         while( !kbhit() )
         {
-            sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
             int nAvailSamples=0;
             int i=0;
             sint32 nRawData =0;
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
 
             Sleep(100);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             CheckError(nErrorCode);
 
@@ -201,21 +201,21 @@ int main(int argc, char* argv[])
             // recalculate nReadPos to handle ADC delay
             nReadPos = nReadPos + nADCDelay * sizeof(uint32);
 
-            // Read the current samples from the ring buffer
+            // Read the current samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
-                // Get the sample value at the read pointer of the ring buffer
-                // The sample value is 24Bit (little endian, encoded in 32bit). 
+                // Get the sample value at the read pointer of the circular buffer
+                // The sample value is 24Bit (little endian, encoded in 32bit).
                 nRawData = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH, 8);
                 fScaledVal = ((((double)(nRawData) * scaleinfo.fScaling)) - scaleinfo.fd);
-             
+
                 // Print the sample value:
                 printf("%8.8X =  %#10.6f %s\n", nRawData, fScaledVal, sUnitRange );
-               
+
                 // Increment the read pointer
                 nReadPos += sizeof(uint32);
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos > nBufEndPos)
                 {
                     nReadPos -= nBufSize;
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
             }
             fflush(stdout);
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
         }
@@ -245,12 +245,12 @@ int main(int argc, char* argv[])
 }
 
 
-int setupAIBridge(  
-                    int nBoardNo, 
-                    int nChannelNo, 
-                    const char* Range, 
-                    const char* Excitation, 
-                    const char* InputType, 
+int setupAIBridge(
+                    int nBoardNo,
+                    int nChannelNo,
+                    const char* Range,
+                    const char* Excitation,
+                    const char* InputType,
                     const char* BridgeResistance )
 {
     int  nErrorCode=0;
@@ -260,7 +260,7 @@ int setupAIBridge(
 
     //1st item, to be set is always the mode, as this will initialize all depending sub-properties (like range, etc..)
     nErrorCode = DeWeSetParamStruct_str( sTargetString, "Mode", "Bridge");
-    if (CheckError(nErrorCode)) 
+    if (CheckError(nErrorCode))
         return 1;
 
     //now apply all of the passed parameters, unless the pointer is NULL
@@ -268,28 +268,28 @@ int setupAIBridge(
     if ( NULL != Range )
     {
         nErrorCode = DeWeSetParamStruct_str( sTargetString, "Range", Range );
-        if (CheckError(nErrorCode)) 
+        if (CheckError(nErrorCode))
             return 1;
     }
-    
+
     if ( NULL != Excitation )
     {
         nErrorCode = DeWeSetParamStruct_str( sTargetString, "Excitation", Excitation);
-        if (CheckError(nErrorCode)) 
+        if (CheckError(nErrorCode))
             return 1;
     }
-    
+
     if ( NULL != InputType )
     {
         nErrorCode = DeWeSetParamStruct_str( sTargetString, "InputType", InputType);
-        if (CheckError(nErrorCode)) 
+        if (CheckError(nErrorCode))
             return 1;
     }
 
     if ( NULL != BridgeResistance )
     {
         nErrorCode = DeWeSetParamStruct_str( sTargetString, "BridgeRes", BridgeResistance);
-        if (CheckError(nErrorCode)) 
+        if (CheckError(nErrorCode))
             return 1;
     }
 

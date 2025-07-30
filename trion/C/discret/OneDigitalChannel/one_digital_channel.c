@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
         return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.\n");
     }
 
-    // Build BoardId -> Either comming from command line (arg 1) or default "0"
+    // Build BoardId -> Either coming from command line (arg 1) or default "0"
     if( TRUE != ARG_GetBoardId(argc, argv, nNoOfBoards, &nBoardID) )
     {
         snprintf(sErrorText, sizeof(sErrorText), "Invalid BoardId: %d\nNumber of found boards: %d", nBoardID, nNoOfBoards);
@@ -74,21 +74,7 @@ int main(int argc, char* argv[])
     }
 
     // After reset all channels are disabled.
-    // So here 1 digital channel will be enabled (Discret2 )
-
-    snprintf(sChannelStr, sizeof(sChannelStr), "%s/Discret1", sBoardID);
-    nErrorCode = DeWeSetParamStruct_str(sChannelStr, "Used", "True");
-    snprintf(sChannelStr, sizeof(sChannelStr),"%s/Discret2", sBoardID);
-    nErrorCode = DeWeSetParamStruct_str( sChannelStr, "Used", "True");
-    if (nErrorCode)
-    {
-        snprintf(sErrorText, sizeof(sErrorText), "Error: %s\n", DeWeErrorConstantToString(nErrorCode));
-        return UnloadTrionApi(sErrorText);
-    }
-
-    //snprintf(sChannelStr, sizeof(sChannelStr), "%s/AI0", sBoardID);
-    //nErrorCode = DeWeSetParamStruct_str(sChannelStr, "Used", "True");
-
+    // So here 1 digital channel will be enabled (Discret0)
 
     snprintf(sChannelStr, sizeof(sChannelStr), "%s/Discret0", sBoardID);
     nErrorCode = DeWeSetParamStruct_str(sChannelStr, "Mode", "DIO");
@@ -110,12 +96,12 @@ int main(int argc, char* argv[])
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     // For the default samplerate 2000 samples per second, 200 is a buffer for
     // 0.1 seconds
-    nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 1);
+    nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_0_BLOCK_SIZE, 1);
     CheckError(nErrorCode);
 
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
     // for 5 seconds
-    nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 200);
+    nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_0_BLOCK_COUNT, 200);
     CheckError(nErrorCode);
 
     //char BUFFER[50000] = { 0 };
@@ -131,7 +117,7 @@ int main(int argc, char* argv[])
 
     char sScanDescriptor[5000] = { 0 };
 
-    nErrorCode = DeWeGetParamStruct_str(sBoardID, "ScanDescriptor_V2", sScanDescriptor, sizeof(sScanDescriptor));
+    nErrorCode = DeWeGetParamStruct_str(sBoardID, "ScanDescriptor_V3", sScanDescriptor, sizeof(sScanDescriptor));
     CheckError(nErrorCode);
 
     // Data Acquisition - stopped with any key
@@ -139,20 +125,20 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos=0;       // Last position in the ring buffer
+        sint64 nBufEndPos=0;       // Last position in the circular buffer
         int nBufSize=0;            // Total buffer size
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
-        nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_END_POINTER, &nBufEndPos);
+        nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_0_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
-        nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_TOTAL_MEM_SIZE, &nBufSize);
+        nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_0_TOTAL_MEM_SIZE, &nBufSize);
         CheckError(nErrorCode);
 
         printf("\nAcquisition started. Waiting for CNTer Samples\n\n\n");
         while( !kbhit() )
         {
-            sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
             int nAvailSamples=0;
             int i=0;
             uint32 nRawData=0;
@@ -160,16 +146,16 @@ int main(int argc, char* argv[])
 
            Sleep(50);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             // using CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE no sleep is necessary
-            nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_WAIT_AVAIL_NO_SAMPLE, &nAvailSamples );
+            nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_0_WAIT_AVAIL_NO_SAMPLE, &nAvailSamples );
             if (CheckError(nErrorCode))
             {
                 break;
             }
 
             // Get the current read pointer
-            nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_ACT_SAMPLE_POS, &nReadPos );
+            nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_0_ACT_SAMPLE_POS, &nReadPos );
             if (CheckError(nErrorCode))
             {
                 break;
@@ -179,19 +165,19 @@ int main(int argc, char* argv[])
             //DeWeSetParam_i32(nBoardID, CMD_DISCRET_STATE_CLEAR, 8);
             DeWeSetParam_i32(nBoardID, CMD_DISCRET_STATE_SET, 8);
 
-            // Read the current samples from the ring buffer
+            // Read the current samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
                 uint64* data = (uint64*)nReadPos;
 
-                // Get the sample value at the read pointer of the ring buffer
+                // Get the sample value at the read pointer of the circular buffer
                 nRawData = *(uint32*)nReadPos;
 
-                // mask the bit for Discret2
-                nBit = (nRawData & 0x4) >> 2;
+                // mask the bit for Discret0
+                nBit = (nRawData & 0x1);
 
                 // Print the sample value
-                if (0 == i%100)
+                if (0 == i % 100)
                 {
                     printf("\rReceived Data: 0x%2.2X", nBit);
                     fflush(stdout);
@@ -200,15 +186,15 @@ int main(int argc, char* argv[])
                 // Increment the read pointer
                 nReadPos += sizeof(uint32);
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos >= nBufEndPos)
                 {
                     nReadPos -= nBufSize;
                 }
             }
 
-            // Free the ring buffer after read of all values
-            nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
+            // Free the circular buffer after read of all values
+            nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_0_FREE_NO_SAMPLE, nAvailSamples );
             if (CheckError(nErrorCode))
             {
                 break;

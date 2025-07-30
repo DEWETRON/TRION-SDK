@@ -2,7 +2,7 @@ Channel Types
 =============
 
 TRION and TRION3 modules support multiple different channel types.
-These channels futher support different measurement modes.
+These channels further support different measurement modes.
 
 The following sections describe the different channels and provide an
 extensive list of the available modes.
@@ -39,7 +39,7 @@ to postprocessing in an uniform way.
 Scaling principles
 ~~~~~~~~~~~~~~~~~~
 
-All information regarding the used gain and offset(s) are abstracted from 
+All information regarding the used gain and offset(s) are abstracted from
 the user with the more abstract **Range** and **InputOffset** information.
 The API will always setup the hardware in a way, so that the digital
 values map in their full range to the selected **Range**, in the approbiate
@@ -93,7 +93,7 @@ board-properties-xml-document.
 The application does not strictly need to pre-validate properties
 against those constraints.
 The API will usually adjust set property-values to satisfy those
-constraints, and will issue a WRNING-Level errorcode to indicate
+constraints, and will issue a WARNING-Level errorcode to indicate
 this to the application. In such a case, it would be a viable strategy
 to invoke the property-getter to retrieve the adjusted value for further
 application-processing. However: As this approach might not be suitable
@@ -112,7 +112,7 @@ This indicates the index of the default-setting for the property.
 The API will set all settings to their default-values, when the
 mode is switched.
 
-In the following code block *Default = "2"* is selects
+In the following code block *Default = "2"* selects
 <ID2>10</ID2> as its default value.
 
 .. code-block:: XML
@@ -171,10 +171,10 @@ with unit = “mV/V” and once with the unit = “mV/mA”.
 Channel Specific commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Additionally to the properties listed, analog channels support a couple 
-of operations, that are addressed via string-commands, and executed 
+Additionally to the properties listed, analog channels support a couple
+of operations, that are addressed via string-commands, and executed
 by the API or the hardware.
-Availability of those commands can depend on the type of TRION™-board and 
+Availability of those commands can depend on the type of TRION™-board and
 the mode used.
 
 The available options are listed as **ChannelFeatures** on channel-level, and
@@ -215,7 +215,7 @@ Command: "sensoroffset"
 
 .. note:: the commands are case insensitive
 
-Example Usage: 
+Example Usage:
     | Execute command: DeweSetParamStruct_str("BoardId0/AI1", **"SensorOffset"**, "100 msec");
     | Query result: DeweGetParamStruct_str("BoardId0/AI1", **"SensorOffset"**, var, sizeof(var));
 
@@ -227,7 +227,7 @@ This way offsets, that exceed the currently set range can be measured, and subsq
 
 After execution the application needs to query the result.
 
-.. note:: If the signal keeps clipping after 2 range escalations, 
+.. note:: If the signal keeps clipping after 2 range escalations,
     the operation is considered to have failed. This is done to prevent
     accuracy loss due to an unfafourable rate between range and applied offset.
     For example a offset of 5V on a Range of 0.1 V would neet the amplifier
@@ -335,7 +335,7 @@ InputOffset Attribute
 ^^^^^^^^^^^^^^^^^^^^^
 Unit: V
 
-This property is often used synonymous to “Sensor-Offset”. It’s
+This property is often used synonymous to “Sensor-Offset”. It's
 main use is to shift the virtual 0 V by a given value. Due to
 various physical effects any non-ideal sensor usually has a bias.
 With the property input-offset API can be setup to compensate for
@@ -348,8 +348,7 @@ Unit: N/A
 
 This property indicates the possible input-type-configurations.
 For example: Single-Ended, Differential
-
-.. note:: some TRION™-boards only support one non-switchable input type. 
+.. note:: Some TRION™-boards only support one non-switchable input type.
     In this case the property still will be present, but only feature
     one entry.
 
@@ -441,7 +440,7 @@ Unit: either mV/V, mV/mA
     by simply setting the Excitation to either a very low or very
     high value, an application either needs to follow the :ref:`more advanced
     constraint evaluation <range_calculation_bridge>`, or always
-    requery the Range after changing a related attibute from the API,
+    requery the Range after changing a related attribute from the API,
     as it will perform automatic corrections to the range, if any
     constraint is violated.
 
@@ -463,8 +462,8 @@ Unit: N/A
 
 In bridge-mode this property indicates the possible input-path-configurations.
 
-This usualy covers the possible bridge-configurations
-(full, half, quarter), the wiring configurtion (3, 4 or 5-wire)
+This usually covers the possible bridge-configurations
+(full, half, quarter), the wiring configuration (3, 4 or 5-wire)
 as well as internal routing types used to facilitate diagnostic
 features without the need to change the mode (like applying a
 virtual short to sense the amplifier offset, or measuring the line
@@ -475,7 +474,7 @@ BridgeRes Attribute
 Unit: N/A
 
 This attribute allows to configure the nominal resistance value of the
-used straing gauge. Which table is applicable is selected via the
+used strain gauge. Which table is applicable is selected via the
 :ref:`input type <bridge_res_input_type>`. On configurations with internal
 completion this configures the used completion resistance.
 
@@ -509,7 +508,7 @@ Unit: mV/V
 Some TRION-boards allow to set a specified target value for
 shunt-calibration.
 The API will then calculate a virtual shunt-resistance value
-considering and compensating the lineresistance drop and apply
+considering and compensating the linear resistance drop and apply
 it's value when "ShuntType" is set to "Internal".
 
 InputImpedance Attribute
@@ -517,7 +516,7 @@ InputImpedance Attribute
 Unit: N/A
 
 Some TRION-boards allow to set the input-impedance to a high-impedance path
-if certain hardwarespecific requirements are met.
+if certain hardware-specific requirements are met.
 
 Potentiometer Mode
 ~~~~~~~~~~~~~~~~~~
@@ -578,7 +577,7 @@ MSI Modes
 CAN Mode
 ~~~~~~~~
 
-.. _advanced_contraints:
+.. _advanced_constraints:
 
 Advanced Constraints
 ~~~~~~~~~~~~~~~~~~~~
@@ -665,7 +664,7 @@ HWRangeMin, HWRangeMax, HWInputOffset
 As the properties Range (RangeMin..RangeMx) and InputOffset are always in
 logical units (eg Ohms for resistance mode), a intermediate step of conversion
 is necessary, to translate them to the underlying voltage-measurements.
-The HWRangeMin/Max and InputOffset are used subsequentially to calculate the
+The HWRangeMin/Max and InputOffset are used subsequently to calculate the
 AmplifierRange. The main-purpose of those values is to keep the calculation
 comprehensible.
 

@@ -6,7 +6,7 @@ exporting multiple different xml documents. These hold information
 about the selected measurement device, acquisition parameters,
 calibration information and many more.
 
-This section explains howto access and manipulate those documents.
+This section explains how to access and manipulate those documents.
 
 
 Relevant API interface
@@ -585,7 +585,7 @@ List of xml-attributes indicating a complex property
    |                      |          | Example: Node "BridgeRes" in        |
    |                      |          | bridge-mode on a TRION-18XX-MULTI   |
    +----------------------+----------+-------------------------------------+
-   | ReferenceNode        | *various*| Holds a semicolon seperated list of |
+   | ReferenceNode        | *various*| Holds a semicolon separated list of |
    |                      |          | property-names that are affect      |
    |                      |          | in their constraint-set by changes  |
    |                      |          | of this property.                   |
@@ -617,16 +617,16 @@ this is indicated with the xml-attribute "ReferenceNode" on
 property-node-level.
 
 .. warning::
-    One property may influnece more than one other property.
+    One property may influence more than one other property.
     The value of the xml-attribute "ReferenceNode" holds a semicolon
-    seperated list of affected attributes.
+    separated list of affected attributes.
 
     For example "ShuntType;Range"
 
 Implicit Property selector mechanism
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In Bridgemode exists an implicite dependency between "Excitation" and
+In "Bridgemode" exists an implicit dependency between "Excitation" and
 "Range".
 This dependency is not annotated in the xml-structure.
 When using voltage-excitation the "Range"-node to use is the one with
@@ -637,14 +637,14 @@ When using current-excitation the "Range"-node to use is the one with
 Explicit Property selector mechanism
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A property may influence a differnt property in a way, that the most
-clear way of communicating this is by using a different definitionset
+A property may influence a different property in a way, that the most
+clear way of communicating this is by using a different definition
 for the influenced property.
 
-The following exmple will help to make this more clear.
+The following example will help to make this more clear.
 
 .. code-block:: XML
-    :caption: Property selector mechanism exmple, Bridge Resistance
+    :caption: Property selector mechanism example, Bridge Resistance
 
     <InputType Count = "9" Default = "0" ReferenceNode = "BridgeRes">
         <ID0 Type = "External">BRFULL</ID0>
@@ -683,7 +683,7 @@ The following exmple will help to make this more clear.
         Subkey = "Type"
         Type = "NA"/>
 
-In this exmple the property "InputType" determines which definition set
+In this example the property "InputType" determines which definition set
 of "BridgeRes" is valid.
 
 InputType has the xml-attribute "ReferenceNode" with a value of
@@ -795,7 +795,7 @@ this property is not used in that combination.
         Type = "NA"/>
 
 
-Everytime the application sets a property with depending nodes, API
+Every time the application sets a property with depending nodes, API
 evaluates this information an adjusts it's internal validity checks according.
 If the previously set value of the depending property would still be valid
 after reevaluation the value will be left unchanged by TRION-API.
@@ -853,7 +853,7 @@ named "Calculated".
 
 This example is from a TRION3-1820-MULTI-4-D in bridge-mode.
 The maximum and minimal valid values are mathematically dependent on the
-brige-resistance and the voltage-excitation.
+bridge-resistance and the voltage-excitation.
 
     .. math:: ProgMin = \frac{10.0 * 10^6 * R\_BRIDGE[\Omega]}{2 * 10^3 * EXCVoltage[V]}
     .. math:: ProgMax = \frac{75.0 * 10^6 * R\_BRIDGE[\Omega]}{2 * 10^3 * EXCVoltage[V]}
@@ -867,7 +867,7 @@ Those values should be accessed by DeWeGetParamStruct_str-commands.
    :widths: 20 80
 
    +---------------+--------------------------------------------------+
-   | xmlattribute  | explaination                                     |
+   | xmlattribute  | explanation                                      |
    +===============+==================================================+
    | VariableName  ||  Name of a variable used by the equation(s)     |
    |               ||  eg "R_BRIDGE"                                  |
@@ -879,9 +879,9 @@ Those values should be accessed by DeWeGetParamStruct_str-commands.
    |               |  "BoardId[X]\\[Type]\\[Path]"                    |
    |               |                                                  |
    |               |  BoardId[X]: the board-id of the current board   |
-   |               |                                                  |   
+   |               |                                                  |
    |               |  if "Path" is empty the final backslash shall    |
-   |               |  be ommited                                      |
+   |               |  be omitted                                      |
    +---------------+--------------------------------------------------+
    | Item          |  The command part for the DeWeGetParamStruct_str |
    |               |  call.                                           |
@@ -890,7 +890,7 @@ Those values should be accessed by DeWeGetParamStruct_str-commands.
    +---------------+--------------------------------------------------+
 
 
-So in this example the two varaibles should be obtained with the
+So in this example the two variables should be obtained with the
 following commands:
 
 .. code:: c
@@ -924,7 +924,7 @@ This is the counterpart to the Node <AcquisitionProperties> in the
 BoardProperties-XML-Document.
 
 Each property from the BoardProperties-XML-Document, that is not marked
-with the attribute “Config = ‘False’” is also present in the
+with the attribute “Config = 'False'” is also present in the
 <Acquisition> Node in the configuration document.
 
 This includes some obvious information like for example the “SampleRate”
@@ -938,7 +938,7 @@ This is the counterpart to the Node
 
 Each single channel is present within this node, with each of the
 settable properties, that is not marked with the attribute “Config =
-‘False’” inside the BoardProperties-XML-document.
+'False'” inside the BoardProperties-XML-document.
 
 
 .. figure:: _img/image12.png
@@ -965,12 +965,12 @@ Result XML Document
 The result xml-document has the same layout, as the configuration
 xml-document.
 
-It’s main purpose is to provide a fine granulated feedback about any
+It's main purpose is to provide a fine granulated feedback about any
 set-configuration command. When loading (setting) a configuration, each
 property is applies one after the other. Every single setting-command
 (this means every set single property) ends up in a defined result
 state. Ideally the operation succeeds with ERR_NONE. However - as any
-arbitrary configuration can be presented to any board, this isnot
+arbitrary configuration can be presented to any board, this is not
 guaranteed at all.
 
 To make diagnostics easier, this result-file offers the possibility to

@@ -1,13 +1,13 @@
 /**
  * Short example to describe how to correctly handle the ADC Delay
  *
- * This example should be used with a TRION-board featured with analoge channels
+ * This example should be used with a TRION-board featured with analog channels
  *
  * ADC Delay:
  * As ADCs suffer from a conversion time (=ADC Delay). So analog samples are
- * added to the ring buffer with a constant offset.
+ * added to the circular buffer with a constant offset.
  *
- * Example Ringbuffer for AI1, CNT0, (ADC Delay == 3):
+ * Example circular buffer for AI1, CNT0, (ADC Delay == 3):
  *
  * Sample No  |   AI1   |   CNT0
  * --------------------------------
@@ -41,11 +41,11 @@
 #define DATAWIDTH        24
 
 //needed Board-Type for this example
-const char* sBoardNameNeeded[] = {  "TRION-2402-dACC", 
-                                    "TRION-2402-dSTG", 
-                                    "TRION-1620-LV", 
+const char* sBoardNameNeeded[] = {  "TRION-2402-dACC",
+                                    "TRION-2402-dSTG",
+                                    "TRION-1620-LV",
                                     "TRION-1620-ACC",
-                                    "TRION-1603-LV", 
+                                    "TRION-1603-LV",
                                     NULL };
 
 int main(int argc, char* argv[])
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
         snprintf(sErrorText, sizeof(sErrorText), "Invalid BoardId: %d\nNumber of found boards: %d", nBoardID, nNoOfBoards);
         return UnloadTrionApi(sErrorText);
     }
-    
+
     // Build a string in the format: "BoardID0", "BoardID1", ...
     snprintf(sBoardID, sizeof(sBoardID),"BoardID%d", nBoardID);
 
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
     // 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 200);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);
@@ -158,10 +158,10 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos=0;      // Last position in the ring buffer
+        sint64 nBufEndPos=0;      // Last position in the circular buffer
         int nBufSize=0;           // Total buffer size
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i64( nBoardID, CMD_BUFFER_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
@@ -171,15 +171,15 @@ int main(int argc, char* argv[])
         printf("\nAcquisition started ..\n\n");
         while( !kbhit() )
         {
-            sint64 nReadPosAI=0;     // Pointer to the ring buffer read pointer for AI samples suffering sample delay
-            sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPosAI=0;     // Pointer to the circular buffer read pointer for AI samples suffering sample delay
+            sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
             int nAvailSamples=0;
             int i=0;
             sint32 nRawData0=0;
 
             Sleep(100);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             CheckError(nErrorCode);
 
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
             // recalculate nReadPos to handle ADC delay
             nReadPosAI = nReadPos + nADCDelay * nSizeScan;
 
-            // Read the current AI samples from the ring buffer
+            // Read the current AI samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
                 // handle possible channel overflow
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
                     nAvailSamples = sizeof(ai_channel)/sizeof(uint32);
                 }
 
-                // Get the sample value at the read pointer of the ring buffer
+                // Get the sample value at the read pointer of the circular buffer
                 // Here the complete scan is 2 * 32 bit : 1 analog values and 1 CNT Value
                 nRawData0 = formatRawData(*(uint32*)nReadPosAI, (int)DATAWIDTH, 8);
 
@@ -218,17 +218,17 @@ int main(int argc, char* argv[])
                 // Increment the read pointer
                 nReadPosAI += nSizeScan;
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPosAI >= nBufEndPos)
                 {
                     nReadPosAI -= nBufSize;
                 }
             }
 
-            // Read the current CNT samples from the ring buffer
+            // Read the current CNT samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
-                // Get the sample value at the read pointer of the ring buffer
+                // Get the sample value at the read pointer of the circular buffer
                 // Here the complete scan is 2 * 32 bit : 1 analog values and 1 CNT Value
                 nRawData0 = *(uint32*)(nReadPos + sizeof(uint32));
 
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
                 // Increment the read pointer
                 nReadPos += nSizeScan;
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos >= nBufEndPos)
                 {
                     nReadPos -= nBufSize;
@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
                 fflush(stdout);
             }
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
         }
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
     // Close the board connection
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_CLOSE_BOARD, 0);
     CheckError(nErrorCode);
-    
+
     // Unload pxi_api.dll
     UnloadTrionApi("\nEnd Of Example\n");
 

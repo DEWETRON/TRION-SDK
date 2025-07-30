@@ -2,7 +2,7 @@
  * Short example to showcase a poti-meassuremente on a TRION-Module module
  *
  * This example should be used with a TRION-2402-MULTI-XXXX as board 0
- * 
+ *
  * Describes following:
  */
 
@@ -23,9 +23,9 @@ const char* sBoardNameNeeded[] = {  "TRION-2402-MULTI",
 
 // set the give channel on the given board to poti mode
 // all const char parameters are optional, and may be NULL (in this case the board-defaults are taken)
-int setupAIPoti (  
-                int nBoardNo, 
-                int nChannelNo, 
+int setupAIPoti (
+                int nBoardNo,
+                int nChannelNo,
                 const char* Range,
                 const char* Excitation
                 );
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     // Range Poti Mode (Full Range 0..100% -> -Exc .. +Exc)
     const double fRangeMin = 0;      // %
     const double fRangeMax = 100;    // %
-    const float fExcitation = 5000; 
+    const float fExcitation = 5000;
     const char* sUnitRange = "%";
     const char* sUnitExc   = "mV"; //mA(current excitation) not allowed in Poti Mode
     ScaleInfo scaleinfo;
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     char sErrorText[256]={0};
     char sBoardId[256]={0};
     char sTarget[256] = { 0 };
-    
+
     // Load pxi_api.dll
     if ( 0 != LoadTrionApi() )
     {
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
     {
         return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.\n");
     }
-  
+
     // Build BoardId -> Either comming from command line (arg 1) or default "0"
     if( TRUE != ARG_GetBoardId(argc, argv, nNoOfBoards, &nBoardId) )
     {
@@ -130,8 +130,8 @@ int main(int argc, char* argv[])
     //Set the desired range, so that the applied scaling is correct
     snprintf(sRangeStr, sizeof(sRangeStr),"%f..%f %s", fRangeMin, fRangeMax, sUnitRange);
     snprintf(sExcitationStr, sizeof(sExcitationStr),"%f %s", fExcitation, sUnitExc);
-    
-    // setup properties .. 
+
+    // setup properties ..
     nErrorCode = setupAIPoti(nBoardId, 0, sRangeStr, sExcitationStr);
     if ( 0 != nErrorCode )
     {
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_SIZE, 100);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 10 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 10 blocks. So the circular buffer can store samples
     // for 2 seconds
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_COUNT, 200);
     CheckError(nErrorCode);
@@ -173,44 +173,44 @@ int main(int argc, char* argv[])
     nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_ONE_SCAN_SIZE, &Scansize);
     CheckError(nErrorCode);
 
-   // Display adjused range ... 
+   // Display adjused range ...
     nErrorCode = DeWeGetParamStruct_str( sBoardStr, "Range", sStrVal, sizeof(sStrVal));
     CheckError(nErrorCode);
     if (0 != nErrorCode)
     {
-        printf("Failed to get adjusted range. Error Code:%X", nErrorCode); 
+        printf("Failed to get adjusted range. Error Code:%X", nErrorCode);
     }
-        
+
     // Data Acquisition - stopped with any key
     nErrorCode = DeWeSetParam_i32(nBoardId, CMD_START_ACQUISITION, 0);
     CheckError(nErrorCode);
 
-    printf("...running\n\n\n");                                                                  
+    printf("...running\n\n\n");
     printf("                         0%%                                                  100%%\n");
-    
+
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos=0;         // Last position in the ring buffer
+        sint64 nBufEndPos=0;         // Last position in the circular buffer
         sint64 nBufSize=0;           // Total buffer size
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i64( nBoardId, CMD_BUFFER_END_POINTER, &nBufEndPos);
         CheckError(nErrorCode);
         nErrorCode = DeWeGetParam_i64( nBoardId, CMD_BUFFER_TOTAL_MEM_SIZE, &nBufSize);
         CheckError(nErrorCode);
-        
+
         while( !kbhit() )
         {
-            sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
             int nAvailSamples=0;
             int i=0;
             sint32 nRawData=0;
             double fScaledVal=0.0f;
-         
+
             Sleep(100);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             CheckError(nErrorCode);
 
@@ -229,41 +229,41 @@ int main(int argc, char* argv[])
 
             // recalculate nReadPos to handle ADC delay
             nReadPos = nReadPos + nADCDelay * Scansize;
-            // Handle the ring buffer wrap around
+            // Handle the circular buffer wrap around
             if (nReadPos > nBufEndPos)
             {
                 nReadPos -= nBufSize;
             }
-            
-            // Read the current samples from the ring buffer
+
+            // Read the current samples from the circular buffer
             for (i = 0; i < nAvailSamples; ++i)
             {
-                // Get the sample value at the read pointer of the ring buffer
-                // The sample value is 24Bit (little endian, encoded in 32bit). 
+                // Get the sample value at the read pointer of the circular buffer
+                // The sample value is 24Bit (little endian, encoded in 32bit).
                 nRawData = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH, 8);
                 fScaledVal = ((((double)(nRawData) * scaleinfo.fScaling)) - scaleinfo.fd);
-                              
-                // Print every 10th sample 
+
+                // Print every 10th sample
                 if ( 0 == i%10 )
                 {
-                    // Factor 2 to display a smaller range 
+                    // Factor 2 to display a smaller range
                     int mpos = (int)(fScaledVal/2);
-                
+
                     printf("\r%8.8X =  %#10.6f%s  [%.*s%s%.*s]", nRawData, fScaledVal, sUnitRange , mpos, "--------------------------------------------------", "*", (50-mpos), "--------------------------------------------------");
                     fflush(stdout);
                 }
-                               
+
                 // Increment the read pointer
                 nReadPos += Scansize;
 
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos > nBufEndPos)
                 {
                     nReadPos -= nBufSize;
                 }
             }
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
         }
@@ -284,11 +284,11 @@ int main(int argc, char* argv[])
 }
 
 
-int setupAIPoti(  
-                int nBoardNo, 
-                int nChannelNo, 
-                const char* Range, 
-                const char* Excitation 
+int setupAIPoti(
+                int nBoardNo,
+                int nChannelNo,
+                const char* Range,
+                const char* Excitation
                 )
 {
     int nErrorCode=0;
@@ -352,7 +352,7 @@ void dumpAIPotiSettings (
     {
         snprintf( sTargetString, sizeof(sTargetString), "BoardId%d/AIAll", nBoardNo );
     }
-    else 
+    else
     {
         snprintf( sTargetString, sizeof(sTargetString), "BoardId%d/AI%d", nBoardNo, nChannelNo );
     }

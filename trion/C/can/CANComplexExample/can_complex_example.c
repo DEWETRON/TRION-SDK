@@ -492,7 +492,7 @@ int main(int argc, char* argv[])
     nErrorCode = DeWeSetParam_i32(nBoardID, CMD_BUFFER_BLOCK_SIZE, 50000);
     CheckError(nErrorCode);
 
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32(nBoardID, CMD_BUFFER_BLOCK_COUNT, 200);
     CheckError(nErrorCode);
@@ -618,11 +618,11 @@ int main(int argc, char* argv[])
             // any longer or shorter timespan is also feasible
             Sleep(config.poll_interval);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32(nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples);
             CheckError(nErrorCode);
 
-            // Free the ring buffer
+            // Free the circular buffer
             nErrorCode = DeWeSetParam_i32(nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples);
             CheckError(nErrorCode);
 

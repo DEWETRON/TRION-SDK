@@ -2,11 +2,11 @@
  * Short example to demonstrate how to update channel properties during a measurement
  *
  * This example is suitable for all TRION boards featuring analog channels.
- * 
+ *
  * Describes following:
  *  - Setup of 1 AI channel
  *  - Query for the ADC delay
- *  - Start of measurement 
+ *  - Start of measurement
  *  - Print every 10th analog value
  *  - Adjust a random range between [-3..7V] and [4..10V]
  *  - Print every 10th analog value
@@ -38,8 +38,8 @@
 
 
 //needed Board-Type for this example
-const  char* sBoardNameNeeded[] = { "TRION-2402-dSTG", 
-                                    "TRION-2402-dACC", 
+const  char* sBoardNameNeeded[] = { "TRION-2402-dSTG",
+                                    "TRION-2402-dACC",
                                     "TRION-2402-V",
                                     "TRION-2402-MULTI",
                                     "TRION-1620-ACC",
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     {
         return 1;
     }
-    
+
     // Initialize driver and retrieve the number of TRION boards
     // nNoOfBoards is a negative number if system is in DEMO mode!
     nErrorCode = DeWeDriverInit(&nNoOfBoards);
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     // Check if TRION cards are in the system
     if (nNoOfBoards == 0)
     {
-        return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.");        
+        return UnloadTrionApi("No Trion cards found. Aborting...\nPlease configure a system using the DEWE2 Explorer.");
     }
 
     // Build BoardId -> Either comming from command line (arg 1) or default "0"
@@ -95,20 +95,20 @@ int main(int argc, char* argv[])
 
     // Build BoardIDX string for _str functions
     snprintf(sBoardId, sizeof(sBoardId), "BoardID%u", nBoardId);
-   
+
     // Open & Reset the board
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_OPEN_BOARD, 0 );
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_RESET_BOARD, 0 );
     CheckError(nErrorCode);
-    
+
     /// Check if selected board is suitable for test
     if ( FALSE == TestBoardType(nBoardId, sBoardNameNeeded))
     {
         return UnloadTrionApi(NULL);
     }
 
-    // Set acquisition properties for board 
+    // Set acquisition properties for board
     snprintf(sTarget, sizeof(sTarget),"%s/%s", sBoardId, "AcqProp");
     nErrorCode = DeWeSetParamStruct_str( sTarget, "OperationMode", "Slave");
     CheckError(nErrorCode);
@@ -116,36 +116,36 @@ int main(int argc, char* argv[])
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParamStruct_str( sTarget, "ExtClk", "False");
     CheckError(nErrorCode);
-    
+
 
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     // For the default samplerate 2000 samples per second, 200 is a buffer for 0.1 seconds
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples for 5 seconds
+    // Set the circular buffer size to 50 blocks. So the circular buffer can store samples for 5 seconds
     nErrorCode = DeWeSetParamStruct_str( sTarget, "SampleRate", "20000");
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_SIZE, blocksize);
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);
-  
+
     // After reset all channels are disabled.
-    // So we have to enable at least one channel to start a measurement 
+    // So we have to enable at least one channel to start a measurement
     snprintf(sTarget, sizeof(sTarget), "%s/%s", sBoardId, "AI0");
     nErrorCode = DeWeSetParamStruct_str( sTarget , "Used", "True");
-    if (nErrorCode) 
+    if (nErrorCode)
     {
         snprintf(sErrorText, sizeof(sErrorText), "Could not enable AI channel on board %d: %s\n", nBoardId, DeWeErrorConstantToString(nErrorCode));
         return UnloadTrionApi(sErrorText);
     }
 
-    // Set channel properties (initial values) 
+    // Set channel properties (initial values)
     nErrorCode = DeWeSetParamStruct_str( sTarget,  "Mode",  "Voltage");
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParamStruct_str( sTarget , "Range", "10 V");
     CheckError(nErrorCode);
     nErrorCode = DeWeSetParamStruct_str( sTarget , "LPFilter_Val", "Auto");
     CheckError(nErrorCode);
-   
+
 
     // Update the hardware with settings
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_UPDATE_PARAM_ALL, 0);
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
     nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BOARD_ADC_DELAY, &nADCDelay);
     CheckError(nErrorCode);
 
-    // Get the adjusted Range 
+    // Get the adjusted Range
     GetAdjustedRange( sTarget, &rangespan);
     nErrorCode = CalcScaling(&scaleinfo, rangespan.rmin, rangespan.rmax, DATAWIDTH);
 
@@ -165,14 +165,14 @@ int main(int argc, char* argv[])
     nErrorCode = DeWeSetParam_i32( nBoardId, CMD_START_ACQUISITION, 0);
     if (nErrorCode <= 0)
     {
-        sint64 nBufEndPos;         // Last position in the ring buffer
+        sint64 nBufEndPos;         // Last position in the circular buffer
         int nBufSize = 0;          // Total buffer size
         double fVal = 0.0;
-        
+
         printf("\n-> Analog measurement on channel AI0 started\n");
         printf("-> Adjusting a new range every %d[ms]\n\n", RANGE_CHANGE_TIMEOUT);
 
-        // Get detailed information about the ring buffer
+        // Get detailed information about the circular buffer
         // to be able to handle the wrap around
         nErrorCode = DeWeGetParam_i64( nBoardId, CMD_BUFFER_START_POINTER, &nBufStartPos);
         CheckError(nErrorCode);
@@ -180,19 +180,19 @@ int main(int argc, char* argv[])
         CheckError(nErrorCode);
         nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_TOTAL_MEM_SIZE, &nBufSize);
         CheckError(nErrorCode);
-        
+
         start = clock();
 
         while( !kbhit() )
         {
-            sint64 nReadPos = 0;       // Pointer to the ring buffer read pointer
+            sint64 nReadPos = 0;       // Pointer to the circular buffer read pointer
             int nAvailSamples = 0;
             int i = 0;
             sint32 nRawData = 0;
 
             Sleep(100);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardId, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             if (ERR_BUFFER_OVERWRITE == nErrorCode)
             {
@@ -216,10 +216,10 @@ int main(int argc, char* argv[])
             // recalculate nReadPos to handle ADC delay
             nReadPos = nReadPos + nADCDelay * sizeof(uint32);
 
-            // Read the current samples from the ring buffer
+            // Read the current samples from the circular buffer
             for (i=0; i < nAvailSamples; ++i)
             {
-                // Handle the ring buffer wrap around
+                // Handle the circular buffer wrap around
                 if (nReadPos >= nBufEndPos)
                 {
                     nReadPos -= nBufSize;
@@ -228,11 +228,11 @@ int main(int argc, char* argv[])
                 // Print the sample value:
                 if (0 == i%10)
                 {
-                    // Get the sample value at the read pointer of the ring buffer
-                    // The sample value is 24Bit (little endian, encoded in 32bit). 
+                    // Get the sample value at the read pointer of the circular buffer
+                    // The sample value is 24Bit (little endian, encoded in 32bit).
                     nRawData = formatRawData( *(sint32*)nReadPos, (int)DATAWIDTH, 8);
                     fVal = (((double)(nRawData) * scaleinfo.fScaling)) - scaleinfo.fd;
-                    
+
                     printf("\rAdj.Range:%2.2G .. %2.2G[V]  RawData:%8.8X  ScaledData:%6.6f[V]", rangespan.rmin, rangespan.rmax, nRawData, fVal);
                     fflush(stdout);
                 }
@@ -240,7 +240,7 @@ int main(int argc, char* argv[])
                 // Increment the read pointer
                 nReadPos += sizeof(uint32);
             }
-            
+
             nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
 
@@ -253,12 +253,12 @@ int main(int argc, char* argv[])
                 int new_range_max;
                 int new_range_min;
                 int ec_range = 0;
-                
+
                 do {
                     new_range_max = (int)(rand() % 7 + 3);
                     new_range_min = (int)(rand() % 7 - 3);
                 } while (new_range_min > new_range_max);
-                
+
                 snprintf(range_str,sizeof(range_str), "%i..%i V", new_range_min, new_range_max );
                 ec_range = DeWeSetParamStruct_str( sTarget , "Range", range_str);
                 CheckError(ec_range);
@@ -284,7 +284,7 @@ int main(int argc, char* argv[])
                     return UnloadTrionApi(sErrorText);
                 }
 
-                // Get Adjusted Range 
+                // Get Adjusted Range
                 printf("tried to set : %s\n", range_str);
                 nErrorCode = GetAdjustedRange(sTarget, &rangespan);
                 if (ec_range != 0)
@@ -294,7 +294,7 @@ int main(int argc, char* argv[])
                 }
 
 #ifdef USE_API_SCALING
-                // Read Scale values from API for adj. range 
+                // Read Scale values from API for adj. range
                 nErrorCode = SetScaling(&scaleinfo, sTarget);
 #else
                 nErrorCode = CalcScaling(&scaleinfo, rangespan.rmin, rangespan.rmax, DATAWIDTH);
@@ -310,7 +310,7 @@ int main(int argc, char* argv[])
                 start = clock();
             }
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardId, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
         }
     }
@@ -325,7 +325,7 @@ int main(int argc, char* argv[])
 
     // Unload pxi_api.dll
     UnloadTrionApi("\nEnd Of Example\n");
- 
+
     return nErrorCode;
 }
 

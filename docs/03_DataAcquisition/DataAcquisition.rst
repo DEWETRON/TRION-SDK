@@ -14,7 +14,7 @@ Synchronous data and asynchronous data are kept in seperate ringbuffers.
 
 .. warning:: The actual layout of data within the buffer is specific to
     to each model-type of TRION, and can change in future with changes to
-    the firmare. 
+    the firmare.
     The rules regarding how different data-widths are handled, and how data
     is padded for dma-transfer are complex, module specific and subject to
     change.
@@ -32,10 +32,10 @@ Synchronous data uses the ringbuffer "BUFFER0".
 This buffer uses the i32/i64 commands, prefixed with CMD_BUFFER_0.
 (eg CMD_BUFFER_0_START_POINTER, BUFFER_0_END_POINTER, ...)
 
-.. figure:: _img/acquisition_ring_buffer.png
+.. figure:: _img/acquisition_circular_buffer.svg
     :align: center
 
-    Acquisition ringbuffer
+    Acquisition circular buffer
 
 Terminology
 ~~~~~~~~~~~
@@ -61,11 +61,11 @@ the resulting scan size would be:
 
 ScanSize := sizeof(AI0) + sizeof(AI1) + sizeof(CNT0)
 
-Scansize := 32Bit + 32Bit + 32Bit
+ScanSize := 32Bit + 32Bit + 32Bit
 
-Scansize := 4 Byte + 4 Byte + 4 Byte
+ScanSize := 4 Byte + 4 Byte + 4 Byte
 
-Scansize := 12 Byte
+ScanSize := 12 Byte
 
 So one scan would have the size of 12 Byte.
 
@@ -88,9 +88,9 @@ datatransfer from the on-board-memory of the TRION-modules into the RAM of
 the PC.
 
 The block-size can be set to any arbitrary value > 0. A standard use
-case would set it to SampleRate \* pollingIntervall. For Example:
+case would set it to SampleRate \* pollingInterval. For Example:
 
-BlockSize := SampleRate \* pollingIntervall
+BlockSize := SampleRate \* pollingInterval
 
 BlockSize := 2000 SPS \* 0.1 sec
 
@@ -105,7 +105,7 @@ Block Count
 This defines how many blocks the buffer shall be able to hold. This
 allows the application to control how big the backlog of data shall be
 and thus how much time the application may spend with tasks not related
-to the acquisition – so that peaks in computation times won’t lead to
+to the acquisition - so that peaks in computation times won't lead to
 lost acquisition data.
 
 It can be set to any value > 0, and is only limited by the total
@@ -124,7 +124,7 @@ Total Buffer Size
 The total buffer size is calculated based on the above described
 information.
 
-Buffersize := ScanSize \* BlockSize \* BlockCount
+BufferSize := ScanSize \* BlockSize \* BlockCount
 
 In our example:
 
@@ -132,7 +132,7 @@ BufferSize := 12 Bytes \* 200 \* 50
 
 BufferSize := 12 Bytes \* 10000
 
-Buffersize := 12000 Bytes
+BufferSize := 12000 Bytes
 
 
 Synchronous Data Channels
@@ -158,11 +158,11 @@ The application then can freely decide how to handle this error case.
 Buffer Setup and Buffer Ownership
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The buffer itself is completely maintained inside the API – so the
+The buffer itself is completely maintained inside the API - so the
 applications do not have to bother with allocation and de-allocation
 issues, which usually come with having a buffer.
 
-However – to allow the application a fine granulated control over the
+However - to allow the application a fine granulated control over the
 buffer, it is able and obligated to indicate to the API the desired size
 of the buffer in terms of logical units, by using the integer-based
 functions. The application decides, how many scans one block shall hold,
@@ -174,17 +174,17 @@ calculated by the API and the buffer is allocated.
 Buffer Readout from Application Point of View
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ring-buffer is exposed to the application by providing the related
+The circular-buffer is exposed to the application by providing the related
 pointer information.
 
 The API will provide:
 
--  Start-pointer of the ring buffer
--  End-Pointer of the ring buffer
+-  Start-pointer of the circular buffer
+-  End-Pointer of the circular buffer
 -  Pointer to the first unprocessed scan
 
 Together with the information how many unprocessed samples are available
-the application iterates directly over the ring buffer.
+the application iterates directly over the circular buffer.
 
 This approach allows a minimal internal overhead on data-access.
 
@@ -268,15 +268,11 @@ attributes and values of the returned scan descriptor XML document:
    +===================+==========================+======================================================+
    | ScanDescriptor    |                          | ScanDescriptor root element                          |
    +-------------------+--------------------------+------------------------------------------------------+
-   | BoardIdXX         |                          | Selected board elememt “BoardID0”                    |
+   | BoardIdXX         |                          | Selected board element “BoardID0”                    |
    +-------------------+--------------------------+------------------------------------------------------+
    | ScanDescription   |                          | Describes the scan for the requested board           |
    +-------------------+--------------------------+------------------------------------------------------+
-   |                   | version                  | Scan descriptor’s document version (Should be 3)     |
-   +-------------------+--------------------------+------------------------------------------------------+
-   |                   | buffer                   | which DMA buffer this snippet refers to              |
-   +-------------------+--------------------------+------------------------------------------------------+
-   |                   | buffer_direction         | eiter from_trion_board or to_trion_board (TRION_AO)  |
+   |                   | version                  | Scan descriptor's document version (Should be 3)     |
    +-------------------+--------------------------+------------------------------------------------------+
    |                   | scan_size                | The size of the scan expressed in unit               |
    +-------------------+--------------------------+------------------------------------------------------+
@@ -305,7 +301,7 @@ attributes and values of the returned scan descriptor XML document:
 .. warning::
     When requesting a scan descriptor with command “ScanDescriptor” (Version
     1), some boards may not be able to return a valid scan descriptor
-    for analog 24bit channels. 
+    for analog 24bit channels.
     When requesting a scan descriptor with command “ScanDescriptor_V2” (Version
     2), some boards may not be able to return a valid scan descriptor
     when used with channel-samplerate-dividers.
@@ -314,7 +310,7 @@ attributes and values of the returned scan descriptor XML document:
 
 .. warning::
     "ScanDescriptor" version 1 and 2 are deprecated and will be removed. They will return
-    the V3 document in future.
+    the V3 document in the future.
 
 
 Scan Descriptor Example Source Code
@@ -372,7 +368,7 @@ After acquisition start the samples from index 0 to 3 (== ADCDelay) are
 marked as invalid. There will be values, but because of AD conversion
 time they will be more or less randomized.
 
-The value of ADCDelay is board dependend and can be requested with
+The value of ADCDelay is board dependent and can be requested with
 CMD_BOARD_ADC_DELAY.
 
 .. note::

@@ -3,7 +3,7 @@
  *
  * This example should be used with a TRION-CAN board installed
  * or configured in the simulated system
- * 
+ *
  * Describes following:
  *  - Setup of 1 CAN channel
  *  - Print raw CAN frames + Timestamp
@@ -18,7 +18,7 @@
 #undef VERBOSE
 
 //needed Board-Type for this example
-const char* sBoardNameNeeded[] = {  "TRION-CAN",    
+const char* sBoardNameNeeded[] = {  "TRION-CAN",
                                     NULL};
 
 
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
     // 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 200);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);

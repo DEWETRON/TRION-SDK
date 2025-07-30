@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     // 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 1);
     CheckError(nErrorCode);
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 2000);
     CheckError(nErrorCode);
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
             int presamp = 0;
             //Sleep(3);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             CheckError(nErrorCode);
 
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &presamp );
             CheckError(nErrorCode);
 
-            // Free the ring buffer after read of all values
+            // Free the circular buffer after read of all values
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
 
@@ -280,19 +280,19 @@ int startblancing(int boardno)
 int process_samples(int boardno, int nosamples, const ScaleInfo* scaleinfo, BOOL show)
 {
     int nErrorCode = 0;
-    sint64 nReadPos=0;       // Pointer to the ring buffer read pointer
+    sint64 nReadPos=0;       // Pointer to the circular buffer read pointer
     int i = 0;
     int j = 0;
 
     sint64 nBufStartPos = 0;
-    sint64 nBufEndPos = 0;         // Last position in the ring buffer
+    sint64 nBufEndPos = 0;         // Last position in the circular buffer
     int nBufSize = 0;              // Total buffer size
     int nSizeScan = 0;
     sint32 nRawData = 0;
     double fVal = 0;
 
 
-    // Get detailed information about the ring buffer
+    // Get detailed information about the circular buffer
     // to be able to handle the wrap around
     // would be done before start_acq; but to make example easier to read processed here
     nErrorCode = DeWeGetParam_i64( boardno, CMD_BUFFER_START_POINTER, &nBufStartPos);
@@ -313,7 +313,7 @@ int process_samples(int boardno, int nosamples, const ScaleInfo* scaleinfo, BOOL
     for (i = 0; i < nosamples; ++i)
     {
 
-        // Handle the ring buffer wrap around
+        // Handle the circular buffer wrap around
         if (nReadPos >= nBufEndPos)
         {
             nReadPos -= nBufSize;
@@ -323,7 +323,7 @@ int process_samples(int boardno, int nosamples, const ScaleInfo* scaleinfo, BOOL
         //iterate over all channels
         for ( j = 0; j < nSizeScan; j+=4 )
         {
-            // Get the sample value at the read pointer of the ring buffer
+            // Get the sample value at the read pointer of the circular buffer
             // The sample value is 24Bit (little endian, encoded in 32bit).
             nRawData = formatRawData( *(sint32*)(nReadPos + j), (int)24, 8 );
             fVal = ((((double)(nRawData) * scaleinfo->fScaling)) - scaleinfo->fd);

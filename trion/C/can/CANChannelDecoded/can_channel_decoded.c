@@ -3,7 +3,7 @@
  *
  * This example should be used with a TRION-CAN board installed
  * or configured in the simulated system
- * 
+ *
  * Describes following:
  *  - Setup of 1 CAN channel
  *  - Print raw CAN frames + Timestamp
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 
     // Build a string in the format: "BoardID0", "BoardID1", ...
     snprintf(sBoardID, sizeof(sBoardID),"BoardID%d", nBoardID);
- 
+
     // Open & Reset the board
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_OPEN_BOARD, 0 );
     CheckError(nErrorCode);
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     {
         return UnloadTrionApi(NULL);
     }
-    
+
     // Set configuration to use one board in standalone operation
     snprintf(sChannelStr, sizeof(sChannelStr),"%s/AcqProp", sBoardID);
     nErrorCode = DeWeSetParamStruct_str( sChannelStr, "OperationMode", "Slave");
@@ -90,18 +90,18 @@ int main(int argc, char* argv[])
     snprintf(sChannelStr, sizeof(sChannelStr),"%s/BoardCNT0", sBoardID);
     nErrorCode = DeWeSetParamStruct_str( sChannelStr , "Used", "True");
     CheckError(nErrorCode);
-                                                                       
+
     // Setup the acquisition buffer: Size = BLOCK_SIZE * BLOCK_COUNT
     // For the default sample-rate 2000 samples per second, 200 is a buffer for
     // 0.1 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_SIZE, 200);
     CheckError(nErrorCode);
 
-    // Set the ring buffer size to 50 blocks. So ring buffer can store samples
+    // Set the circular buffer size to 50 blocks. So the circular buffer can store samples
     // for 5 seconds
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_BLOCK_COUNT, 50);
     CheckError(nErrorCode);
-    
+
     // configure the CAN-channel 0
     // only two properties that need to be changed for this example are
     // SyncCounter: set it to 10Mhz, so the CAN Data will have timestamps with
@@ -199,11 +199,11 @@ int main(int argc, char* argv[])
             // any longer or shorter timespan is also feasible
             Sleep(100);
 
-            // Get the number of samples already stored in the ring buffer
+            // Get the number of samples already stored in the circular buffer
             nErrorCode = DeWeGetParam_i32( nBoardID, CMD_BUFFER_AVAIL_NO_SAMPLE, &nAvailSamples );
             CheckError(nErrorCode);
 
-            // Free the ring buffer
+            // Free the circular buffer
             nErrorCode = DeWeSetParam_i32( nBoardID, CMD_BUFFER_FREE_NO_SAMPLE, nAvailSamples );
             CheckError(nErrorCode);
 
@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
                     // around after roughly 7 minutes. This Warp around has to be handled by the
                     // application on raw data
                     printf("[%012.7f] MSGID: %8.8X   Port: %d   Errorcount: %d   DataLen: %d   Data: %2.2X %2.2X %2.2X %2.2X   %2.2X %2.2X %2.2X %2.2X\n",
-                                timestamp,                            
+                                timestamp,
                                 aDecodedFrame[i].MessageId,
                                 aDecodedFrame[i].CanNo,
                                 aDecodedFrame[i].ErrorCounter,
@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
     // Close the board connection
     nErrorCode = DeWeSetParam_i32( nBoardID, CMD_CLOSE_BOARD, 0);
     CheckError(nErrorCode);
-    
+
     // Unload pxi_api.dll
     UnloadTrionApi("\nEnd Of Example\n");
 
