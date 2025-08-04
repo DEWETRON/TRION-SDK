@@ -12,7 +12,9 @@ namespace TrionApiUtils
         {
             if ((int)error_code < 0)
             {
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"TRION API Warning: {user_message} {error_code}");
+                Console.ResetColor();
                 return;
             }
             if ((int)error_code == 0)
@@ -21,7 +23,9 @@ namespace TrionApiUtils
             }
             if ((int)error_code > 0)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"TRION API Error: {user_message} {error_code}");
+                Console.ResetColor();
                 TrionApi.CloseBoards();
                 TrionApi.Uninitialize();
                 Environment.Exit((int)error_code);
