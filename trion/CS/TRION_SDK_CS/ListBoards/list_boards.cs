@@ -3,6 +3,7 @@ using Trion;
 
 class ListBoardsOptions
 {
+    public int NumberOfBoards { get; set; } = 0;
     public bool UseAllCommands { get; set; }
     public bool UseBoardReset { get; set; }
     public bool UseThreads { get; set; }
@@ -70,30 +71,183 @@ class ListBoards
         Console.WriteLine("  --cache  => {0}", opts.UseMergeCache ? "yes" : "no");
     }
 
-    static void PrintBoardInfo(int nBoardID, bool showKey)
+    static void DoListBoards(ListBoardsOptions opts)
     {
-        string boardTarget = $"BoardID{nBoardID}";
-        string sysInfoTarget = $"{boardTarget}/boardproperties/SystemInfo";
-        string boardInfoTarget = $"{boardTarget}/boardproperties/BoardInfo";
-        string encInfoTarget = $"{boardTarget}/boardproperties/SystemInfo/EnclosureInfo";
-
-        var (errSlot, slotNoStr) = TrionApi.DeWeGetParamXML_String(sysInfoTarget, "SlotNo");
-        int.TryParse(slotNoStr, out global::System.Int32 slotNo);
-
-        var (errEnc, encIdStr) = TrionApi.DeWeGetParamXML_String(encInfoTarget, "EnclosureID");
-        int.TryParse(encIdStr, out global::System.Int32 encId);
-
-        var (errName, boardName) = TrionApi.DeWeGetParamStruct_String(boardTarget, "BoardName");
-        var (errSerial, serialNo) = TrionApi.DeWeGetParamXML_String(boardInfoTarget, "SerialNumber");
-
-        if (showKey)
+        var current_number_of_boards = opts.NumberOfBoards;
+        Trion.TrionError error;
+        if (opts.NumberOfBoards == 0)
         {
-            var (errKey, key) = TrionApi.DeWeGetParamStruct_String(boardTarget, "key");
-            Console.WriteLine("{0,-8} {1,-7} {2,-7} {3,-30} {4} <{5}>", encId, slotNo, nBoardID, boardName, serialNo, key);
+            Console.WriteLine("No TRION board found");
+            TrionApi.Uninitialize();
+            Environment.Exit(0);
+        }
+        if (opts.NumberOfBoards > 0)
+        {
+            Console.WriteLine("Trion API is set to use real boards");
         }
         else
         {
-            Console.WriteLine("{0,-8} {1,-7} {2,-7} {3,-30} {4}", encId, slotNo, nBoardID, boardName, serialNo);
+            Console.WriteLine("Trion API is set to use simulated boards");
+        }
+
+        current_number_of_boards = Math.Abs(current_number_of_boards);
+
+        // get the config path
+        (error, string config_path) = TrionApi.DeWeGetParamStruct_String("System/config", "Path");
+        if (error != TrionError.NONE || string.IsNullOrEmpty(config_path))
+        {
+            Console.WriteLine("Error retrieving config path: " + Trion.API.DeWeErrorConstantToString(error));
+        }
+        else
+        {
+            Console.WriteLine("Trion API config path       : " + config_path);
+        }
+
+        // get the log path
+        (error, string log_path) = TrionApi.DeWeGetParamStruct_String("System/log", "Path");
+        if (error != TrionError.NONE || string.IsNullOrEmpty(log_path))
+        {
+            Console.WriteLine("Error retrieving log path : " + Trion.API.DeWeErrorConstantToString(error));
+        }
+        else
+        {
+            Console.WriteLine("Trion API log path          : " + log_path);
+        }
+
+        // get the api backup path
+        (error, string backup_path) = TrionApi.DeWeGetParamStruct_String("System/backup", "Path");
+        if (error != TrionError.NONE || string.IsNullOrEmpty(backup_path))
+        {
+            Console.WriteLine("Error retrieving backup path: " + Trion.API.DeWeErrorConstantToString(error));
+        }
+        else
+        {
+            Console.WriteLine("Trion API backup path       : " + backup_path);
+        }
+
+        // get enclosure name
+        (error, string enclosure_name) = TrionApi.DeWeGetParamXML_String("BoardID0/boardproperties/SystemInfo/EnclosureInfo", "Name");
+        if (error != TrionError.NONE || string.IsNullOrEmpty(enclosure_name))
+        {
+            Console.WriteLine("Error retrieving enclosure name: " + Trion.API.DeWeErrorConstantToString(error));
+        }
+        else
+        {
+            Console.WriteLine("Enclosure name: " + enclosure_name);
+        }
+
+        Console.WriteLine("{0,-8} {1,-7} {2,-7} {3,-30} {4}", "EncID", "SlotNo", "BoardID", "Name", "SerialNo");
+        Console.WriteLine("--------------------------------------------------------------------------");
+
+        if (opts.UseAllCommands)
+        {
+            error = TrionApi.DeWeSetParam_i32(0, Trion.TrionCommand.OPEN_BOARD_ALL, 0);
+            if (error != TrionError.NONE)
+            {
+                Console.WriteLine("Failed to open all boards: " + Trion.API.DeWeErrorConstantToString(error));
+                return;
+            }
+        }
+        else
+        {
+            for (int current_board_id = 0; current_board_id < current_number_of_boards; ++current_board_id)
+            {
+                error = TrionApi.DeWeSetParam_i32(current_board_id, Trion.TrionCommand.OPEN_BOARD, 0);
+                if (error != TrionError.NONE)
+                {
+                    Console.WriteLine($"Failed to open board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                    continue;
+                }
+            }
+        }
+
+        // iterate all boards for reset
+        if (opts.UseBoardReset)
+        {
+            if (opts.UseAllCommands)
+            {
+                error = TrionApi.DeWeSetParam_i32(0, Trion.TrionCommand.RESET_BOARD_ALL, 0);
+                if (error != TrionError.NONE)
+                {
+                    Console.WriteLine("Failed to reset all boards: " + Trion.API.DeWeErrorConstantToString(error));
+                    return;
+                }
+            }
+            else
+            {
+                for (int current_board_id = 0; current_board_id < current_number_of_boards; ++current_board_id)
+                {
+                    error = TrionApi.DeWeSetParam_i32(current_board_id, Trion.TrionCommand.RESET_BOARD, 0);
+                    if (error != TrionError.NONE)
+                    {
+                        Console.WriteLine($"Failed to reset board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // iterate all boards for info
+        for (int current_board_id = 0; current_board_id < current_number_of_boards; ++current_board_id)
+        {
+            // get the enclosure ID:
+            // Path to <SystemInfo> element in Board[0..127]Properties.xml
+            (error, string enclosure_id) = TrionApi.DeWeGetParamXML_String($"BoardID{current_board_id}/boardproperties/SystemInfo/EnclosureInfo", "EnclosureID");
+            if (error != TrionError.NONE || string.IsNullOrEmpty(enclosure_id))
+            {
+                Console.WriteLine($"Failed to get enclosure ID for board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                continue;
+            }
+
+            // get the slot number
+            // Path to <SystemInfo> element in Board[0..127]Properties.xml
+            //   -> BoardID%d/SystemInfo  (root element <Properies> is ignored by API)
+            (error, string slot_no) = TrionApi.DeWeGetParamXML_String($"BoardID{current_board_id}/boardproperties/SystemInfo", "SlotNo");
+            if (error != TrionError.NONE || string.IsNullOrEmpty(slot_no))
+            {
+                Console.WriteLine($"Failed to get slot number for board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                continue;
+            }
+
+            // slot id for internal controller device (DEWE3)
+            (error, string segment_no) = TrionApi.DeWeGetParamXML_String($"BoardID{current_board_id}/boardproperties/SystemInfo", "InternalSegmentNo");
+            if (error != TrionError.NONE || string.IsNullOrEmpty(segment_no))
+            {
+                Console.WriteLine($"Failed to get internal segment number for board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                continue;
+            }
+
+            // request the TRION board name
+            (error, string board_name) = TrionApi.DeWeGetParamStruct_String($"BoardID{current_board_id}", "BoardName");
+            if (error != TrionError.NONE || string.IsNullOrEmpty(board_name))
+            {
+                Console.WriteLine($"Failed to get board name for board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                continue;
+            }
+
+            // get the board serial number (for simulated boards this is always 12345678)
+            (error, string serial_no) = TrionApi.DeWeGetParamXML_String($"BoardID{current_board_id}/boardproperties/BoardInfo", "SerialNumber");
+            if (error != TrionError.NONE || string.IsNullOrEmpty(serial_no))
+            {
+                Console.WriteLine($"Failed to get serial number for board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                continue;
+            }
+
+            // print properties
+            if (opts.ShowKey)
+            {
+                (error, string key) = TrionApi.DeWeGetParamStruct_String($"BoardID{current_board_id}", "key");
+                if (error != TrionError.NONE || string.IsNullOrEmpty(key))
+                {
+                    Console.WriteLine($"Failed to get key for board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                    continue;
+                }
+                Console.WriteLine($"  {enclosure_id,-7} {slot_no,-2}[{segment_no}] {current_board_id,5}      {board_name,-30} {serial_no,-12} <{key}>");
+            }
+            else
+            {
+                Console.WriteLine($"  {enclosure_id,-7} {slot_no,-2}[{segment_no}] {current_board_id,5}      {board_name,-30} {serial_no,-12}");
+            }
         }
     }
 
@@ -103,8 +257,8 @@ class ListBoards
         for (int loop = 0; loop < opts.TestLoop; ++loop)
         {
             Console.WriteLine($"Test Loop: {loop}\n");
-            int nNoOfBoards = TrionApi.Initialize();
-            if (nNoOfBoards == 0)
+            opts.NumberOfBoards = TrionApi.Initialize();
+            if (opts.NumberOfBoards == 0)
             {
                 Console.WriteLine("No TRION board found");
                 continue;
@@ -147,22 +301,28 @@ class ListBoards
             }
 
             PrintOptionsUsed(opts);
+            DoListBoards(opts);
 
-            if (nNoOfBoards < 0)
+            if (opts.UseAllCommands)
             {
-                Console.WriteLine("Trion API is set to use simulated boards");
+                var error = TrionApi.DeWeSetParam_i32(0, Trion.TrionCommand.CLOSE_BOARD_ALL, 0);
+                if (error != TrionError.NONE)
+                {
+                    Console.WriteLine("Failed to close all boards: " + Trion.API.DeWeErrorConstantToString(error));
+                }
             }
             else
             {
-                Console.WriteLine("Trion API is set to use real boards");
+                for (int current_board_id = 0; current_board_id < opts.NumberOfBoards; ++current_board_id)
+                {
+                    var error = TrionApi.DeWeSetParam_i32(current_board_id, Trion.TrionCommand.CLOSE_BOARD, 0);
+                    if (error != TrionError.NONE)
+                    {
+                        Console.WriteLine($"Failed to close board {current_board_id}: " + Trion.API.DeWeErrorConstantToString(error));
+                    }
+                }
             }
-            nNoOfBoards = Math.Abs(nNoOfBoards);
-            Console.WriteLine("{0,-8} {1,-7} {2,-7} {3,-30} {4}", "EncID", "SlotNo", "BoardID", "Name", "SerialNo");
-            Console.WriteLine("--------------------------------------------------------------------------");
-            for (int nBoardID = 0; nBoardID < nNoOfBoards; ++nBoardID)
-            {
-                PrintBoardInfo(nBoardID, opts.ShowKey);
-            }
+
             TrionApi.Uninitialize();
         }
     }
