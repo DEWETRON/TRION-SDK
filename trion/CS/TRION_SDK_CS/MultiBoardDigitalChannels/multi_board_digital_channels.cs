@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using TrionApiUtils;
 using trion_api = Trion;
 
 namespace Examples
@@ -16,11 +17,6 @@ namespace Examples
         private const int MEMSIZE = CHANNEL_SIZE * NUM_OF_CHANNELS * sizeof(Int32);
         private static readonly int[] CHANNEL_BUFFER = new int[MEMSIZE];
 
-        private static byte[] StringToByteArray(string str)
-        {
-            System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
-            return enc.GetBytes(str);
-        }
 
         private static string ByteArrayToString(byte[] arr)
         {
@@ -53,25 +49,49 @@ namespace Examples
         static int Main(string[] args)
         {
 
-            // select the TRION backend
-            // this is required to use the TRION API
-            trion_api.API.DeWeConfigure(trion_api.API.Backend.TRION);
+            var number_of_boards = TrionApi.Initialize();
 
-            // initialize the driver
-            // this will also detect the number of TRION boards connected
-            Trion.TrionError error_code = trion_api.API.DeWeDriverInit(out Int32 board_count);
-            board_count = Math.Abs(board_count); // ensure board count is positive
+            if (number_of_boards == 0)
+            {
+                Console.WriteLine("No TRION board found");
+                TrionApi.Uninitialize();
+                return 1;
+            }
+            if (number_of_boards < 0)
+            {
+                Console.WriteLine($"Found {Math.Abs(number_of_boards)} Simulated TRION boards");
+            }
+            else
+            {
+                Console.WriteLine($"Found {number_of_boards} real TRION boards");
+            }
+            number_of_boards = Math.Abs(number_of_boards);
 
-            // check for errors during initialization
-            if (error_code != Trion.TrionError.NONE)
-            { Console.WriteLine($"Driver initialization error: {error_code}"); return 1; }
-
+            // if a board ID is provided, validate it
+            int board_id = 0;
+            if (args.Length > 0)
+            {
+                board_id = Convert.ToInt32(args[0]);
+                if ((board_id >= number_of_boards) || (board_id < 0))
+                {
+                    Console.WriteLine($"Invalid board ID: {board_id}");
+                    Console.WriteLine($"Board count: {number_of_boards}");
+                    Console.WriteLine("Please provide a valid board ID as an argument.");
+                    TrionApi.Uninitialize();
+                    return 1;
+                }
+            }
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"Using board ID: {board_id}");
+            Console.ResetColor();
 
             // if no boards are found, exit the program
-            if (board_count < 2)
+            if (number_of_boards < 2)
             {
-                Console.WriteLine("Too few Trion cards found. Aborting...\n");
-                Console.WriteLine("Please configure a system using the DEWE2 Explorer.\n");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Too few Trion cards found. Aborting...");
+                Console.WriteLine("Please configure a system using the DEWE2 Explorer.");
+                Console.ResetColor();
 
                 return 1;
             }
@@ -84,123 +104,89 @@ namespace Examples
             {
                 board_ids[0] = Convert.ToInt32(args[0]);
                 board_ids[1] = Convert.ToInt32(args[1]);
-                if ((board_ids[1] >= Math.Abs(board_count)) || (board_ids[0] < 0) || (board_ids[1] < 0) || (board_ids[0] >= Math.Abs(board_count)))
+                if ((board_ids[1] >= Math.Abs(number_of_boards)) || (board_ids[0] < 0) || (board_ids[1] < 0) || (board_ids[0] >= Math.Abs(number_of_boards)))
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Invalid board ID: {board_ids[0]} or {board_ids[1]}");
-                    Console.WriteLine($"Board count: {board_count}");
+                    Console.WriteLine($"Board count: {number_of_boards}");
                     Console.WriteLine("Please provide a valid board ID as an argument.");
+                    Console.ResetColor();
                     return 1;
                 }
             }
 
             // Open & Reset the first board
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.OPEN_BOARD, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to open board: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.RESET_BOARD, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to reset board: {error_code}"); return 1; }
+            var error_code = TrionApi.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.OPEN_BOARD, 0);
+            Utils.CheckErrorCode(error_code, $"Failed to open board {board_ids[0]}");
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.RESET_BOARD, 0);
+            Utils.CheckErrorCode(error_code, $"Failed to reset board {board_ids[0]}");
 
             // Open & Reset the second board
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.OPEN_BOARD, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to open board: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.RESET_BOARD, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to reset board: {error_code}"); return 1; }
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.OPEN_BOARD, 0);
+            Utils.CheckErrorCode(error_code, $"Failed to open board {board_ids[1]}");
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.RESET_BOARD, 0);
+            Utils.CheckErrorCode(error_code, $"Failed to reset board {board_ids[1]}");
 
             // Set configuration to use one board in standalone operation
             string target_01 = $"BoardID{board_ids[0]}/AcqProp"; // master
             string target_02 = $"BoardID{board_ids[1]}/AcqProp"; // slave
 
             // set first board as master and second board as slave
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "OperationMode", "Master");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set OperationMode: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "ExtTrigger", "False");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set ExtTrigger: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "ExtClk", "False");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set ExtClk: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "SampleRate", SAMPLE_RATE.ToString());
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set SampleRate: {error_code}"); return 1; }
+            error_code = TrionApi.DeWeSetParamStruct(target_01, "OperationMode", "Master");
+            Utils.CheckErrorCode(error_code, $"Failed to set OperationMode for board {board_ids[0]}");
+            error_code = TrionApi.DeWeSetParamStruct(target_01, "ExtTrigger", "False");
+            Utils.CheckErrorCode(error_code, $"Failed to set ExtTrigger for board {board_ids[0]}");
+            error_code = TrionApi.DeWeSetParamStruct(target_01, "ExtClk", "False");
+            Utils.CheckErrorCode(error_code, $"Failed to set ExtClk for board {board_ids[0]}");
+            error_code = TrionApi.DeWeSetParamStruct(target_01, "SampleRate", SAMPLE_RATE.ToString());
+            Utils.CheckErrorCode(error_code, $"Failed to set SampleRate for board {board_ids[0]}");
 
             string discret0_target = $"BoardID{board_ids[0]}/Discret0";
-            error_code = trion_api.API.DeWeSetParamStruct_str(discret0_target, "Used", "True");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to enable Discret0 on board {board_ids[0]}: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(discret0_target, "Mode", "DIO");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set Discret0 mode on board {board_ids[0]}: {error_code}"); return 1; }
+            error_code = TrionApi.DeWeSetParamStruct(discret0_target, "Used", "True");
+            Utils.CheckErrorCode(error_code, $"Failed to enable Discret0 on board {board_ids[0]}");
+            error_code = TrionApi.DeWeSetParamStruct(discret0_target, "Mode", "DIO");
+            Utils.CheckErrorCode(error_code, $"Failed to set Discret0 mode on board {board_ids[0]}");
 
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set BUFFER_0_BLOCK_SIZE: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.BUFFER_0_BLOCK_COUNT, BLOCK_COUNT);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set BUFFER_0_BLOCK_COUNT: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to update parameters: {error_code}"); return 1; }
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
+            Utils.CheckErrorCode(error_code, $"Failed to set BUFFER_0_BLOCK_SIZE for board {board_ids[0]}");
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.BUFFER_0_BLOCK_COUNT, BLOCK_COUNT);
+            Utils.CheckErrorCode(error_code, $"Failed to set BUFFER_0_BLOCK_COUNT for board {board_ids[0]}");
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
+            Utils.CheckErrorCode(error_code, $"Failed to update parameters for board {board_ids[0]}");
 
             // set second board as slave
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "OperationMode", "Slave");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set OperationMode: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "ExtTrigger", "False");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set ExtTrigger: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "ExtClk", "False");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set ExtClk: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "SampleRate", SAMPLE_RATE.ToString());
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set SampleRate: {error_code}"); return 1; }
+            error_code = TrionApi.DeWeSetParamStruct(target_02, "OperationMode", "Slave");
+            Utils.CheckErrorCode(error_code, $"Failed to set OperationMode for board {board_ids[1]}");
+            error_code = TrionApi.DeWeSetParamStruct(target_02, "ExtTrigger", "False");
+            Utils.CheckErrorCode(error_code, $"Failed to set ExtTrigger for board {board_ids[1]}");
+            error_code = TrionApi.DeWeSetParamStruct(target_02, "ExtClk", "False");
+            Utils.CheckErrorCode(error_code, $"Failed to set ExtClk for board {board_ids[1]}");
+            error_code = TrionApi.DeWeSetParamStruct(target_02, "SampleRate", SAMPLE_RATE.ToString());
+            Utils.CheckErrorCode(error_code, $"Failed to set SampleRate for board {board_ids[1]}");
 
             string discret1_target = $"BoardID{board_ids[1]}/Discret0";
-            error_code = trion_api.API.DeWeSetParamStruct_str(discret1_target, "Used", "True");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to enable Discret0 on board {board_ids[1]}: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParamStruct_str(discret1_target, "Mode", "DIO");
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set Discret0 mode on board {board_ids[1]}: {error_code}"); return 1; }
+            error_code = TrionApi.DeWeSetParamStruct(discret1_target, "Used", "True");
+            Utils.CheckErrorCode(error_code, $"Failed to enable Discret0 on board {board_ids[1]}");
+            error_code = TrionApi.DeWeSetParamStruct(discret1_target, "Mode", "DIO");
+            Utils.CheckErrorCode(error_code, $"Failed to set Discret0 mode on board {board_ids[1]}");
 
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set BUFFER_0_BLOCK_SIZE: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.BUFFER_0_BLOCK_COUNT, BLOCK_COUNT);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to set BUFFER_0_BLOCK_COUNT: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
-            if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to update parameters: {error_code}"); return 1; }
-            error_code = trion_api.API.DeWeGetParam_i64(board_ids[0], Trion.TrionCommand.BUFFER_0_ONE_SCAN_SIZE, out scan_size[0]);
-            error_code = trion_api.API.DeWeGetParam_i64(board_ids[1], Trion.TrionCommand.BUFFER_0_ONE_SCAN_SIZE, out scan_size[1]);
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
+            Utils.CheckErrorCode(error_code, $"Failed to set BUFFER_0_BLOCK_SIZE for board {board_ids[1]}");
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.BUFFER_0_BLOCK_COUNT, BLOCK_COUNT);
+            Utils.CheckErrorCode(error_code, $"Failed to set BUFFER_0_BLOCK_COUNT for board {board_ids[1]}");
+            error_code = TrionApi.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
+            Utils.CheckErrorCode(error_code, $"Failed to update parameters for board {board_ids[1]}");
+            (error_code, scan_size[0]) = TrionApi.DeWeGetParam_i64(board_ids[0], Trion.TrionCommand.BUFFER_0_ONE_SCAN_SIZE);
+            (error_code, scan_size[1]) = TrionApi.DeWeGetParam_i64(board_ids[1], Trion.TrionCommand.BUFFER_0_ONE_SCAN_SIZE);
 
-            byte[] scan_descriptor = new byte[5000];
+            string scan_descriptor = "";
+            (error_code, scan_descriptor) = TrionApi.DeWeGetParamStruct_String(target_01, "ScanDescriptor");
+            Utils.CheckErrorCode(error_code, $"Failed to get ScanDescriptor for board {board_ids[0]}");
 
-            error_code = trion_api.API.DeWeSetParam_i64(board_ids[1], Trion.TrionCommand.START_ACQUISITION, 0);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Failed to start acquisition: {error_code}");
-
-                // Stop data acquisition
-                error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.STOP_ACQUISITION, 0);
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
-
-                // Close the board connection
-                error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.CLOSE_BOARD, 0);
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
-
-                // Uninitialize
-                error_code = trion_api.API.DeWeDriverDeInit();
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
-
-                return (int)error_code;
-            }
-
-            // start master
-            error_code = trion_api.API.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.START_ACQUISITION, 0);
-            if (error_code != Trion.TrionError.NONE)
-            {
-                Console.WriteLine($"Failed to start acquisition: {error_code}");
-
-                // Stop data acquisition
-                error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.STOP_ACQUISITION, 0);
-                error_code = trion_api.API.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.STOP_ACQUISITION, 0);
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
-
-                // Close the board connection
-                error_code = trion_api.API.DeWeSetParam_i32(board_ids[1], Trion.TrionCommand.CLOSE_BOARD, 0);
-                error_code = trion_api.API.DeWeSetParam_i32(board_ids[0], Trion.TrionCommand.CLOSE_BOARD, 0);
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
-
-                // Uninitialize
-                error_code = trion_api.API.DeWeDriverDeInit();
-                if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
-
-                return (int)error_code;
-            }
+            error_code = TrionApi.DeWeSetParam_i64(board_ids[1], Trion.TrionCommand.START_ACQUISITION, 0);
+            Utils.CheckErrorCode(error_code, $"Failed to start acquisition on board {board_ids[1]}");
+            error_code = TrionApi.DeWeSetParam_i64(board_ids[0], Trion.TrionCommand.START_ACQUISITION, 0);
+            Utils.CheckErrorCode(error_code, $"Failed to start acquisition on board {board_ids[0]}");
 
             long[] avail_samples = new long[NUM_OF_BOARDS];
             int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
@@ -212,28 +198,28 @@ namespace Examples
                     int board_id = board_ids[board_number];
 
                     // get buffer details
-                    error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER, out long buffer_end_pos);
+                    (error_code, buffer_end_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
                     if (error_code != Trion.TrionError.NONE) continue;
-                    error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE, out long buffer_size);
+                    (error_code, buffer_size) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
                     if (error_code != Trion.TrionError.NONE) continue;
 
                     bool use_wait = true; // use wait for available samples
                     if (use_wait)
                     {
                         // Wait for available samples
-                        error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE, out avail_samples[board_number]);
+                        (error_code, avail_samples[board_number]) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
                         if (error_code != Trion.TrionError.NONE || avail_samples[board_number] <= 0) continue;
                     }
                     else
                     {
                         // Polling for available samples
                         System.Threading.Thread.Sleep(polling_interval_ms);
-                        error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out avail_samples[board_number]);
+                        (error_code, avail_samples[board_number]) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
                         if (error_code != Trion.TrionError.NONE || avail_samples[board_number] <= 0) continue;
                     }
 
                     // Get the current read position of the circular buffer
-                    error_code = trion_api.API.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS, out long read_pos);
+                    (error_code, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
                     if (error_code != Trion.TrionError.NONE) continue;
 
                     for (int i = 0; i < avail_samples[board_number]; i++)
