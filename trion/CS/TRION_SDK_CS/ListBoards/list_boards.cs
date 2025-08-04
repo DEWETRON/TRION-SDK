@@ -109,31 +109,18 @@ class ListBoards
                 Console.WriteLine("No TRION board found");
                 continue;
             }
-            // enable threads if requested
-             if (nUseThreads)
-            {
-                nErrorCode = DeWeSetParamStruct_str("driver/api/config/thread", "Enabled", "true");
-                CheckError(nErrorCode);
-
-                if (sThreadPoolSize)
-                {
-                    nErrorCode = DeWeSetParamStruct_str("driver/api/config/thread", "PoolSize", sThreadPoolSize);
-                    CheckError(nErrorCode);
-                }
-
-            }
 
             // enable threading if requested --------------------------------------------------------------------------
             if (opts.UseThreads)
             {
-                var errorCode = TrionApi.DeWeSetParamStruct_str("driver/api/config/thread", "Enabled", "true");
+                var errorCode = TrionApi.DeWeSetParamStruct("driver/api/config/thread", "Enabled", "true");
                 if (errorCode != TrionError.NONE)
                 {
                     Console.WriteLine("Failed to enable threading: " + Trion.API.DeWeErrorConstantToString(errorCode));
                 }
                 if (!string.IsNullOrEmpty(opts.ThreadPoolSize))
                 {
-                    errorCode = TrionApi.DeWeSetParamStruct_str("driver/api/config/thread", "PoolSize", opts.ThreadPoolSize);
+                    errorCode = TrionApi.DeWeSetParamStruct("driver/api/config/thread", "PoolSize", opts.ThreadPoolSize);
                     if (errorCode != TrionError.NONE)
                     {
                         Console.WriteLine("Failed to set thread pool size: " + Trion.API.DeWeErrorConstantToString(errorCode));
@@ -144,7 +131,7 @@ class ListBoards
             // enable merge cache if requested ------------------------------------------------------------------------
             if (opts.UseMergeCache)
             {
-                var errorCode = TrionApi.DeWeSetParamStruct_str("driver/api/config/xml", "AllowCachedMergeResult", "true");
+                var errorCode = TrionApi.DeWeSetParamStruct("driver/api/config/xml", "AllowCachedMergeResult", "true");
                 if (errorCode != TrionError.NONE)
                 {
                     Console.WriteLine("Failed to enable merge cache: " + Trion.API.DeWeErrorConstantToString(errorCode));
@@ -152,7 +139,7 @@ class ListBoards
             }
             else
             {
-                var errorCode = TrionApi.DeWeSetParamStruct_str("driver/api/config/xml", "AllowCachedMergeResult", "false");
+                var errorCode = TrionApi.DeWeSetParamStruct("driver/api/config/xml", "AllowCachedMergeResult", "false");
                 if (errorCode != TrionError.NONE)
                 {
                     Console.WriteLine("Failed to disable merge cache: " + Trion.API.DeWeErrorConstantToString(errorCode));

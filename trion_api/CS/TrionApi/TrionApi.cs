@@ -100,6 +100,11 @@ public class TrionApi
         }
     }
 
+    public static Trion.TrionError DeWeSetParamStruct(string target, string item, string var)
+    {
+        return Trion.API.DeWeSetParamStruct_str(target, item, var);
+    }
+
     // Alternative version with manual buffer size (for backwards compatibility or special cases)
     public static (Trion.TrionError error, string value) DeWeGetParamStruct_String(string target, string item, uint bufferSize)
     {
