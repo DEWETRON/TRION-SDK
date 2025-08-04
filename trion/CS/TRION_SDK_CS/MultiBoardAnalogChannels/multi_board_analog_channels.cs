@@ -32,7 +32,7 @@ namespace Examples
         {
             //fixed byte srate[27];
             byte[] srate = new byte[255];
-            Trion.TrionError error = trion_api.API.DeWeGetParamStruct_str(target, "SampleRate", srate, 255);
+            Trion.TrionError error = TrionApi.DeWeGetParamStruct_str(target, "SampleRate", srate, 255);
             sample_rate = ByteArrayToString(srate);
             return error;
         }
@@ -51,19 +51,23 @@ namespace Examples
 
         static int Main(string[] args)
         {
-            trion_api.API.DeWeConfigure(trion_api.API.Backend.TRION);
+            var number_of_boards = TrionApi.Initialize();
 
-            Trion.TrionError error_code = trion_api.API.DeWeDriverInit(out Int32 board_count);
-            board_count = Math.Abs(board_count);
-
-            Utils.CheckErrorCode(error_code, "Driver initialization error");
-
-            if (board_count < 2)
+            if (number_of_boards == 0)
             {
-                Console.WriteLine("Too few Trion cards found. Aborting...\n");
-                Console.WriteLine("Please configure a system using the DEWE2 Explorer.\n");
+                Console.WriteLine("No TRION board found");
+                TrionApi.Uninitialize();
                 return 1;
             }
+            if (number_of_boards < 0)
+            {
+                Console.WriteLine($"Found {Math.Abs(number_of_boards)} Simulated TRION boards");
+            }
+            else
+            {
+                Console.WriteLine($"Found {number_of_boards} real TRION boards");
+            }
+            number_of_boards = Math.Abs(number_of_boards);
 
             int board_id1 = 0;
             int board_id2 = 1;
@@ -80,43 +84,43 @@ namespace Examples
                 }
             }
 
-            error_code = trion_api.API.DeWeSetParam_i32(board_id1, Trion.TrionCommand.OPEN_BOARD, 0);
+            error_code = TrionApi.DeWeSetParam_i32(board_id1, Trion.TrionCommand.OPEN_BOARD, 0);
             Utils.CheckErrorCode(error_code, $"Failed to open board {board_id1}");
-            error_code = trion_api.API.DeWeSetParam_i32(board_id1, Trion.TrionCommand.RESET_BOARD, 0);
+            error_code = TrionApi.DeWeSetParam_i32(board_id1, Trion.TrionCommand.RESET_BOARD, 0);
             Utils.CheckErrorCode(error_code, $"Failed to reset board {board_id1}");
 
-            error_code = trion_api.API.DeWeSetParam_i32(board_id2, Trion.TrionCommand.OPEN_BOARD, 0);
+            error_code = TrionApi.DeWeSetParam_i32(board_id2, Trion.TrionCommand.OPEN_BOARD, 0);
             Utils.CheckErrorCode(error_code, $"Failed to open board {board_id2}");
-            error_code = trion_api.API.DeWeSetParam_i32(board_id2, Trion.TrionCommand.RESET_BOARD, 0);
+            error_code = TrionApi.DeWeSetParam_i32(board_id2, Trion.TrionCommand.RESET_BOARD, 0);
             Utils.CheckErrorCode(error_code, $"Failed to reset board {board_id2}");
 
             string target_01 = $"BoardID{board_id1}/AcqProp";
             string target_02 = $"BoardID{board_id2}/AcqProp";
 
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "OperationMode", "Master");
+            error_code = TrionApi.DeWeSetParamStruct_str(target_01, "OperationMode", "Master");
             Utils.CheckErrorCode(error_code, $"Failed to set OperationMode for board {board_id1}");
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "ExtTrigger", "False");
+            error_code = TrionApi.DeWeSetParamStruct_str(target_01, "ExtTrigger", "False");
             Utils.CheckErrorCode(error_code, $"Failed to set ExtTrigger for board {board_id1}");
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "ExtClk", "False");
+            error_code = TrionApi.DeWeSetParamStruct_str(target_01, "ExtClk", "False");
             Utils.CheckErrorCode(error_code, $"Failed to set ExtClk for board {board_id1}");
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_01, "SampleRate", SAMPLE_RATE.ToString());
+            error_code = TrionApi.DeWeSetParamStruct_str(target_01, "SampleRate", SAMPLE_RATE.ToString());
             Utils.CheckErrorCode(error_code, $"Failed to set SampleRate for board {board_id1}");
 
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "OperationMode", "Slave");
+            error_code = TrionApi.DeWeSetParamStruct_str(target_02, "OperationMode", "Slave");
             Utils.CheckErrorCode(error_code, $"Failed to set OperationMode for board {board_id2}");
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "ExtTrigger", "False");
+            error_code = TrionApi.DeWeSetParamStruct_str(target_02, "ExtTrigger", "False");
             Utils.CheckErrorCode(error_code, $"Failed to set ExtTrigger for board {board_id2}");
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "ExtClk", "False");
+            error_code = TrionApi.DeWeSetParamStruct_str(target_02, "ExtClk", "False");
             Utils.CheckErrorCode(error_code, $"Failed to set ExtClk for board {board_id2}");
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_02, "SampleRate", SAMPLE_RATE.ToString());
+            error_code = TrionApi.DeWeSetParamStruct_str(target_02, "SampleRate", SAMPLE_RATE.ToString());
             Utils.CheckErrorCode(error_code, $"Failed to set SampleRate for board {board_id2}");
 
             string target_ai_all = $"BoardID{board_id1}/AIAll";
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_ai_all, "Used", "False");
+            error_code = TrionApi.DeWeSetParamStruct_str(target_ai_all, "Used", "False");
             Utils.CheckErrorCode(error_code, $"Failed to disable all AI channels on board {board_id1}");
 
             target_ai_all = $"BoardID{board_id2}/AIAll";
-            error_code = trion_api.API.DeWeSetParamStruct_str(target_ai_all, "Used", "False");
+            error_code = TrionApi.DeWeSetParamStruct_str(target_ai_all, "Used", "False");
             Utils.CheckErrorCode(error_code, $"Failed to disable all AI channels on board {board_id2}");
 
             for (int i = 0; i < NUM_OF_CHANNELS; ++i)
@@ -124,9 +128,9 @@ namespace Examples
                 string channel_target = $"BoardID{board_id1}/AI{i}";
                 string channel_target_2 = $"BoardID{board_id2}/AI{i}";
 
-                error_code = trion_api.API.DeWeSetParamStruct_str(channel_target, "Used", "True");
+                error_code = TrionApi.DeWeSetParamStruct_str(channel_target, "Used", "True");
                 Utils.CheckErrorCode(error_code, $"Failed to enable AI{i} on board {board_id1}");
-                error_code = trion_api.API.DeWeSetParamStruct_str(channel_target_2, "Used", "True");
+                error_code = TrionApi.DeWeSetParamStruct_str(channel_target_2, "Used", "True");
                 Utils.CheckErrorCode(error_code, $"Failed to enable AI{i} on board {board_id2}");
             }
 
@@ -142,27 +146,27 @@ namespace Examples
             {
                 int tmp_id = board_ids[i];
 
-                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
+                error_code = TrionApi.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_BLOCK_SIZE, BLOCK_SIZE);
                 Utils.CheckErrorCode(error_code, $"Failed to set buffer block size for board {tmp_id}");
 
-                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_BLOCK_COUNT, BLOCK_COUNT);
+                error_code = TrionApi.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_BLOCK_COUNT, BLOCK_COUNT);
                 Utils.CheckErrorCode(error_code, $"Failed to set buffer block count for board {tmp_id}");
 
-                error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
+                error_code = TrionApi.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
                 Utils.CheckErrorCode(error_code, $"Failed to update parameters for board {tmp_id}");
 
-                error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BOARD_ADC_DELAY, out adc_delay[i]);
+                error_code = TrionApi.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BOARD_ADC_DELAY, out adc_delay[i]);
                 Utils.CheckErrorCode(error_code, $"Failed to get ADC delay for board {tmp_id}");
 
-                error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_ONE_SCAN_SIZE, out scan_size[i]);
+                error_code = TrionApi.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_ONE_SCAN_SIZE, out scan_size[i]);
                 Utils.CheckErrorCode(error_code, $"Failed to get scan size for board {tmp_id}");
             }
 
-            error_code = trion_api.API.DeWeSetParam_i32(board_id2, Trion.TrionCommand.START_ACQUISITION, 0);
+            error_code = TrionApi.DeWeSetParam_i32(board_id2, Trion.TrionCommand.START_ACQUISITION, 0);
             Utils.CheckErrorCode(error_code, $"Failed to start acquisition on board {board_id2}");
 
             // start master
-            error_code = trion_api.API.DeWeSetParam_i32(board_id1, Trion.TrionCommand.START_ACQUISITION, 0);
+            error_code = TrionApi.DeWeSetParam_i32(board_id1, Trion.TrionCommand.START_ACQUISITION, 0);
             Utils.CheckErrorCode(error_code, "Failed to start acquisition on master board");
 
             int[] avail_samples = new int[board_ids.Length];
@@ -176,17 +180,17 @@ namespace Examples
                     int tmp_id = board_ids[nbrd];
 
                     // Get buffer details
-                    error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_0_END_POINTER, out Int64 buf_end_pos);
+                    error_code = TrionApi.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_0_END_POINTER, out Int64 buf_end_pos);
                     Utils.CheckErrorCode(error_code, $"Failed to get buffer end pointer for board {tmp_id}");
 
-                    error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE, out Int32 buf_size);
+                    error_code = TrionApi.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE, out Int32 buf_size);
                     Utils.CheckErrorCode(error_code, $"Failed to get buffer total memory size for board {tmp_id}");
 
                     bool use_wait = true;
                     // check if the user wants to use the wait command
                     if (!use_wait)
                     {
-                        error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
+                        error_code = TrionApi.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
                         Utils.CheckErrorCode(error_code, $"Failed to get available samples with wait for board {tmp_id}");
                     }
                     else
@@ -195,22 +199,22 @@ namespace Examples
                         // see: /TRION-SDK/03_DataAcquisition/DataAcquisition.html#block-and-block-size
                         System.Threading.Thread.Sleep(polling_interval_ms);
                         // Get the number of samples already stored in the circular buffer
-                        error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
+                        error_code = TrionApi.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
                         Utils.CheckErrorCode(error_code, $"Failed to get available samples without wait for board {tmp_id}");
                     }
 
                     // Get available samples
-                    error_code = trion_api.API.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
+                    error_code = TrionApi.DeWeGetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE, out avail_samples[nbrd]);
                     if (error_code != Trion.TrionError.NONE) continue;
                     if (error_code == Trion.TrionError.BUFFER_OVERWRITE)
                     {
                         Console.WriteLine("Buffer Overflow happened");
                         // TODO: deinit the driver and exit
-                        error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
+                        error_code = TrionApi.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
                         if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to stop acquisition: {error_code}"); return 1; }
-                        error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.CLOSE_BOARD, 0);
+                        error_code = TrionApi.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.CLOSE_BOARD, 0);
                         if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to close board: {error_code}"); return 1; }
-                        error_code = trion_api.API.DeWeDriverDeInit();
+                        error_code = TrionApi.DeWeDriverDeInit();
                         if (error_code != Trion.TrionError.NONE) { Console.WriteLine($"Failed to deinitialize driver: {error_code}"); return 1; }
                         return 1;
                     }
@@ -221,7 +225,7 @@ namespace Examples
                     if (avail_samples[nbrd] <= 0) continue;
 
                     // Get current read pointer
-                    error_code = trion_api.API.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS, out Int64 read_pos);
+                    error_code = TrionApi.DeWeGetParam_i64(tmp_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS, out Int64 read_pos);
                     Utils.CheckErrorCode(error_code, $"Failed to get read position for board {tmp_id}");
 
                     // Adjust read pointer for ADC delay
@@ -243,7 +247,7 @@ namespace Examples
                         }
                     }
 
-                    error_code = trion_api.API.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_FREE_NO_SAMPLE, avail_samples[nbrd]);
+                    error_code = TrionApi.DeWeSetParam_i32(tmp_id, Trion.TrionCommand.BUFFER_0_FREE_NO_SAMPLE, avail_samples[nbrd]);
                     Utils.CheckErrorCode(error_code, $"Failed to free buffer for board {tmp_id}");
                 }
                 int min_samples = Math.Min(avail_samples[0], avail_samples[1]);
