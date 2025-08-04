@@ -26,6 +26,15 @@ public class TrionApi
         return nNoOfBoards;
     }
 
+    public static void CloseBoards()
+    {
+        var error = TrionApi.DeWeSetParam_i32(0, Trion.TrionCommand.CLOSE_BOARD_ALL, 0);
+        if (error != TrionError.NONE)
+        {
+            System.Diagnostics.Debug.WriteLine($"TRION API CloseBoards failed: {Trion.API.DeWeErrorConstantToString(error)}");
+        }
+    }
+
     public static void Uninitialize()
     {
         TrionError nErrorCode = Trion.API.DeWeDriverDeInit();
