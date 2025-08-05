@@ -26,9 +26,26 @@ public class TrionApi
         return nNoOfBoards;
     }
 
+    public static void CloseBoards()
+    {
+        var error = TrionApi.DeWeSetParam_i32(0, Trion.TrionCommand.CLOSE_BOARD_ALL, 0);
+        if (error != TrionError.NONE)
+        {
+            System.Diagnostics.Debug.WriteLine($"TRION API CloseBoards failed: {Trion.API.DeWeErrorConstantToString(error)}");
+        }
+    }
+
     public static void Uninitialize()
     {
-        // TODO
+        TrionError nErrorCode = Trion.API.DeWeDriverDeInit();
+        if (nErrorCode != TrionError.NONE)
+        {
+            System.Diagnostics.Debug.WriteLine($"TRION API Uninit failed: {Trion.API.DeWeErrorConstantToString(nErrorCode)}");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("TRION API Uninit succeeded.");
+        }
     }
 
 
@@ -98,6 +115,11 @@ public class TrionApi
             // No null terminator found, convert entire buffer
             return (error, System.Text.Encoding.UTF8.GetString(buffer));
         }
+    }
+
+    public static Trion.TrionError DeWeSetParamStruct(string target, string item, string var)
+    {
+        return Trion.API.DeWeSetParamStruct_str(target, item, var);
     }
 
     // Alternative version with manual buffer size (for backwards compatibility or special cases)
