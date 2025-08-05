@@ -195,12 +195,12 @@ namespace Examples
             {
                 for (int board_number = 0; board_number < NUM_OF_BOARDS; ++board_number)
                 {
-                    int board_id = board_ids[board_number];
+                    board_id = board_ids[board_number];
 
                     // get buffer details
-                    (error_code, buffer_end_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
+                    (error_code, var buffer_end_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
                     if (error_code != Trion.TrionError.NONE) continue;
-                    (error_code, buffer_size) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
+                    (error_code, var buffer_size) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
                     if (error_code != Trion.TrionError.NONE) continue;
 
                     bool use_wait = true; // use wait for available samples
@@ -219,7 +219,7 @@ namespace Examples
                     }
 
                     // Get the current read position of the circular buffer
-                    (error_code, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+                    (error_code, var read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
                     if (error_code != Trion.TrionError.NONE) continue;
 
                     for (int i = 0; i < avail_samples[board_number]; i++)
