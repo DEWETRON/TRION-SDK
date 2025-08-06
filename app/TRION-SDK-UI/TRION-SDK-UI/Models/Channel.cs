@@ -8,8 +8,8 @@ namespace TRION_SDK_UI.Models
 {
     public class Channel
     {
-        public string Name { get; set; }
-        public string ChannelType { get; set; }
+        public string? Name { get; set; }
+        public string? ChannelType { get; set; }
         public uint Index { get; set; }
         public uint SampleSize { get; set; }
         public uint SampleOffset { get; set; }

@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using System.Xml.XPath;
 
 public class BoardPropertyModel
@@ -20,10 +21,31 @@ public class BoardPropertyModel
         while (iterator.MoveNext())
         {
             var channelNav = iterator.Current;
-            string channel = channelNav.Name;
-            channelNames.Add(channel);
+            if (channelNav != null)
+            {
+                string channel = channelNav.Name;
+                channelNames.Add(channel);
+            }
         }
 
         return channelNames;
+    }
+
+    public string GetBoardName()
+    {
+        var boardName = _navigator.SelectSingleNode("/Properties/BoardInfo/BoardName");
+        return boardName != null ? boardName.Value : string.Empty;
+    }
+
+    public int GetBoardID()
+    {
+        var propertiesNode = _navigator.SelectSingleNode("/Properties");
+        if (propertiesNode != null)
+        {
+            var idStr = propertiesNode.GetAttribute("BoardID", "");
+            if (int.TryParse(idStr, out int id))
+                return id;
+        }
+        return -1;
     }
 }

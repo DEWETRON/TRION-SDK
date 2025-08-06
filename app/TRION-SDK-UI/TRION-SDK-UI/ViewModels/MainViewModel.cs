@@ -1,22 +1,23 @@
-using System.Collections.ObjectModel;
-using Trion;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
-using TrionApiUtils;
+using System.Collections.ObjectModel;
+using System.Threading.Channels;
 using System.Windows.Input;
+using Trion;
 using TRION_SDK_UI.Models;
+using TrionApiUtils;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
-    public ObservableCollection<string> ChannelNames { get; } = new();
-    public ObservableCollection<string> LogMessages { get; } = new();
+    public ObservableCollection<string> ChannelNames { get; } = [];
+    public ObservableCollection<string> LogMessages { get; } = [];
 
     public ISeries[] MeasurementSeries { get; set; }
 
     public Enclosure MyEnc { get; } = new Enclosure
     {
         Name = "MyEnc",
-        Boards = new ObservableCollection<Board>{}
+        Boards = []
     };
 
     // ... other properties and methods ...
@@ -40,40 +41,34 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         numberOfBoards = Math.Abs(numberOfBoards);
 
-        var enclosure0Name = TrionApi.DeWeGetParamXML_String("BoardID0/boardproperties/SystemInfo/EnclosureInfo", "Name").value;
-        MyEnc.Name = enclosure0Name;
-
-        TrionApi.DeWeSetParam_i32(0, TrionCommand.OPEN_BOARD_ALL, 0);
-
+        MyEnc.Name = TrionApi.DeWeGetParamXML_String("BoardID0/boardproperties/SystemInfo/EnclosureInfo", "Name").value;
 
         for (int i = 0; i < numberOfBoards; ++i)
         {
-            var boardName = TrionApi.DeWeGetParamStruct_String($"BoardID0{i}", "BoardName").value;
-            var boardProperties = TrionApi.DeWeGetParamStruct_String($"BoardID0{i}", "boardproperties").value;
-            var boardPropertiesModel = new BoardPropertyModel(boardProperties);
-            var newBoard = new Board(i, boardName, true, boardPropertiesModel, string.Empty);
-
-            MyEnc.Boards.Add(newBoard);
-
+            MyEnc.AddBoard(i);
             // Restore channel names population
-            foreach (string channelName in boardPropertiesModel.GetChannelNames())
+            foreach (string channelName in MyEnc.Boards.Last().BoardProperties.GetChannelNames())
             {
-                GetScanDescriptor(newBoard, channelName);
+                ChannelNames.Add(channelName);
             }
         }
         OnPropertyChanged(nameof(MyEnc));
 
+        foreach (var board in MyEnc.Boards)
+        {
+            LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
+        }
 
         // Example measurement data
         var values = new ObservableCollection<double> { 1, 3, 2, 5, 4, 6, 3, 7 };
-        MeasurementSeries = new ISeries[]
-        {
+        MeasurementSeries =
+        [
             new LineSeries<double>
             {
                 Values = values,
                 Name = "Channel 1"
             }
-        };
+        ];
 
         ChannelSelectedCommand = new Command<string>(OnChannelSelected);
     }
@@ -86,21 +81,14 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.Uninitialize();
     }
 
-    public void GetScanDescriptor(Board board, string channelName)
-    {
-        var (error, scan_descriptor) = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}/{channelName}", "ScanDescriptor");
-        LogMessages.Add(error.ToString());
-        board.ScanDescriptor = scan_descriptor;
-    }
-
-    public string SelectedChannel { get; set; }
+    public string? SelectedChannel { get; set; }
 
     public ICommand ChannelSelectedCommand { get; }
 
-    private async void OnChannelSelected(string channelName)
+    private void OnChannelSelected(string channelName)
     {
         LogMessages.Add($"Channel selected: {channelName}");
     }
 
-    public ObservableCollection<string> ChannelData { get; } = new();
+    public ObservableCollection<string> ChannelData { get; } = [];
 }

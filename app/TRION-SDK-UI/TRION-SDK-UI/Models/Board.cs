@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Trion;
 
 namespace TRION_SDK_UI.Models
 {
@@ -13,36 +14,42 @@ namespace TRION_SDK_UI.Models
         Digital = 2,
         Counter = 3
     }
-    public class Board
+    public class Board(BoardPropertyModel BoardProperties)
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public bool IsActive { get; set; }
-        public BoardPropertyModel BoardProperties { get; set; }
-        public string ScanDescriptor { get; set; }
+        public BoardPropertyModel BoardProperties { get; set; } = BoardProperties;
         public List<Channel> Channels { get; set; } = new();
         public uint ScanSizeBytes { get; set; }
-
-        public void ReadScanDescriptor()
+        public ScanDescriptorDecoder? ScanDescriptorDecoder { get; set; }
+        public string ScanDescriptorXml { get; set; } = string.Empty;
+        public void ReadScanDescriptor(string scanDescriptorXml)
         {
-            if (string.IsNullOrWhiteSpace(ScanDescriptor))
+            if (string.IsNullOrWhiteSpace(scanDescriptorXml))
                 return;
 
-            var decoder = new ScanDescriptorDecoder(ScanDescriptor);
-            Channels = decoder.Channels.ToList();
-            ScanSizeBytes = decoder.ScanSizeBytes;
+            ScanDescriptorDecoder = new ScanDescriptorDecoder(scanDescriptorXml);
+            Channels = ScanDescriptorDecoder.Channels
+                .Select(c => new Channel
+                {
+                    Name = c.Name ?? string.Empty,
+                    ChannelType = c.Type,
+                    Index = c.Index,
+                    SampleSize = c.SampleSize,
+                    SampleOffset = c.SampleOffset
+                })
+                .ToList();
+            ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
         }
 
-        public Board(int id, string name, bool isActive, BoardPropertyModel boardProperties, string scanDescriptor)
+        public void SetBoardProperties()
         {
-            Id = id;
-            Name = name;
-            IsActive = isActive;
-            BoardProperties = boardProperties;
-            ScanDescriptor = scanDescriptor;
-            Channels = new List<Channel>();
-            ScanSizeBytes = 0; // Explicitly set to default
+            System.Diagnostics.Debug.WriteLine($"TRION_API: Setting board properties for board {BoardProperties.GetBoardName()}");
+            Id = BoardProperties.GetBoardID();
+            Name = BoardProperties.GetBoardName();
+            IsActive = true;
         }
     }
 }

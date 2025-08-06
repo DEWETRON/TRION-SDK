@@ -5,8 +5,17 @@ using TRION_SDK_UI.Models;
 
 public partial class ScanDescriptorDecoder
 {
-    public List<Channel> Channels = new();
-    public uint ScanSizeBytes;
+    public class ChannelInfo
+    {
+        public string? Name { get; set; }
+        public string? Type { get; set; }
+        public uint Index { get; set; }
+        public uint SampleSize { get; set; }
+        public uint SampleOffset { get; set; }
+    }
+
+    public List<ChannelInfo> Channels { get; private set; } = new();
+    public uint ScanSizeBytes { get; private set; }
 
     public ScanDescriptorDecoder(string scanDescriptorXML)
     {
@@ -30,11 +39,19 @@ public partial class ScanDescriptorDecoder
         while (channelNodes.MoveNext())
         {
             var channel = channelNodes.Current;
+            if (channel == null)
+            {
+                continue;
+            }
             var sample = channel.SelectSingleNode("Sample");
-            Channels.Add(new Channel
+            if (sample == null)
+            {
+                continue;
+            }
+            Channels.Add(new ChannelInfo
             {
                 Name = channel.GetAttribute("name", ""),
-                ChannelType = channel.GetAttribute("type", ""),
+                Type = channel.GetAttribute("type", ""),
                 Index = uint.Parse(channel.GetAttribute("index", "")),
                 SampleSize = uint.Parse(sample.GetAttribute("size", "")),
                 SampleOffset = uint.Parse(sample.GetAttribute("offset", ""))
