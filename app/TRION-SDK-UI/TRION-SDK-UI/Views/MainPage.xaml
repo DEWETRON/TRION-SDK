@@ -57,6 +57,15 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+
+                <!-- Add this where you want to display the data -->
+                <CollectionView ItemsSource="{Binding ChannelData}" HeightRequest="400">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding .}" FontSize="12" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </VerticalStackLayout>
         </ScrollView>
 
@@ -80,7 +89,13 @@
                         Margin="10,0,0,0">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Label Text="{Binding .}" Padding="10" FontSize="14" TextColor="Black"/>
+                    <Label Text="{Binding .}" Padding="10" FontSize="14" TextColor="Black">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding BindingContext.ChannelSelectedCommand, Source={x:Reference RootGrid}}"
+                                CommandParameter="{Binding .}" />
+                        </Label.GestureRecognizers>
+                    </Label>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
