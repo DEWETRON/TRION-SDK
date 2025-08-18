@@ -83,39 +83,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         OnPropertyChanged(nameof(Channels));
-
-        var board_id = 1;
-        var SAMPLE_RATE = 2000;
-        var BLOCK_SIZE = 200;
-        var BLOCK_COUNT = 50;
-
-        // Fix: Initialize buffer before use
-        CircularBuffer buffer = new();
-
-        MyEnc.Boards[1].SetAcquisitionProperties();
-
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AI0", "Used", "True");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Range", "10 V");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AI0", "Range", "10 V");
-
-        MyEnc.Boards[1].UpdateBoard();
-
-        var (adc_delay_error, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY);
-
-        TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
-
-        int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
-
-        (var buffer_start_pos_error, buffer.StartPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_START_POINTER);
-        (var buffer_end_pos_error, buffer.EndPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
-        (var buffer_size_error, buffer.Size) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
-
-        var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
-        var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
-
-        AddDataPoint(available_samples, read_pos, buffer.EndPosition, buffer.Size);
-
         ChannelSelectedCommand = new Command<TRION_SDK_UI.Models.Channel>(OnChannelSelected);
     }
 
@@ -133,10 +100,64 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private void OnChannelSelected(TRION_SDK_UI.Models.Channel selectedChannel)
     {
-        // Print to log, console, or UI
         var message = $"Board {selectedChannel.BoardID} - {selectedChannel.Name}";
         LogMessages.Add(message); // or Console.WriteLine(message);
+        ChannelMeasurementData.Clear();
+        GetMeasurementData(selectedChannel);
+
     }
+
+    private void GetMeasurementData(TRION_SDK_UI.Models.Channel selectedChannel)
+    {
+        // Example acquisition parameters
+        var board_id = selectedChannel.BoardID;
+        var channel_name = selectedChannel.Name;
+        var SAMPLE_RATE = 2000;
+        var BLOCK_SIZE = 200;
+        var BLOCK_COUNT = 50;
+
+        // Configure acquisition for the selected channel
+        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
+        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Used", "True");
+        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Range", "10 V");
+        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Range", "10 V");
+
+        // Update board settings
+        MyEnc.Boards.FirstOrDefault(b => b.Id == board_id)?.UpdateBoard();
+
+        // Get buffer info
+        CircularBuffer buffer = new();
+        (var buffer_start_pos_error, buffer.StartPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_START_POINTER);
+        (var buffer_end_pos_error, buffer.EndPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
+        (var buffer_size_error, buffer.Size) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
+
+        // Start acquisition
+        TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
+
+        // Get available samples and read position
+        var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
+        var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+
+        // Add measurement data for the selected channel
+        AddDataPoint(available_samples, read_pos, buffer.EndPosition, buffer.Size);
+
+        // Update chart series
+        MeasurementSeries = new ISeries[]
+        {
+        new LineSeries<double>
+        {
+            Values = ChannelMeasurementData,
+            Name = $"{channel_name}"
+        }
+        };
+        OnPropertyChanged(nameof(MeasurementSeries));
+
+
+        TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
+
+    }
+
+
 
 
     public void AddDataPoint(int available_samples, long read_pos, long buffer_end_pos, int buffer_size)
