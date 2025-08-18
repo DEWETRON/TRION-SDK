@@ -39,7 +39,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         return (int)(block_size / (double)sample_rate * 1000);
     }
 
-    // ... other properties and methods ...
     public MainViewModel()
     {
         LogMessages.Add("App started.");
@@ -60,51 +59,46 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         numberOfBoards = Math.Abs(numberOfBoards);
 
-        MyEnc.Name = TrionApi.DeWeGetParamXML_String("BoardID0/boardproperties/SystemInfo/EnclosureInfo", "Name").value;
-
-        for (int i = 0; i < numberOfBoards; ++i)
-        {
-            MyEnc.AddBoard(i);
-            // Restore channel names population
-            foreach (string channelName in MyEnc.Boards.Last().BoardProperties.GetChannelNames())
-            {
-                ChannelNames.Add(channelName);
-            }
-        }
+        MyEnc.Init(numberOfBoards);
         OnPropertyChanged(nameof(MyEnc));
 
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
+            foreach (var channel in board.Channels)
+            {
+                LogMessages.Add($"ChannelName: {channel.Name}");
+                if (channel.Name != null)
+                {
+                    ChannelNames.Add(channel.Name);
+                }
+            }
         }
+
+        for (int i = 0; i < numberOfBoards; ++i)
+        {
+            foreach (string channelName in MyEnc.Boards.Last().BoardProperties.GetChannelNames())
+            {
+                System.Diagnostics.Debug.WriteLine($"Channel {i}: {channelName}"); 
+            }
+        }
+
         OnPropertyChanged(nameof(ChannelNames));
 
-        // Example measurement data
-        var values = new ObservableCollection<double> { 1, 3, 2, 5, 4, 6, 3, 7 };
-        MeasurementSeries =
-        [
-            new LineSeries<double>
-            {
-                Values = values,
-                Name = "Channel 1"
-            }
-        ];
         var board_id = 1;
         var SAMPLE_RATE = 2000;
         var BLOCK_SIZE = 200;
         var BLOCK_COUNT = 50;
 
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AcqProp", "OperationMode", "Slave");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AcqProp", "ExtTrigger", "False");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AcqProp", "ExtClk", "False");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AcqProp", "SampleRate", "2000");
+        // Fix: Initialize buffer before use
+        CircularBuffer buffer = new();
+
+        MyEnc.Boards[1].SetAcquisitionProperties();
+
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AI0", "Used", "True");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Range", "10 V");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AI0", "Range", "10 V");
-
-        TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, BLOCK_SIZE);
-        TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, BLOCK_COUNT);
 
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
 
@@ -114,18 +108,14 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         int polling_interval_ms = GetPollingIntervalMs(BLOCK_SIZE, SAMPLE_RATE);
 
-        var (buffer_start_pos_error, buffer_start_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_START_POINTER);
-        var (buffer_end_pos_error, buffer_end_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
-        var (buffer_size_error, buffer_size) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
+        (var buffer_start_pos_error, buffer.StartPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_START_POINTER);
+        (var buffer_end_pos_error, buffer.EndPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
+        (var buffer_size_error, buffer.Size) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
 
         var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
         var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
 
-
-        AddDataPoint(available_samples, read_pos, buffer_end_pos, buffer_size);
-
-
-
+        AddDataPoint(available_samples, read_pos, buffer.EndPosition, buffer.Size);
 
         ChannelSelectedCommand = new Command<string>(OnChannelSelected);
     }

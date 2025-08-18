@@ -26,10 +26,15 @@ namespace TRION_SDK_UI.Models
         public uint ScanSizeBytes { get; set; }
         public ScanDescriptorDecoder? ScanDescriptorDecoder { get; set; }
         public string ScanDescriptorXml { get; set; } = string.Empty;
+
         public void ReadScanDescriptor(string scanDescriptorXml)
         {
+            //System.Diagnostics.Debug.WriteLine($"TESTING {Name}");
             if (string.IsNullOrWhiteSpace(scanDescriptorXml))
+            {
+                System.Diagnostics.Debug.WriteLine($"Return Early");
                 return;
+            }
 
             ScanDescriptorDecoder = new ScanDescriptorDecoder(scanDescriptorXml);
             Channels = [.. ScanDescriptorDecoder.Channels
@@ -41,6 +46,7 @@ namespace TRION_SDK_UI.Models
                     SampleSize = c.SampleSize,
                     SampleOffset = c.SampleOffset
                 })];
+            //System.Diagnostics.Debug.WriteLine($"Channels found: {ScanDescriptorDecoder.Channels}");
             ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
         }
 
@@ -48,6 +54,7 @@ namespace TRION_SDK_UI.Models
         {
             Id = BoardProperties.GetBoardID();
             Name = BoardProperties.GetBoardName();
+            System.Diagnostics.Debug.WriteLine($"Board ID: {Id}, Name: {Name}");
             IsActive = true;
         }
 
@@ -55,15 +62,16 @@ namespace TRION_SDK_UI.Models
                                              string externalTrigger = "False",
                                              string externalClock = "False",
                                              string sampleRate = "2000",
-                                             string buffer_block_size = "200",
-                                             string buffer_block_count = "50")
+                                             int buffer_block_size = 200,
+                                             int buffer_block_count = 50)
         {
             var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "OperationMode", operationMode);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExternalTrigger", externalTrigger);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExternalClock", externalClock);
+            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", externalTrigger);
+            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
             error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "BufferBlockSize", buffer_block_size);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "BufferBlockCount", buffer_block_count);
+
+            error |= TrionApi.DeWeSetParam_i32(Id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
+            error |= TrionApi.DeWeSetParam_i32(Id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
 
             Utils.CheckErrorCode(error, $"Failed to set acquisition properties for board {Id}");
         }

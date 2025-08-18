@@ -8,9 +8,9 @@ namespace TRION_SDK_UI.Models
 {
     internal class CircularBuffer
     {
-        private int bufferStartPosition;
-        private int bufferEndPosition;
-        private int bufferSize;
-        private byte[] buffer;
+        public long StartPosition { get; set; }
+        public long EndPosition { get; set; }
+        public int Size { get; set; }
+        public byte[] Data { get; set; }
     }
 }

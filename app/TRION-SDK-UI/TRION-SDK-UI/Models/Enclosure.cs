@@ -16,10 +16,27 @@ public class Enclosure
             return;
         }
 
-        var boardProperties = TrionApi.DeWeGetParamStruct_String($"BoardID0{boardId}", "boardproperties").value;
-        var boardPropertiesModel = new BoardPropertyModel(boardProperties);
+        var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
+        // System.Diagnostics.Debug.WriteLine($"Board PropertiesXML: {boardPropertiesXml}");
+        var boardPropertiesModel = new BoardPropertyModel(boardPropertiesXml);
+
         var newBoard = new Board(boardPropertiesModel);
+
+        string scanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor").value;
+        System.Diagnostics.Debug.WriteLine($"XML: {scanDescriptorXml}");
+        newBoard.ReadScanDescriptor(scanDescriptorXml);
+
         newBoard.SetBoardProperties();
         Boards.Add(newBoard);
+    }
+
+    public void Init(int numberOfBoards)
+    {
+        Name = TrionApi.DeWeGetParamXML_String("BoardID0/boardproperties/SystemInfo/EnclosureInfo", "Name").value;
+
+        for (int i = 0; i < numberOfBoards; ++i)
+        {
+            AddBoard(i);
+        }
     }
 }
