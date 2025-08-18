@@ -108,10 +108,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
 
 
-        CircularBuffer buffer = new();
-        (var buffer_start_pos_error, buffer.StartPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_START_POINTER);
-        (var buffer_end_pos_error, buffer.EndPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
-        (var buffer_size_error, buffer.Size) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
+        CircularBuffer buffer = new(board_id);
 
         { //while (true)
             var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
@@ -122,7 +119,28 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
             var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
             read_pos += adc_delay * sizeof(UInt32);
-            AddDataPoint(available_samples, read_pos, buffer.EndPosition, buffer.Size);
+            for (int i = 0; i < available_samples; ++i)
+            {
+                if (read_pos >= buffer.EndPosition)
+                {
+                    read_pos -= buffer.Size;
+                }
+
+                Int32 raw_data = GetDataAtPos(read_pos);
+                float value = (float)((float)raw_data / 0x7FFFFF00 * 10.0);
+
+                var dispatcher = Dispatcher.GetForCurrentThread();
+                if (dispatcher != null)
+                {
+                    dispatcher.Dispatch(() => ChannelMeasurementData.Add(value));
+                }
+                else
+                {
+                    ChannelMeasurementData.Add(value);
+                }
+
+                read_pos += sizeof(UInt32);
+            }
             TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
         }
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
@@ -132,35 +150,10 @@ public class MainViewModel : BaseViewModel, IDisposable
         new LineSeries<double>
         {
             Values = ChannelMeasurementData,
-            Name = $"{channel_name}"
+            Name = $"{channel_name}",
+            AnimationsSpeed = TimeSpan.Zero
         }
         ];
         OnPropertyChanged(nameof(MeasurementSeries));
-    }
-
-    public void AddDataPoint(int available_samples, long read_pos, long buffer_end_pos, int buffer_size)
-    {
-        for (int i = 0; i < available_samples; ++i)
-        {
-            if (read_pos >= buffer_end_pos)
-            {
-                read_pos -= buffer_size;
-            }
-
-            Int32 raw_data = GetDataAtPos(read_pos);
-            float value = (float)((float)raw_data / 0x7FFFFF00 * 10.0);
-
-            var dispatcher = Dispatcher.GetForCurrentThread();
-            if (dispatcher != null)
-            {
-                dispatcher.Dispatch(() => ChannelMeasurementData.Add(value));
-            }
-            else
-            {
-                ChannelMeasurementData.Add(value);
-            }
-
-            read_pos += sizeof(UInt32);
-        }
     }
 }

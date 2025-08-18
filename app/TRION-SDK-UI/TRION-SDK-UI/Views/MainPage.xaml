@@ -59,7 +59,7 @@
                 </CollectionView>
 
                 <!-- Add this where you want to display the data -->
-                <CollectionView ItemsSource="{Binding ChannelData}" HeightRequest="400">
+                <CollectionView ItemsSource="{Binding ChannelMeasurementData}" HeightRequest="400">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Label Text="{Binding .}" FontSize="12" />

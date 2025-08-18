@@ -54,7 +54,6 @@ namespace TRION_SDK_UI.Models
         {
             Id = BoardProperties.GetBoardID();
             Name = BoardProperties.GetBoardName();
-            System.Diagnostics.Debug.WriteLine($"Board ID: {Id}, Name: {Name}");
             IsActive = true;
         }
 
