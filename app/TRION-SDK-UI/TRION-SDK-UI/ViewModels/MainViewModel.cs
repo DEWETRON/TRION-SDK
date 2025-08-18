@@ -12,9 +12,9 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ObservableCollection<TRION_SDK_UI.Models.Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
 
-    public ISeries[] MeasurementSeries { get; set; }
+    public ISeries[] MeasurementSeries { get; set; } = Array.Empty<ISeries>();
     public ObservableCollection<double> ChannelMeasurementData { get; } = [];
-
+    public ICommand ChannelSelectedCommand { get; }
 
     public Enclosure MyEnc { get; } = new Enclosure
     {
@@ -31,12 +31,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         {
             return *(Int32*)read_pos;
         }
-    }
-
-    private static int GetPollingIntervalMs(int block_size, int sample_rate)
-    {
-        // Returns interval in milliseconds
-        return (int)(block_size / (double)sample_rate * 1000);
     }
 
     public MainViewModel()
@@ -74,14 +68,6 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
         }
 
-        for (int i = 0; i < numberOfBoards; ++i)
-        {
-            foreach (string channelName in MyEnc.Boards.Last().BoardProperties.GetChannelNames())
-            {
-                System.Diagnostics.Debug.WriteLine($"Channel {i}: {channelName}"); 
-            }
-        }
-
         OnPropertyChanged(nameof(Channels));
         ChannelSelectedCommand = new Command<TRION_SDK_UI.Models.Channel>(OnChannelSelected);
     }
@@ -94,14 +80,10 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.Uninitialize();
     }
 
-    public string? SelectedChannel { get; set; }
-
-    public ICommand ChannelSelectedCommand { get; }
-
     private void OnChannelSelected(TRION_SDK_UI.Models.Channel selectedChannel)
     {
         var message = $"Board {selectedChannel.BoardID} - {selectedChannel.Name}";
-        LogMessages.Add(message); // or Console.WriteLine(message);
+        LogMessages.Add(message);
         ChannelMeasurementData.Clear();
         GetMeasurementData(selectedChannel);
 
@@ -109,39 +91,28 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private void GetMeasurementData(TRION_SDK_UI.Models.Channel selectedChannel)
     {
-        // Example acquisition parameters
         var board_id = selectedChannel.BoardID;
         var channel_name = selectedChannel.Name;
-        var SAMPLE_RATE = 2000;
-        var BLOCK_SIZE = 200;
-        var BLOCK_COUNT = 50;
 
-        // Configure acquisition for the selected channel
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Used", "True");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Range", "10 V");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Range", "10 V");
 
-        // Update board settings
         MyEnc.Boards.FirstOrDefault(b => b.Id == board_id)?.UpdateBoard();
 
-        // Get buffer info
         CircularBuffer buffer = new();
         (var buffer_start_pos_error, buffer.StartPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_START_POINTER);
         (var buffer_end_pos_error, buffer.EndPosition) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_END_POINTER);
         (var buffer_size_error, buffer.Size) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
 
-        // Start acquisition
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
 
-        // Get available samples and read position
         var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
         var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
 
-        // Add measurement data for the selected channel
         AddDataPoint(available_samples, read_pos, buffer.EndPosition, buffer.Size);
 
-        // Update chart series
         MeasurementSeries = new ISeries[]
         {
         new LineSeries<double>
@@ -156,9 +127,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
 
     }
-
-
-
 
     public void AddDataPoint(int available_samples, long read_pos, long buffer_end_pos, int buffer_size)
     {

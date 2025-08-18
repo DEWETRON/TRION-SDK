@@ -17,13 +17,11 @@ public class Enclosure
         }
 
         var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
-        // System.Diagnostics.Debug.WriteLine($"Board PropertiesXML: {boardPropertiesXml}");
         var boardPropertiesModel = new BoardPropertyModel(boardPropertiesXml);
 
         var newBoard = new Board(boardPropertiesModel);
 
         string scanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor").value;
-        //System.Diagnostics.Debug.WriteLine($"XML: {scanDescriptorXml}");
         newBoard.SetBoardProperties();
         newBoard.ReadScanDescriptor(scanDescriptorXml);
 

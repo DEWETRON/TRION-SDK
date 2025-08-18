@@ -29,7 +29,6 @@ namespace TRION_SDK_UI.Models
 
         public void ReadScanDescriptor(string scanDescriptorXml)
         {
-            //System.Diagnostics.Debug.WriteLine($"TESTING {Name}");
             if (string.IsNullOrWhiteSpace(scanDescriptorXml))
             {
                 System.Diagnostics.Debug.WriteLine($"Return Early");
@@ -48,7 +47,6 @@ namespace TRION_SDK_UI.Models
                     SampleSize = c.SampleSize,
                     SampleOffset = c.SampleOffset
                 })];
-            //System.Diagnostics.Debug.WriteLine($"Channels found: {ScanDescriptorDecoder.Channels}");
             ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
         }
 
