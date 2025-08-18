@@ -9,7 +9,7 @@ using TrionApiUtils;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
-    public ObservableCollection<string> ChannelNames { get; } = [];
+    public ObservableCollection<TRION_SDK_UI.Models.Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
 
     public ISeries[] MeasurementSeries { get; set; }
@@ -67,10 +67,9 @@ public class MainViewModel : BaseViewModel, IDisposable
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
             foreach (var channel in board.Channels)
             {
-                LogMessages.Add($"ChannelName: {channel.Name}");
                 if (channel.Name != null)
                 {
-                    ChannelNames.Add(channel.Name);
+                    Channels.Add(channel);
                 }
             }
         }
@@ -83,7 +82,7 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
         }
 
-        OnPropertyChanged(nameof(ChannelNames));
+        OnPropertyChanged(nameof(Channels));
 
         var board_id = 1;
         var SAMPLE_RATE = 2000;
@@ -100,7 +99,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Range", "10 V");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AI0", "Range", "10 V");
 
-        TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.UPDATE_PARAM_ALL, 0);
+        MyEnc.Boards[1].UpdateBoard();
 
         var (adc_delay_error, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY);
 
@@ -117,7 +116,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         AddDataPoint(available_samples, read_pos, buffer.EndPosition, buffer.Size);
 
-        ChannelSelectedCommand = new Command<string>(OnChannelSelected);
+        ChannelSelectedCommand = new Command<TRION_SDK_UI.Models.Channel>(OnChannelSelected);
     }
 
     public void Dispose()
@@ -132,9 +131,11 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     public ICommand ChannelSelectedCommand { get; }
 
-    private void OnChannelSelected(string channelName)
+    private void OnChannelSelected(TRION_SDK_UI.Models.Channel selectedChannel)
     {
-        LogMessages.Add($"Channel selected: {channelName}");
+        // Print to log, console, or UI
+        var message = $"Board {selectedChannel.BoardID} - {selectedChannel.Name}";
+        LogMessages.Add(message); // or Console.WriteLine(message);
     }
 
 

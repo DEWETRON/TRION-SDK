@@ -35,11 +35,13 @@ namespace TRION_SDK_UI.Models
                 System.Diagnostics.Debug.WriteLine($"Return Early");
                 return;
             }
+            System.Diagnostics.Debug.WriteLine($"BoardID {Id}");
 
             ScanDescriptorDecoder = new ScanDescriptorDecoder(scanDescriptorXml);
             Channels = [.. ScanDescriptorDecoder.Channels
                 .Select(c => new Channel
                 {
+                    BoardID = Id,
                     Name = c.Name ?? string.Empty,
                     ChannelType = c.Type,
                     Index = c.Index,

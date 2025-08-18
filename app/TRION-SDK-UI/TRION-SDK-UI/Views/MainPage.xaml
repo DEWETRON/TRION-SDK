@@ -83,13 +83,13 @@
 
         <!-- Sidebar -->
         <CollectionView Grid.Column="2"
-                        ItemsSource="{Binding ChannelNames}"
+                        ItemsSource="{Binding Channels}"
                         BackgroundColor="LightGray"
                         SelectionMode="None"
                         Margin="10,0,0,0">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Label Text="{Binding .}" Padding="10" FontSize="14" TextColor="Black">
+                    <Label Text="{Binding ., Converter={StaticResource ChannelToStringConverter}}" Padding="3" FontSize="14" TextColor="Black">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding BindingContext.ChannelSelectedCommand, Source={x:Reference RootGrid}}"

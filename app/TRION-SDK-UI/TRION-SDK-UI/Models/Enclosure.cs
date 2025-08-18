@@ -23,10 +23,10 @@ public class Enclosure
         var newBoard = new Board(boardPropertiesModel);
 
         string scanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor").value;
-        System.Diagnostics.Debug.WriteLine($"XML: {scanDescriptorXml}");
+        //System.Diagnostics.Debug.WriteLine($"XML: {scanDescriptorXml}");
+        newBoard.SetBoardProperties();
         newBoard.ReadScanDescriptor(scanDescriptorXml);
 
-        newBoard.SetBoardProperties();
         Boards.Add(newBoard);
     }
 
