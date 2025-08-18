@@ -6,7 +6,7 @@ using TRION_SDK_UI.Models;
 public class Enclosure
 {
     public string? Name { get; set; }
-    public ObservableCollection<Board> Boards { get; set; } = new();
+    public ObservableCollection<Board> Boards { get; set; } = [];
     public void AddBoard(int boardId)
     {
         var error = TrionApi.DeWeSetParam_i32(boardId, TrionCommand.OPEN_BOARD, 0);

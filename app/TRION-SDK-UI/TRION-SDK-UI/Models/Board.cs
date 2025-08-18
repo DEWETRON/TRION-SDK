@@ -22,7 +22,7 @@ namespace TRION_SDK_UI.Models
         public string? Name { get; set; }
         public bool IsActive { get; set; }
         public BoardPropertyModel BoardProperties { get; set; } = BoardProperties;
-        public List<Channel> Channels { get; set; } = new();
+        public List<Channel> Channels { get; set; } = [];
         public uint ScanSizeBytes { get; set; }
         public ScanDescriptorDecoder? ScanDescriptorDecoder { get; set; }
         public string ScanDescriptorXml { get; set; } = string.Empty;
@@ -32,7 +32,7 @@ namespace TRION_SDK_UI.Models
                 return;
 
             ScanDescriptorDecoder = new ScanDescriptorDecoder(scanDescriptorXml);
-            Channels = ScanDescriptorDecoder.Channels
+            Channels = [.. ScanDescriptorDecoder.Channels
                 .Select(c => new Channel
                 {
                     Name = c.Name ?? string.Empty,
@@ -40,8 +40,7 @@ namespace TRION_SDK_UI.Models
                     Index = c.Index,
                     SampleSize = c.SampleSize,
                     SampleOffset = c.SampleOffset
-                })
-                .ToList();
+                })];
             ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
         }
 
