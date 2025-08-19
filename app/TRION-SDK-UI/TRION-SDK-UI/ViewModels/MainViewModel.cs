@@ -28,6 +28,51 @@ public class MainViewModel : BaseViewModel, IDisposable
     private CancellationTokenSource _cts;
     private Task _acquisitionTask;
 
+    private double _yAxisMin = -10;
+    public double YAxisMin
+    {
+        get => _yAxisMin;
+        set
+        {
+            if (_yAxisMin != value)
+            {
+                _yAxisMin = value;
+                UpdateYAxes();
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private double _yAxisMax = 10;
+    public double YAxisMax
+    {
+        get => _yAxisMax;
+        set
+        {
+            if (_yAxisMax != value)
+            {
+                _yAxisMax = value;
+                UpdateYAxes();
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public Axis[] YAxes { get; set; }
+
+    private void UpdateYAxes()
+    {
+        YAxes = [
+            new Axis
+            {
+                MinLimit = YAxisMin,
+                MaxLimit = YAxisMax,
+                Name = "Voltage"
+            }
+        ];
+        OnPropertyChanged(nameof(YAxes));
+    }
+
     public MainViewModel()
     {
         LogMessages.Add("App started.");
@@ -65,6 +110,8 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         OnPropertyChanged(nameof(Channels));
         ChannelSelectedCommand = new Command<TRION_SDK_UI.Models.Channel>(OnChannelSelected);
+
+        UpdateYAxes();
     }
 
     public void Dispose()
@@ -79,7 +126,6 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         _cts?.Cancel();
         _acquisitionTask?.Wait();
-
         ChannelMeasurementData.Clear();
 
         MeasurementSeries = [
