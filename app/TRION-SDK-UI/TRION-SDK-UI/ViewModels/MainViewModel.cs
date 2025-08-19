@@ -15,6 +15,11 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ISeries[] MeasurementSeries { get; set; } = Array.Empty<ISeries>();
     public List<double> ChannelMeasurementData { get; } = [];
     public ICommand ChannelSelectedCommand { get; }
+    public ICommand StartAcquisitionCommand { get; }
+    public ICommand StopAcquisitionCommand { get; }
+    public ICommand LockScrollingCommand { get; }
+
+    private bool _isScrollingLocked = true;
 
     public Enclosure MyEnc { get; } = new Enclosure
     {
@@ -37,6 +42,25 @@ public class MainViewModel : BaseViewModel, IDisposable
                 UpdateYAxes();
                 OnPropertyChanged();
             }
+        }
+    }
+    private void StartAcquisition()
+    {
+        LogMessages.Add("Starting acquisition...");
+    }
+
+    private void StopAcquisition()
+    {
+        LogMessages.Add("Stopping acquisition...");
+    }
+    private void LockScrolling()
+    {
+        _isScrollingLocked = !_isScrollingLocked;
+        LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
+
+        if (_isScrollingLocked)
+        {
+            ScrollIndex = MaxScrollIndex;
         }
     }
 
@@ -107,7 +131,9 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         OnPropertyChanged(nameof(Channels));
         ChannelSelectedCommand = new Command<Channel>(OnChannelSelected);
-
+        StartAcquisitionCommand = new Command(StartAcquisition);
+        StopAcquisitionCommand = new Command(StopAcquisition);
+        LockScrollingCommand = new Command(LockScrolling);
         UpdateYAxes();
     }
 
@@ -190,7 +216,14 @@ public class MainViewModel : BaseViewModel, IDisposable
                     ChannelMeasurementData.Add(v);
                 }
 
-                UpdateChartWindow();
+                if (_isScrollingLocked)
+                {
+                    ScrollIndex = MaxScrollIndex;
+                }
+                else
+                {
+                    UpdateChartWindow();
+                }
                 OnPropertyChanged(nameof(MaxScrollIndex));
             });
         }
