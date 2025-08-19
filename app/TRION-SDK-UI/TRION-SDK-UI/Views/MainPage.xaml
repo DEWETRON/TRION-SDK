@@ -44,7 +44,7 @@
                 <!-- Add this inside your main content area -->
                 <lvc:CartesianChart
                     Series="{Binding MeasurementSeries}"
-                    HeightRequest="200"
+                    HeightRequest="400"
                     Margin="0,20,0,0"/>
 
                 <!-- Log View -->
@@ -59,7 +59,7 @@
                 </CollectionView>
 
                 <!-- Add this where you want to display the data -->
-                <CollectionView ItemsSource="{Binding ChannelMeasurementData}" HeightRequest="400">
+                <CollectionView ItemsSource="{Binding MeasurementSeries}" HeightRequest="800">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Label Text="{Binding .}" FontSize="12" />

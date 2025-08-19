@@ -7,6 +7,8 @@ using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Diagnostics;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
@@ -22,6 +24,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         Name = "MyEnc",
         Boards = []
     };
+
+    private CancellationTokenSource _cts;
+    private Task _acquisitionTask;
 
     public MainViewModel()
     {
@@ -72,21 +77,35 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private void OnChannelSelected(TRION_SDK_UI.Models.Channel selectedChannel)
     {
-        var message = $"Board {selectedChannel.BoardID} - {selectedChannel.Name}";
-        LogMessages.Add(message);
+        _cts?.Cancel();
+        _acquisitionTask?.Wait();
+
         ChannelMeasurementData.Clear();
-        GetMeasurementData(selectedChannel);
+
+
+        MeasurementSeries =
+        [
+        new LineSeries<double>
+        {
+            Values = ChannelMeasurementData,
+            Name = $"{selectedChannel.Name}",
+            AnimationsSpeed = TimeSpan.Zero
+        }
+        ];
+        OnPropertyChanged(nameof(MeasurementSeries));
+
+        _cts = new CancellationTokenSource();
+        _acquisitionTask = Task.Run(() => AcquireDataLoop(selectedChannel), _cts.Token);
 
     }
 
-    private void GetMeasurementData(TRION_SDK_UI.Models.Channel selectedChannel)
+    private void AcquireDataLoop(TRION_SDK_UI.Models.Channel selectedChannel)
     {
         var board_id = selectedChannel.BoardID;
         var channel_name = selectedChannel.Name;
 
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Used", "True");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Range", "10 V");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Range", "10 V");
 
         MyEnc.Boards[board_id].SetAcquisitionProperties();
@@ -98,12 +117,16 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         CircularBuffer buffer = new(board_id);
 
-        { //while (true)
+        List<double> tempPoints = [];
+
+        while (!_cts.IsCancellationRequested)
+        {
             var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
             available_samples -= adc_delay;
             if (available_samples <= 0)
             {
-                // continue;
+                Thread.Sleep(10);
+                continue;
             }
             var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
             read_pos += adc_delay * sizeof(UInt32);
@@ -116,32 +139,37 @@ public class MainViewModel : BaseViewModel, IDisposable
 
                 float value = Marshal.ReadInt32((IntPtr)read_pos);
                 value = (float)((float)value / 0x7FFFFF00 * 10.0);
-
-                var dispatcher = Dispatcher.GetForCurrentThread();
-                if (dispatcher != null)
-                {
-                    dispatcher.Dispatch(() => ChannelMeasurementData.Add(value));
-                }
-                else
-                {
-                    ChannelMeasurementData.Add(value);
-                }
+                tempPoints.Add(value);
 
                 read_pos += sizeof(UInt32);
             }
+            //Debug.WriteLine($"Acquired {available_samples} samples from board {board_id}, read_pos: {read_pos}, adc_delay: {adc_delay}");
             TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+            const int BufferSize = 255;
+
+            if (tempPoints.Count <= BufferSize)
+            {
+                continue;
+            }
+            //Debug.WriteLine($"Time since last update: tempPoints.Count: {tempPoints.Count}");
+            Queue<double> channelBuffer = new(BufferSize);
+
+            foreach (var v in tempPoints)
+            {
+                if (channelBuffer.Count == BufferSize)
+                {
+                    channelBuffer.Dequeue();
+                }
+                channelBuffer.Enqueue(v);
+            }
+            ChannelMeasurementData.Clear();
+            foreach (var v in channelBuffer)
+            {
+                ChannelMeasurementData.Add(v);
+            }
+            //Debug.WriteLine($"available_samples: {available_samples}, tempPoints.Count after loop: {tempPoints.Count}");
+            tempPoints.Clear();
         }
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
-
-        MeasurementSeries =
-        [
-        new LineSeries<double>
-        {
-            Values = ChannelMeasurementData,
-            Name = $"{channel_name}",
-            AnimationsSpeed = TimeSpan.Zero
-        }
-        ];
-        OnPropertyChanged(nameof(MeasurementSeries));
     }
 }
