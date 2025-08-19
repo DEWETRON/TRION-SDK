@@ -201,11 +201,6 @@ public class MainViewModel : BaseViewModel, IDisposable
                     }
                     i++;
                 }
-                // Remove extra points if buffer shrank
-                while (ChannelMeasurementData.Count > tempValues.Count)
-                {
-                    ChannelMeasurementData.RemoveAt(ChannelMeasurementData.Count - 1);
-                }
             });
         }
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
