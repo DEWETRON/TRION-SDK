@@ -82,21 +82,18 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         ChannelMeasurementData.Clear();
 
-
-        MeasurementSeries =
-        [
+        MeasurementSeries = [
         new LineSeries<double>
         {
             Values = ChannelMeasurementData,
             Name = $"{selectedChannel.Name}",
-            AnimationsSpeed = TimeSpan.Zero
-        }
-        ];
+            AnimationsSpeed = TimeSpan.Zero,
+            GeometrySize = 0 // <-- This removes the dots
+        }];
         OnPropertyChanged(nameof(MeasurementSeries));
 
         _cts = new CancellationTokenSource();
         _acquisitionTask = Task.Run(() => AcquireDataLoop(selectedChannel), _cts.Token);
-
     }
 
     private void AcquireDataLoop(TRION_SDK_UI.Models.Channel selectedChannel)
@@ -108,12 +105,11 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Used", "True");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Range", "10 V");
 
-        MyEnc.Boards[board_id].SetAcquisitionProperties();
+        MyEnc.Boards[board_id].SetAcquisitionProperties(sampleRate: "2000", buffer_block_size: 200, buffer_block_count: 50);
         MyEnc.Boards[board_id].UpdateBoard();
 
         var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY);
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
-
         CircularBuffer buffer = new(board_id);
 
         while (!_cts.IsCancellationRequested)
@@ -127,8 +123,8 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
             var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
             read_pos += adc_delay * sizeof(UInt32);
-            List<double> tempValues = [];
-
+            List<double> tempValues = [.. new double[available_samples]];
+            Debug.WriteLine($"Acquiring {available_samples} samples from board {board_id} at position {read_pos}.");
             for (int i = 0; i < available_samples; ++i)
             {
                 if (read_pos >= buffer.EndPosition)
@@ -138,7 +134,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
                 float value = Marshal.ReadInt32((IntPtr)read_pos);
                 value = (float)((float)value / 0x7FFFFF00 * 10.0);
-                tempValues.Add(value);
+                tempValues[i] = value;
 
                 read_pos += sizeof(UInt32);
             }
