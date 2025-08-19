@@ -6,6 +6,7 @@ using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
+using System.Runtime.InteropServices;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
@@ -21,17 +22,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         Name = "MyEnc",
         Boards = []
     };
-
-
-    private static Int32 GetDataAtPos(Int64 read_pos)
-    {
-        // Get the sample value at the read pointer of the circular buffer
-        // The sample value is 24Bit (little endian, encoded in 32bit).
-        unsafe
-        {
-            return *(Int32*)read_pos;
-        }
-    }
 
     public MainViewModel()
     {
@@ -99,10 +89,8 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Range", "10 V");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Range", "10 V");
 
-        MyEnc.Boards.FirstOrDefault(b => b.Id == board_id)?.SetAcquisitionProperties();
-
-
-        MyEnc.Boards.FirstOrDefault(b => b.Id == board_id)?.UpdateBoard();
+        MyEnc.Boards[board_id].SetAcquisitionProperties();
+        MyEnc.Boards[board_id].UpdateBoard();
 
         var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY);
         TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
@@ -126,8 +114,8 @@ public class MainViewModel : BaseViewModel, IDisposable
                     read_pos -= buffer.Size;
                 }
 
-                Int32 raw_data = GetDataAtPos(read_pos);
-                float value = (float)((float)raw_data / 0x7FFFFF00 * 10.0);
+                float value = Marshal.ReadInt32((IntPtr)read_pos);
+                value = (float)((float)value / 0x7FFFFF00 * 10.0);
 
                 var dispatcher = Dispatcher.GetForCurrentThread();
                 if (dispatcher != null)
