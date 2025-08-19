@@ -7,7 +7,7 @@ namespace TRION_SDK_UI.Converters
 {
     public class ChannelToStringConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             var channel = value as Channel;
             if (channel == null)
@@ -15,7 +15,7 @@ namespace TRION_SDK_UI.Converters
             return $"Board {channel.BoardID} - {channel.Name}";
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

@@ -9,15 +9,40 @@ using System.Diagnostics;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
+    public ChartRecorder Recorder { get; } = new();
+
+    public ISeries[] MeasurementSeries { get; set; } = [];
+
+    public ObservableCollection<double> ChartWindowData => Recorder.Window;
+    public int WindowSize
+    {
+        get => Recorder.WindowSize;
+        set
+        {
+            if (Recorder.WindowSize != value)
+            {
+                Recorder.WindowSize = value;
+                OnPropertyChanged(nameof(WindowSize));
+                OnPropertyChanged(nameof(MaxScrollIndex));
+            }
+        }
+    }
+    public int ScrollIndex
+    {
+        get => Recorder.ScrollIndex;
+        set
+        {
+            if (Recorder.ScrollIndex != value)
+            {
+                Recorder.ScrollIndex = value;
+                OnPropertyChanged(nameof(ScrollIndex));
+            }
+        }
+    }
+    public int MaxScrollIndex => Recorder.MaxScrollIndex;
+
     public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
-
-    public ISeries[] MeasurementSeries { get; set; } = Array.Empty<ISeries>();
-    public List<double> ChannelMeasurementData { get; } = [];
-    public ICommand ChannelSelectedCommand { get; }
-    public ICommand StartAcquisitionCommand { get; }
-    public ICommand StopAcquisitionCommand { get; }
-    public ICommand LockScrollingCommand { get; }
 
     private bool _isScrollingLocked = true;
 
@@ -27,9 +52,8 @@ public class MainViewModel : BaseViewModel, IDisposable
         Boards = []
     };
 
-    private CancellationTokenSource _cts;
-    private Task _acquisitionTask;
-
+    private CancellationTokenSource? _cts;
+    private Task? _acquisitionTask;
     private double _yAxisMin = -10;
     public double YAxisMin
     {
@@ -79,8 +103,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
     }
 
-    public Axis[] YAxes { get; set; }
-
+    public Axis[]? YAxes { get; set; }
     private void UpdateYAxes()
     {
         YAxes = [
@@ -94,6 +117,10 @@ public class MainViewModel : BaseViewModel, IDisposable
         OnPropertyChanged(nameof(YAxes));
     }
 
+    public ICommand ChannelSelectedCommand { get; private set; }
+    public ICommand StartAcquisitionCommand { get; private set; }
+    public ICommand StopAcquisitionCommand { get; private set; }
+    public ICommand LockScrollingCommand { get; private set; }
     public MainViewModel()
     {
         LogMessages.Add("App started.");
@@ -149,8 +176,8 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         _cts?.Cancel();
         _acquisitionTask?.Wait();
-        ChannelMeasurementData.Clear();
-        ChartWindowData.Clear();
+        Recorder.Data.Clear();
+        Recorder.Window.Clear();
 
         MeasurementSeries = [
             new LineSeries<double>
@@ -182,7 +209,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
         CircularBuffer buffer = new(board_id);
 
-        while (!_cts.IsCancellationRequested)
+        while (_cts != null && !_cts.IsCancellationRequested)
         {
             var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
             available_samples -= adc_delay;
@@ -211,65 +238,16 @@ public class MainViewModel : BaseViewModel, IDisposable
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                foreach (var v in tempValues)
-                {
-                    ChannelMeasurementData.Add(v);
-                }
+                Recorder.AddSamples(tempValues);
 
                 if (_isScrollingLocked)
                 {
-                    ScrollIndex = MaxScrollIndex;
-                }
-                else
-                {
-                    UpdateChartWindow();
+                    Recorder.AutoScroll();
+                    OnPropertyChanged(nameof(ScrollIndex));
                 }
                 OnPropertyChanged(nameof(MaxScrollIndex));
             });
         }
         TrionApi.DeWeSetParam_i32(board_id, TrionCommand.STOP_ACQUISITION, 0);
-    }
-
-    public ObservableCollection<double> ChartWindowData { get; } = [];
-    private int _windowSize = 800;
-    public int WindowSize
-    {
-        get => _windowSize;
-        set
-        {
-            if (_windowSize != value)
-            {
-                _windowSize = value;
-                UpdateChartWindow();
-                OnPropertyChanged(nameof(WindowSize));
-                OnPropertyChanged(nameof(MaxScrollIndex));
-            }
-        }
-    }
-
-    private int _scrollIndex;
-    public int ScrollIndex
-    {
-        get => _scrollIndex;
-        set
-        {
-            if (_scrollIndex != value)
-            {
-                _scrollIndex = value;
-                UpdateChartWindow();
-                OnPropertyChanged(nameof(ScrollIndex));
-            }
-        }
-    }
-
-    public int MaxScrollIndex => Math.Max(0, ChannelMeasurementData.Count - WindowSize);
-
-    private void UpdateChartWindow()
-    {
-        ChartWindowData.Clear();
-        foreach (var v in ChannelMeasurementData.Skip(ScrollIndex).Take(WindowSize))
-        {
-            ChartWindowData.Add(v);
-        }
     }
 }
