@@ -1,22 +1,19 @@
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using System.Collections.ObjectModel;
-using System.Threading.Channels;
 using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
-using TrionApiUtils;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Diagnostics;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
-    public ObservableCollection<TRION_SDK_UI.Models.Channel> Channels { get; } = [];
+    public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
 
     public ISeries[] MeasurementSeries { get; set; } = Array.Empty<ISeries>();
-    public ObservableCollection<double> ChannelMeasurementData { get; } = [];
+    public List<double> ChannelMeasurementData { get; } = [];
     public ICommand ChannelSelectedCommand { get; }
 
     public Enclosure MyEnc { get; } = new Enclosure
@@ -109,7 +106,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         OnPropertyChanged(nameof(Channels));
-        ChannelSelectedCommand = new Command<TRION_SDK_UI.Models.Channel>(OnChannelSelected);
+        ChannelSelectedCommand = new Command<Channel>(OnChannelSelected);
 
         UpdateYAxes();
     }
@@ -122,27 +119,28 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.Uninitialize();
     }
 
-    private void OnChannelSelected(TRION_SDK_UI.Models.Channel selectedChannel)
+    private void OnChannelSelected(Channel selectedChannel)
     {
         _cts?.Cancel();
         _acquisitionTask?.Wait();
         ChannelMeasurementData.Clear();
+        ChartWindowData.Clear();
 
         MeasurementSeries = [
-        new LineSeries<double>
-        {
-            Values = ChannelMeasurementData,
-            Name = $"{selectedChannel.Name}",
-            AnimationsSpeed = TimeSpan.Zero,
-            GeometrySize = 0 // <-- This removes the dots
-        }];
+            new LineSeries<double>
+            {
+                Values = ChartWindowData,
+                Name = $"{selectedChannel.Name}",
+                AnimationsSpeed = TimeSpan.Zero,
+                GeometrySize = 0
+            }];
         OnPropertyChanged(nameof(MeasurementSeries));
 
         _cts = new CancellationTokenSource();
         _acquisitionTask = Task.Run(() => AcquireDataLoop(selectedChannel), _cts.Token);
     }
 
-    private void AcquireDataLoop(TRION_SDK_UI.Models.Channel selectedChannel)
+    private void AcquireDataLoop(Channel selectedChannel)
     {
         var board_id = selectedChannel.BoardID;
         var channel_name = selectedChannel.Name;
@@ -155,22 +153,21 @@ public class MainViewModel : BaseViewModel, IDisposable
         MyEnc.Boards[board_id].UpdateBoard();
 
         var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY);
-        TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.START_ACQUISITION, 0);
+        TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
         CircularBuffer buffer = new(board_id);
 
         while (!_cts.IsCancellationRequested)
         {
-            var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
+            var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
             available_samples -= adc_delay;
             if (available_samples <= 0)
             {
                 Thread.Sleep(10);
                 continue;
             }
-            var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, Trion.TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
-            read_pos += adc_delay * sizeof(UInt32);
+            var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+            read_pos += adc_delay * sizeof(uint);
             List<double> tempValues = [.. new double[available_samples]];
-            Debug.WriteLine($"Acquiring {available_samples} samples from board {board_id} at position {read_pos}.");
             for (int i = 0; i < available_samples; ++i)
             {
                 if (read_pos >= buffer.EndPosition)
@@ -182,27 +179,64 @@ public class MainViewModel : BaseViewModel, IDisposable
                 value = (float)((float)value / 0x7FFFFF00 * 10.0);
                 tempValues[i] = value;
 
-                read_pos += sizeof(UInt32);
+                read_pos += sizeof(uint);
             }
-            TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+            TrionApi.DeWeSetParam_i32(board_id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
 
-            Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() =>
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                int i = 0;
                 foreach (var v in tempValues)
                 {
-                    if (i < ChannelMeasurementData.Count)
-                    {
-                        ChannelMeasurementData[i] = v; // Overwrite existing value
-                    }
-                    else
-                    {
-                        ChannelMeasurementData.Add(v); // Add new value if needed
-                    }
-                    i++;
+                    ChannelMeasurementData.Add(v);
                 }
+
+                UpdateChartWindow();
+                OnPropertyChanged(nameof(MaxScrollIndex));
             });
         }
-        TrionApi.DeWeSetParam_i32(board_id, Trion.TrionCommand.STOP_ACQUISITION, 0);
+        TrionApi.DeWeSetParam_i32(board_id, TrionCommand.STOP_ACQUISITION, 0);
+    }
+
+    public ObservableCollection<double> ChartWindowData { get; } = [];
+    private int _windowSize = 800;
+    public int WindowSize
+    {
+        get => _windowSize;
+        set
+        {
+            if (_windowSize != value)
+            {
+                _windowSize = value;
+                UpdateChartWindow();
+                OnPropertyChanged(nameof(WindowSize));
+                OnPropertyChanged(nameof(MaxScrollIndex));
+            }
+        }
+    }
+
+    private int _scrollIndex;
+    public int ScrollIndex
+    {
+        get => _scrollIndex;
+        set
+        {
+            if (_scrollIndex != value)
+            {
+                _scrollIndex = value;
+                UpdateChartWindow();
+                OnPropertyChanged(nameof(ScrollIndex));
+            }
+        }
+    }
+
+    public int MaxScrollIndex => Math.Max(0, ChannelMeasurementData.Count - WindowSize);
+
+    private void UpdateChartWindow()
+    {
+        ChartWindowData.Clear();
+        foreach (var v in ChannelMeasurementData.Skip(ScrollIndex).Take(WindowSize))
+        {
+            ChartWindowData.Add(v);
+        }
     }
 }

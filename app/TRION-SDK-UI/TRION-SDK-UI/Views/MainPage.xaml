@@ -54,20 +54,22 @@
                     YAxes="{Binding YAxes}"
                     HeightRequest="400"
                     Margin="0,20,0,0"/>
+                <Slider
+                    Minimum="100"
+                    Maximum="5000"
+                    Value="{Binding WindowSize, Mode=TwoWay}"
+                    Margin="0,10,0,0"/>
+                <Label Text="{Binding WindowSize}" />
+                <Slider
+                    Minimum="0"
+                    Maximum="{Binding MaxScrollIndex}"
+                    Value="{Binding ScrollIndex, Mode=TwoWay}"
+                    Margin="0,10,0,0"/>
 
                 <!-- Log View -->
                 <CollectionView x:Name="LogView"
                                 ItemsSource="{Binding LogMessages}"
-                                HeightRequest="200">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Label Text="{Binding .}" FontSize="12" />
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-
-                <!-- Add this where you want to display the data -->
-                <CollectionView ItemsSource="{Binding MeasurementSeries}" HeightRequest="800">
+                                HeightRequest="50">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Label Text="{Binding .}" FontSize="12" />
