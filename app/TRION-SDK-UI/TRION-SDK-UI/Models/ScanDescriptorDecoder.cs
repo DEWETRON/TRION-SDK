@@ -10,6 +10,7 @@ public partial class ScanDescriptorDecoder
         public string? Name { get; set; }
         public string? Type { get; set; }
         public uint Index { get; set; }
+        public uint SamplePos { get; set; }
         public uint SampleSize { get; set; }
         public uint SampleOffset { get; set; }
     }
@@ -48,6 +49,7 @@ public partial class ScanDescriptorDecoder
                 Name = channel.GetAttribute("name", ""),
                 Type = channel.GetAttribute("type", ""),
                 Index = uint.Parse(channel.GetAttribute("index", "")),
+                SamplePos = uint.Parse(sample.GetAttribute("pos", "")),
                 SampleSize = uint.Parse(sample.GetAttribute("size", "")),
                 SampleOffset = uint.Parse(sample.GetAttribute("offset", ""))
             });

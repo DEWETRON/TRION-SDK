@@ -15,5 +15,6 @@ namespace TRION_SDK_UI.Models
         public uint Index { get; set; }
         public uint SampleSize { get; set; }
         public uint SampleOffset { get; set; }
+        public bool IsSelected { get; set; }
     }
 }

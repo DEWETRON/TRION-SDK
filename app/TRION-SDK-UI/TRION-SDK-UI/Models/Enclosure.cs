@@ -19,8 +19,6 @@ public class Enclosure
 
         var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
         var boardPropertiesModel = new BoardPropertyModel(boardPropertiesXml);
-        var test = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor").value;
-        Debug.WriteLine($"This is a test: {test}");
 
         var newBoard = new Board()
         {

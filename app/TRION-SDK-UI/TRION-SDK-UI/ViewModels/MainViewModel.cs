@@ -203,8 +203,26 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         MyEnc.Boards[board_id].SetAcquisitionProperties(sampleRate: "2000", buffer_block_size: 200, buffer_block_count: 50);
         MyEnc.Boards[board_id].UpdateBoard();
+        // --- Scan Descriptor Integration ---
+        var scanDescriptorResult = TrionApi.DeWeGetParamStruct_String($"BoardID{board_id}", "ScanDescriptor_V3");
+        string scanDescriptorXml = scanDescriptorResult.value;
+        var decoder = new ScanDescriptorDecoder(scanDescriptorXml);
+        uint scanSizeBytes = decoder.ScanSizeBytes;
+        var channelInfo = decoder.Channels.FirstOrDefault(c => c.Name == channel_name);
 
-        var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY);
+        Debug.WriteLine( "#-------------------------------------------------");
+        Debug.WriteLine($"#Board: {MyEnc.Boards[board_id]} {channel_name}   ");
+        Debug.WriteLine($"#XML {scanDescriptorXml}                          ");
+        Debug.WriteLine($"#Channel Name {channelInfo.Name}                  ");
+        Debug.WriteLine($"#Channel Type {channelInfo.Type}                  ");
+        Debug.WriteLine($"#Channel Index {channelInfo.Index}                ");
+        Debug.WriteLine($"#Scan Size {decoder.ScanSizeBytes}                ");
+        Debug.WriteLine($"#SamplePos {channelInfo.SamplePos}                ");
+        Debug.WriteLine($"#SampleSize {channelInfo.SampleSize}              ");
+        Debug.WriteLine($"#SampleOffset {channelInfo.SampleOffset}          ");
+        Debug.WriteLine( "#-------------------------------------------------");
+
+        var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
         TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
         CircularBuffer buffer = new(board_id);
 

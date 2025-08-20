@@ -70,7 +70,7 @@
                 <!-- Log View -->
                 <CollectionView x:Name="LogView"
                                 ItemsSource="{Binding LogMessages}"
-                                HeightRequest="50">
+                                HeightRequest="200">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Label Text="{Binding .}" FontSize="12" />
@@ -97,16 +97,15 @@
                         ItemsSource="{Binding Channels}"
                         BackgroundColor="LightGray"
                         SelectionMode="None"
-                        Margin="10,0,0,0">
+                        Margin="8,0,0,0">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Label Text="{Binding ., Converter={StaticResource ChannelToStringConverter}}" Padding="3" FontSize="14" TextColor="Black">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer
-                                Command="{Binding BindingContext.ChannelSelectedCommand, Source={x:Reference RootGrid}}"
-                                CommandParameter="{Binding .}" />
-                        </Label.GestureRecognizers>
-                    </Label>
+                    <HorizontalStackLayout Spacing="8" Padding="3">
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                        <Label Text="{Binding ., Converter={StaticResource ChannelToStringConverter}}"
+                               FontSize="14"
+                               TextColor="Black" />
+                    </HorizontalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
