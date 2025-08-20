@@ -28,7 +28,15 @@ public class TrionApi
 
     public static void Uninitialize()
     {
-        // TODO
+        TrionError nErrorCode = Trion.API.DeWeDriverDeInit();
+        if (nErrorCode != TrionError.NONE)
+        {
+            System.Diagnostics.Debug.WriteLine($"TRION API Uninit failed: {Trion.API.DeWeErrorConstantToString(nErrorCode)}");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("TRION API Uninit succeeded.");
+        }
     }
 
 
@@ -98,6 +106,11 @@ public class TrionApi
             // No null terminator found, convert entire buffer
             return (error, System.Text.Encoding.UTF8.GetString(buffer));
         }
+    }
+
+    public static Trion.TrionError DeWeSetParamStruct(string target, string item, string var)
+    {
+        return Trion.API.DeWeSetParamStruct_str(target, item, var);
     }
 
     // Alternative version with manual buffer size (for backwards compatibility or special cases)

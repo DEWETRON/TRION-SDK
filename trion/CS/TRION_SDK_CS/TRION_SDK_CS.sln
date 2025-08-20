@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDigitalChannel", "OneDig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrionApi", "..\..\..\trion_api\CS\TrionApi\TrionApi.csproj", "{9F188831-338E-C037-D807-5DFE1B601DCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ListBoards", "ListBoards\ListBoards.csproj", "{98E03D7F-24EA-4FF2-9BD3-C59DA4E742F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{9F188831-338E-C037-D807-5DFE1B601DCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F188831-338E-C037-D807-5DFE1B601DCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F188831-338E-C037-D807-5DFE1B601DCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98E03D7F-24EA-4FF2-9BD3-C59DA4E742F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98E03D7F-24EA-4FF2-9BD3-C59DA4E742F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98E03D7F-24EA-4FF2-9BD3-C59DA4E742F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98E03D7F-24EA-4FF2-9BD3-C59DA4E742F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
