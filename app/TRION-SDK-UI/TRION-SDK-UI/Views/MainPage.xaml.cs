@@ -18,7 +18,7 @@ namespace TRION_SDK_UI
             DragHandle.GestureRecognizers.Add(panGesture);
         }
 
-        private void OnDragHandlePanUpdated(object sender, PanUpdatedEventArgs e)
+        private void OnDragHandlePanUpdated(object? sender, PanUpdatedEventArgs e)
         {
             switch (e.StatusType)
             {

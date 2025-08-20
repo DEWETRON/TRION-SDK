@@ -13,7 +13,7 @@ namespace TrionApiUtils
             if ((int)error_code < 0)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"TRION API Warning: {user_message} {error_code}");
+                System.Diagnostics.Debug.WriteLine($"TRION API Warning: {user_message} {error_code}");
                 Console.ResetColor();
                 return;
             }

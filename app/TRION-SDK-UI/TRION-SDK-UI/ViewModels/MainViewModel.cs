@@ -1,65 +1,167 @@
-using System.Collections.ObjectModel;
-using Trion;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
-
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using Trion;
+using TRION_SDK_UI.Models;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
-    public ObservableCollection<string> ChannelNames { get; } = new();
-    public ObservableCollection<string> LogMessages { get; } = new();
+    public ChartRecorder Recorder { get; } = new();
 
-    public ISeries[] MeasurementSeries { get; set; }
+    public ISeries[] MeasurementSeries { get; set; } = [];
+
+    public ObservableCollection<double> ChartWindowData => Recorder.Window;
+    public int WindowSize
+    {
+        get => Recorder.WindowSize;
+        set
+        {
+            if (Recorder.WindowSize != value)
+            {
+                Recorder.WindowSize = value;
+                OnPropertyChanged(nameof(WindowSize));
+                OnPropertyChanged(nameof(MaxScrollIndex));
+            }
+        }
+    }
+    public int ScrollIndex
+    {
+        get => Recorder.ScrollIndex;
+        set
+        {
+            if (Recorder.ScrollIndex != value)
+            {
+                Recorder.ScrollIndex = value;
+                OnPropertyChanged(nameof(ScrollIndex));
+            }
+        }
+    }
+    public int MaxScrollIndex => Recorder.MaxScrollIndex;
+
+    public ObservableCollection<Channel> Channels { get; } = [];
+    public ObservableCollection<string> LogMessages { get; } = [];
+
+    private bool _isScrollingLocked = true;
 
     public Enclosure MyEnc { get; } = new Enclosure
     {
         Name = "MyEnc",
-        Boards = new ObservableCollection<Board>{}
+        Boards = []
     };
 
-    // ... other properties and methods ...
+    private CancellationTokenSource? _cts;
+    private Task? _acquisitionTask;
+    private double _yAxisMin = -10;
+    public double YAxisMin
+    {
+        get => _yAxisMin;
+        set
+        {
+            if (_yAxisMin != value)
+            {
+                _yAxisMin = value;
+                UpdateYAxes();
+                OnPropertyChanged();
+            }
+        }
+    }
+    private void StartAcquisition()
+    {
+        LogMessages.Add("Starting acquisition...");
+    }
+
+    private void StopAcquisition()
+    {
+        LogMessages.Add("Stopping acquisition...");
+    }
+    private void LockScrolling()
+    {
+        _isScrollingLocked = !_isScrollingLocked;
+        LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
+
+        if (_isScrollingLocked)
+        {
+            ScrollIndex = MaxScrollIndex;
+        }
+    }
+
+    private double _yAxisMax = 10;
+    public double YAxisMax
+    {
+        get => _yAxisMax;
+        set
+        {
+            if (_yAxisMax != value)
+            {
+                _yAxisMax = value;
+                UpdateYAxes();
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public Axis[]? YAxes { get; set; }
+    private void UpdateYAxes()
+    {
+        YAxes = [
+            new Axis
+            {
+                MinLimit = YAxisMin,
+                MaxLimit = YAxisMax,
+                Name = "Voltage"
+            }
+        ];
+        OnPropertyChanged(nameof(YAxes));
+    }
+
+    public ICommand ChannelSelectedCommand { get; private set; }
+    public ICommand StartAcquisitionCommand { get; private set; }
+    public ICommand StopAcquisitionCommand { get; private set; }
+    public ICommand LockScrollingCommand { get; private set; }
     public MainViewModel()
     {
         LogMessages.Add("App started.");
 
-        var nNoOfBoards = Math.Abs(TrionApi.Initialize());
-
-        var enc0_name = TrionApi.DeWeGetParamXML_String("BoardID0/boardproperties/SystemInfo/EnclosureInfo", "Name").value;
-        MyEnc.Name = enc0_name;
-
-        TrionApi.DeWeSetParam_i32(0, TrionCommand.OPEN_BOARD_ALL, 0);
-
-
-        for (int i = 0; i < nNoOfBoards; ++i)
+        var numberOfBoards = TrionApi.Initialize();
+        if (numberOfBoards < 0)
         {
-            var board_name = TrionApi.DeWeGetParamStruct_String($"BoardID0{i}", "BoardName").value;
-            var board_properties = TrionApi.DeWeGetParamStruct_String($"BoardID0{i}", "boardproperties").value;
-            var board_property_model = new BoardPropertyModel(board_properties);
-
-            MyEnc.Boards.Add(new Board { Name = board_name, IsActive = true, BoardProperties = board_property_model });
-
-
-            // channels:
-            foreach (string item in board_property_model.getChannelNames())
-            {
-                ChannelNames.Add(item);
-            }
-
-
+            LogMessages.Add($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
         }
+        else if (numberOfBoards > 0)
+        {
+            LogMessages.Add($"Number of real Boards found: {numberOfBoards}");
+        }
+        else
+        {
+            LogMessages.Add("No Trion Boards found.");
+        }
+
+        numberOfBoards = Math.Abs(numberOfBoards);
+
+        MyEnc.Init(numberOfBoards);
         OnPropertyChanged(nameof(MyEnc));
 
-
-        // Example measurement data
-        var values = new ObservableCollection<double> { 1, 3, 2, 5, 4, 6, 3, 7 };
-        MeasurementSeries = new ISeries[]
+        foreach (var board in MyEnc.Boards)
         {
-            new LineSeries<double>
+            LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
+            foreach (var channel in board.Channels)
             {
-                Values = values,
-                Name = "Channel 1"
+                if (channel.Name != null)
+                {
+                    Channels.Add(channel);
+                }
             }
-        };
+        }
+
+        OnPropertyChanged(nameof(Channels));
+        ChannelSelectedCommand = new Command<Channel>(OnChannelSelected);
+        StartAcquisitionCommand = new Command(StartAcquisition);
+        StopAcquisitionCommand = new Command(StopAcquisition);
+        LockScrollingCommand = new Command(LockScrolling);
+        UpdateYAxes();
     }
 
     public void Dispose()
@@ -68,5 +170,84 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         // Call your uninitialize function here
         TrionApi.Uninitialize();
+    }
+
+    private void OnChannelSelected(Channel selectedChannel)
+    {
+        _cts?.Cancel();
+        _acquisitionTask?.Wait();
+        Recorder.Data.Clear();
+        Recorder.Window.Clear();
+
+        MeasurementSeries = [
+            new LineSeries<double>
+            {
+                Values = ChartWindowData,
+                Name = $"{selectedChannel.Name}",
+                AnimationsSpeed = TimeSpan.Zero,
+                GeometrySize = 0
+            }];
+        OnPropertyChanged(nameof(MeasurementSeries));
+
+        _cts = new CancellationTokenSource();
+        _acquisitionTask = Task.Run(() => AcquireDataLoop(selectedChannel), _cts.Token);
+    }
+
+    private void AcquireDataLoop(Channel selectedChannel)
+    {
+        var board_id = selectedChannel.BoardID;
+        var channel_name = selectedChannel.Name;
+
+        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
+        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Used", "True");
+        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Range", "10 V");
+
+        MyEnc.Boards[board_id].SetAcquisitionProperties(sampleRate: "2000", buffer_block_size: 200, buffer_block_count: 50);
+        MyEnc.Boards[board_id].UpdateBoard();
+
+        var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY);
+        TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
+        CircularBuffer buffer = new(board_id);
+
+        while (_cts != null && !_cts.IsCancellationRequested)
+        {
+            var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
+            available_samples -= adc_delay;
+            if (available_samples <= 0)
+            {
+                Thread.Sleep(10);
+                continue;
+            }
+            var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+            read_pos += adc_delay * sizeof(uint);
+            List<double> tempValues = [.. new double[available_samples]];
+            for (int i = 0; i < available_samples; ++i)
+            {
+                if (read_pos >= buffer.EndPosition)
+                {
+                    read_pos -= buffer.Size;
+                }
+
+                float value = Marshal.ReadInt32((IntPtr)read_pos);
+                value = (float)((float)value / 0x7FFFFF00 * 10.0);
+                tempValues[i] = value;
+
+                read_pos += sizeof(uint);
+            }
+            TrionApi.DeWeSetParam_i32(board_id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Recorder.AddSamples(tempValues);
+
+                if (_isScrollingLocked)
+                {
+                    Recorder.AutoScroll();
+                    OnPropertyChanged(nameof(ScrollIndex));
+                }
+                OnPropertyChanged(nameof(MaxScrollIndex));
+            });
+        }
+        TrionApi.DeWeSetParam_i32(board_id, TrionCommand.STOP_ACQUISITION, 0);
     }
 }
