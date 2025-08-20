@@ -27,12 +27,7 @@ public partial class ScanDescriptorDecoder
         var doc = new XPathDocument(new System.IO.StringReader(scanDescriptorXML));
         var nav = doc.CreateNavigator();
 
-        var scanDescNode = nav.SelectSingleNode("ScanDescriptor/*/ScanDescription");
-        if (scanDescNode == null)
-        {
-            throw new Exception("ScanDescriptor unexpected element");
-        }
-
+        var scanDescNode = nav.SelectSingleNode("ScanDescriptor/*/ScanDescription") ?? throw new Exception("ScanDescriptor unexpected element");
         ScanSizeBytes = uint.Parse(scanDescNode.GetAttribute("scan_size", "")) / 8;
 
         var channelNodes = scanDescNode.Select("Channel");

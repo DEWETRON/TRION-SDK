@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Trion;
 using TRION_SDK_UI.Models;
 
@@ -18,12 +19,18 @@ public class Enclosure
 
         var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
         var boardPropertiesModel = new BoardPropertyModel(boardPropertiesXml);
+        var test = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor").value;
+        Debug.WriteLine($"This is a test: {test}");
 
-        var newBoard = new Board(boardPropertiesModel);
-
-        string scanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor").value;
-        newBoard.SetBoardProperties();
-        newBoard.ReadScanDescriptor(scanDescriptorXml);
+        var newBoard = new Board()
+        {
+            Id = boardId,
+            Name = boardPropertiesModel.GetBoardName(),
+            IsActive = true,
+            BoardProperties = boardPropertiesModel,
+            Channels = boardPropertiesModel.GetChannels(),
+            ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value
+        };
 
         Boards.Add(newBoard);
     }

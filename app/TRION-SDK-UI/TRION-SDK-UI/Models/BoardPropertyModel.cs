@@ -1,5 +1,6 @@
 using System.Reflection.Metadata;
 using System.Xml.XPath;
+using TRION_SDK_UI.Models;
 
 public class BoardPropertyModel
 {
@@ -23,12 +24,32 @@ public class BoardPropertyModel
             var channelNav = iterator.Current;
             if (channelNav != null)
             {
-                string channel = channelNav.Name;
-                channelNames.Add(channel);
+                channelNames.Add(channelNav.Name);
             }
         }
 
         return channelNames;
+    }
+
+    public List<Channel> GetChannels()
+    {
+        var channels = new List<Channel>();
+        var iterator = _navigator.Select("Properties/ChannelProperties/*");
+        while (iterator.MoveNext())
+        {
+            var channelNav = iterator.Current;
+            if (channelNav != null)
+            {
+                var channel = new Channel()
+                {
+                    BoardID = GetBoardID(),
+                    BoardName = GetBoardName(),
+                    Name = channelNav.Name
+                };
+                channels.Add(channel);
+            }
+        }
+        return channels;
     }
 
     public string GetBoardName()

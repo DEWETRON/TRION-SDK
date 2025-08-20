@@ -147,12 +147,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
-            foreach (var channel in board.Channels)
+            foreach (var channel in board.BoardProperties.GetChannels())
             {
-                if (channel.Name != null)
-                {
-                    Channels.Add(channel);
-                }
+                Channels.Add(channel);
             }
         }
 
@@ -197,6 +194,8 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         var board_id = selectedChannel.BoardID;
         var channel_name = selectedChannel.Name;
+
+        Debug.WriteLine($"Board ID: {board_id}    channel name: {channel_name}  ");
 
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
         TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Used", "True");

@@ -15,40 +15,17 @@ namespace TRION_SDK_UI.Models
         Digital = 2,
         Counter = 3
     }
-    public class Board(BoardPropertyModel BoardProperties)
+    public class Board()
     {
         public int Id { get; set; }
 
         public string? Name { get; set; }
         public bool IsActive { get; set; }
-        public BoardPropertyModel BoardProperties { get; set; } = BoardProperties;
+        public BoardPropertyModel? BoardProperties { get; set; }
         public List<Channel> Channels { get; set; } = [];
         public uint ScanSizeBytes { get; set; }
         public ScanDescriptorDecoder? ScanDescriptorDecoder { get; set; }
         public string ScanDescriptorXml { get; set; } = string.Empty;
-
-        public void ReadScanDescriptor(string scanDescriptorXml)
-        {
-            if (string.IsNullOrWhiteSpace(scanDescriptorXml))
-            {
-                System.Diagnostics.Debug.WriteLine($"Return Early");
-                return;
-            }
-            System.Diagnostics.Debug.WriteLine($"BoardID {Id}");
-
-            ScanDescriptorDecoder = new ScanDescriptorDecoder(scanDescriptorXml);
-            Channels = [.. ScanDescriptorDecoder.Channels
-                .Select(c => new Channel
-                {
-                    BoardID = Id,
-                    Name = c.Name ?? string.Empty,
-                    ChannelType = c.Type,
-                    Index = c.Index,
-                    SampleSize = c.SampleSize,
-                    SampleOffset = c.SampleOffset
-                })];
-            ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
-        }
 
         public void SetBoardProperties()
         {
