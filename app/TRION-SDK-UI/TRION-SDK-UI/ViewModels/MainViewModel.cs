@@ -141,33 +141,11 @@ public class MainViewModel : BaseViewModel, IDisposable
         var selectedBoardIds = selectedChannels.Select(c => c.BoardID).Distinct();
         var selectedBoards = MyEnc.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
 
-        foreach (var ch in selectedChannels)
-        {
-            Debug.WriteLine($"TEST selected channel: {ch.Name}");
-        }
-        foreach (var bid in selectedBoardIds)
-        {
-            Debug.WriteLine($"TEST selected board ids: {bid}");
-        }
-        foreach (var selb in selectedBoards)
-        {
-            Debug.WriteLine($"TEST selected boads: {selb.Name}");
-        }
-
         // Reset boards
         foreach (var selected_board in selectedBoards)
         {
             selected_board.ResetBoard();
-        }
-        // set board properties
-        // set buffer properties
-        foreach (var selected_board in selectedBoards)
-        {
             selected_board.SetAcquisitionProperties();
-        }
-        // disable all channels
-        foreach (var selected_board in selectedBoards)
-        {
             TrionApi.DeWeSetParamStruct($"BoardID{selected_board.Id}/AIAll", "Used", "False");
         }
         // enable selected channels
@@ -181,8 +159,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         {
             selected_board.UpdateBoard();
         }
-
-
 
 
         MeasurementSeries = selectedChannels.Select(ch => new LineSeries<double>
@@ -199,12 +175,12 @@ public class MainViewModel : BaseViewModel, IDisposable
             board.ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}", "ScanDescriptor_V3").value;
             board.ScanDescriptorDecoder = new ScanDescriptorDecoder(board.ScanDescriptorXml);
             board.ScanSizeBytes = board.ScanDescriptorDecoder.ScanSizeBytes;
-            Debug.WriteLine($"TEST XML: {board.ScanDescriptorXml}");
+            //Debug.WriteLine($"TEST XML: {board.ScanDescriptorXml}");
         }
 
         foreach (var channel in selectedChannels)
         {
-            Debug.WriteLine($"Channel selected: {channel.Name}");
+            //Debug.WriteLine($"Channel selected: {channel.Name}");
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
             var task = Task.Run(() => AcquireDataLoop(channel, cts.Token), cts.Token);
@@ -260,9 +236,13 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
     private void AcquireDataLoop(Channel selectedChannel, CancellationToken token)
     {
-        var board_id = selectedChannel.BoardID;
-        var channel_name = selectedChannel.Name;
+        var board = MyEnc.Boards.First(b => b.Id == selectedChannel.BoardID);
+        var scanSize = (int)board.ScanSizeBytes;
+        var scanDescriptor = board.ScanDescriptorDecoder;
+        var channelInfo = scanDescriptor.Channels.FirstOrDefault(c => c.Name == selectedChannel.Name);
+        if (channelInfo == null) return;
 
+        var board_id = selectedChannel.BoardID;
         var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
         TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
         CircularBuffer buffer = new(board_id);
@@ -277,21 +257,35 @@ public class MainViewModel : BaseViewModel, IDisposable
                 continue;
             }
             var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
-            read_pos += adc_delay * sizeof(uint);
-            List<double> tempValues = [.. new double[available_samples]];
+            read_pos += adc_delay * scanSize;
+
+            List<double> tempValues = new List<double>(available_samples);
             for (int i = 0; i < available_samples; ++i)
             {
+                var offset_bytes = (int)channelInfo.SampleOffset / 8;
+                var samplePos = read_pos + offset_bytes;
+                int raw = Marshal.ReadInt32((IntPtr)samplePos);
+
+                // Apply bitmask for sample size
+                int bitmask = (1 << (int)channelInfo.SampleSize) - 1;
+                raw &= bitmask;
+
+                // Sign extension if needed
+                if ((raw & (1 << ((int)channelInfo.SampleSize - 1))) != 0)
+                {
+                    raw |= ~bitmask;
+                }
+
+                // Scale value (adjust scaling for your hardware/range)
+                double value = (double)raw / 0x7FFFFF * 10.0;
+
+                tempValues.Add(value);
+
+                read_pos += scanSize;
                 if (read_pos >= buffer.EndPosition)
                 {
                     read_pos -= buffer.Size;
                 }
-
-                float value = Marshal.ReadInt32((IntPtr)read_pos);
-                value = (float)((float)value / 0x7FFFFF00 * 10.0);
-                tempValues[i] = value;
-                //Debug.WriteLine($"TEST: Value {value}");
-
-                read_pos += sizeof(uint);
             }
             TrionApi.DeWeSetParam_i32(board_id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
 
