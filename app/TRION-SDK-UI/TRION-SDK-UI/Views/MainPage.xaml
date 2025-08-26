@@ -77,6 +77,20 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+
+                <!-- Channel Series Chart -->
+                <CollectionView ItemsSource="{Binding ChannelSeries}"
+                    HeightRequest="400"
+                    VerticalOptions="FillAndExpand">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <lvc:CartesianChart Series="{Binding .}"
+                                                YAxes="{Binding Source={x:Reference MainViewModel}, Path=YAxes}"
+                                                HeightRequest="300"
+                                                VerticalOptions="FillAndExpand"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </VerticalStackLayout>
         </ScrollView>
 

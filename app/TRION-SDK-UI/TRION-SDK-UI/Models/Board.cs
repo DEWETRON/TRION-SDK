@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,6 @@ namespace TRION_SDK_UI.Models
     public class Board()
     {
         public int Id { get; set; }
-
         public string? Name { get; set; }
         public bool IsActive { get; set; }
         public BoardPropertyModel? BoardProperties { get; set; }
@@ -46,10 +46,40 @@ namespace TRION_SDK_UI.Models
             error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
             error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate);
 
-            error |= TrionApi.DeWeSetParam_i32(Id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
-            error |= TrionApi.DeWeSetParam_i32(Id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
+            error |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
+            error |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
 
             Utils.CheckErrorCode(error, $"Failed to set acquisition properties for board {Id}");
+        }
+
+        public void ActivateChannels(IEnumerable<Channel> channelsToActivate)
+        {
+            // First, deactivate all channels on this board
+            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AIAll", "Used", "False");
+
+            // Then, activate only the specified channels
+            foreach (var channel in channelsToActivate)
+            {
+                Debug.WriteLine($"TEST channelsToActivate {channel.Name}");
+                if (channel.BoardID != Id)
+                {
+                    return;
+                }
+                error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/{channel.Name}", "Used", "True");
+                Debug.WriteLine($"TEST Used: BoardID{Id}/{channel.Name}");
+                error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/{channel.Name}", "Range", "10 V");
+                error |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.RESET_BOARD, 0);
+                
+            }
+            ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}", "ScanDescriptor_V3").value;
+            Debug.WriteLine($"TEST XML {ScanDescriptorXml}");
+            ScanDescriptorDecoder = new ScanDescriptorDecoder(ScanDescriptorXml);
+            ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
+
+
+            SetAcquisitionProperties(sampleRate: "2000", buffer_block_size: 200, buffer_block_count: 50);
+            UpdateBoard();
+            Utils.CheckErrorCode(error, $"Failed to activate channels for board {Id}");
         }
 
         public void ResetBoard()

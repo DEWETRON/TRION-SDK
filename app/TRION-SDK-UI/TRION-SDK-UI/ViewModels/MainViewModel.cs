@@ -11,9 +11,9 @@ public class MainViewModel : BaseViewModel, IDisposable
 {
     public ChartRecorder Recorder { get; } = new();
     public ISeries[] MeasurementSeries { get; set; } = [];
+    public ObservableCollection<ISeries[]> ChannelSeries { get; } = new();
     public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
-    public ObservableCollection<double> ChartWindowData => Recorder.Window;
     public int WindowSize
     {
         get => Recorder.WindowSize;
@@ -138,20 +138,69 @@ public class MainViewModel : BaseViewModel, IDisposable
         _ctsList.Clear();
 
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
-        if (selectedChannels.Count == 0)
+        var selectedBoardIds = selectedChannels.Select(c => c.BoardID).Distinct();
+        var selectedBoards = MyEnc.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
+
+        foreach (var ch in selectedChannels)
         {
-            LogMessages.Add("No channels selected.");
-            return;
+            Debug.WriteLine($"TEST selected channel: {ch.Name}");
         }
+        foreach (var bid in selectedBoardIds)
+        {
+            Debug.WriteLine($"TEST selected board ids: {bid}");
+        }
+        foreach (var selb in selectedBoards)
+        {
+            Debug.WriteLine($"TEST selected boads: {selb.Name}");
+        }
+
+        // Reset boards
+        foreach (var selected_board in selectedBoards)
+        {
+            selected_board.ResetBoard();
+        }
+        // set board properties
+        // set buffer properties
+        foreach (var selected_board in selectedBoards)
+        {
+            selected_board.SetAcquisitionProperties();
+        }
+        // disable all channels
+        foreach (var selected_board in selectedBoards)
+        {
+            TrionApi.DeWeSetParamStruct($"BoardID{selected_board.Id}/AIAll", "Used", "False");
+        }
+        // enable selected channels
+        foreach (var selected_channel in selectedChannels)
+        {
+            TrionApi.DeWeSetParamStruct($"BoardID{selected_channel.BoardID}/{selected_channel.Name}", "Used", "True");
+            TrionApi.DeWeSetParamStruct($"BoardID{selected_channel.BoardID}/{selected_channel.Name}", "Range", "10 V");
+        }
+        // update parameters
+        foreach (var selected_board in selectedBoards)
+        {
+            selected_board.UpdateBoard();
+        }
+
+
+
 
         MeasurementSeries = selectedChannels.Select(ch => new LineSeries<double>
         {
-            Values = ChartWindowData,
+            Values = Recorder.GetWindow(ch.Name),
             Name = ch.Name,
             AnimationsSpeed = TimeSpan.Zero,
             GeometrySize = 0
         }).ToArray();
         OnPropertyChanged(nameof(MeasurementSeries));
+
+        foreach (var board in MyEnc.Boards)
+        {
+            board.ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}", "ScanDescriptor_V3").value;
+            board.ScanDescriptorDecoder = new ScanDescriptorDecoder(board.ScanDescriptorXml);
+            board.ScanSizeBytes = board.ScanDescriptorDecoder.ScanSizeBytes;
+            Debug.WriteLine($"TEST XML: {board.ScanDescriptorXml}");
+        }
 
         foreach (var channel in selectedChannels)
         {
@@ -161,6 +210,19 @@ public class MainViewModel : BaseViewModel, IDisposable
             var task = Task.Run(() => AcquireDataLoop(channel, cts.Token), cts.Token);
             _acquisitionTasks.Add(task);
         }
+        ChannelSeries.Clear();
+        foreach (var ch in Channels.Where(c => c.IsSelected))
+        {
+            var series = new LineSeries<double>
+            {
+                Values = Recorder.GetWindow(ch.Name),
+                Name = ch.Name,
+                AnimationsSpeed = TimeSpan.Zero,
+                GeometrySize = 0
+            };
+            ChannelSeries.Add([series]);
+        }
+        OnPropertyChanged(nameof(ChannelSeries));
     }
     private void StopAcquisition()
     {
@@ -201,33 +263,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         var board_id = selectedChannel.BoardID;
         var channel_name = selectedChannel.Name;
 
-        Debug.WriteLine($"Board ID: {board_id}    channel name: {channel_name}  ");
-
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Used", "True");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Range", "10 V");
-
-        MyEnc.Boards[board_id].SetAcquisitionProperties(sampleRate: "2000", buffer_block_size: 200, buffer_block_count: 50);
-        MyEnc.Boards[board_id].UpdateBoard();
-        // --- Scan Descriptor Integration ---
-        var scanDescriptorResult = TrionApi.DeWeGetParamStruct_String($"BoardID{board_id}", "ScanDescriptor_V3");
-        string scanDescriptorXml = scanDescriptorResult.value;
-        var decoder = new ScanDescriptorDecoder(scanDescriptorXml);
-        uint scanSizeBytes = decoder.ScanSizeBytes;
-        var channelInfo = decoder.Channels.FirstOrDefault(c => c.Name == channel_name);
-
-        Debug.WriteLine( "#-------------------------------------------------");
-        Debug.WriteLine($"#Board: {MyEnc.Boards[board_id]} {channel_name}");
-        Debug.WriteLine($"#XML {scanDescriptorXml}");
-        Debug.WriteLine($"#Channel Name {channelInfo.Name}");
-        Debug.WriteLine($"#Channel Type {channelInfo.Type}");
-        Debug.WriteLine($"#Channel Index {channelInfo.Index}");
-        Debug.WriteLine($"#Scan Size {decoder.ScanSizeBytes}");
-        Debug.WriteLine($"#SamplePos {channelInfo.SamplePos}");
-        Debug.WriteLine($"#SampleSize {channelInfo.SampleSize}");
-        Debug.WriteLine($"#SampleOffset {channelInfo.SampleOffset}");
-        Debug.WriteLine( "#-------------------------------------------------");
-
         var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
         TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
         CircularBuffer buffer = new(board_id);
@@ -254,6 +289,7 @@ public class MainViewModel : BaseViewModel, IDisposable
                 float value = Marshal.ReadInt32((IntPtr)read_pos);
                 value = (float)((float)value / 0x7FFFFF00 * 10.0);
                 tempValues[i] = value;
+                //Debug.WriteLine($"TEST: Value {value}");
 
                 read_pos += sizeof(uint);
             }
@@ -261,7 +297,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                Recorder.AddSamples(tempValues);
+                Recorder.AddSamples(selectedChannel.Name, tempValues);
 
                 if (_isScrollingLocked)
                 {

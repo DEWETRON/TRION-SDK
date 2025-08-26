@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Trion;
 using TRION_SDK_UI.Models;
+using TrionApiUtils;
 
 
 public class Enclosure

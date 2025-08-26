@@ -2,9 +2,10 @@ using System.Collections.ObjectModel;
 
 public class ChartRecorder
 {
-    public List<double> Data { get; } = [];
-    public ObservableCollection<double> Window { get; } = [];
-
+    // Store all data per channel
+    private readonly Dictionary<string, List<double>> _data = [];
+    // Store windowed data per channel for UI binding
+    private readonly Dictionary<string, ObservableCollection<double>> _windows = [];
     private int _windowSize = 800;
     public int WindowSize
     {
@@ -14,7 +15,7 @@ public class ChartRecorder
             if (_windowSize != value)
             {
                 _windowSize = value;
-                UpdateWindow();
+                UpdateAllWindows();
             }
         }
     }
@@ -28,29 +29,60 @@ public class ChartRecorder
             if (_scrollIndex != value)
             {
                 _scrollIndex = value;
-                UpdateWindow();
+                UpdateAllWindows();
             }
         }
     }
 
-    public int MaxScrollIndex => Math.Max(0, Data.Count - WindowSize);
-
-    public void AddSamples(IEnumerable<double> samples)
+    // Get the window for a specific channel (for binding)
+    public ObservableCollection<double> GetWindow(string channel)
     {
-        Data.AddRange(samples);
-        UpdateWindow();
+        if (!_windows.ContainsKey(channel))
+        {
+            _windows[channel] = [];
+        }
+        return _windows[channel];
     }
 
-    public void UpdateWindow()
+    // Add samples to a specific channel
+    public void AddSamples(string channel, IEnumerable<double> samples)
     {
-        Window.Clear();
-        foreach (var v in Data.Skip(ScrollIndex).Take(WindowSize))
-            Window.Add(v);
+        if (!_data.ContainsKey(channel))
+        {
+            _data[channel] = [];
+        }
+        _data[channel].AddRange(samples);
+        UpdateWindow(channel);
     }
 
+    // Update the window for a specific channel
+    private void UpdateWindow(string channel)
+    {
+        var data = _data[channel];
+        var window = GetWindow(channel);
+        window.Clear();
+        foreach (var v in data.Skip(ScrollIndex).Take(WindowSize))
+        {
+            window.Add(v);
+        }
+    }
+
+    // Update all windows (e.g., when window size or scroll index changes)
+    public void UpdateAllWindows()
+    {
+        foreach (var channel in _data.Keys)
+        {
+            UpdateWindow(channel);
+        }
+    }
+
+    // Auto-scroll all channels
     public void AutoScroll()
     {
         ScrollIndex = MaxScrollIndex;
-        UpdateWindow();
+        UpdateAllWindows();
     }
+
+    // Get max scroll index for a specific channel
+    public int MaxScrollIndex => _data.Values.Select(d => Math.Max(0, d.Count - WindowSize)).DefaultIfEmpty(0).Max();
 }
