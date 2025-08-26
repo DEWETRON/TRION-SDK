@@ -189,6 +189,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         ChannelSeries.Clear();
         foreach (var ch in Channels.Where(c => c.IsSelected))
         {
+            var window = Recorder.GetWindow(ch.Name);
+            System.Diagnostics.Debug.WriteLine($"Channel: {ch.Name}, Window HashCode: {window.GetHashCode()}, Count: {window.Count}");
+
             var series = new LineSeries<double>
             {
                 Values = Recorder.GetWindow(ch.Name),
@@ -246,6 +249,8 @@ public class MainViewModel : BaseViewModel, IDisposable
         var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
         TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
         CircularBuffer buffer = new(board_id);
+
+        System.Diagnostics.Debug.WriteLine($"AcquireDataLoop started for channel: {selectedChannel.Name}");
 
         while (!token.IsCancellationRequested)
         {

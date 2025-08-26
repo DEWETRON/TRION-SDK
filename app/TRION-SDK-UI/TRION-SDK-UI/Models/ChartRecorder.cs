@@ -40,6 +40,11 @@ public class ChartRecorder
         if (!_windows.ContainsKey(channel))
         {
             _windows[channel] = [];
+            //System.Diagnostics.Debug.WriteLine($"Created new window for channel: {channel} (HashCode: {_windows[channel].GetHashCode()})");
+        }
+        else
+        {
+            //System.Diagnostics.Debug.WriteLine($"Returning existing window for channel: {channel} (HashCode: {_windows[channel].GetHashCode()})");
         }
         return _windows[channel];
     }
@@ -47,6 +52,7 @@ public class ChartRecorder
     // Add samples to a specific channel
     public void AddSamples(string channel, IEnumerable<double> samples)
     {
+        System.Diagnostics.Debug.WriteLine($"AddSamples called for channel: {channel}, sample count: {samples.Count()}");
         if (!_data.ContainsKey(channel))
         {
             _data[channel] = [];

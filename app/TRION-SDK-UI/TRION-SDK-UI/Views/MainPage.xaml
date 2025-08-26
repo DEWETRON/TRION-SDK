@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
+             xmlns:vm="clr-namespace:TRION_SDK_UI.ViewModels"
              x:Class="TRION_SDK_UI.MainPage">
 
     <Grid x:Name="RootGrid">
@@ -67,6 +68,20 @@
                     Value="{Binding ScrollIndex, Mode=TwoWay}"
                     Margin="0,10,0,0"/>
 
+
+                <!-- Channel Series Chart -->
+                <CollectionView ItemsSource="{Binding ChannelSeries}"
+                    HeightRequest="400"
+                    VerticalOptions="Fill">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <lvc:CartesianChart Series="{Binding .}"
+                                YAxes="{Binding YAxes}"
+                                HeightRequest="300"
+                                VerticalOptions="Fill"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
                 <!-- Log View -->
                 <CollectionView x:Name="LogView"
                                 ItemsSource="{Binding LogMessages}"
@@ -74,20 +89,6 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Label Text="{Binding .}" FontSize="12" />
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-
-                <!-- Channel Series Chart -->
-                <CollectionView ItemsSource="{Binding ChannelSeries}"
-                    HeightRequest="400"
-                    VerticalOptions="FillAndExpand">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <lvc:CartesianChart Series="{Binding .}"
-                                                YAxes="{Binding Source={x:Reference MainViewModel}, Path=YAxes}"
-                                                HeightRequest="300"
-                                                VerticalOptions="FillAndExpand"/>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
