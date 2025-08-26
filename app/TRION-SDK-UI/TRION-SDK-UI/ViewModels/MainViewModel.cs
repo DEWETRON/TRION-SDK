@@ -10,9 +10,9 @@ using System.Diagnostics;
 public class MainViewModel : BaseViewModel, IDisposable
 {
     public ChartRecorder Recorder { get; } = new();
-
     public ISeries[] MeasurementSeries { get; set; } = [];
-
+    public ObservableCollection<Channel> Channels { get; } = [];
+    public ObservableCollection<string> LogMessages { get; } = [];
     public ObservableCollection<double> ChartWindowData => Recorder.Window;
     public int WindowSize
     {
@@ -39,56 +39,12 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
         }
     }
+    public Axis[]? YAxes { get; set; }
     public int MaxScrollIndex => Recorder.MaxScrollIndex;
-
-    public ObservableCollection<Channel> Channels { get; } = [];
-    public ObservableCollection<string> LogMessages { get; } = [];
-
-    private bool _isScrollingLocked = true;
-
-    public Enclosure MyEnc { get; } = new Enclosure
-    {
-        Name = "MyEnc",
-        Boards = []
-    };
-
-    private CancellationTokenSource? _cts;
-    private Task? _acquisitionTask;
-    private double _yAxisMin = -10;
-    public double YAxisMin
-    {
-        get => _yAxisMin;
-        set
-        {
-            if (_yAxisMin != value)
-            {
-                _yAxisMin = value;
-                UpdateYAxes();
-                OnPropertyChanged();
-            }
-        }
-    }
-    private void StartAcquisition()
-    {
-        LogMessages.Add("Starting acquisition...");
-    }
-
-    private void StopAcquisition()
-    {
-        LogMessages.Add("Stopping acquisition...");
-    }
-    private void LockScrolling()
-    {
-        _isScrollingLocked = !_isScrollingLocked;
-        LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
-
-        if (_isScrollingLocked)
-        {
-            ScrollIndex = MaxScrollIndex;
-        }
-    }
-
-    private double _yAxisMax = 10;
+    public ICommand ChannelSelectedCommand { get; private set; }
+    public ICommand StartAcquisitionCommand { get; private set; }
+    public ICommand StopAcquisitionCommand { get; private set; }
+    public ICommand LockScrollingCommand { get; private set; }
     public double YAxisMax
     {
         get => _yAxisMax;
@@ -102,25 +58,31 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
         }
     }
-
-    public Axis[]? YAxes { get; set; }
-    private void UpdateYAxes()
+    public double YAxisMin
     {
-        YAxes = [
-            new Axis
+        get => _yAxisMin;
+        set
+        {
+            if (_yAxisMin != value)
             {
-                MinLimit = YAxisMin,
-                MaxLimit = YAxisMax,
-                Name = "Voltage"
+                _yAxisMin = value;
+                UpdateYAxes();
+                OnPropertyChanged();
             }
-        ];
-        OnPropertyChanged(nameof(YAxes));
+        }
     }
+    public void Dispose()
+    {
+        TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
 
-    public ICommand ChannelSelectedCommand { get; private set; }
-    public ICommand StartAcquisitionCommand { get; private set; }
-    public ICommand StopAcquisitionCommand { get; private set; }
-    public ICommand LockScrollingCommand { get; private set; }
+        // Call your uninitialize function here
+        TrionApi.Uninitialize();
+    }
+    public Enclosure MyEnc { get; } = new Enclosure
+    {
+        Name = "MyEnc",
+        Boards = []
+    };
     public MainViewModel()
     {
         LogMessages.Add("App started.");
@@ -154,43 +116,87 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         OnPropertyChanged(nameof(Channels));
-        ChannelSelectedCommand = new Command<Channel>(OnChannelSelected);
         StartAcquisitionCommand = new Command(StartAcquisition);
         StopAcquisitionCommand = new Command(StopAcquisition);
         LockScrollingCommand = new Command(LockScrolling);
         UpdateYAxes();
     }
 
-    public void Dispose()
+    private readonly CancellationTokenSource? _cts;
+    private readonly Task? _acquisitionTask;
+    private List<Task> _acquisitionTasks = [];
+    private readonly List<CancellationTokenSource> _ctsList = [];
+    private bool _isScrollingLocked = true;
+    private double _yAxisMin = -10;
+    private void StartAcquisition()
     {
-        TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
+        LogMessages.Add("Starting acquisition...");
 
-        // Call your uninitialize function here
-        TrionApi.Uninitialize();
-    }
+        StopAcquisition();
 
-    private void OnChannelSelected(Channel selectedChannel)
-    {
-        _cts?.Cancel();
-        _acquisitionTask?.Wait();
-        Recorder.Data.Clear();
-        Recorder.Window.Clear();
+        _acquisitionTasks.Clear();
+        _ctsList.Clear();
 
-        MeasurementSeries = [
-            new LineSeries<double>
-            {
-                Values = ChartWindowData,
-                Name = $"{selectedChannel.Name}",
-                AnimationsSpeed = TimeSpan.Zero,
-                GeometrySize = 0
-            }];
+        var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
+        if (selectedChannels.Count == 0)
+        {
+            LogMessages.Add("No channels selected.");
+            return;
+        }
+
+        MeasurementSeries = selectedChannels.Select(ch => new LineSeries<double>
+        {
+            Values = ChartWindowData,
+            Name = ch.Name,
+            AnimationsSpeed = TimeSpan.Zero,
+            GeometrySize = 0
+        }).ToArray();
         OnPropertyChanged(nameof(MeasurementSeries));
 
-        _cts = new CancellationTokenSource();
-        _acquisitionTask = Task.Run(() => AcquireDataLoop(selectedChannel), _cts.Token);
+        foreach (var channel in selectedChannels)
+        {
+            Debug.WriteLine($"Channel selected: {channel.Name}");
+            var cts = new CancellationTokenSource();
+            _ctsList.Add(cts);
+            var task = Task.Run(() => AcquireDataLoop(channel, cts.Token), cts.Token);
+            _acquisitionTasks.Add(task);
+        }
     }
+    private void StopAcquisition()
+    {
+        LogMessages.Add("Stopping acquisition...");
+        foreach (var cts in _ctsList)
+        {
+            cts.Cancel();
+        }
+        Task.WaitAll(_acquisitionTasks.ToArray(), 1000);
+        _acquisitionTasks.Clear();
+        _ctsList.Clear();
+    }
+    private void LockScrolling()
+    {
+        _isScrollingLocked = !_isScrollingLocked;
+        LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
 
-    private void AcquireDataLoop(Channel selectedChannel)
+        if (_isScrollingLocked)
+        {
+            ScrollIndex = MaxScrollIndex;
+        }
+    }
+    private double _yAxisMax = 10;
+    private void UpdateYAxes()
+    {
+        YAxes = [
+            new Axis
+            {
+                MinLimit = YAxisMin,
+                MaxLimit = YAxisMax,
+                Name = "Voltage"
+            }
+        ];
+        OnPropertyChanged(nameof(YAxes));
+    }
+    private void AcquireDataLoop(Channel selectedChannel, CancellationToken token)
     {
         var board_id = selectedChannel.BoardID;
         var channel_name = selectedChannel.Name;
@@ -211,22 +217,22 @@ public class MainViewModel : BaseViewModel, IDisposable
         var channelInfo = decoder.Channels.FirstOrDefault(c => c.Name == channel_name);
 
         Debug.WriteLine( "#-------------------------------------------------");
-        Debug.WriteLine($"#Board: {MyEnc.Boards[board_id]} {channel_name}   ");
-        Debug.WriteLine($"#XML {scanDescriptorXml}                          ");
-        Debug.WriteLine($"#Channel Name {channelInfo.Name}                  ");
-        Debug.WriteLine($"#Channel Type {channelInfo.Type}                  ");
-        Debug.WriteLine($"#Channel Index {channelInfo.Index}                ");
-        Debug.WriteLine($"#Scan Size {decoder.ScanSizeBytes}                ");
-        Debug.WriteLine($"#SamplePos {channelInfo.SamplePos}                ");
-        Debug.WriteLine($"#SampleSize {channelInfo.SampleSize}              ");
-        Debug.WriteLine($"#SampleOffset {channelInfo.SampleOffset}          ");
+        Debug.WriteLine($"#Board: {MyEnc.Boards[board_id]} {channel_name}");
+        Debug.WriteLine($"#XML {scanDescriptorXml}");
+        Debug.WriteLine($"#Channel Name {channelInfo.Name}");
+        Debug.WriteLine($"#Channel Type {channelInfo.Type}");
+        Debug.WriteLine($"#Channel Index {channelInfo.Index}");
+        Debug.WriteLine($"#Scan Size {decoder.ScanSizeBytes}");
+        Debug.WriteLine($"#SamplePos {channelInfo.SamplePos}");
+        Debug.WriteLine($"#SampleSize {channelInfo.SampleSize}");
+        Debug.WriteLine($"#SampleOffset {channelInfo.SampleOffset}");
         Debug.WriteLine( "#-------------------------------------------------");
 
         var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
         TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
         CircularBuffer buffer = new(board_id);
 
-        while (_cts != null && !_cts.IsCancellationRequested)
+        while (!token.IsCancellationRequested)
         {
             var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
             available_samples -= adc_delay;
