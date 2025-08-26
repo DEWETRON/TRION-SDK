@@ -260,27 +260,33 @@ public class MainViewModel : BaseViewModel, IDisposable
             read_pos += adc_delay * scanSize;
 
             List<double> tempValues = new List<double>(available_samples);
+            // loop over available samples
             for (int i = 0; i < available_samples; ++i)
             {
+                // calculate the position of the sample in memory
                 var offset_bytes = (int)channelInfo.SampleOffset / 8;
                 var samplePos = read_pos + offset_bytes;
+
+                // read the raw data
                 int raw = Marshal.ReadInt32((IntPtr)samplePos);
 
-                // Apply bitmask for sample size
-                int bitmask = (1 << (int)channelInfo.SampleSize) - 1;
+                // extract the actual sample bits
+                int sampleSize = (int)channelInfo.SampleSize;
+                int bitmask = (1 << sampleSize) - 1;
                 raw &= bitmask;
 
-                // Sign extension if needed
-                if ((raw & (1 << ((int)channelInfo.SampleSize - 1))) != 0)
-                {
+                // general sign extension for N-bit signed value
+                int signBit = 1 << (sampleSize - 1);
+                if ((raw & signBit) != 0)
                     raw |= ~bitmask;
-                }
 
-                // Scale value (adjust scaling for your hardware/range)
-                double value = (double)raw / 0x7FFFFF * 10.0;
+                // scale to engineering units (i guess the range needs to be adjustable)
+                double value = (double)raw / (double)(signBit - 1) * 10.0;
 
+                // store the result
                 tempValues.Add(value);
 
+                // move to the next sample in the buffer
                 read_pos += scanSize;
                 if (read_pos >= buffer.EndPosition)
                 {
