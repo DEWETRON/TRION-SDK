@@ -1,5 +1,6 @@
 using System;
 using Trion;
+using TrionApiUtils;
 
 
 public class TrionApi
@@ -31,7 +32,7 @@ public class TrionApi
         var error = TrionApi.DeWeSetParam_i32(0, Trion.TrionCommand.CLOSE_BOARD_ALL, 0);
         if (error != TrionError.NONE)
         {
-            System.Diagnostics.Debug.WriteLine($"TRION API CloseBoards failed: {Trion.API.DeWeErrorConstantToString(error)}");
+            System.Diagnostics.Debug.WriteLine($"TRION API CloseBoards failed");
         }
     }
 
@@ -40,7 +41,7 @@ public class TrionApi
         TrionError nErrorCode = Trion.API.DeWeDriverDeInit();
         if (nErrorCode != TrionError.NONE)
         {
-            System.Diagnostics.Debug.WriteLine($"TRION API Uninit failed: {Trion.API.DeWeErrorConstantToString(nErrorCode)}");
+            System.Diagnostics.Debug.WriteLine($"TRION API Uninit failed:");
         }
         else
         {
