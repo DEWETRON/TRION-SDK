@@ -41,7 +41,7 @@ public class TrionApi
         TrionError nErrorCode = Trion.API.DeWeDriverDeInit();
         if (nErrorCode != TrionError.NONE)
         {
-            System.Diagnostics.Debug.WriteLine($"TRION API Uninit failed: {Trion.API.DeWeErrorConstantToString(nErrorCode)}");
+            System.Diagnostics.Debug.WriteLine($"TRION API Uninit failed:");
         }
         else
         {

@@ -116,6 +116,7 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
         }
 
+        _acquisitionManager = new AcquisitionManager(MyEnc);
         OnPropertyChanged(nameof(Channels));
         StartAcquisitionCommand = new Command(StartAcquisition);
         StopAcquisitionCommand = new Command(StopAcquisition);
@@ -135,41 +136,9 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         LogMessages.Add("Starting acquisition...");
 
-        StopAcquisition();
-
-        _acquisitionTasks.Clear();
-        _ctsList.Clear();
-
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
-        var selectedBoardIds = selectedChannels.Select(c => c.BoardID).Distinct();
-        var selectedBoards = MyEnc.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
-        TrionError error;
 
-        // Reset boards
-        foreach (var selected_board in selectedBoards)
-        {
-            selected_board.ResetBoard();
-            selected_board.SetAcquisitionProperties();
-            error = TrionApi.DeWeSetParamStruct($"BoardID{selected_board.Id}/AIAll", "Used", "False");
-            Utils.CheckErrorCode(error, "Failed to reset board");
-            Debug.WriteLine($"TEST: Board: {selected_board.Name} Reset");
-        }
-        // enable selected channels
-        foreach (var selected_channel in selectedChannels)
-        {
-            error = TrionApi.DeWeSetParamStruct($"BoardID{selected_channel.BoardID}/{selected_channel.Name}", "Used", "True");
-            Utils.CheckErrorCode(error, $"Failed to set channel used {selected_channel.Name}");
-            error = TrionApi.DeWeSetParamStruct($"BoardID{selected_channel.BoardID}/{selected_channel.Name}", "Range", "10 V");
-            Utils.CheckErrorCode(error, $"Failed to set channel range {selected_channel.Name}");
-            Debug.WriteLine($"TEST: Channel: {selected_channel.Name} enabled");
-        }
-        // update parameters
-        foreach (var selected_board in selectedBoards)
-        {
-            selected_board.UpdateBoard();
-            Debug.WriteLine($"TEST: Board: {selected_board.Name} Updated");
-        }
-
+        _acquisitionManager.StartAcquisition(selectedChannels, OnSamplesReceived);
 
         MeasurementSeries = selectedChannels.Select(ch => new LineSeries<double>
         {
@@ -180,23 +149,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         }).ToArray();
         OnPropertyChanged(nameof(MeasurementSeries));
 
-        foreach (var board in MyEnc.Boards)
-        {
-            (error, board.ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}", "ScanDescriptor_V3");
-            Utils.CheckErrorCode(error, $"Failed to get scan descriptor {board.Id}");
-            board.ScanDescriptorDecoder = new ScanDescriptorDecoder(board.ScanDescriptorXml);
-            board.ScanSizeBytes = board.ScanDescriptorDecoder.ScanSizeBytes;
-            //Debug.WriteLine($"TEST XML: {board.ScanDescriptorXml}");
-        }
-
-        foreach (var channel in selectedChannels)
-        {
-            //Debug.WriteLine($"Channel selected: {channel.Name}");
-            var cts = new CancellationTokenSource();
-            _ctsList.Add(cts);
-            var task = Task.Run(() => AcquireDataLoop(channel, cts.Token), cts.Token);
-            _acquisitionTasks.Add(task);
-        }
         ChannelSeries.Clear();
         foreach (var ch in Channels.Where(c => c.IsSelected))
         {
@@ -217,13 +169,12 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void StopAcquisition()
     {
         LogMessages.Add("Stopping acquisition...");
-        foreach (var cts in _ctsList)
-        {
-            cts.Cancel();
-        }
-        Task.WaitAll(_acquisitionTasks.ToArray(), 1000);
-        _acquisitionTasks.Clear();
-        _ctsList.Clear();
+        _acquisitionManager.StopAcquisition();
+        MeasurementSeries = Array.Empty<ISeries>();
+        ChannelSeries.Clear();
+        OnPropertyChanged(nameof(MeasurementSeries));
+        OnPropertyChanged(nameof(ChannelSeries));
+
     }
     private void LockScrolling()
     {
@@ -248,100 +199,19 @@ public class MainViewModel : BaseViewModel, IDisposable
         ];
         OnPropertyChanged(nameof(YAxes));
     }
-    private void AcquireDataLoop(Channel selectedChannel, CancellationToken token)
+    private void OnSamplesReceived(string channelName, IEnumerable<double> samples)
     {
-        var board = MyEnc.Boards.First(b => b.Id == selectedChannel.BoardID);
-        var scanSize = (int)board.ScanSizeBytes;
-        var scanDescriptor = board.ScanDescriptorDecoder;
-        var channelInfo = scanDescriptor.Channels.FirstOrDefault(c => c.Name == selectedChannel.Name);
-        var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
-
-        TrionError error;
-        if (channelInfo == null) return;
-
-        var board_id = selectedChannel.BoardID;
-        (error, var adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
-        Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board_id}");
-
-        error = TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
-        Utils.CheckErrorCode(error, $"Failed start acquisition {board_id}");
-
-        CircularBuffer buffer = new(board_id);
-
-        Debug.WriteLine($"AcquireDataLoop started for channel: {selectedChannel.Name}");
-        Debug.WriteLine($"Sample Size {(int)channelInfo.SampleSize}, Sample Offset {(int)channelInfo.SampleOffset / 8}");
-
-        while (!token.IsCancellationRequested)
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            (error, var available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
-            Utils.CheckErrorCode(error, $"Failed to get available samples {board_id}, {available_samples}");
-            if (available_samples <= 0)
+            Recorder.AddSamples(channelName, samples);
+            if (_isScrollingLocked)
             {
-                Thread.Sleep(polling_interval);
+                Recorder.AutoScroll();
+                OnPropertyChanged(nameof(ScrollIndex));
             }
-
-            available_samples -= adc_delay;
-            if (available_samples <= 0)
-            {
-                Thread.Sleep(10);
-                continue;
-            }
-            (error, var read_pos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
-            Utils.CheckErrorCode(error, $"Failed to get actual sample position {board_id}");
-
-            read_pos += adc_delay * scanSize;
-
-            List<double> tempValues = new(available_samples);
-            // loop over available samples
-            for (int i = 0; i < available_samples; ++i)
-            {
-                // calculate the position of the sample in memory
-                var offset_bytes = (int)channelInfo.SampleOffset / 8;
-                var samplePos = read_pos + offset_bytes;
-
-                // read the raw data
-                int raw = Marshal.ReadInt32((IntPtr)samplePos);
-
-                // extract the actual sample bits
-                int sampleSize = (int)channelInfo.SampleSize;
-                int bitmask = (1 << sampleSize) - 1; // = 0xFFFFFF
-                raw &= bitmask; // keeps only the lower 24 bits
-
-                // general sign extension for N-bit signed value
-                int signBit = 1 << (sampleSize - 1);
-                if ((raw & signBit) != 0)
-                    raw |= ~bitmask;
-
-                // scale to engineering units (i guess the range needs to be adjustable)
-                double value = (double)raw / (double)(signBit - 1) * 10.0;
-
-                // store the result
-                tempValues.Add(value);
-
-                // move to the next sample in the buffer
-                read_pos += scanSize;
-                if (read_pos >= buffer.EndPosition)
-                {
-                    read_pos -= buffer.Size;
-                }
-            }
-            TrionApi.DeWeSetParam_i32(board_id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
-
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                Recorder.AddSamples(selectedChannel.Name, tempValues);
-
-                if (_isScrollingLocked)
-                {
-                    Recorder.AutoScroll();
-                    OnPropertyChanged(nameof(ScrollIndex));
-                }
-                OnPropertyChanged(nameof(MaxScrollIndex));
-            });
-        }
-        error = TrionApi.DeWeSetParam_i32(board_id, TrionCommand.STOP_ACQUISITION, 0);
-        Utils.CheckErrorCode(error, $"Failed stop acquisition {board_id}");
-        error = TrionApi.DeWeSetParam_i32(board_id, TrionCommand.CLOSE_BOARD, 0);
-        Utils.CheckErrorCode(error, $"Failed close board {board_id}");
+            OnPropertyChanged(nameof(MaxScrollIndex));
+            OnPropertyChanged(nameof(MeasurementSeries));
+            OnPropertyChanged(nameof(ChannelSeries));
+        });
     }
 }

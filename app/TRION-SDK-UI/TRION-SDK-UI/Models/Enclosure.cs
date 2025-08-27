@@ -22,7 +22,6 @@ public class Enclosure
         {
             Id = boardId,
             Name = boardPropertiesModel.GetBoardName(),
-            IsActive = true,
             BoardProperties = boardPropertiesModel,
             Channels = boardPropertiesModel.GetChannels(),
             ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value

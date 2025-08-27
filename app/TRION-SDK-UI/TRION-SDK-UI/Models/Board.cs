@@ -20,7 +20,7 @@ namespace TRION_SDK_UI.Models
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsOpen { get; set; }
         public BoardPropertyModel? BoardProperties { get; set; }
         public List<Channel> Channels { get; set; } = [];
         public uint ScanSizeBytes { get; set; }
@@ -29,12 +29,12 @@ namespace TRION_SDK_UI.Models
         public int BufferBlockSize { get; set; }
         public int SamplingRate { get; set; }
         public int BufferBlockCount { get; set; } 
+        public bool IsAcquiring { get; set; }
 
         public void SetBoardProperties()
         {
             Id = BoardProperties.GetBoardID();
             Name = BoardProperties.GetBoardName();
-            IsActive = true;
         }
 
         public void SetAcquisitionProperties(string operationMode = "Slave",
