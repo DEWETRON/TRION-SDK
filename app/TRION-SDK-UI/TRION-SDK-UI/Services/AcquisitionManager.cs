@@ -9,17 +9,12 @@ using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
 
-public class AcquisitionManager : IDisposable
+public class AcquisitionManager(Enclosure enclosure) : IDisposable
 {
-    private readonly Enclosure _enclosure;
+    private readonly Enclosure _enclosure = enclosure;
     private readonly List<Task> _acquisitionTasks = [];
     private readonly List<CancellationTokenSource> _ctsList = [];
     public bool _isRunning = false;
-
-    public AcquisitionManager(Enclosure enclosure)
-    {
-        _enclosure = enclosure;
-    }
 
     public void StartAcquisition(IEnumerable<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived)
     {
@@ -64,7 +59,7 @@ public class AcquisitionManager : IDisposable
             var board = _enclosure.Boards.First(b => b.Id == boardGroup.Key);
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
-            var task = Task.Run(() => AcquireDataLoop(board, boardGroup.ToList(), onSamplesReceived, cts.Token), cts.Token);
+            var task = Task.Run(() => AcquireDataLoop(board, [.. boardGroup], onSamplesReceived, cts.Token), cts.Token);
             _acquisitionTasks.Add(task);
         }
 
