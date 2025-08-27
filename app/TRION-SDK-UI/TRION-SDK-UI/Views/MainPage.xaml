@@ -25,19 +25,7 @@
                     Style="{StaticResource SubHeadline}"
                     SemanticProperties.HeadingLevel="Level2" HorizontalOptions="Start" />
 
-                <Frame BackgroundColor="#EEE" Padding="10" Margin="0,10,0,0">
-                    <VerticalStackLayout>
-                        <Label Text="{Binding MyEnc.Name}" FontAttributes="Bold" FontSize="16" TextColor="Black"/>
-                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding MyEnc.Boards}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Label Text="{Binding Name}" FontSize="13" IsVisible="{Binding IsActive}" Margin="10,0,0,0" TextColor="Black"/>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </VerticalStackLayout>
-                </Frame>
-
+                
                 <HorizontalStackLayout Spacing="10">
                     <Label Text="Y Min:" VerticalOptions="Center"/>
                     <Entry Text="{Binding YAxisMin, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>

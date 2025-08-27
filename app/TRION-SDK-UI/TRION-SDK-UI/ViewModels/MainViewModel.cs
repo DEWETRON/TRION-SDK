@@ -197,6 +197,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
+            //Debug.WriteLine($"got sample {channelName} {samples.Count()}");
             Recorder.AddSamples(channelName, samples);
             if (_isScrollingLocked)
             {

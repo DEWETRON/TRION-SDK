@@ -39,6 +39,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         {
             Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Used", "True"), $"Failed to set channel used {channel.Name}");
             Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Range", "10 V"), $"Failed to set channel range {channel.Name}");
+            Debug.WriteLine($"Set BoardID{channel.BoardID}/{channel.Name} to Used");
         }
         foreach (var board in selectedBoards)
         {
@@ -60,7 +61,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             var board = _enclosure.Boards.First(b => b.Id == boardGroup.Key);
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
-            var task = Task.Run(() => AcquireDataLoop(board, boardGroup.ToList(), onSamplesReceived, cts.Token), cts.Token);
+            var task = Task.Run(() => AcquireDataLoop(board, [.. boardGroup], onSamplesReceived, cts.Token), cts.Token);
             _acquisitionTasks.Add(task);
         }
 
@@ -88,7 +89,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         _isRunning = false;
     }
 
-    private void AcquireDataLoop(Board board, List<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived, CancellationToken token)
+    private static void AcquireDataLoop(Board board, List<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived, CancellationToken token)
     {
         Debug.WriteLine($"TEST: AcquireDataLoop started for Board ID: {board.Id} with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         var scanSize = (int)board.ScanSizeBytes;
@@ -162,11 +163,14 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             // Call the callback for each channel
             foreach (var kvp in channelSamples)
                 onSamplesReceived(kvp.Key, kvp.Value);
+
+            //Debug.WriteLine($"Received {available_samples} samples for {string.Join(", ", selectedChannels.Select(c => c.Name))} at {DateTime.Now}");
         }
     }
 
     public void Dispose()
     {
+        GC.SuppressFinalize(_ctsList);
         StopAcquisition();
         foreach (var board in _enclosure.Boards)
         {
