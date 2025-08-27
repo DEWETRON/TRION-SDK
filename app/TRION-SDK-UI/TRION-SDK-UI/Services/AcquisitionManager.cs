@@ -36,31 +36,25 @@ public class AcquisitionManager : IDisposable
         foreach (var board in selectedBoards)
         {
             if (!board.IsOpen)
-            { 
+            {
                 Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.OPEN_BOARD, 0), "Failed to open board");
                 board.IsOpen = true;
             }
             board.ResetBoard();
             board.SetAcquisitionProperties();
             Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{board.Id}/AIAll", "Used", "False"), $"Failed to reset board {board.Id}");
-        }
-        foreach (var channel in selectedChannels)
-        {
-            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Used", "True"), $"Failed to set channel used {channel.Name}");
-            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Range", "10 V"), $"Failed to set channel range {channel.Name}");
-        }
-        foreach (var board in selectedBoards)
-        {
+            var selectedChannelsForBoard = selectedChannels.Where(c => c.BoardID == board.Id).ToList();
+            foreach (var channel in selectedChannelsForBoard)
+            {
+                Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Used", "True"), $"Failed to set channel used {channel.Name}");
+                Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Range", "10 V"), $"Failed to set channel range {channel.Name}");
+            }
             board.UpdateBoard();
-        }
 
-        foreach (var board in selectedBoards)
-        {
             (var error, board.ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}", "ScanDescriptor_V3");
             Utils.CheckErrorCode(error, $"Failed to get scan descriptor {board.Id}");
             board.ScanDescriptorDecoder = new ScanDescriptorDecoder(board.ScanDescriptorXml);
             board.ScanSizeBytes = board.ScanDescriptorDecoder.ScanSizeBytes;
-            //Debug.WriteLine($"TEST XML: {board.ScanDescriptorXml}");
         }
 
         // Start acquisition tasks
