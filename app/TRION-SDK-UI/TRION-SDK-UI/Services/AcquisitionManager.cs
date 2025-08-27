@@ -15,7 +15,10 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
     {
         Debug.WriteLine($"TEST: StartAcquisition called with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         if (_isRunning)
+        {
             StopAcquisition();
+            Debug.WriteLine("TEST: Previous acquisition stopped.");
+        }
 
         _acquisitionTasks.Clear();
         _ctsList.Clear();
@@ -33,7 +36,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             }
             board.ResetBoard();
             board.SetAcquisitionProperties();
-            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{board.Id}/AIAll", "Used", "False"), $"Failed to reset board {board.Id}");
+            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{board.Id}/AIAll", "Used", "False"), $"Failed to set all channels used false {board.Id}");
         }
         foreach (var channel in selectedChannels)
         {
