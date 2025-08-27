@@ -26,6 +26,9 @@ namespace TRION_SDK_UI.Models
         public uint ScanSizeBytes { get; set; }
         public ScanDescriptorDecoder? ScanDescriptorDecoder { get; set; }
         public string ScanDescriptorXml { get; set; } = string.Empty;
+        public int BufferBlockSize { get; set; }
+        public int SamplingRate { get; set; }
+        public int BufferBlockCount { get; set; } 
 
         public void SetBoardProperties()
         {
@@ -37,14 +40,17 @@ namespace TRION_SDK_UI.Models
         public void SetAcquisitionProperties(string operationMode = "Slave",
                                              string externalTrigger = "False",
                                              string externalClock = "False",
-                                             string sampleRate = "2000",
+                                             int sampleRate = 2000,
                                              int buffer_block_size = 200,
                                              int buffer_block_count = 50)
         {
+            SamplingRate = sampleRate;
+            BufferBlockCount = buffer_block_count;
+            BufferBlockSize = buffer_block_size;
             var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "OperationMode", operationMode);
             error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", externalTrigger);
             error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate);
+            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate.ToString());
 
             error |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
             error |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
@@ -77,7 +83,7 @@ namespace TRION_SDK_UI.Models
             ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
 
 
-            SetAcquisitionProperties(sampleRate: "2000", buffer_block_size: 200, buffer_block_count: 50);
+            SetAcquisitionProperties(sampleRate: 2000, buffer_block_size: 200, buffer_block_count: 50);
             UpdateBoard();
             Utils.CheckErrorCode(error, $"Failed to activate channels for board {Id}");
         }

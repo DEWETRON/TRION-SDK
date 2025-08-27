@@ -12,14 +12,11 @@ public class Enclosure
     public void AddBoard(int boardId)
     {
         var error = TrionApi.DeWeSetParam_i32(boardId, TrionCommand.OPEN_BOARD, 0);
-        if (error != TrionError.NONE)
-        {
-            System.Diagnostics.Debug.WriteLine($"TRION_API: OpenBoard failed for board {boardId}");
-            return;
-        }
+        Utils.CheckErrorCode(error, "Failed to open board");
 
         var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
         var boardPropertiesModel = new BoardPropertyModel(boardPropertiesXml);
+
 
         var newBoard = new Board()
         {
@@ -32,6 +29,8 @@ public class Enclosure
         };
 
         Boards.Add(newBoard);
+        error = TrionApi.DeWeSetParam_i32(boardId, TrionCommand.CLOSE_BOARD, 0);
+        Utils.CheckErrorCode(error, "Failed to close board");
     }
 
     public void Init(int numberOfBoards)

@@ -1,11 +1,12 @@
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
+using TrionApiUtils;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
@@ -90,15 +91,15 @@ public class MainViewModel : BaseViewModel, IDisposable
         var numberOfBoards = TrionApi.Initialize();
         if (numberOfBoards < 0)
         {
-            LogMessages.Add($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
+            Debug.WriteLine($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
         }
         else if (numberOfBoards > 0)
         {
-            LogMessages.Add($"Number of real Boards found: {numberOfBoards}");
+            Debug.WriteLine($"Number of real Boards found: {numberOfBoards}");
         }
         else
         {
-            LogMessages.Add("No Trion Boards found.");
+            Debug.WriteLine("No Trion Boards found.");
         }
 
         numberOfBoards = Math.Abs(numberOfBoards);
@@ -120,8 +121,10 @@ public class MainViewModel : BaseViewModel, IDisposable
         StopAcquisitionCommand = new Command(StopAcquisition);
         LockScrollingCommand = new Command(LockScrolling);
         UpdateYAxes();
+
     }
 
+    private readonly AcquisitionManager _acquisitionManager;
     private readonly CancellationTokenSource? _cts;
     private readonly Task? _acquisitionTask;
     private List<Task> _acquisitionTasks = [];
@@ -140,24 +143,31 @@ public class MainViewModel : BaseViewModel, IDisposable
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
         var selectedBoardIds = selectedChannels.Select(c => c.BoardID).Distinct();
         var selectedBoards = MyEnc.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
+        TrionError error;
 
         // Reset boards
         foreach (var selected_board in selectedBoards)
         {
             selected_board.ResetBoard();
             selected_board.SetAcquisitionProperties();
-            TrionApi.DeWeSetParamStruct($"BoardID{selected_board.Id}/AIAll", "Used", "False");
+            error = TrionApi.DeWeSetParamStruct($"BoardID{selected_board.Id}/AIAll", "Used", "False");
+            Utils.CheckErrorCode(error, "Failed to reset board");
+            Debug.WriteLine($"TEST: Board: {selected_board.Name} Reset");
         }
         // enable selected channels
         foreach (var selected_channel in selectedChannels)
         {
-            TrionApi.DeWeSetParamStruct($"BoardID{selected_channel.BoardID}/{selected_channel.Name}", "Used", "True");
-            TrionApi.DeWeSetParamStruct($"BoardID{selected_channel.BoardID}/{selected_channel.Name}", "Range", "10 V");
+            error = TrionApi.DeWeSetParamStruct($"BoardID{selected_channel.BoardID}/{selected_channel.Name}", "Used", "True");
+            Utils.CheckErrorCode(error, $"Failed to set channel used {selected_channel.Name}");
+            error = TrionApi.DeWeSetParamStruct($"BoardID{selected_channel.BoardID}/{selected_channel.Name}", "Range", "10 V");
+            Utils.CheckErrorCode(error, $"Failed to set channel range {selected_channel.Name}");
+            Debug.WriteLine($"TEST: Channel: {selected_channel.Name} enabled");
         }
         // update parameters
         foreach (var selected_board in selectedBoards)
         {
             selected_board.UpdateBoard();
+            Debug.WriteLine($"TEST: Board: {selected_board.Name} Updated");
         }
 
 
@@ -172,7 +182,8 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         foreach (var board in MyEnc.Boards)
         {
-            board.ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}", "ScanDescriptor_V3").value;
+            (error, board.ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}", "ScanDescriptor_V3");
+            Utils.CheckErrorCode(error, $"Failed to get scan descriptor {board.Id}");
             board.ScanDescriptorDecoder = new ScanDescriptorDecoder(board.ScanDescriptorXml);
             board.ScanSizeBytes = board.ScanDescriptorDecoder.ScanSizeBytes;
             //Debug.WriteLine($"TEST XML: {board.ScanDescriptorXml}");
@@ -190,7 +201,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var ch in Channels.Where(c => c.IsSelected))
         {
             var window = Recorder.GetWindow(ch.Name);
-            System.Diagnostics.Debug.WriteLine($"Channel: {ch.Name}, Window HashCode: {window.GetHashCode()}, Count: {window.Count}");
+            Debug.WriteLine($"TEST: Channel: {ch.Name}, Window HashCode: {window.GetHashCode()}, Count: {window.Count}");
 
             var series = new LineSeries<double>
             {
@@ -243,28 +254,44 @@ public class MainViewModel : BaseViewModel, IDisposable
         var scanSize = (int)board.ScanSizeBytes;
         var scanDescriptor = board.ScanDescriptorDecoder;
         var channelInfo = scanDescriptor.Channels.FirstOrDefault(c => c.Name == selectedChannel.Name);
+        var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
+
+        TrionError error;
         if (channelInfo == null) return;
 
         var board_id = selectedChannel.BoardID;
-        var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
-        TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
+        (error, var adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
+        Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board_id}");
+
+        error = TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
+        Utils.CheckErrorCode(error, $"Failed start acquisition {board_id}");
+
         CircularBuffer buffer = new(board_id);
 
-        System.Diagnostics.Debug.WriteLine($"AcquireDataLoop started for channel: {selectedChannel.Name}");
+        Debug.WriteLine($"AcquireDataLoop started for channel: {selectedChannel.Name}");
+        Debug.WriteLine($"Sample Size {(int)channelInfo.SampleSize}, Sample Offset {(int)channelInfo.SampleOffset / 8}");
 
         while (!token.IsCancellationRequested)
         {
-            var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
+            (error, var available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+            Utils.CheckErrorCode(error, $"Failed to get available samples {board_id}, {available_samples}");
+            if (available_samples <= 0)
+            {
+                Thread.Sleep(polling_interval);
+            }
+
             available_samples -= adc_delay;
             if (available_samples <= 0)
             {
                 Thread.Sleep(10);
                 continue;
             }
-            var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+            (error, var read_pos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+            Utils.CheckErrorCode(error, $"Failed to get actual sample position {board_id}");
+
             read_pos += adc_delay * scanSize;
 
-            List<double> tempValues = new List<double>(available_samples);
+            List<double> tempValues = new(available_samples);
             // loop over available samples
             for (int i = 0; i < available_samples; ++i)
             {
@@ -277,8 +304,8 @@ public class MainViewModel : BaseViewModel, IDisposable
 
                 // extract the actual sample bits
                 int sampleSize = (int)channelInfo.SampleSize;
-                int bitmask = (1 << sampleSize) - 1;
-                raw &= bitmask;
+                int bitmask = (1 << sampleSize) - 1; // = 0xFFFFFF
+                raw &= bitmask; // keeps only the lower 24 bits
 
                 // general sign extension for N-bit signed value
                 int signBit = 1 << (sampleSize - 1);
@@ -312,6 +339,9 @@ public class MainViewModel : BaseViewModel, IDisposable
                 OnPropertyChanged(nameof(MaxScrollIndex));
             });
         }
-        TrionApi.DeWeSetParam_i32(board_id, TrionCommand.STOP_ACQUISITION, 0);
+        error = TrionApi.DeWeSetParam_i32(board_id, TrionCommand.STOP_ACQUISITION, 0);
+        Utils.CheckErrorCode(error, $"Failed stop acquisition {board_id}");
+        error = TrionApi.DeWeSetParam_i32(board_id, TrionCommand.CLOSE_BOARD, 0);
+        Utils.CheckErrorCode(error, $"Failed close board {board_id}");
     }
 }

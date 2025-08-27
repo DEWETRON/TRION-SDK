@@ -52,7 +52,7 @@ public class ChartRecorder
     // Add samples to a specific channel
     public void AddSamples(string channel, IEnumerable<double> samples)
     {
-        System.Diagnostics.Debug.WriteLine($"AddSamples called for channel: {channel}, sample count: {samples.Count()}");
+        //System.Diagnostics.Debug.WriteLine($"AddSamples called for channel: {channel}, sample count: {samples.Count()}");
         if (!_data.ContainsKey(channel))
         {
             _data[channel] = [];
