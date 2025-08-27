@@ -64,11 +64,13 @@ public class AcquisitionManager : IDisposable
         }
 
         // Start acquisition tasks
-        foreach (var channel in selectedChannels)
+        var channelsByBoard = selectedChannels.GroupBy(c => c.BoardID);
+        foreach (var boardGroup in channelsByBoard)
         {
+            var board = _enclosure.Boards.First(b => b.Id == boardGroup.Key);
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
-            var task = Task.Run(() => AcquireDataLoop(channel, onSamplesReceived, cts.Token), cts.Token);
+            var task = Task.Run(() => AcquireDataLoop(board, boardGroup.ToList(), onSamplesReceived, cts.Token), cts.Token);
             _acquisitionTasks.Add(task);
         }
 
@@ -88,39 +90,29 @@ public class AcquisitionManager : IDisposable
         _isRunning = false;
     }
 
-    private void AcquireDataLoop(Channel selectedChannel, Action<string, IEnumerable<double>> onSamplesReceived, CancellationToken token)
+    private void AcquireDataLoop(Board board, List<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived, CancellationToken token)
     {
-        var board = _enclosure.Boards.First(b => b.Id == selectedChannel.BoardID);
         var scanSize = (int)board.ScanSizeBytes;
         var scanDescriptor = board.ScanDescriptorDecoder;
-        var channelInfo = scanDescriptor.Channels.FirstOrDefault(c => c.Name == selectedChannel.Name);
         var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
 
         TrionError error;
-        if (channelInfo == null) return;
+        (error, var adc_delay) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BOARD_ADC_DELAY);
+        Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board.Id}");
 
-        var board_id = selectedChannel.BoardID;
-        (error, var adc_delay) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BOARD_ADC_DELAY);
-        Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board_id}");
+        error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.START_ACQUISITION, 0);
+        Utils.CheckErrorCode(error, $"Failed start acquisition {board.Id}");
 
-        if (board.IsAcquiring)
-        {
-            error = TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
-            Utils.CheckErrorCode(error, $"Failed start acquisition {board_id}");
-        }
-
-        CircularBuffer buffer = new(board_id);
-
-        Debug.WriteLine($"AcquireDataLoop started for channel: {selectedChannel.Name}");
-        Debug.WriteLine($"Sample Size {(int)channelInfo.SampleSize}, Sample Offset {(int)channelInfo.SampleOffset / 8}");
+        CircularBuffer buffer = new(board.Id);
 
         while (!token.IsCancellationRequested)
         {
-            (error, var available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
-            Utils.CheckErrorCode(error, $"Failed to get available samples {board_id}, {available_samples}");
+            (error, var available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+            Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {available_samples}");
             if (available_samples <= 0)
             {
                 Thread.Sleep(polling_interval);
+                continue;
             }
 
             available_samples -= adc_delay;
@@ -129,51 +121,54 @@ public class AcquisitionManager : IDisposable
                 Thread.Sleep(10);
                 continue;
             }
-            (error, var read_pos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
-            Utils.CheckErrorCode(error, $"Failed to get actual sample position {board_id}");
+            (error, var read_pos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+            Utils.CheckErrorCode(error, $"Failed to get actual sample position {board.Id}");
 
             read_pos += adc_delay * scanSize;
 
-            List<double> tempValues = new(available_samples);
-            // loop over available samples
+            // Prepare a dictionary to collect samples for each channel
+            var channelSamples = new Dictionary<string, List<double>>();
+            foreach (var channel in selectedChannels)
+                channelSamples[channel.Name] = new List<double>(available_samples);
+
             for (int i = 0; i < available_samples; ++i)
             {
                 if (read_pos >= buffer.EndPosition)
-                {
                     read_pos -= buffer.Size;
+
+                foreach (var channel in selectedChannels)
+                {
+                    var channelInfo = scanDescriptor.Channels.FirstOrDefault(c => c.Name == channel.Name);
+                    if (channelInfo == null) continue;
+
+                    var offset_bytes = (int)channelInfo.SampleOffset / 8;
+                    var samplePos = read_pos + offset_bytes;
+                    int raw = Marshal.ReadInt32((IntPtr)samplePos);
+
+                    int sampleSize = (int)channelInfo.SampleSize;
+                    int bitmask = (1 << sampleSize) - 1;
+                    raw &= bitmask;
+                    int signBit = 1 << (sampleSize - 1);
+                    if ((raw & signBit) != 0)
+                        raw |= ~bitmask;
+                    double value = (double)raw / (double)(signBit - 1) * 10.0;
+
+                    channelSamples[channel.Name].Add(value);
                 }
-                // calculate the position of the sample in memory
-                var offset_bytes = (int)channelInfo.SampleOffset / 8;
-                var samplePos = read_pos + offset_bytes;
-
-                // read the raw data
-                int raw = Marshal.ReadInt32((IntPtr)samplePos);
-
-                // extract the actual sample bits
-                int sampleSize = (int)channelInfo.SampleSize;
-                int bitmask = (1 << sampleSize) - 1; // = 0xFFFFFF
-                raw &= bitmask; // keeps only the lower 24 bits
-
-                // general sign extension for N-bit signed value
-                int signBit = 1 << (sampleSize - 1);
-                if ((raw & signBit) != 0)
-                    raw |= ~bitmask;
-
-                // scale to engineering units (i guess the range needs to be adjustable)
-                double value = (double)raw / (double)(signBit - 1) * 10.0;
-
-                // store the result
-                tempValues.Add(value);
-
-                // move to the next sample in the buffer
-                read_pos += scanSize;            
+                read_pos += scanSize;
             }
-            TrionApi.DeWeSetParam_i32(board_id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
 
-            Debug.WriteLine("TEST");
-            onSamplesReceived(selectedChannel.Name, tempValues);
+            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+
+            // Call the callback for each channel
+            foreach (var kvp in channelSamples)
+                onSamplesReceived(kvp.Key, kvp.Value);
         }
-        StopAcquisition();
+
+        error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0);
+        Utils.CheckErrorCode(error, $"Failed stop acquisition {board.Id}");
+        error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.CLOSE_BOARD, 0);
+        Utils.CheckErrorCode(error, $"Failed close board {board.Id}");
     }
 
     public void Dispose()
