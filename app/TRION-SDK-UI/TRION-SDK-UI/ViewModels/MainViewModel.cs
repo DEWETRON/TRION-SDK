@@ -2,11 +2,9 @@ using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
-using TrionApiUtils;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
@@ -126,10 +124,6 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
 
     private readonly AcquisitionManager _acquisitionManager;
-    private readonly CancellationTokenSource? _cts;
-    private readonly Task? _acquisitionTask;
-    private List<Task> _acquisitionTasks = [];
-    private readonly List<CancellationTokenSource> _ctsList = [];
     private bool _isScrollingLocked = true;
     private double _yAxisMin = -10;
     private void StartAcquisition()
@@ -140,13 +134,13 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         _acquisitionManager.StartAcquisition(selectedChannels, OnSamplesReceived);
 
-        MeasurementSeries = selectedChannels.Select(ch => new LineSeries<double>
+        MeasurementSeries = [.. selectedChannels.Select(ch => new LineSeries<double>
         {
             Values = Recorder.GetWindow(ch.Name),
             Name = ch.Name,
             AnimationsSpeed = TimeSpan.Zero,
             GeometrySize = 0
-        }).ToArray();
+        })];
         OnPropertyChanged(nameof(MeasurementSeries));
 
         ChannelSeries.Clear();
@@ -170,7 +164,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         LogMessages.Add("Stopping acquisition...");
         _acquisitionManager.StopAcquisition();
-        MeasurementSeries = Array.Empty<ISeries>();
+        MeasurementSeries = [];
         ChannelSeries.Clear();
         OnPropertyChanged(nameof(MeasurementSeries));
         OnPropertyChanged(nameof(ChannelSeries));

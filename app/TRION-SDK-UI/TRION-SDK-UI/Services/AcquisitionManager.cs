@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
@@ -68,6 +62,14 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
     public void StopAcquisition()
     {
+        foreach (var board in _enclosure.Boards.Where(b => b.IsOpen))
+        {
+            var error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0);
+            Utils.CheckErrorCode(error, $"Failed stop acquisition {board.Id}");
+            error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.CLOSE_BOARD, 0);
+            Utils.CheckErrorCode(error, $"Failed close board {board.Id}");
+            board.IsOpen = false;
+        }
         foreach (var cts in _ctsList)
         {
             cts.Cancel();
@@ -75,7 +77,6 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         Task.WaitAll(_acquisitionTasks.ToArray(), 1000);
         _acquisitionTasks.Clear();
         _ctsList.Clear();
-        TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
         _isRunning = false;
     }
 
@@ -147,17 +148,14 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                 read_pos += scanSize;
             }
 
-            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+            Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples), "Failed to free buffer");
+
 
             // Call the callback for each channel
             foreach (var kvp in channelSamples)
                 onSamplesReceived(kvp.Key, kvp.Value);
         }
-
-        error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0);
-        Utils.CheckErrorCode(error, $"Failed stop acquisition {board.Id}");
-        error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.CLOSE_BOARD, 0);
-        Utils.CheckErrorCode(error, $"Failed close board {board.Id}");
+        StopAcquisition();
     }
 
     public void Dispose()
