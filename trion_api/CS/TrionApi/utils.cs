@@ -19,12 +19,16 @@ namespace TrionApiUtils
             }
             if ((int)error_code == 0)
             {
+                //Console.ForegroundColor = ConsoleColor.Green;
+                //System.Diagnostics.Debug.WriteLine($"TRION API Success: {user_message} {error_code}");
+                //Console.ResetColor();
                 return;
             }
             if ((int)error_code > 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"TRION API Error: {user_message} {error_code}");
+                System.Diagnostics.Debug.WriteLine($"TRION API Error: {user_message} {error_code}");
+                Environment.Exit((int)error_code);
                 Console.ResetColor();
                 TrionApi.CloseBoards();
                 TrionApi.Uninitialize();

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Trion;
 using TRION_SDK_UI.Models;
@@ -12,6 +13,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
     public void StartAcquisition(IEnumerable<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived)
     {
+        Debug.WriteLine($"TEST: StartAcquisition called with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         if (_isRunning)
             StopAcquisition();
 
@@ -32,14 +34,19 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             board.ResetBoard();
             board.SetAcquisitionProperties();
             Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{board.Id}/AIAll", "Used", "False"), $"Failed to reset board {board.Id}");
-            var selectedChannelsForBoard = selectedChannels.Where(c => c.BoardID == board.Id).ToList();
-            foreach (var channel in selectedChannelsForBoard)
-            {
-                Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Used", "True"), $"Failed to set channel used {channel.Name}");
-                Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Range", "10 V"), $"Failed to set channel range {channel.Name}");
-            }
+        }
+        foreach (var channel in selectedChannels)
+        {
+            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Used", "True"), $"Failed to set channel used {channel.Name}");
+            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Range", "10 V"), $"Failed to set channel range {channel.Name}");
+        }
+        foreach (var board in selectedBoards)
+        {
             board.UpdateBoard();
+        }
 
+        foreach (var board in selectedBoards)
+        {
             (var error, board.ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}", "ScanDescriptor_V3");
             Utils.CheckErrorCode(error, $"Failed to get scan descriptor {board.Id}");
             board.ScanDescriptorDecoder = new ScanDescriptorDecoder(board.ScanDescriptorXml);
@@ -53,7 +60,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             var board = _enclosure.Boards.First(b => b.Id == boardGroup.Key);
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
-            var task = Task.Run(() => AcquireDataLoop(board, [.. boardGroup], onSamplesReceived, cts.Token), cts.Token);
+            var task = Task.Run(() => AcquireDataLoop(board, boardGroup.ToList(), onSamplesReceived, cts.Token), cts.Token);
             _acquisitionTasks.Add(task);
         }
 
@@ -62,6 +69,14 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
     public void StopAcquisition()
     {
+        Debug.WriteLine("TEST: StopAcquisition called");
+        foreach (var cts in _ctsList)
+        {
+            cts.Cancel();
+        }
+        Task.WaitAll(_acquisitionTasks.ToArray(), 1000);
+        _acquisitionTasks.Clear();
+        _ctsList.Clear();
         foreach (var board in _enclosure.Boards.Where(b => b.IsOpen))
         {
             var error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0);
@@ -70,18 +85,12 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             Utils.CheckErrorCode(error, $"Failed close board {board.Id}");
             board.IsOpen = false;
         }
-        foreach (var cts in _ctsList)
-        {
-            cts.Cancel();
-        }
-        Task.WaitAll(_acquisitionTasks.ToArray(), 1000);
-        _acquisitionTasks.Clear();
-        _ctsList.Clear();
         _isRunning = false;
     }
 
     private void AcquireDataLoop(Board board, List<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived, CancellationToken token)
     {
+        Debug.WriteLine($"TEST: AcquireDataLoop started for Board ID: {board.Id} with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         var scanSize = (int)board.ScanSizeBytes;
         var scanDescriptor = board.ScanDescriptorDecoder;
         var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
@@ -148,19 +157,24 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                 read_pos += scanSize;
             }
 
-            Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples), "Failed to free buffer");
-
+            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
 
             // Call the callback for each channel
             foreach (var kvp in channelSamples)
                 onSamplesReceived(kvp.Key, kvp.Value);
         }
-        StopAcquisition();
     }
 
     public void Dispose()
     {
         StopAcquisition();
-        Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0), "Failed to close Boards");
+        foreach (var board in _enclosure.Boards)
+        {
+            if (board.IsOpen)
+            {
+                Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.CLOSE_BOARD, 0), $"Failed to close board {board.Id}");
+                board.IsOpen = false;
+            }
+        }
     }
 }
