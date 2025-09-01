@@ -34,27 +34,16 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                 Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.OPEN_BOARD, 0), "Failed to open board");
                 board.IsOpen = true;
             }
-            board.ResetBoard();
+            board.Reset();
             board.SetAcquisitionProperties();
-            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{board.Id}/AIAll", "Used", "False"), $"Failed to set all channels used false {board.Id}");
-        }
-        foreach (var channel in selectedChannels)
-        {
-            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Used", "True"), $"Failed to set channel used {channel.Name}");
-            Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Range", "10 V"), $"Failed to set channel range {channel.Name}");
-            Debug.WriteLine($"Set BoardID{channel.BoardID}/{channel.Name} to Used");
-        }
-        foreach (var board in selectedBoards)
-        {
-            board.UpdateBoard();
-        }
-
-        foreach (var board in selectedBoards)
-        {
-            (var error, board.ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{board.Id}", "ScanDescriptor_V3");
-            Utils.CheckErrorCode(error, $"Failed to get scan descriptor {board.Id}");
-            board.ScanDescriptorDecoder = new ScanDescriptorDecoder(board.ScanDescriptorXml);
-            board.ScanSizeBytes = board.ScanDescriptorDecoder.ScanSizeBytes;
+            board.ActivateChannels(selectedChannels.Where(c => c.BoardID == board.Id));
+            // Before activating channels
+            Debug.WriteLine($"Activating channels for board {board.Id}: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
+            board.Update();
+            board.RefreshScanDescriptor();
+            // After refreshing scan descriptor
+            Debug.WriteLine($"ScanDescriptorXml for board {board.Id}: {board.ScanDescriptorXml}");
+            Debug.WriteLine($"ScanDescriptorDecoder channels: {string.Join(", ", board.ScanDescriptorDecoder.Channels.Select(ch => ch.Name))}");
         }
 
         // Start acquisition tasks
@@ -132,15 +121,20 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             // Prepare a dictionary to collect samples for each channel
             var channelSamples = new Dictionary<string, List<double>>();
             foreach (var channel in selectedChannels)
+            {
                 channelSamples[channel.Name] = new List<double>(available_samples);
+            }
 
             for (int i = 0; i < available_samples; ++i)
             {
                 if (read_pos >= buffer.EndPosition)
+                {
                     read_pos -= buffer.Size;
+                }
 
                 foreach (var channel in selectedChannels)
                 {
+                    //Debug.WriteLine($"Channel: {channel.Name}, sample count: {channelSamples[channel.Name].Count}");
                     var channelInfo = scanDescriptor.Channels.FirstOrDefault(c => c.Name == channel.Name);
                     if (channelInfo == null) continue;
 
@@ -153,7 +147,9 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                     raw &= bitmask;
                     int signBit = 1 << (sampleSize - 1);
                     if ((raw & signBit) != 0)
+                    {
                         raw |= ~bitmask;
+                    }
                     double value = (double)raw / (double)(signBit - 1) * 10.0;
 
                     channelSamples[channel.Name].Add(value);
@@ -165,7 +161,9 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
             // Call the callback for each channel
             foreach (var kvp in channelSamples)
+            {
                 onSamplesReceived(kvp.Key, kvp.Value);
+            }
 
             //Debug.WriteLine($"Received {available_samples} samples for {string.Join(", ", selectedChannels.Select(c => c.Name))} at {DateTime.Now}");
         }
