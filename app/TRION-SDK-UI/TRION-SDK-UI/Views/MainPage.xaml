@@ -102,10 +102,10 @@
                         Margin="10,0,0,0">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <HorizontalStackLayout Spacing="8" Padding="3" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="20" Padding="0" VerticalOptions="Center">
                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalOptions="Center" />
                         <Label Text="{Binding ., Converter={StaticResource ChannelToStringConverter}}"
-                               FontSize="14"
+                               FontSize="12"
                                TextColor="Black"
                                VerticalOptions="Center" />
                     </HorizontalStackLayout>

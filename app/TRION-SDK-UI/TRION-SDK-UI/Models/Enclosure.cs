@@ -24,13 +24,11 @@ public class Enclosure
             Name = boardPropertiesModel.GetBoardName(),
             BoardProperties = boardPropertiesModel,
             Channels = boardPropertiesModel.GetChannels(),
-            IsOpen = false,
+            IsOpen = true,
             ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value
         };
 
         Boards.Add(newBoard);
-        error = TrionApi.DeWeSetParam_i32(boardId, TrionCommand.CLOSE_BOARD, 0);
-        Utils.CheckErrorCode(error, "Failed to close board");
     }
 
     public void Init(int numberOfBoards)

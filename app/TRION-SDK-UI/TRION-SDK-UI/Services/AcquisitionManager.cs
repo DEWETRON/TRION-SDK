@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
-
 public class AcquisitionManager(Enclosure enclosure) : IDisposable
 {
     private readonly Enclosure _enclosure = enclosure;
@@ -29,11 +28,6 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         // Board and channel setup
         foreach (var board in selectedBoards)
         {
-            if (!board.IsOpen)
-            {
-                Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.OPEN_BOARD, 0), "Failed to open board");
-                board.IsOpen = true;
-            }
             board.Reset();
             board.SetAcquisitionProperties();
             board.ActivateChannels(selectedChannels.Where(c => c.BoardID == board.Id));
@@ -71,14 +65,6 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         Task.WaitAll([.. _acquisitionTasks], 1000);
         _acquisitionTasks.Clear();
         _ctsList.Clear();
-        foreach (var board in _enclosure.Boards.Where(b => b.IsOpen))
-        {
-            var error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0);
-            Utils.CheckErrorCode(error, $"Failed stop acquisition {board.Id}");
-            error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.CLOSE_BOARD, 0);
-            Utils.CheckErrorCode(error, $"Failed close board {board.Id}");
-            board.IsOpen = false;
-        }
         _isRunning = false;
     }
 
@@ -97,15 +83,17 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         Utils.CheckErrorCode(error, $"Failed start acquisition {board.Id}");
 
         CircularBuffer buffer = new(board.Id);
+        int available_samples = 0;
 
         // break only when there is a cancellationrequest
         while (!token.IsCancellationRequested)
         {
             // get the number of samples available
-            (error, var available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+            (error, available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {available_samples}");
             if (available_samples <= 0)
             {
+                Debug.WriteLine($"TEST: no available samples after getting them");
                 Thread.Sleep(polling_interval);
                 continue;
             }
@@ -113,7 +101,8 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             available_samples -= adc_delay;
             if (available_samples <= 0)
             {
-                Thread.Sleep(10);
+                Debug.WriteLine($"TEST: no available samples after adc delay");
+                Thread.Sleep(100);
                 continue;
             }
             // get the current read pointer
@@ -141,20 +130,18 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                 {
                     //Debug.WriteLine($"Channel: {channel.Name}, sample count: {channelSamples[channel.Name].Count}");
                     var channelInfo = scanDescriptor.Channels.FirstOrDefault(c => c.Name == channel.Name);
-                    if (channelInfo == null) continue;
+                    if (channelInfo == null)
+                    {
+                        Debug.WriteLine($"TEST: Channel info not found for channel {channel.Name} on board {board.Id}");
+                        continue; // TODO something
+                    }
 
                     var offset_bytes = (int)channelInfo.SampleOffset / 8;
-                    var samplePos = read_pos + offset_bytes;
-                    int raw = Marshal.ReadInt32(checked((IntPtr)samplePos));
-
+                    nint samplePos = (nint)(read_pos + offset_bytes);
                     int sampleSize = (int)channelInfo.SampleSize;
-                    int bitmask = (1 << sampleSize) - 1;
-                    raw &= bitmask;
+
+                    int raw = ReadSample(samplePos, sampleSize);
                     int signBit = 1 << (sampleSize - 1);
-                    if ((raw & signBit) != 0)
-                    {
-                        raw |= ~bitmask;
-                    }
                     double value = (double)raw / (double)(signBit - 1) * 10.0;
 
                     channelSamples[channel.Name].Add(value);
@@ -170,6 +157,49 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                 onSamplesReceived(kvp.Key, kvp.Value);
             }
         }
+        TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+        Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0), $"Failed to stop acquisition {board.Id}");
+    }
+
+    private static int ReadSample(nint samplePos, int sampleSize)
+    {
+        // little endian (i guess could be different, maybe check xml)
+        int raw;
+        switch (sampleSize)
+        {
+            case 16:
+                {
+                    byte b0 = Marshal.ReadByte(samplePos);
+                    byte b1 = Marshal.ReadByte(samplePos + 1);
+                    raw = b0 | (b1 << 8);
+                    if ((raw & 0x8000) != 0)
+                    {
+                        raw |= unchecked((int)0xFFFF0000);
+                    }
+                    break;
+                }
+            case 24:
+                {
+                    byte b0 = Marshal.ReadByte(samplePos);
+                    byte b1 = Marshal.ReadByte(samplePos + 1);
+                    byte b2 = Marshal.ReadByte(samplePos + 2);
+                    raw = b0 | (b1 << 8) | (b2 << 16);
+                    if ((raw & 0x800000) != 0)
+                    {
+                        raw |= unchecked((int)0xFF000000);
+                    }
+                    break;
+                }
+            case 32:
+                {
+                    raw = Marshal.ReadInt32(samplePos);
+                    // no sign extension needed already 32 bits
+                    break;
+                }
+            default:
+                throw new NotSupportedException($"Unsupported sample size: {sampleSize}");
+        }
+        return raw;
     }
 
     public void Dispose()

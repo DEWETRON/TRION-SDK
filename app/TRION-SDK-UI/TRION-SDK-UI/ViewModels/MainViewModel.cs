@@ -129,6 +129,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void StartAcquisition()
     {
         LogMessages.Add("Starting acquisition...");
+        ChannelSeries.Clear();
 
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
 
@@ -143,7 +144,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         })];
         OnPropertyChanged(nameof(MeasurementSeries));
 
-        ChannelSeries.Clear();
         foreach (var ch in Channels.Where(c => c.IsSelected))
         {
             var window = Recorder.GetWindow(ch.Name);
@@ -165,7 +165,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         LogMessages.Add("Stopping acquisition...");
         _acquisitionManager.StopAcquisition();
         MeasurementSeries = [];
-        ChannelSeries.Clear();
+        //ChannelSeries.Clear();
         OnPropertyChanged(nameof(MeasurementSeries));
         OnPropertyChanged(nameof(ChannelSeries));
 
