@@ -15,7 +15,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         Debug.WriteLine($"TEST: StartAcquisition called with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         if (_isRunning)
         {
-            StopAcquisition();
+            StopAcquisitionAsync();
             Debug.WriteLine("TEST: Previous acquisition stopped.");
         }
 
@@ -73,20 +73,27 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         _isRunning = true;
     }
 
-    public void StopAcquisition()
+    public async Task StopAcquisitionAsync()
     {
         Debug.WriteLine("TEST: StopAcquisition called");
         foreach (var cts in _ctsList)
         {
             cts.Cancel();
         }
-        Task.WaitAll([.. _acquisitionTasks], 1000);
+        try
+        {
+            await Task.WhenAll(_acquisitionTasks);
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when cancellation occurs
+        }
         _acquisitionTasks.Clear();
         _ctsList.Clear();
         _isRunning = false;
     }
 
-    private static void AcquireDataLoop(
+    private static async Task AcquireDataLoop(
         Board board,
         List<Channel> selectedChannels,
         int[] offsets,
@@ -109,33 +116,28 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         CircularBuffer buffer = new(board.Id);
         int available_samples = 0;
 
-        // break only when there is a cancellationrequest
         while (!token.IsCancellationRequested)
         {
-            // get the number of samples available
             (error, available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {available_samples}");
             if (available_samples <= 0)
             {
-                Debug.WriteLine($"TEST: no available samples after getting them");
-                Thread.Sleep(polling_interval);
+                await Task.Delay(polling_interval, token);
                 continue;
             }
 
             available_samples -= adc_delay;
             if (available_samples <= 0)
             {
-                Debug.WriteLine($"TEST: no available samples after adc delay");
-                Thread.Sleep(polling_interval);
+                await Task.Delay(polling_interval, token);
                 continue;
             }
-            // get the current read pointer
+
             (error, var read_pos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
             Utils.CheckErrorCode(error, $"Failed to get actual sample position {board.Id}");
 
             read_pos += adc_delay * scanSize;
 
-            // Prepare a dictionary to collect samples for each channel
             var sampleLists = new List<double>[selectedChannels.Count];
             for (int c = 0; c < selectedChannels.Count; ++c)
             {
@@ -144,13 +146,11 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
             for (int i = 0; i < available_samples; ++i)
             {
-                // handle buffer wrap around
                 if (read_pos >= buffer.EndPosition)
                 {
                     read_pos -= buffer.Size;
                 }
 
-                // Use indexed access for channels
                 for (int c = 0; c < selectedChannels.Count; ++c)
                 {
                     nint samplePos = (nint)(read_pos + offsets[c]);
@@ -164,7 +164,6 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
             TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
 
-            // Call the callback for each channel
             for (int c = 0; c < selectedChannels.Count; ++c)
             {
                 onSamplesReceived(channelKeys[c], sampleLists[c]);
@@ -220,7 +219,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(_ctsList);
-        StopAcquisition();
+        StopAcquisitionAsync();
         foreach (var board in _enclosure.Boards)
         {
             if (board.IsOpen)
