@@ -41,14 +41,32 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         }
 
 
+        // Precompute per-channel arrays
+        var selectedChannelList = selectedChannels.ToList();
+        var scanDescriptor = selectedBoards.First().ScanDescriptorDecoder; // or per board if needed
+
+        var channelInfos = selectedChannelList
+            .Select(ch => scanDescriptor.Channels.FirstOrDefault(c => c.Name == ch.Name))
+            .ToArray();
+        var offsets = channelInfos.Select(ci => (int)ci.SampleOffset / 8).ToArray();
+        var sampleSizes = channelInfos.Select(ci => (int)ci.SampleSize).ToArray();
+        var channelKeys = selectedChannelList.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
+
         // Start acquisition tasks
-        var channelsByBoard = selectedChannels.GroupBy(c => c.BoardID);
+        var channelsByBoard = selectedChannelList.GroupBy(c => c.BoardID);
         foreach (var boardGroup in channelsByBoard)
         {
             var board = _enclosure.Boards.First(b => b.Id == boardGroup.Key);
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
-            var task = Task.Run(() => AcquireDataLoop(board, [.. boardGroup], onSamplesReceived, cts.Token), cts.Token);
+            var task = Task.Run(() => AcquireDataLoop(
+                board,
+                [.. boardGroup],
+                offsets,
+                sampleSizes,
+                channelKeys,
+                onSamplesReceived,
+                cts.Token), cts.Token);
             _acquisitionTasks.Add(task);
         }
 
@@ -68,11 +86,17 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         _isRunning = false;
     }
 
-    private static void AcquireDataLoop(Board board, List<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived, CancellationToken token)
+    private static void AcquireDataLoop(
+        Board board,
+        List<Channel> selectedChannels,
+        int[] offsets,
+        int[] sampleSizes,
+        string[] channelKeys,
+        Action<string, IEnumerable<double>> onSamplesReceived,
+        CancellationToken token)
     {
         Debug.WriteLine($"TEST: AcquireDataLoop started for Board ID: {board.Id} with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         var scanSize = (int)board.ScanSizeBytes;
-        var scanDescriptor = board.ScanDescriptorDecoder;
         var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
 
         TrionError error;
@@ -102,7 +126,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             if (available_samples <= 0)
             {
                 Debug.WriteLine($"TEST: no available samples after adc delay");
-                Thread.Sleep(100);
+                Thread.Sleep(polling_interval);
                 continue;
             }
             // get the current read pointer
@@ -112,11 +136,10 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             read_pos += adc_delay * scanSize;
 
             // Prepare a dictionary to collect samples for each channel
-            var channelSamples = new Dictionary<string, List<double>>();
-            foreach (var channel in selectedChannels)
+            var sampleLists = new List<double>[selectedChannels.Count];
+            for (int c = 0; c < selectedChannels.Count; ++c)
             {
-                channelSamples[$"{channel.BoardID}/{channel.Name}"] = new List<double>(available_samples);
-                Debug.WriteLine($"TEST: Initialized sample list for channel {channel.Name} on board {board.Id}");
+                sampleLists[c] = new List<double>(available_samples);
             }
 
             for (int i = 0; i < available_samples; ++i)
@@ -127,25 +150,14 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                     read_pos -= buffer.Size;
                 }
 
-                foreach (var channel in selectedChannels)
+                // Use indexed access for channels
+                for (int c = 0; c < selectedChannels.Count; ++c)
                 {
-                    //Debug.WriteLine($"Channel: {channel.Name}, sample count: {channelSamples[channel.Name].Count}");
-                    var channelInfo = scanDescriptor.Channels.FirstOrDefault(c => c.Name == channel.Name);
-                    if (channelInfo == null)
-                    {
-                        Debug.WriteLine($"TEST: Channel info not found for channel {channel.Name} on board {board.Id}");
-                        continue; // TODO something
-                    }
+                    nint samplePos = (nint)(read_pos + offsets[c]);
+                    int sampleSize = sampleSizes[c];
 
-                    var offset_bytes = (int)channelInfo.SampleOffset / 8;
-                    nint samplePos = (nint)(read_pos + offset_bytes);
-                    int sampleSize = (int)channelInfo.SampleSize;
-
-                    int raw = ReadSample(samplePos, sampleSize);
-                    int signBit = 1 << (sampleSize - 1);
-                    double value = (double)raw / (double)(signBit - 1) * 10.0;
-
-                    channelSamples[$"{channel.BoardID}/{channel.Name}"].Add(value);
+                    double value = ReadSample(samplePos, sampleSize);
+                    sampleLists[c].Add(value);
                 }
                 read_pos += scanSize;
             }
@@ -153,16 +165,16 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
 
             // Call the callback for each channel
-            foreach (var kvp in channelSamples)
+            for (int c = 0; c < selectedChannels.Count; ++c)
             {
-                onSamplesReceived(kvp.Key, kvp.Value);
+                onSamplesReceived(channelKeys[c], sampleLists[c]);
             }
         }
         TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
         Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0), $"Failed to stop acquisition {board.Id}");
     }
 
-    private static int ReadSample(nint samplePos, int sampleSize)
+    private static double ReadSample(nint samplePos, int sampleSize)
     {
         // little endian (i guess could be different, maybe check xml)
         int raw;
@@ -200,7 +212,9 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             default:
                 throw new NotSupportedException($"Unsupported sample size: {sampleSize}");
         }
-        return raw;
+        int signBit = 1 << (sampleSize - 1);
+        double value = (double)raw / (double)(signBit - 1) * 10.0;
+        return value;
     }
 
     public void Dispose()
