@@ -25,7 +25,13 @@ public partial class ScanDescriptorDecoder
 
     private void ParseScanDescriptor(string scanDescriptorXML)
     {
-        var doc = new XPathDocument(new System.IO.StringReader(scanDescriptorXML));
+        // Can be safely ignored:
+        // bit
+        // byte_order
+        // buffer_direction
+        // buffer
+
+        var doc = new XPathDocument(new StringReader(scanDescriptorXML));
         var nav = doc.CreateNavigator();
 
         var scanDescNode = nav.SelectSingleNode("ScanDescriptor/*/ScanDescription") ?? throw new Exception("ScanDescriptor unexpected element");

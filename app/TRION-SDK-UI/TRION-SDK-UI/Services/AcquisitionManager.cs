@@ -46,6 +46,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             Debug.WriteLine($"ScanDescriptorDecoder channels: {string.Join(", ", board.ScanDescriptorDecoder.Channels.Select(ch => ch.Name))}");
         }
 
+
         // Start acquisition tasks
         var channelsByBoard = selectedChannels.GroupBy(c => c.BoardID);
         foreach (var boardGroup in channelsByBoard)
@@ -67,7 +68,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         {
             cts.Cancel();
         }
-        Task.WaitAll(_acquisitionTasks.ToArray(), 1000);
+        Task.WaitAll([.. _acquisitionTasks], 1000);
         _acquisitionTasks.Clear();
         _ctsList.Clear();
         foreach (var board in _enclosure.Boards.Where(b => b.IsOpen))
@@ -97,8 +98,10 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
         CircularBuffer buffer = new(board.Id);
 
+        // break only when there is a cancellationrequest
         while (!token.IsCancellationRequested)
         {
+            // get the number of samples available
             (error, var available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {available_samples}");
             if (available_samples <= 0)
@@ -113,6 +116,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                 Thread.Sleep(10);
                 continue;
             }
+            // get the current read pointer
             (error, var read_pos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
             Utils.CheckErrorCode(error, $"Failed to get actual sample position {board.Id}");
 
@@ -127,6 +131,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
             for (int i = 0; i < available_samples; ++i)
             {
+                // handle buffer wrap around
                 if (read_pos >= buffer.EndPosition)
                 {
                     read_pos -= buffer.Size;
@@ -140,7 +145,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
 
                     var offset_bytes = (int)channelInfo.SampleOffset / 8;
                     var samplePos = read_pos + offset_bytes;
-                    int raw = Marshal.ReadInt32((IntPtr)samplePos);
+                    int raw = Marshal.ReadInt32(checked((IntPtr)samplePos));
 
                     int sampleSize = (int)channelInfo.SampleSize;
                     int bitmask = (1 << sampleSize) - 1;
@@ -164,8 +169,6 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             {
                 onSamplesReceived(kvp.Key, kvp.Value);
             }
-
-            //Debug.WriteLine($"Received {available_samples} samples for {string.Join(", ", selectedChannels.Select(c => c.Name))} at {DateTime.Now}");
         }
     }
 
