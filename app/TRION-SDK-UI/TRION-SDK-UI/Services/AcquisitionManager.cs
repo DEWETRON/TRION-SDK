@@ -115,7 +115,8 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
             var channelSamples = new Dictionary<string, List<double>>();
             foreach (var channel in selectedChannels)
             {
-                channelSamples[channel.Name] = new List<double>(available_samples);
+                channelSamples[$"{channel.BoardID}/{channel.Name}"] = new List<double>(available_samples);
+                Debug.WriteLine($"TEST: Initialized sample list for channel {channel.Name} on board {board.Id}");
             }
 
             for (int i = 0; i < available_samples; ++i)
@@ -144,7 +145,7 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
                     int signBit = 1 << (sampleSize - 1);
                     double value = (double)raw / (double)(signBit - 1) * 10.0;
 
-                    channelSamples[channel.Name].Add(value);
+                    channelSamples[$"{channel.BoardID}/{channel.Name}"].Add(value);
                 }
                 read_pos += scanSize;
             }

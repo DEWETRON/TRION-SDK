@@ -137,8 +137,8 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         MeasurementSeries = [.. selectedChannels.Select(ch => new LineSeries<double>
         {
-            Values = Recorder.GetWindow(ch.Name),
-            Name = ch.Name,
+            Values = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}"),
+            Name = $"{ch.BoardID}/{ch.Name}",
             AnimationsSpeed = TimeSpan.Zero,
             GeometrySize = 0
         })];
@@ -146,13 +146,13 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         foreach (var ch in Channels.Where(c => c.IsSelected))
         {
-            var window = Recorder.GetWindow(ch.Name);
+            var window = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}");
             Debug.WriteLine($"TEST: Channel: {ch.Name}, Window HashCode: {window.GetHashCode()}, Count: {window.Count}");
 
             var series = new LineSeries<double>
             {
-                Values = Recorder.GetWindow(ch.Name),
-                Name = ch.Name,
+                Values = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}"),
+                Name = $"{ch.BoardID}/{ch.Name}",
                 AnimationsSpeed = TimeSpan.Zero,
                 GeometrySize = 0
             };
