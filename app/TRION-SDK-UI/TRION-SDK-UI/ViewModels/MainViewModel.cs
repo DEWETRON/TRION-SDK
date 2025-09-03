@@ -133,7 +133,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
 
-        _acquisitionManager.StartAcquisition(selectedChannels, OnSamplesReceived);
+        _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
 
         MeasurementSeries = [.. selectedChannels.Select(ch => new LineSeries<double>
         {
@@ -163,7 +163,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void StopAcquisition()
     {
         LogMessages.Add("Stopping acquisition...");
-        _acquisitionManager.StopAcquisitionAsync();
+        _ = _acquisitionManager.StopAcquisitionAsync();
         //MeasurementSeries = [];
         //ChannelSeries.Clear();
         OnPropertyChanged(nameof(MeasurementSeries));

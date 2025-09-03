@@ -4,7 +4,6 @@ namespace TRION_SDK_UI
 {
     public partial class MainPage : ContentPage
     {
-        double _startX;
         double _startWidth;
 
         public MainPage()

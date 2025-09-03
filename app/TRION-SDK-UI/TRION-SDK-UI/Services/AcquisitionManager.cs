@@ -10,12 +10,12 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
     private readonly List<CancellationTokenSource> _ctsList = [];
     public bool _isRunning = false;
 
-    public void StartAcquisition(IEnumerable<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived)
+    public async Task StartAcquisitionAsync(IEnumerable<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived)
     {
         Debug.WriteLine($"TEST: StartAcquisition called with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         if (_isRunning)
         {
-            StopAcquisitionAsync();
+            await StopAcquisitionAsync();
             Debug.WriteLine("TEST: Previous acquisition stopped.");
         }
 
@@ -84,9 +84,10 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         {
             await Task.WhenAll(_acquisitionTasks);
         }
-        catch (OperationCanceledException)
+        catch (Exception ex)
         {
-            // Expected when cancellation occurs
+            Debug.WriteLine($"Exception during StopAcquisitionAsync: {ex}");
+            // Optionally log or handle specific exceptions
         }
         _acquisitionTasks.Clear();
         _ctsList.Clear();
@@ -216,10 +217,24 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
         return value;
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+        await StopAcquisitionAsync();
+        foreach (var board in _enclosure.Boards)
+        {
+            if (board.IsOpen)
+            {
+                Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.CLOSE_BOARD, 0), $"Failed to close board {board.Id}");
+                board.IsOpen = false;
+            }
+        }
+    }
+
     public void Dispose()
     {
         GC.SuppressFinalize(_ctsList);
-        StopAcquisitionAsync();
+        _ = StopAcquisitionAsync();
         foreach (var board in _enclosure.Boards)
         {
             if (board.IsOpen)

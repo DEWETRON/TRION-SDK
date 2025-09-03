@@ -4,7 +4,7 @@ public class ChartRecorder
 {
     private readonly Dictionary<string, List<double>> _data = [];
     private readonly Dictionary<string, ObservableCollection<double>> _windows = [];
-    private int _windowSize = 800;
+    private int _windowSize = 600;
     public int WindowSize
     {
         get => _windowSize;
