@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
-public class AcquisitionManager(Enclosure enclosure) : IDisposable
+public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
 {
     private readonly Enclosure _enclosure = enclosure;
     private readonly List<Task> _acquisitionTasks = [];
@@ -221,20 +221,6 @@ public class AcquisitionManager(Enclosure enclosure) : IDisposable
     {
         GC.SuppressFinalize(this);
         await StopAcquisitionAsync();
-        foreach (var board in _enclosure.Boards)
-        {
-            if (board.IsOpen)
-            {
-                Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.CLOSE_BOARD, 0), $"Failed to close board {board.Id}");
-                board.IsOpen = false;
-            }
-        }
-    }
-
-    public void Dispose()
-    {
-        GC.SuppressFinalize(_ctsList);
-        _ = StopAcquisitionAsync();
         foreach (var board in _enclosure.Boards)
         {
             if (board.IsOpen)
