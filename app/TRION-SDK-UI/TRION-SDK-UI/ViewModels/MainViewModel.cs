@@ -164,7 +164,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         LogMessages.Add("Stopping acquisition...");
         _acquisitionManager.StopAcquisition();
-        MeasurementSeries = [];
+        //MeasurementSeries = [];
         //ChannelSeries.Clear();
         OnPropertyChanged(nameof(MeasurementSeries));
         OnPropertyChanged(nameof(ChannelSeries));
