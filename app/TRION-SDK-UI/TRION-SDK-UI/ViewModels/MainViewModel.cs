@@ -197,6 +197,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
     private void OnSamplesReceived(string channelName, IEnumerable<double> samples)
     {
+        Debug.WriteLine($"First samples received at: {DateTime.Now:HH:mm:ss.fff}");
         MainThread.BeginInvokeOnMainThread(() =>
         {
             Recorder.AddSamples(channelName, samples);
@@ -209,5 +210,6 @@ public class MainViewModel : BaseViewModel, IDisposable
             OnPropertyChanged(nameof(MeasurementSeries));
             OnPropertyChanged(nameof(ChannelSeries));
         });
+        //Debug.WriteLine($"OnSamplesReceived: {channelName}, samples: {samples.Count()}");
     }
 }
