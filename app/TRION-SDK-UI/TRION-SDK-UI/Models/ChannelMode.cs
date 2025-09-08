@@ -9,7 +9,7 @@ public class ChannelMode
         Hertz = 3,
         Ohm = 4,
     }
-    public string Name { get; set; }
+    required public string Name { get; set; }
     public UnitEnum Unit { get; set; }
-    public List<Double> Ranges { get; set; }
+    required public List<Double> Ranges { get; set; }
 }

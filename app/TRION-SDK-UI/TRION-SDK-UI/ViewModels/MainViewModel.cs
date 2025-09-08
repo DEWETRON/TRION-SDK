@@ -126,7 +126,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private readonly AcquisitionManager _acquisitionManager;
     private bool _isScrollingLocked = true;
     private double _yAxisMin = -10;
-    private void StartAcquisition()
+    private async void StartAcquisition()
     {
         LogMessages.Add("Starting acquisition...");
         ChannelSeries.Clear();
@@ -137,7 +137,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
 
-        _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
+        await _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
 
         MeasurementSeries = [.. selectedChannels.Select(ch => new LineSeries<double>
         {
