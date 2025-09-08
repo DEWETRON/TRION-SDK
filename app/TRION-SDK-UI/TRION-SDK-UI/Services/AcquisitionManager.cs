@@ -91,11 +91,23 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
 
     public async Task StopAcquisitionAsync()
     {
-        Debug.WriteLine("TEST: StopAcquisition called");
+        Debug.WriteLine($"TEST: StopAcquisition called at {DateTime.Now:HH:mm:ss.fff}");
+
+        // Stop acquisition on all boards so no new samples are produced (prevents backlog growth)
+        foreach (var board in _enclosure.Boards)
+        {
+            var stopErr = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0);
+            Utils.CheckErrorCode(stopErr, $"Failed to stop acquisition {board.Id}");
+        }
+
+        // Cancel worker loops
         foreach (var cts in _ctsList)
         {
             cts.Cancel();
         }
+
+        // Await workers and log timing
+        var sw = Stopwatch.StartNew();
         try
         {
             await Task.WhenAll(_acquisitionTasks);
@@ -104,6 +116,9 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
         {
             Debug.WriteLine($"Exception during StopAcquisitionAsync: {ex}");
         }
+        sw.Stop();
+        Debug.WriteLine($"TEST: StopAcquisition completed in {sw.ElapsedMilliseconds} ms");
+
         _acquisitionTasks.Clear();
         _ctsList.Clear();
         _isRunning = false;
@@ -138,25 +153,31 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
         CircularBuffer buffer = new(board.Id);
         int available_samples = 0;
 
-        while (!token.IsCancellationRequested)
+        while (true)
         {
-            Debug.WriteLine($"AcquireDataLoop: waiting for samples for board {board.Id}");
-            var waitSw = Stopwatch.StartNew();
+            if (token.IsCancellationRequested)
+            {
+                // Free any pending samples quickly and exit.
+                (error, available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+                if (error == TrionError.NONE && available_samples > 0)
+                {
+                    TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+                }
+                break;
+            }
 
             (error, available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {available_samples}");
             if (available_samples <= 0)
             {
-                await Task.Delay(polling_interval, token);
+                await Task.Delay(polling_interval, token).ConfigureAwait(false);
                 continue;
-
             }
-            Debug.WriteLine($"AcquireDataLoop: samples available after {waitSw.ElapsedMilliseconds} ms for board {board.Id}");
 
             available_samples -= adc_delay;
             if (available_samples <= 0)
             {
-                await Task.Delay(polling_interval, token);
+                await Task.Delay(polling_interval, token).ConfigureAwait(false);
                 continue;
             }
 
@@ -165,14 +186,22 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
 
             read_pos += adc_delay * scanSize;
 
+            // prepare per-channel lists
             var sampleLists = new List<double>[selectedChannels.Count];
             for (int c = 0; c < selectedChannels.Count; ++c)
             {
-                sampleLists[c] = new List<double>(available_samples);
+                sampleLists[c] = new List<double>(Math.Max(1, available_samples));
             }
 
+            // Make loop cancel-responsive and track how many samples were actually processed.
+            int processed = 0;
             for (int i = 0; i < available_samples; ++i)
             {
+                if (token.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 if (read_pos >= buffer.EndPosition)
                 {
                     read_pos -= buffer.Size;
@@ -187,31 +216,46 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
                     {
                         uint value = ReadDiscreteSample(samplePos);
                         sampleLists[c].Add(value);
-                        continue;
                     }
                     else if (channel.Type == Channel.ChannelType.Analog)
                     {
                         double value = ReadAnalogSample(samplePos, sampleSize);
                         sampleLists[c].Add(value);
-                        continue;
                     }
                     else
                     {
                         throw new NotSupportedException($"Unsupported channel type: {channel.Type}");
                     }
                 }
+
+                processed++;
                 read_pos += scanSize;
             }
 
-            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
-
-            for (int c = 0; c < selectedChannels.Count; ++c)
+            // Free only what we consumed (processed). If cancelled before consuming any, free nothing here.
+            if (processed > 0)
             {
-                //Debug.WriteLine($"OnSamplesReceived: {channelKeys[c]}, samples: {sampleLists[c].Count()}");
-                onSamplesReceived(channelKeys[c], sampleLists[c]);
+                TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processed);
+            }
+
+            // Deliver only if not cancelled
+            if (!token.IsCancellationRequested && processed > 0)
+            {
+                for (int c = 0; c < selectedChannels.Count; ++c)
+                {
+                    onSamplesReceived(channelKeys[c], sampleLists[c]);
+                }
             }
         }
-        TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+
+        // final buffer cleanup on exit
+        (error, available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+        if (error == TrionError.NONE && available_samples > 0)
+        {
+            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
+        }
+
+        // Stop acquisition for this board (defensive)
         Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0), $"Failed to stop acquisition {board.Id}");
     }
 
