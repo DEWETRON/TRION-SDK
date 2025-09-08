@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
@@ -7,18 +8,23 @@ public class DataAcquisitionService
 {
     public Task StartAcquisition(Board board, List<Channel> channels, Action<string, IEnumerable<double>> onSamplesReceived, CancellationToken token)
     {
+        // Prepare required arguments for AcquireDataLoop
+        int[] offsets = channels.Select(c => (int)c.SampleOffset).ToArray();
+        int[] sampleSizes = channels.Select(c => (int)c.SampleSize).ToArray();
+        string[] channelKeys = channels.Select(c => c.Name ?? $"Channel_{c.Index}").ToArray();
+
         // Move AcquireDataLoop logic here
-        return Task.Run(() => AcquireDataLoop(board, channels, onSamplesReceived, token), token);
+        return Task.Run(() => AcquireDataLoop(board, channels, offsets, sampleSizes, channelKeys, onSamplesReceived, token), token);
     }
 
-    private static async Task AcquireDataLoop(
-    Board board,
-    List<Channel> selectedChannels,
-    int[] offsets,
-    int[] sampleSizes,
-    string[] channelKeys,
-    Action<string, IEnumerable<double>> onSamplesReceived,
-    CancellationToken token)
+        private static async Task AcquireDataLoop(
+        Board board,
+        List<Channel> selectedChannels,
+        int[] offsets,
+        int[] sampleSizes,
+        string[] channelKeys,
+        Action<string, IEnumerable<double>> onSamplesReceived,
+        CancellationToken token)
     {
         Debug.WriteLine($"TEST: AcquireDataLoop started for Board ID: {board.Id} with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         var scanSize = (int)board.ScanSizeBytes;
@@ -82,7 +88,7 @@ public class DataAcquisitionService
                     }
                     else if (channel.Type == Channel.ChannelType.Analog)
                     {
-                        double value = ReadSample(samplePos, sampleSize);
+                        double value = ReadSample(samplePos, sampleSize); 
                         sampleLists[c].Add(value);
                         continue;
                     }
@@ -104,4 +110,55 @@ public class DataAcquisitionService
         TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
         Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0), $"Failed to stop acquisition {board.Id}");
     }
+
+    private static uint ReadDiscreteSample(nint samplePos)
+    {
+        int raw = Marshal.ReadByte(samplePos);
+        return (uint)(raw & 0x1); // only the least significant bit
+    }
+
+
+    private static double ReadSample(nint samplePos, int sampleSize)
+    {
+        // little endian (i guess could be different, maybe check xml)
+        int raw;
+        switch (sampleSize)
+        {
+            case 16:
+                {
+                    byte b0 = Marshal.ReadByte(samplePos);
+                    byte b1 = Marshal.ReadByte(samplePos + 1);
+                    raw = b0 | (b1 << 8);
+                    if ((raw & 0x8000) != 0)
+                    {
+                        raw |= unchecked((int)0xFFFF0000);
+                    }
+                    break;
+                }
+            case 24:
+                {
+                    byte b0 = Marshal.ReadByte(samplePos);
+                    byte b1 = Marshal.ReadByte(samplePos + 1);
+                    byte b2 = Marshal.ReadByte(samplePos + 2);
+                    raw = b0 | (b1 << 8) | (b2 << 16);
+                    if ((raw & 0x800000) != 0)
+                    {
+                        raw |= unchecked((int)0xFF000000);
+                    }
+                    break;
+                }
+            case 32:
+                {
+                    raw = Marshal.ReadInt32(samplePos);
+                    // no sign extension needed already 32 bits
+                    break;
+                }
+            default:
+                throw new NotSupportedException($"Unsupported sample size: {sampleSize}");
+        }
+        int signBit = 1 << (sampleSize - 1);
+        double value = (double)raw / (double)(signBit - 1) * 10.0;
+        return value;
+    }
+
 }
