@@ -1,11 +1,13 @@
 using System.Reflection.Metadata;
 using System.Xml.XPath;
 using TRION_SDK_UI.Models;
+using static TRION_SDK_UI.Models.Channel;
 
 public class BoardPropertyModel
 {
-    private XPathDocument _document;
-    private XPathNavigator _navigator;
+    private readonly XPathDocument _document;
+    private readonly XPathNavigator _navigator;
+
 
     public BoardPropertyModel(string boardXML)
     {
@@ -31,6 +33,16 @@ public class BoardPropertyModel
         return channelNames;
     }
 
+    static ChannelType GetChannelType(string name)
+    {
+        if (name.StartsWith("AI"))
+            return ChannelType.Analog;
+        if (name.StartsWith("Di"))
+            return ChannelType.Digital;
+        return ChannelType.Unknown;
+    }
+
+
     public List<Channel> GetChannels()
     {
         var channels = new List<Channel>();
@@ -44,7 +56,10 @@ public class BoardPropertyModel
                 {
                     BoardID = GetBoardID(),
                     BoardName = GetBoardName(),
-                    Name = channelNav.Name
+                    Name = channelNav.Name,
+                    Type = GetChannelType(channelNav.Name),
+                    Modes = GetChannelModes(channelNav),
+
                 };
                 channels.Add(channel);
             }
@@ -68,5 +83,45 @@ public class BoardPropertyModel
                 return id;
         }
         return -1;
+    }
+
+    public List<ChannelMode> GetChannelModes(XPathNavigator channelNav)
+    {
+        var modes = new List<ChannelMode>();
+        var modeIterator = channelNav.SelectChildren("Mode", "");
+        while (modeIterator.MoveNext())
+        {
+            var modeNav = modeIterator.Current;
+            if (modeNav != null)
+            {
+                var rangeNav = modeNav.SelectSingleNode("Range");
+                var mode = new ChannelMode
+                {
+                    Name = modeNav.GetAttribute("Mode", ""),
+                    Unit = ParseUnit(rangeNav?.GetAttribute("Unit", "")),
+                    Ranges = rangeNav?
+                        .SelectChildren(XPathNodeType.Element)
+                        .Cast<XPathNavigator>()
+                        .Where(e => e.Name.StartsWith("ID"))
+                        .Select(e => double.TryParse(e.Value, out var v) ? v : 0)
+                        .ToList() ?? []
+                };
+                modes.Add(mode);
+            }
+        }
+        return modes;
+    }
+
+    // Helper to parse unit string to ChannelMode.UnitEnum
+    private static ChannelMode.UnitEnum ParseUnit(string? unit)
+    {
+        return unit switch
+        {
+            "V" => ChannelMode.UnitEnum.Voltage,
+            "mA" => ChannelMode.UnitEnum.MiliAmperes,
+            "Hz" => ChannelMode.UnitEnum.Hertz,
+            "Ohm" => ChannelMode.UnitEnum.Ohm,
+            _ => ChannelMode.UnitEnum.None
+        };
     }
 }

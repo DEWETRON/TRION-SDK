@@ -51,23 +51,23 @@ namespace TRION_SDK_UI.Models
 
         public void ActivateChannels(IEnumerable<Channel> selectedChannels)
         {
-            // deactivate all channels
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct($"BoardID{Id}/AIAll", "Used", "False"),
-                $"Failed to deactivate all channels on board {Id}");
+            DeactivateAllChannels(Id);
 
             // activate selected channels
             foreach (var channel in selectedChannels)
             {
-                Utils.CheckErrorCode(
-                    TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Used", "True"),
-                    $"Failed to activate channel {channel.Name} on board {channel.BoardID}");
-
-                // set range 
-                Utils.CheckErrorCode(
-                    TrionApi.DeWeSetParamStruct($"BoardID{channel.BoardID}/{channel.Name}", "Range", "10 V"),
-                    $"Failed to set range for channel {channel.Name} on board {channel.BoardID}");
+                channel.Activate();
             }
+        }
+
+        static void DeactivateAllChannels(int boardId)
+        {
+            Utils.CheckErrorCode(
+                TrionApi.DeWeSetParamStruct($"BoardID{boardId}/AIAll", "Used", "False"),
+                $"Failed to deactivate all analog channels on board {boardId}");
+            //Utils.CheckErrorCode(
+            //    TrionApi.DeWeSetParamStruct($"BoardID{boardId}/DiAll", "Used", "False"),
+            //    $"Failed to deactivate all digital channels on board {boardId}");
         }
 
         public void SetAcquisitionProperties(string operationMode = "Slave",
@@ -81,12 +81,12 @@ namespace TRION_SDK_UI.Models
             BufferBlockCount = buffer_block_count;
             BufferBlockSize = buffer_block_size;
             var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "OperationMode", operationMode);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", externalTrigger);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate.ToString());
+            error    |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", externalTrigger);
+            error    |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
+            error    |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate.ToString());
 
-            error |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
-            error |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
+            error    |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
+            error    |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
 
             Utils.CheckErrorCode(error, $"Failed to set acquisition properties for board {Id}");
         }
@@ -95,12 +95,14 @@ namespace TRION_SDK_UI.Models
         {
             var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.RESET_BOARD, 0);
             Utils.CheckErrorCode(error, $"Failed to reset board {Id}");
+            Debug.WriteLine($"Board {Id} reset.");
         }
 
         public void Update()
         {
             var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.UPDATE_PARAM_ALL, 0);
             Utils.CheckErrorCode(error, $"Failed to update board {Id}");
+            Debug.WriteLine($"Board {Id} updated.");
         }
     }
 }

@@ -131,6 +131,10 @@ public class MainViewModel : BaseViewModel, IDisposable
         LogMessages.Add("Starting acquisition...");
         ChannelSeries.Clear();
 
+        Recorder.UpdateAllWindows();
+        OnPropertyChanged(nameof(MeasurementSeries));
+        OnPropertyChanged(nameof(ChannelSeries));
+
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
 
         _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
@@ -195,7 +199,6 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            //Debug.WriteLine($"got sample {channelName} {samples.Count()}");
             Recorder.AddSamples(channelName, samples);
             if (_isScrollingLocked)
             {

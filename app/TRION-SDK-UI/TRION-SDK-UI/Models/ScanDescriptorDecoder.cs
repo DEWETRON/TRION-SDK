@@ -25,12 +25,6 @@ public partial class ScanDescriptorDecoder
 
     private void ParseScanDescriptor(string scanDescriptorXML)
     {
-        // Can be safely ignored:
-        // bit
-        // byte_order
-        // buffer_direction
-        // buffer
-
         var doc = new XPathDocument(new StringReader(scanDescriptorXML));
         var nav = doc.CreateNavigator();
 

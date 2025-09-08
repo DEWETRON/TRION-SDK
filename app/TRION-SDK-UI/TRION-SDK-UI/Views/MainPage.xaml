@@ -10,7 +10,7 @@
             <!-- Main content -->
             <ColumnDefinition Width="6" />
             <!-- Drag handle -->
-            <ColumnDefinition Width="200" x:Name="SidebarColumn" />
+            <ColumnDefinition Width="300" x:Name="SidebarColumn" />
             <!-- Sidebar -->
         </Grid.ColumnDefinitions>
 
@@ -42,7 +42,8 @@
                     Series="{Binding MeasurementSeries}"
                     YAxes="{Binding YAxes}"
                     HeightRequest="400"
-                    Margin="0,20,0,0"/>
+                    Margin="0,20,0,0"
+                    ZoomMode="X"/>
                 <Slider
                     Minimum="100"
                     Maximum="5000"
@@ -63,9 +64,10 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <lvc:CartesianChart Series="{Binding .}"
-                                YAxes="{Binding YAxes}"
+                                YAxes="{Binding Path=BindingContext.YAxes, Source={x:Reference RootGrid}}"
                                 HeightRequest="200"
-                                VerticalOptions="Fill"/>
+                                VerticalOptions="Fill"
+                                ZoomMode="X"/>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
@@ -99,7 +101,8 @@
                         ItemsSource="{Binding Channels}"
                         BackgroundColor="LightGray"
                         SelectionMode="None"
-                        Margin="10,0,0,0">
+                        Margin="10,0,0,0"
+                        HorizontalOptions="Fill">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <HorizontalStackLayout Spacing="20" Padding="0" VerticalOptions="Center">
