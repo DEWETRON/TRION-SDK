@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
-public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
+public class AcquisitionManager(Enclosure enclosure)
 {
     private readonly Enclosure _enclosure = enclosure;
     private readonly List<Task> _acquisitionTasks = [];
@@ -12,14 +12,9 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
 
     public async Task StartAcquisitionAsync(IEnumerable<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived)
     {
-        Debug.WriteLine("StartAcquisitionAsync: begin");
-        var sw = Stopwatch.StartNew();
-
-        Debug.WriteLine($"TEST: StartAcquisition called with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         if (_isRunning)
         {
             await StopAcquisitionAsync();
-            Debug.WriteLine("TEST: Previous acquisition stopped.");
         }
 
         _acquisitionTasks.Clear();
@@ -31,23 +26,11 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
         foreach (var board in selectedBoards)
         {
             board.Reset();
-            Debug.WriteLine($"Reset board: {sw.ElapsedMilliseconds} ms");
-
             board.SetAcquisitionProperties();
-            Debug.WriteLine($"Set Acqu Props: {sw.ElapsedMilliseconds} ms");
-
             board.ActivateChannels(selectedChannels.Where(c => c.BoardID == board.Id));
-            Debug.WriteLine($"Activating channels for board {board.Id}: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
             board.Update();
-            Debug.WriteLine($"Update board: {sw.ElapsedMilliseconds} ms");
-
             board.RefreshScanDescriptor();
-            Debug.WriteLine($"Refresh scan descriptor: {sw.ElapsedMilliseconds} ms");
 
-            Debug.WriteLine($"ScanDescriptorXml for board {board.Id}: {board.ScanDescriptorXml}");
-            Debug.WriteLine($"ScanDescriptorDecoder channels: {string.Join(", ", board.ScanDescriptorDecoder.Channels.Select(ch => ch.Name))}");
-            sw.Stop();
-            Debug.WriteLine($"Total setup time: {sw.ElapsedMilliseconds} ms");
         }
 
         // precompute per-channel arrays per board
@@ -65,14 +48,12 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
 
             if (channelInfos.Any(ci => ci == null))
             {
-                Debug.WriteLine($"ERROR: Some channels not found in scan descriptor for board {board.Id}");
                 continue;
             }
 
             var offsets = channelInfos.Select(ci => (int)ci.SampleOffset / 8).ToArray();
             var sampleSizes = channelInfos.Select(ci => (int)ci.SampleSize).ToArray();
             var channelKeys = boardChannels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
-            Debug.WriteLine($"TEST: starting AcquisitionLoop for {board.Name}");
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
             var task = Task.Run(() => AcquireDataLoop(
@@ -91,7 +72,6 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
 
     public async Task StopAcquisitionAsync()
     {
-        Debug.WriteLine("TEST: StopAcquisition called");
         foreach (var cts in _ctsList)
         {
             cts.Cancel();
@@ -124,7 +104,6 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
         Action<string, IEnumerable<double>> onSamplesReceived,
         CancellationToken token)
     {
-        Debug.WriteLine($"TEST: AcquireDataLoop started for Board ID: {board.Id} with channels: {string.Join(", ", selectedChannels.Select(c => c.Name))}");
         var scanSize = (int)board.ScanSizeBytes;
         var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
 
@@ -140,8 +119,6 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
 
         while (!token.IsCancellationRequested)
         {
-            Debug.WriteLine($"AcquireDataLoop: waiting for samples for board {board.Id}");
-            var waitSw = Stopwatch.StartNew();
 
             (error, available_samples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {available_samples}");
@@ -151,7 +128,6 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
                 continue;
 
             }
-            Debug.WriteLine($"AcquireDataLoop: samples available after {waitSw.ElapsedMilliseconds} ms for board {board.Id}");
 
             available_samples -= adc_delay;
             if (available_samples <= 0)
@@ -207,7 +183,6 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
 
             for (int c = 0; c < selectedChannels.Count; ++c)
             {
-                //Debug.WriteLine($"OnSamplesReceived: {channelKeys[c]}, samples: {sampleLists[c].Count()}");
                 onSamplesReceived(channelKeys[c], sampleLists[c]);
             }
         }
@@ -258,17 +233,4 @@ public class AcquisitionManager(Enclosure enclosure) : IAsyncDisposable
         return value;
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        GC.SuppressFinalize(this);
-        await StopAcquisitionAsync();
-        foreach (var board in _enclosure.Boards)
-        {
-            if (board.IsOpen)
-            {
-                Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.CLOSE_BOARD, 0), $"Failed to close board {board.Id}");
-                board.IsOpen = false;
-            }
-        }
-    }
 }

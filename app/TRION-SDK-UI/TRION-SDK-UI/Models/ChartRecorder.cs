@@ -37,7 +37,6 @@ public class ChartRecorder
         if (!_windows.ContainsKey(channel))
         {
             _windows[channel] = [];
-            //System.Diagnostics.Debug.WriteLine($"Created new window for channel: {channel} (HashCode: {_windows[channel].GetHashCode()})");
         }
         else
         {
@@ -48,7 +47,6 @@ public class ChartRecorder
 
     public void AddSamples(string channel, IEnumerable<double> samples)
     {
-        //System.Diagnostics.Debug.WriteLine($"AddSamples called for channel: {channel}, sample count: {samples.Count()}");
         if (!_data.TryGetValue(channel, out List<double>? value))
         {
             value = [];

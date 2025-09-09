@@ -44,6 +44,9 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand StartAcquisitionCommand { get; private set; }
     public ICommand StopAcquisitionCommand { get; private set; }
     public ICommand LockScrollingCommand { get; private set; }
+    private readonly AcquisitionManager _acquisitionManager;
+    private bool _isScrollingLocked = true;
+    private double _yAxisMin = -10;
     public double YAxisMax
     {
         get => _yAxisMax;
@@ -123,9 +126,6 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     }
 
-    private readonly AcquisitionManager _acquisitionManager;
-    private bool _isScrollingLocked = true;
-    private double _yAxisMin = -10;
     private async void StartAcquisition()
     {
         LogMessages.Add("Starting acquisition...");
@@ -151,7 +151,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var ch in Channels.Where(c => c.IsSelected))
         {
             var window = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}");
-            Debug.WriteLine($"TEST: Channel: {ch.Name}, Window HashCode: {window.GetHashCode()}, Count: {window.Count}");
 
             var series = new LineSeries<double>
             {
@@ -197,7 +196,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
     private void OnSamplesReceived(string channelName, IEnumerable<double> samples)
     {
-        Debug.WriteLine($"First samples received at: {DateTime.Now:HH:mm:ss.fff}");
+        //Debug.WriteLine($"First samples received at: {DateTime.Now:HH:mm:ss.fff}");
         MainThread.BeginInvokeOnMainThread(() =>
         {
             Recorder.AddSamples(channelName, samples);

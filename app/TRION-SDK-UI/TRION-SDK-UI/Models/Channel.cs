@@ -38,7 +38,6 @@ namespace TRION_SDK_UI.Models
         public uint SampleSize { get; set; }
         public uint SampleOffset { get; set; }
         public bool IsSelected { get; set; }
-        // Rename the property to avoid the name conflict with the nested enum
         public void DeactivateChannel()
         {
             Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{BoardID}/{Name}", "Used", "False"),$"Failed to deactivate channel {Name} on board {BoardID}");
