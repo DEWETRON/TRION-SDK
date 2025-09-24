@@ -35,6 +35,7 @@
                     <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />
                     <Button Text="Start Acquisition" Command="{Binding StartAcquisitionCommand}" />
                     <Button Text="Stop Acquisition" Command="{Binding StopAcquisitionCommand}" />
+                    <Button Text="Toggle Theme" Command="{Binding ToggleThemeCommand}" />
                 </HorizontalStackLayout>
 
                 <!-- Chart -->
@@ -83,7 +84,7 @@
                 </CollectionView>  -->
             </VerticalStackLayout>
         </ScrollView>
-
+                
         <!-- Drag Handle -->
         <BoxView Grid.Column="1"
                  BackgroundColor="DarkGray"

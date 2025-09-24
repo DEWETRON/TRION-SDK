@@ -38,6 +38,10 @@ namespace TRION_SDK_UI.Models
         public uint SampleSize { get; set; }
         public uint SampleOffset { get; set; }
         public bool IsSelected { get; set; }
+        public double CurrentValue { get; set; }
+        public string DisplayValue => $"{CurrentValue:F2}";
+        public string Unit => Type == ChannelType.Analog ? "V" : "";
+
         public void DeactivateChannel()
         {
             Utils.CheckErrorCode(TrionApi.DeWeSetParamStruct($"BoardID{BoardID}/{Name}", "Used", "False"),$"Failed to deactivate channel {Name} on board {BoardID}");

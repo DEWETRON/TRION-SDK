@@ -9,10 +9,12 @@ using TRION_SDK_UI.Models;
 public class MainViewModel : BaseViewModel, IDisposable
 {
     public ChartRecorder Recorder { get; } = new();
+    public DigitalMeter DigitalMeter { get; } = new();
     public ISeries[] MeasurementSeries { get; set; } = [];
     public ObservableCollection<ISeries[]> ChannelSeries { get; } = new();
     public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
+    public double DigitalValue => DigitalMeter.Value;
     public int WindowSize
     {
         get => Recorder.WindowSize;
@@ -44,6 +46,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand StartAcquisitionCommand { get; private set; }
     public ICommand StopAcquisitionCommand { get; private set; }
     public ICommand LockScrollingCommand { get; private set; }
+    public ICommand ToggleThemeCommand { get; private set; }
     private readonly AcquisitionManager _acquisitionManager;
     private bool _isScrollingLocked = true;
     private double _yAxisMin = -10;
@@ -119,14 +122,15 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         _acquisitionManager = new AcquisitionManager(MyEnc);
         OnPropertyChanged(nameof(Channels));
-        StartAcquisitionCommand = new Command(StartAcquisition);
-        StopAcquisitionCommand = new Command(StopAcquisition);
+        StartAcquisitionCommand = new Command(async () => await StartAcquisition());
+        StopAcquisitionCommand = new Command(async () => await StopAcquisition());
         LockScrollingCommand = new Command(LockScrolling);
+        ToggleThemeCommand = new Command(ToggleTheme);
         UpdateYAxes();
 
     }
 
-    private async void StartAcquisition()
+    private async Task StartAcquisition()
     {
         LogMessages.Add("Starting acquisition...");
         ChannelSeries.Clear();
@@ -163,10 +167,10 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
         OnPropertyChanged(nameof(ChannelSeries));
     }
-    private void StopAcquisition()
+    private async Task StopAcquisition()
     {
         LogMessages.Add("Stopping acquisition...");
-        _ = _acquisitionManager.StopAcquisitionAsync();
+        await _acquisitionManager.StopAcquisitionAsync();
         OnPropertyChanged(nameof(MeasurementSeries));
         OnPropertyChanged(nameof(ChannelSeries));
 
@@ -179,6 +183,14 @@ public class MainViewModel : BaseViewModel, IDisposable
         if (_isScrollingLocked)
         {
             ScrollIndex = MaxScrollIndex;
+        }
+    }
+    private void ToggleTheme()
+    {
+        if (Application.Current is not null)
+        {
+            Application.Current.UserAppTheme = Application.Current.UserAppTheme == AppTheme.Light ? AppTheme.Dark : AppTheme.Light;
+            LogMessages.Add($"Theme changed to {Application.Current.UserAppTheme}.");
         }
     }
     private double _yAxisMax = 10;
@@ -200,11 +212,14 @@ public class MainViewModel : BaseViewModel, IDisposable
         MainThread.BeginInvokeOnMainThread(() =>
         {
             Recorder.AddSamples(channelName, samples);
+            DigitalMeter.Value = samples.Last();
+
             if (_isScrollingLocked)
             {
                 Recorder.AutoScroll();
                 OnPropertyChanged(nameof(ScrollIndex));
             }
+            OnPropertyChanged(nameof(DigitalValue));
             OnPropertyChanged(nameof(MaxScrollIndex));
             OnPropertyChanged(nameof(MeasurementSeries));
             OnPropertyChanged(nameof(ChannelSeries));
