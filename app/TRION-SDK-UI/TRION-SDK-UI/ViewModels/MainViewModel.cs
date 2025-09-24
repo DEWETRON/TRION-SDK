@@ -115,6 +115,10 @@ public class MainViewModel : BaseViewModel, IDisposable
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
             foreach (var channel in board.BoardProperties.GetChannels())
             {
+                if (channel.Type != Channel.ChannelType.Analog && channel.Type != Channel.ChannelType.Digital)
+                {
+                    continue; // Only add analog and digital channels for now
+                }
                 Channels.Add(channel);
             }
         }

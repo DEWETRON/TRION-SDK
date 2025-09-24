@@ -25,7 +25,6 @@
                 Padding="10" 
                 BackgroundColor="{AppThemeBinding Light=#f8f8f8, Dark=#333333}"
                 Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#444444}"
-                StrokeThickness="0,0,0,1"
                 Margin="0,0,0,5">
             <HorizontalStackLayout Spacing="5">
                 <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />
@@ -45,7 +44,7 @@
                     Text="System Information"
                     Style="{StaticResource SubHeadline}"
                     SemanticProperties.HeadingLevel="Level2" HorizontalOptions="Start" />
-
+                
                 <HorizontalStackLayout Spacing="10">
                     <Label Text="Y Min:" VerticalOptions="Center"/>
                     <Entry Text="{Binding YAxisMin, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
