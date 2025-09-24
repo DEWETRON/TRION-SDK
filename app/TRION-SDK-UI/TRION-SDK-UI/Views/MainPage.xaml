@@ -5,6 +5,12 @@
              x:Class="TRION_SDK_UI.MainPage">
 
     <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <!-- Fixed header area for buttons -->
+            <RowDefinition Height="Auto"/>
+            <!-- Main content area -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <!-- Main content -->
@@ -14,8 +20,23 @@
             <!-- Sidebar -->
         </Grid.ColumnDefinitions>
 
-        <!-- Main Content -->
-        <ScrollView Grid.Column="0">
+        <!-- Fixed Header with Buttons - Always visible -->
+        <Border Grid.Row="0" Grid.Column="0" 
+                Padding="10" 
+                BackgroundColor="{AppThemeBinding Light=#f8f8f8, Dark=#333333}"
+                Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#444444}"
+                StrokeThickness="0,0,0,1"
+                Margin="0,0,0,5">
+            <HorizontalStackLayout Spacing="5">
+                <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />
+                <Button Text="Start Acquisition" Command="{Binding StartAcquisitionCommand}" />
+                <Button Text="Stop Acquisition" Command="{Binding StopAcquisitionCommand}" />
+                <Button Text="Toggle Theme" Command="{Binding ToggleThemeCommand}" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Main Content - Scrollable -->
+        <ScrollView Grid.Row="1" Grid.Column="0">
             <VerticalStackLayout
                 Padding="30,0"
                 Spacing="25">
@@ -25,17 +46,11 @@
                     Style="{StaticResource SubHeadline}"
                     SemanticProperties.HeadingLevel="Level2" HorizontalOptions="Start" />
 
-                
                 <HorizontalStackLayout Spacing="10">
                     <Label Text="Y Min:" VerticalOptions="Center"/>
                     <Entry Text="{Binding YAxisMin, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
                     <Label Text="Y Max:" VerticalOptions="Center"/>
                     <Entry Text="{Binding YAxisMax, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
-
-                    <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />
-                    <Button Text="Start Acquisition" Command="{Binding StartAcquisitionCommand}" />
-                    <Button Text="Stop Acquisition" Command="{Binding StopAcquisitionCommand}" />
-                    <Button Text="Toggle Theme" Command="{Binding ToggleThemeCommand}" />
                 </HorizontalStackLayout>
 
                 <!-- Chart -->
@@ -113,9 +128,9 @@
                 </CollectionView>  -->
             </VerticalStackLayout>
         </ScrollView>
-                
-        <!-- Drag Handle -->
-        <BoxView Grid.Column="1"
+        
+        <!-- Drag Handle - spans both rows -->
+        <BoxView Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
                  BackgroundColor="DarkGray"
                  WidthRequest="20"
                  HorizontalOptions="Fill"
@@ -126,8 +141,8 @@
             </BoxView.GestureRecognizers>
         </BoxView>
 
-        <!-- Sidebar -->
-        <CollectionView Grid.Column="2"
+        <!-- Sidebar - spans both rows -->
+        <CollectionView Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
                         ItemsSource="{Binding Channels}"
                         BackgroundColor="LightGray"
                         SelectionMode="None"
