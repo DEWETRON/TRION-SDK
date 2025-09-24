@@ -58,6 +58,35 @@
                     Margin="0,10,0,0"/>
 
 
+                <!-- Digital Meters Display - NEW SECTION -->
+                <CollectionView Grid.Column="2"
+                        ItemsSource="{Binding DigitalMeters}"
+                        BackgroundColor="LightGray"
+                        SelectionMode="None"
+                        Margin="10,0,0,0"
+                        HorizontalOptions="Fill">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="2" Padding="8,4">
+                                <HorizontalStackLayout>
+                                    <!-- Format Value directly instead of using DisplayValue -->
+                                    <Label FontSize="14">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Label} " />
+                                                <Span Text="  " />
+                                                <Span Text="{Binding Value, StringFormat='{0:F2} '}" />
+                                                <Span Text="{Binding Unit}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </HorizontalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+
                 <!-- Channel Series Chart -->
                 <CollectionView ItemsSource="{Binding ChannelSeries}"
                     HeightRequest="400"
@@ -116,5 +145,6 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
     </Grid>
 </ContentPage>

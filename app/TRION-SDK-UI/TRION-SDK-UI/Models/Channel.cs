@@ -39,7 +39,6 @@ namespace TRION_SDK_UI.Models
         public uint SampleOffset { get; set; }
         public bool IsSelected { get; set; }
         public double CurrentValue { get; set; }
-        public string DisplayValue => $"{CurrentValue:F2}";
         public string Unit => Type == ChannelType.Analog ? "V" : "";
 
         public void DeactivateChannel()

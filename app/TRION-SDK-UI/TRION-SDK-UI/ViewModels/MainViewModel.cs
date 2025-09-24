@@ -9,12 +9,11 @@ using TRION_SDK_UI.Models;
 public class MainViewModel : BaseViewModel, IDisposable
 {
     public ChartRecorder Recorder { get; } = new();
-    public DigitalMeter DigitalMeter { get; } = new();
+    public ObservableCollection<DigitalMeter> DigitalMeters { get; } = new();
     public ISeries[] MeasurementSeries { get; set; } = [];
     public ObservableCollection<ISeries[]> ChannelSeries { get; } = new();
     public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
-    public double DigitalValue => DigitalMeter.Value;
     public int WindowSize
     {
         get => Recorder.WindowSize;
@@ -134,12 +133,24 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         LogMessages.Add("Starting acquisition...");
         ChannelSeries.Clear();
+        DigitalMeters.Clear(); // Clear existing meters
 
         Recorder.UpdateAllWindows();
         OnPropertyChanged(nameof(MeasurementSeries));
         OnPropertyChanged(nameof(ChannelSeries));
 
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
+
+        // Create a digital meter for each selected channel
+        foreach (var channel in selectedChannels)
+        {
+            var meter = new DigitalMeter();
+            meter.Label = $"{channel.BoardID}/{channel.Name}";
+            meter.Value = channel.CurrentValue;
+            meter.Unit = channel.Unit; // Set appropriate unit based on channel mode
+            DigitalMeters.Add(meter);
+        }
+        OnPropertyChanged(nameof(DigitalMeters));
 
         await _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
 
@@ -208,22 +219,46 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
     private void OnSamplesReceived(string channelName, IEnumerable<double> samples)
     {
-        //Debug.WriteLine($"First samples received at: {DateTime.Now:HH:mm:ss.fff}");
         MainThread.BeginInvokeOnMainThread(() =>
         {
             Recorder.AddSamples(channelName, samples);
-            DigitalMeter.Value = samples.Last();
+            var latestValue = samples.Last();
+            Debug.WriteLine($"Latest value for {channelName}: {latestValue}");
+
+            // Find which channel this belongs to
+            var channelParts = channelName.Split('/');
+            if (channelParts.Length == 2)
+            {
+                var boardId = int.Parse(channelParts[0]);
+                var chName = channelParts[1];
+                
+                // Find the channel and update its current value
+                var channel = Channels.FirstOrDefault(c => c.BoardID == boardId && c.Name == chName);
+                if (channel != null)
+                {
+                    channel.CurrentValue = latestValue;
+                    
+                    // Find the index of this channel in the selected channels list
+                    var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
+                    var index = selectedChannels.IndexOf(channel);
+                    
+                    // If we have a digital meter for this channel, update it
+                    if (index >= 0 && index < DigitalMeters.Count)
+                    {
+                        DigitalMeters[index].AddSample(latestValue);
+                    }
+                }
+            }
 
             if (_isScrollingLocked)
             {
                 Recorder.AutoScroll();
                 OnPropertyChanged(nameof(ScrollIndex));
             }
-            OnPropertyChanged(nameof(DigitalValue));
             OnPropertyChanged(nameof(MaxScrollIndex));
             OnPropertyChanged(nameof(MeasurementSeries));
             OnPropertyChanged(nameof(ChannelSeries));
+            OnPropertyChanged(nameof(DigitalMeters));
         });
-        //Debug.WriteLine($"OnSamplesReceived: {channelName}, samples: {samples.Count()}");
     }
 }
