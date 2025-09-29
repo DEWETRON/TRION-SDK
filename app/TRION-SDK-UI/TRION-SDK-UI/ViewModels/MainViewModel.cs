@@ -16,9 +16,8 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand ToggleThemeCommand { get; private set; }
 
     private readonly AcquisitionManager _acquisitionManager;
-    private bool _isScrollingLocked = true; // kept in case you later want a "follow latest" toggle in the View
+    private bool _isScrollingLocked = true;
 
-    // NEW: expose follow flag to the View
     private bool _followLatest = true;
     public bool FollowLatest
     {
@@ -37,8 +36,15 @@ public class MainViewModel : BaseViewModel, IDisposable
     private double _yAxisMax = 10;
 
     // events for the View
-    public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarted;
-    public event EventHandler<string>? ChannelDataUpdated;
+    public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
+    public event EventHandler<SamplesAppendedEventArgs>? SamplesAppended;
+
+    // EventArgs
+    public sealed class SamplesAppendedEventArgs(string channelKey, int count) : EventArgs
+    {
+        public string ChannelKey { get; } = channelKey;
+        public int Count { get; } = count;
+    }
 
     public double YAxisMax
     {
@@ -64,53 +70,74 @@ public class MainViewModel : BaseViewModel, IDisposable
     };
 
     // plotting buffer (per channel), unlimited history when capacity == 0
-    private sealed class ChannelBuffer
+    private sealed class ChannelSeriesBuffer
     {
-        public List<double> Y { get; } = new(capacity: 8192);
-        public long StartIndex { get; private set; } = 0;
-        public long NextIndex { get; private set; } = 0;
-        public int Capacity { get; }
+        // All samples for this channel in chronological order
+        public List<double> Samples { get; } = new(capacity: 8192);
 
-        public ChannelBuffer(int capacity) => Capacity = capacity;
+        // Global index of Samples[0] (advances when oldest samples are trimmed)
+        public long FirstSampleIndex { get; private set; } = 0;
 
-        public void AddRange(IEnumerable<double> samples)
+        // Global index to assign to the next appended sample
+        public long NextSampleIndex { get; private set; } = 0;
+
+        // 0 = unlimited; if > 0 keep at most this many newest samples
+        public int MaxSamples { get; }
+
+        public ChannelSeriesBuffer(int maxSamples) => MaxSamples = maxSamples;
+
+        public void Append(IEnumerable<double> samples)
         {
             foreach (var v in samples)
             {
-                Y.Add(v);
-                NextIndex++;
-                if (Capacity > 0 && Y.Count > Capacity)
+                Samples.Add(v);
+                NextSampleIndex++;
+
+                if (MaxSamples > 0 && Samples.Count > MaxSamples)
                 {
-                    int remove = Y.Count - Capacity;
-                    Y.RemoveRange(0, remove);
-                    StartIndex += remove;
+                    int remove = Samples.Count - MaxSamples;
+                    Samples.RemoveRange(0, remove);
+                    FirstSampleIndex += remove;
                 }
             }
         }
 
-        public (double[] X, double[] Y) GetAll()
+        // Return full series as X (indices) and Y (values)
+        public (double[] X, double[] Y) GetSeries()
         {
-            int count = Y.Count;
+            int count = Samples.Count;
             if (count == 0) return (Array.Empty<double>(), Array.Empty<double>());
-            var ys = Y.ToArray();
+
+            var ys = Samples.ToArray();
             var xs = new double[count];
-            double x = StartIndex;
-            for (int i = 0; i < count; i++, x++) xs[i] = x;
+            double x = FirstSampleIndex;
+            for (int i = 0; i < count; i++, x++)
+                xs[i] = x;
+
             return (xs, ys);
         }
     }
 
-    private readonly Dictionary<string, ChannelBuffer> _plot = [];
-    private const int PlotBufferCapacitySamples = 0; // 0 = unlimited history; set >0 to cap memory
+    private readonly Dictionary<string, ChannelSeriesBuffer> _buffersByChannel = new();
+    private const int SampleHistoryCapacity = 5_000; // 0 = unlimited history; set >0 to cap memory
 
     public MainViewModel()
     {
         LogMessages.Add("App started.");
 
         var numberOfBoards = TrionApi.Initialize();
-        if (numberOfBoards < 0) Debug.WriteLine($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
-        else if (numberOfBoards > 0) Debug.WriteLine($"Number of real Boards found: {numberOfBoards}");
-        else Debug.WriteLine("No Trion Boards found.");
+        if (numberOfBoards < 0)
+        {
+            Debug.WriteLine($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
+        }
+        else if (numberOfBoards > 0)
+        {
+            Debug.WriteLine($"Number of real Boards found: {numberOfBoards}");
+        }
+        else
+        {
+            Debug.WriteLine("No Trion Boards found.");
+        }
 
         numberOfBoards = Math.Abs(numberOfBoards);
 
@@ -141,7 +168,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         LogMessages.Add("Starting acquisition...");
 
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
-        if (!selectedChannels.Any())
+        if (selectedChannels.Count == 0)
         {
             LogMessages.Add("No channels selected. Please select at least one channel.");
             return;
@@ -150,7 +177,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         PrepareUIForAcquisition(selectedChannels);
 
         // notify view early so it can clear plottables
-        AcquisitionStarted?.Invoke(this, selectedChannels);
+        AcquisitionStarting?.Invoke(this, selectedChannels);
 
         await _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
     }
@@ -174,7 +201,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var ch in selectedChannels)
         {
             var key = $"{ch.BoardID}/{ch.Name}";
-            _plot[key] = new ChannelBuffer(PlotBufferCapacitySamples);
+            _buffersByChannel[key] = new ChannelSeriesBuffer(SampleHistoryCapacity);
         }
 
         OnPropertyChanged(nameof(DigitalMeters));
@@ -223,25 +250,30 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
 
             // plot buffer (full history)
-            if (!_plot.TryGetValue(channelName, out var buf))
+            if (!_buffersByChannel.TryGetValue(channelName, out var buf))
             {
-                buf = new ChannelBuffer(PlotBufferCapacitySamples);
-                _plot[channelName] = buf;
+                buf = new ChannelSeriesBuffer(SampleHistoryCapacity);
+                _buffersByChannel[channelName] = buf;
             }
-            buf.AddRange(samples);
+            buf.Append(samples);
 
-            ChannelDataUpdated?.Invoke(this, channelName);
+            SamplesAppended?.Invoke(this, new SamplesAppendedEventArgs(channelName, samples.Count()));
         });
     }
 
     // ScottPlot: full history accessor
-    public (IReadOnlyList<double> X, IReadOnlyList<double> Y) GetChannelAllData(string channelName)
+    public (IReadOnlyList<double> X, IReadOnlyList<double> Y) GetFullSeries(string channelKey)
     {
-        if (_plot.TryGetValue(channelName, out var buf))
+        if (_buffersByChannel.TryGetValue(channelKey, out var buf))
         {
-            var (x, y) = buf.GetAll();
+            var (x, y) = buf.GetSeries();
             return (x, y);
         }
         return (Array.Empty<double>(), Array.Empty<double>());
     }
+}
+
+public readonly record struct ChannelId(int BoardId, string Name)
+{
+    public override string ToString() => $"{BoardId}/{Name}";
 }

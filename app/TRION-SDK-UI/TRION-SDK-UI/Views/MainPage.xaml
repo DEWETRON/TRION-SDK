@@ -69,6 +69,31 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+
+                <!-- Logs -->
+                <Label Text="Log"
+                       Style="{StaticResource SubHeadline}"
+                       SemanticProperties.HeadingLevel="Level2"
+                       HorizontalOptions="Start" />     
+
+                <CollectionView x:Name="LogView"
+                ItemsSource="{Binding LogMessages}"
+                HeightRequest="200"
+                BackgroundColor="#11111111"
+                SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="2" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding .}"
+                   FontSize="12"
+                   FontFamily="Consolas"
+                   LineBreakMode="WordWrap"
+                   TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </VerticalStackLayout>
         </ScrollView>
 
@@ -102,5 +127,6 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
+                
     </Grid>
 </ContentPage>
