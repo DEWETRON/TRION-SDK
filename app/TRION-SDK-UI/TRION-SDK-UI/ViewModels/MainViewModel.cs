@@ -148,7 +148,9 @@ public class MainViewModel : BaseViewModel, IDisposable
             var xs = new double[count];
             double x = FirstSampleIndex;
             for (int i = 0; i < count; i++, x++)
+            {
                 xs[i] = x;
+            }
 
             return (xs, ys);
         }

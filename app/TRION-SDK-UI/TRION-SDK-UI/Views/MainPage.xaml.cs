@@ -60,8 +60,7 @@ namespace TRION_SDK_UI
                 var last = e.NewItems[e.NewItems.Count - 1];
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    if (LogView != null)
-                        LogView.ScrollTo(last, position: ScrollToPosition.End, animate: true);
+                    LogView?.ScrollTo(last, position: ScrollToPosition.End, animate: true);
                 });
             }
         }
@@ -85,7 +84,7 @@ namespace TRION_SDK_UI
             {
                 line = MauiPlot1.Plot.Add.Scatter([], []);
                 line.Color = GetColorForChannel(channelKey);
-                line.LineWidth = 1;
+                line.LineWidth = 2;
                 line.MarkerSize = 0;
                 _lines[channelKey] = line;
             }
@@ -93,7 +92,7 @@ namespace TRION_SDK_UI
             MauiPlot1.Plot.Remove(line);
             line = MauiPlot1.Plot.Add.Scatter(xs.ToArray(), ys.ToArray());
             line.Color = GetColorForChannel(channelKey);
-            line.LineWidth = 1;
+            line.LineWidth = 2;
             line.MarkerSize = 0;
             _lines[channelKey] = line;
 
