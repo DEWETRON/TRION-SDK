@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
              xmlns:ScottPlot="clr-namespace:ScottPlot.Maui;assembly=ScottPlot.Maui"
              x:Class="TRION_SDK_UI.MainPage">
 
@@ -22,7 +21,7 @@
                 Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#444444}"
                 Margin="0,0,0,5">
             <HorizontalStackLayout Spacing="5">
-                <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />
+                <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />           
                 <Button Text="Start Acquisition" Command="{Binding StartAcquisitionCommand}" />
                 <Button Text="Stop Acquisition" Command="{Binding StopAcquisitionCommand}" />
                 <Button Text="Toggle Theme" Command="{Binding ToggleThemeCommand}" />
@@ -45,21 +44,6 @@
 
                 <ScottPlot:MauiPlot x:Name="MauiPlot1" HeightRequest="400" />
 
-                <!-- Optional: keep old LiveCharts chart commented out
-                <lvc:CartesianChart ... />
-                -->
-
-                <Slider Minimum="100"
-                        Maximum="5000"
-                        Value="{Binding WindowSize, Mode=TwoWay}"
-                        Margin="0,10,0,0"/>
-                <Label Text="{Binding WindowSize}" />
-                <Slider Minimum="0"
-                        Maximum="{Binding MaxScrollIndex}"
-                        Value="{Binding ScrollIndex, Mode=TwoWay}"
-                        Margin="0,10,0,0"/>
-
-                <!-- Digital Meters Display -->
                 <CollectionView Grid.Column="2"
                                 ItemsSource="{Binding DigitalMeters}"
                                 BackgroundColor="LightGray"
@@ -85,10 +69,6 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-
-                <!-- Channel Series Chart (removed; ScottPlot handles all channels in one plot)
-                <CollectionView ItemsSource="{Binding ChannelSeries}" ... />
-                -->
             </VerticalStackLayout>
         </ScrollView>
 

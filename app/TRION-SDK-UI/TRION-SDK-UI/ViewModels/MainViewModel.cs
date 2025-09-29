@@ -1,5 +1,3 @@
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -8,140 +6,49 @@ using TRION_SDK_UI.Models;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
-    public ChartRecorder Recorder { get; } = new();
     public ObservableCollection<DigitalMeter> DigitalMeters { get; } = new();
-    public ISeries[] MeasurementSeries { get; set; } = [];
-    public ObservableCollection<ISeries[]> ChannelSeries { get; } = new();
     public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
-    public int WindowSize
-    {
-        get => Recorder.WindowSize;
-        set
-        {
-            if (Recorder.WindowSize != value)
-            {
-                Recorder.WindowSize = value;
-                OnPropertyChanged(nameof(WindowSize));
-                OnPropertyChanged(nameof(MaxScrollIndex));
-            }
-        }
-    }
-    public int ScrollIndex
-    {
-        get => Recorder.ScrollIndex;
-        set
-        {
-            if (Recorder.ScrollIndex != value)
-            {
-                Recorder.ScrollIndex = value;
-                OnPropertyChanged(nameof(ScrollIndex));
-            }
-        }
-    }
-    public Axis[]? YAxes { get; set; }
-    public int MaxScrollIndex => Recorder.MaxScrollIndex;
+
     public ICommand StartAcquisitionCommand { get; private set; }
     public ICommand StopAcquisitionCommand { get; private set; }
     public ICommand LockScrollingCommand { get; private set; }
     public ICommand ToggleThemeCommand { get; private set; }
+
     private readonly AcquisitionManager _acquisitionManager;
-    private bool _isScrollingLocked = true;
+    private bool _isScrollingLocked = true; // kept in case you later want a "follow latest" toggle in the View
+
+    // NEW: expose follow flag to the View
+    private bool _followLatest = true;
+    public bool FollowLatest
+    {
+        get => _followLatest;
+        private set
+        {
+            if (_followLatest != value)
+            {
+                _followLatest = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 
     private double _yAxisMin = -10;
     private double _yAxisMax = 10;
 
-    // Plot data managed in the VM
-    private sealed class ChannelBuffer
-    {
-        public List<double> Y { get; } = new(capacity: 8192);
-        public long StartIndex { get; private set; } = 0; // global index of Y[0]
-        public long NextIndex { get; private set; } = 0;  // next global index to assign
-        public int Capacity { get; }
-
-        public ChannelBuffer(int capacity)
-        {
-            Capacity = capacity;
-        }
-
-        public void AddRange(IEnumerable<double> samples)
-        {
-            foreach (var v in samples)
-            {
-                Y.Add(v);
-                NextIndex++;
-
-                if (Y.Count > Capacity)
-                {
-                    int remove = Y.Count - Capacity;
-                    Y.RemoveRange(0, remove);
-                    StartIndex += remove;
-                }
-            }
-        }
-
-        public (double[] X, double[] Y) GetWindow(int scrollIndex, int windowSize)
-        {
-            long globalStart = StartIndex;
-            long globalEndExclusive = StartIndex + Y.Count;
-
-            long desiredStart = Math.Max(scrollIndex, (int)globalStart);
-            long desiredEnd = Math.Min((long)scrollIndex + windowSize, globalEndExclusive);
-            int count = (int)Math.Max(0, desiredEnd - desiredStart);
-            if (count <= 0) return (Array.Empty<double>(), Array.Empty<double>());
-
-            int localStart = (int)(desiredStart - globalStart);
-            var ys = Y.GetRange(localStart, count).ToArray();
-            var xs = new double[count];
-            double x0 = desiredStart;
-            for (int i = 0; i < count; i++) xs[i] = x0 + i;
-            return (xs, ys);
-        }
-    }
-
-    private readonly Dictionary<string, ChannelBuffer> _plot = [];
-    private const int PlotBufferCapacitySamples = 200_000; // cap per channel
-
-    // Events for the View
-    public sealed class SamplesReceivedEventArgs : EventArgs
-    {
-        public string ChannelName { get; }
-        public IReadOnlyList<double> Samples { get; }
-        public SamplesReceivedEventArgs(string channelName, IEnumerable<double> samples)
-        {
-            ChannelName = channelName;
-            Samples = samples.ToArray();
-        }
-    }
+    // events for the View
     public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarted;
-    public event EventHandler<SamplesReceivedEventArgs>? SamplesAvailable;
-    public event EventHandler<string>? ChannelDataUpdated; // channelName
+    public event EventHandler<string>? ChannelDataUpdated;
 
     public double YAxisMax
     {
         get => _yAxisMax;
-        set
-        {
-            if (_yAxisMax != value)
-            {
-                _yAxisMax = value;
-                UpdateYAxes();
-                OnPropertyChanged();
-            }
-        }
+        set { if (_yAxisMax != value) { _yAxisMax = value; OnPropertyChanged(); } }
     }
     public double YAxisMin
     {
         get => _yAxisMin;
-        set
-        {
-            if (_yAxisMin != value)
-            {
-                _yAxisMin = value;
-                UpdateYAxes();
-                OnPropertyChanged();
-            }
-        }
+        set { if (_yAxisMin != value) { _yAxisMin = value; OnPropertyChanged(); } }
     }
 
     public void Dispose()
@@ -156,23 +63,54 @@ public class MainViewModel : BaseViewModel, IDisposable
         Boards = []
     };
 
+    // plotting buffer (per channel), unlimited history when capacity == 0
+    private sealed class ChannelBuffer
+    {
+        public List<double> Y { get; } = new(capacity: 8192);
+        public long StartIndex { get; private set; } = 0;
+        public long NextIndex { get; private set; } = 0;
+        public int Capacity { get; }
+
+        public ChannelBuffer(int capacity) => Capacity = capacity;
+
+        public void AddRange(IEnumerable<double> samples)
+        {
+            foreach (var v in samples)
+            {
+                Y.Add(v);
+                NextIndex++;
+                if (Capacity > 0 && Y.Count > Capacity)
+                {
+                    int remove = Y.Count - Capacity;
+                    Y.RemoveRange(0, remove);
+                    StartIndex += remove;
+                }
+            }
+        }
+
+        public (double[] X, double[] Y) GetAll()
+        {
+            int count = Y.Count;
+            if (count == 0) return (Array.Empty<double>(), Array.Empty<double>());
+            var ys = Y.ToArray();
+            var xs = new double[count];
+            double x = StartIndex;
+            for (int i = 0; i < count; i++, x++) xs[i] = x;
+            return (xs, ys);
+        }
+    }
+
+    private readonly Dictionary<string, ChannelBuffer> _plot = [];
+    private const int PlotBufferCapacitySamples = 0; // 0 = unlimited history; set >0 to cap memory
+
     public MainViewModel()
     {
         LogMessages.Add("App started.");
 
         var numberOfBoards = TrionApi.Initialize();
-        if (numberOfBoards < 0)
-        {
-            Debug.WriteLine($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
-        }
-        else if (numberOfBoards > 0)
-        {
-            Debug.WriteLine($"Number of real Boards found: {numberOfBoards}");
-        }
-        else
-        {
-            Debug.WriteLine("No Trion Boards found.");
-        }
+        if (numberOfBoards < 0) Debug.WriteLine($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
+        else if (numberOfBoards > 0) Debug.WriteLine($"Number of real Boards found: {numberOfBoards}");
+        else Debug.WriteLine("No Trion Boards found.");
 
         numberOfBoards = Math.Abs(numberOfBoards);
 
@@ -184,20 +122,18 @@ public class MainViewModel : BaseViewModel, IDisposable
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
             foreach (var channel in board.BoardProperties.GetChannels())
             {
-                if (channel.Type != Channel.ChannelType.Analog && channel.Type != Channel.ChannelType.Digital)
-                    continue;
-
-                Channels.Add(channel);
+                if (channel.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital)
+                    Channels.Add(channel);
             }
         }
 
         _acquisitionManager = new AcquisitionManager(MyEnc);
         OnPropertyChanged(nameof(Channels));
+
         StartAcquisitionCommand = new Command(async () => await StartAcquisition());
         StopAcquisitionCommand = new Command(async () => await StopAcquisition());
         LockScrollingCommand = new Command(LockScrolling);
         ToggleThemeCommand = new Command(ToggleTheme);
-        UpdateYAxes();
     }
 
     private async Task StartAcquisition()
@@ -213,36 +149,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         PrepareUIForAcquisition(selectedChannels);
 
-        // reset VM-side plot buffers
-        foreach (var channel in selectedChannels)
-        {
-            Recorder.GetWindow($"{channel.BoardID}/{channel.Name}");
-        }
-
-        MeasurementSeries = [.. selectedChannels.Select(ch => new LineSeries<double>
-        {
-            Values = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}"),
-            Name = $"{ch.BoardID}/{ch.Name}",
-            AnimationsSpeed = TimeSpan.Zero,
-            GeometrySize = 0
-        })];
-
-        foreach (var ch in selectedChannels)
-        {
-            var series = new LineSeries<double>
-            {
-                Values = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}"),
-                Name = $"{ch.BoardID}/{ch.Name}",
-                AnimationsSpeed = TimeSpan.Zero,
-                GeometrySize = 0
-            };
-            ChannelSeries.Add([series]);
-        }
-
-        OnPropertyChanged(nameof(DigitalMeters));
-        OnPropertyChanged(nameof(MeasurementSeries));
-        OnPropertyChanged(nameof(ChannelSeries));
-
+        // notify view early so it can clear plottables
         AcquisitionStarted?.Invoke(this, selectedChannels);
 
         await _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
@@ -250,10 +157,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private void PrepareUIForAcquisition(List<Channel> selectedChannels)
     {
-        ChannelSeries.Clear();
         DigitalMeters.Clear();
-
-        Recorder.UpdateAllWindows();
 
         foreach (var channel in selectedChannels)
         {
@@ -264,26 +168,29 @@ public class MainViewModel : BaseViewModel, IDisposable
                 Unit = channel.Unit
             };
             DigitalMeters.Add(meter);
-
-            Recorder.GetWindow($"{channel.BoardID}/{channel.Name}");
         }
+
+        // clear plot buffers for selected channels
+        foreach (var ch in selectedChannels)
+        {
+            var key = $"{ch.BoardID}/{ch.Name}";
+            _plot[key] = new ChannelBuffer(PlotBufferCapacitySamples);
+        }
+
+        OnPropertyChanged(nameof(DigitalMeters));
     }
 
     private async Task StopAcquisition()
     {
         LogMessages.Add("Stopping acquisition...");
         await _acquisitionManager.StopAcquisitionAsync();
-        OnPropertyChanged(nameof(MeasurementSeries));
-        OnPropertyChanged(nameof(ChannelSeries));
     }
 
     private void LockScrolling()
     {
         _isScrollingLocked = !_isScrollingLocked;
+        FollowLatest = _isScrollingLocked;
         LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
-
-        if (_isScrollingLocked)
-            ScrollIndex = MaxScrollIndex;
     }
 
     private void ToggleTheme()
@@ -295,27 +202,13 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
     }
 
-    private void UpdateYAxes()
-    {
-        YAxes = [
-            new Axis
-            {
-                MinLimit = YAxisMin,
-                MaxLimit = YAxisMax,
-                Name = "Voltage"
-            }
-        ];
-        OnPropertyChanged(nameof(YAxes));
-    }
-
     private void OnSamplesReceived(string channelName, IEnumerable<double> samples)
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            // Persist for LiveCharts bindings and meters
-            Recorder.AddSamples(channelName, samples);
-            var latestValue = samples.Last();
+            var latestValue = samples.LastOrDefault();
 
+            // update meter value
             var parts = channelName.Split('/');
             if (parts.Length == 2 && int.TryParse(parts[0], out var boardId))
             {
@@ -329,17 +222,7 @@ public class MainViewModel : BaseViewModel, IDisposable
                 }
             }
 
-            if (_isScrollingLocked)
-            {
-                Recorder.AutoScroll();
-                OnPropertyChanged(nameof(ScrollIndex));
-            }
-
-            OnPropertyChanged(nameof(MaxScrollIndex));
-            OnPropertyChanged(nameof(MeasurementSeries));
-            OnPropertyChanged(nameof(ChannelSeries));
-
-            // NEW: bounded plot buffer
+            // plot buffer (full history)
             if (!_plot.TryGetValue(channelName, out var buf))
             {
                 buf = new ChannelBuffer(PlotBufferCapacitySamples);
@@ -347,20 +230,16 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
             buf.AddRange(samples);
 
-            // notify view for this channel
             ChannelDataUpdated?.Invoke(this, channelName);
-
-            // optional: keep SamplesAvailable if you use it elsewhere
-            SamplesAvailable?.Invoke(this, new SamplesReceivedEventArgs(channelName, samples));
         });
     }
 
-    // Return ONLY the visible window to the plot (keeps arrays small)
-    public (IReadOnlyList<double> X, IReadOnlyList<double> Y) GetChannelData(string channelName)
+    // ScottPlot: full history accessor
+    public (IReadOnlyList<double> X, IReadOnlyList<double> Y) GetChannelAllData(string channelName)
     {
         if (_plot.TryGetValue(channelName, out var buf))
         {
-            var (x, y) = buf.GetWindow(ScrollIndex, WindowSize);
+            var (x, y) = buf.GetAll();
             return (x, y);
         }
         return (Array.Empty<double>(), Array.Empty<double>());

@@ -10,19 +10,18 @@ namespace TRION_SDK_UI
     {
         double _startWidth;
 
-        // only view-mapping from channel -> plottable
         private readonly Dictionary<string, Scatter> _lines = [];
         IPalette Palette = new ScottPlot.Palettes.Category10();
-
-        // stable colors per channel
         private readonly Dictionary<string, ScottPlot.Color> _lineColors = [];
+        private bool _needInitialAutoScaleX = false;
+
+        // NEW: how many samples to keep visible while following
+        private int _followWindowSamples = 600;
 
         private ScottPlot.Color GetColorForChannel(string channelName)
         {
             if (_lineColors.TryGetValue(channelName, out var c))
                 return c;
-
-            // stable index based on channel name
             int idx = Math.Abs(channelName.GetHashCode()) % 10;
             var color = Palette.GetColor(idx);
             _lineColors[channelName] = color;
@@ -54,36 +53,49 @@ namespace TRION_SDK_UI
         {
             _lines.Clear();
             MauiPlot1.Plot.Clear();
-            // keep _lineColors so channels persist their color across restarts
+            _needInitialAutoScaleX = true;
         }
 
         private void VmOnChannelDataUpdated(object? sender, string channelName)
         {
             if (sender is not MainViewModel vm) return;
 
-            var (xs, ys) = vm.GetChannelData(channelName);
+            var (xs, ys) = vm.GetChannelAllData(channelName);
 
             if (!_lines.TryGetValue(channelName, out var line))
             {
                 line = MauiPlot1.Plot.Add.Scatter([], []);
-                // set style once when created
                 line.Color = GetColorForChannel(channelName);
-                line.LineWidth = 1;      // thinner line
-                line.MarkerSize = 0;     // no markers for performance/clarity
+                line.LineWidth = 1;
+                line.MarkerSize = 0;
                 _lines[channelName] = line;
             }
 
-            // Replace data (re-adding still preserves style by re-applying below)
             MauiPlot1.Plot.Remove(line);
             line = MauiPlot1.Plot.Add.Scatter(xs.ToArray(), ys.ToArray());
-
-            // re-apply styling to avoid color/width changing on each update
             line.Color = GetColorForChannel(channelName);
             line.LineWidth = 1;
             line.MarkerSize = 0;
             _lines[channelName] = line;
 
-            ApplyAxes(vm);
+            // Always respect Y limits from VM
+            MauiPlot1.Plot.Axes.SetLimitsY(vm.YAxisMin, vm.YAxisMax);
+
+            // Initial autoscale X once
+            if (_needInitialAutoScaleX)
+            {
+                MauiPlot1.Plot.Axes.AutoScaleX();
+                _needInitialAutoScaleX = false;
+            }
+
+            // Follow latest if enabled: show a trailing window ending at the newest sample
+            if (vm.FollowLatest && xs.Count > 0)
+            {
+                double right = xs[^1];
+                double left = Math.Max(0, right - _followWindowSamples);
+                MauiPlot1.Plot.Axes.SetLimitsX(left, right);
+            }
+
             MauiPlot1.Refresh();
         }
 
@@ -91,21 +103,25 @@ namespace TRION_SDK_UI
         {
             if (sender is not MainViewModel vm) return;
 
-            if (e.PropertyName is nameof(MainViewModel.YAxisMin) or nameof(MainViewModel.YAxisMax)
-                or nameof(MainViewModel.WindowSize) or nameof(MainViewModel.ScrollIndex))
+            if (e.PropertyName is nameof(MainViewModel.YAxisMin) or nameof(MainViewModel.YAxisMax))
             {
-                ApplyAxes(vm);
+                MauiPlot1.Plot.Axes.SetLimitsY(vm.YAxisMin, vm.YAxisMax);
                 MauiPlot1.Refresh();
             }
-        }
 
-        private void ApplyAxes(MainViewModel vm)
-        {
-            MauiPlot1.Plot.Axes.SetLimitsY(vm.YAxisMin, vm.YAxisMax);
-
-            var xMin = Math.Max(0, vm.ScrollIndex);
-            var xMax = xMin + Math.Max(1, vm.WindowSize);
-            MauiPlot1.Plot.Axes.SetLimitsX(xMin, xMax);
+            // Optional: when FollowLatest is toggled on, snap to newest immediately using current data
+            if (e.PropertyName is nameof(MainViewModel.FollowLatest) && vm.FollowLatest)
+            {
+                // pick any plotted series that has data
+                var firstWithData = _lines.Values.FirstOrDefault();
+                if (firstWithData is not null && firstWithData.Data is not null && firstWithData.Data.GetScatterPoints().Count > 0)
+                {
+                    // last X value (series is drawn from arrays we provided)
+                    double right = firstWithData.GetAxisLimits().Right; // fallback
+                    // Prefer using our last xs if desired (requires storing last xs)
+                    // Here we just keep the next update to reposition.
+                }
+            }
         }
 
         private void OnDragHandlePanUpdated(object? sender, PanUpdatedEventArgs e)
