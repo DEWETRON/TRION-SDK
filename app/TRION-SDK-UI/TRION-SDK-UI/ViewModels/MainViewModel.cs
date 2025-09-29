@@ -1,6 +1,9 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
+using Microsoft.Maui.Controls;
 using Trion;
 using TRION_SDK_UI.Models;
 
@@ -14,6 +17,11 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand StopAcquisitionCommand { get; private set; }
     public ICommand LockScrollingCommand { get; private set; }
     public ICommand ToggleThemeCommand { get; private set; }
+    public ICommand ShowChannelPropertiesCommand { get; private set; }
+    public ICommand CopyChannelPathCommand { get; private set; }
+    public ICommand SelectOnlyChannelCommand { get; private set; }
+    public ICommand SelectAllOnBoardCommand { get; private set; }
+    public ICommand DeselectAllOnBoardCommand { get; private set; }
 
     private readonly AcquisitionManager _acquisitionManager;
     private bool _isScrollingLocked = true;
@@ -194,6 +202,11 @@ public class MainViewModel : BaseViewModel, IDisposable
         StopAcquisitionCommand = new Command(async () => await StopAcquisition());
         LockScrollingCommand = new Command(LockScrolling);
         ToggleThemeCommand = new Command(ToggleTheme);
+        ShowChannelPropertiesCommand = new Command<Channel>(async ch => await ShowChannelPropertiesAsync(ch));
+        CopyChannelPathCommand = new Command<Channel>(async ch => await CopyChannelPathAsync(ch));
+        SelectOnlyChannelCommand = new Command<Channel>(SelectOnlyChannel);
+        SelectAllOnBoardCommand = new Command<Channel>(SelectAllOnBoard);
+        DeselectAllOnBoardCommand = new Command<Channel>(DeselectAllOnBoard);
     }
 
     private async Task StartAcquisition()
@@ -305,6 +318,106 @@ public class MainViewModel : BaseViewModel, IDisposable
             return (x, y);
         }
         return (Array.Empty<double>(), Array.Empty<double>());
+    }
+
+
+    private async Task ShowChannelPropertiesAsync(Channel? ch)
+    {
+        if (ch is null) return;
+        string target = $"BoardID{ch.BoardID}/{ch.Name}";
+        var props = new List<(string Key, string? Val)>();
+
+        // Try common keys; failures are silently ignored
+        foreach (var key in GetKeysForChannelType(ch.Type))
+        {
+            var (ok, val) = TryGetParam(target, key);
+            if (ok && !string.IsNullOrWhiteSpace(val))
+                props.Add((key, val));
+        }
+
+        if (props.Count == 0)
+        {
+            await ShowAlertAsync("Channel Properties", $"No readable properties for {target}.");
+            return;
+        }
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Channel: {target}");
+        sb.AppendLine($"Type: {ch.Type}");
+        foreach (var (k, v) in props)
+            sb.AppendLine($"{k}: {v}");
+
+        LogMessages.Add($"Shown properties for {target}");
+        await ShowAlertAsync("Channel Properties", sb.ToString());
+    }
+
+    private static IEnumerable<string> GetKeysForChannelType(Channel.ChannelType type)
+    {
+        // Safe, read‑only keys; adjust as needed for your hardware
+        if (type == Channel.ChannelType.Analog)
+        {
+            return
+            [
+                "Used", "Mode", "Range", "Excitation", "InputType",
+                "LPFilter_Val", "HPFilter_Val", "BridgeRes", "ShuntType", "ShuntResistance"
+            ];
+        }
+        if (type == Channel.ChannelType.Digital)
+        {
+            return
+            [
+                "Used", "Mode"
+            ];
+        }
+        return ["Used", "Mode"];
+    }
+
+    private static (bool ok, string value) TryGetParam(string target, string key)
+    {
+        var (err, val) = TrionApi.DeWeGetParamStruct_String(target, key);
+        return (err == TrionError.NONE, val);
+    }
+
+    private async Task CopyChannelPathAsync(Channel? ch)
+    {
+        if (ch is null) return;
+        string channelPath = $"BoardID{ch.BoardID}/{ch.Name}";
+        await Clipboard.SetTextAsync(channelPath);
+        LogMessages.Add($"Copied: {channelPath}");
+    }
+
+    private void SelectOnlyChannel(Channel? ch)
+    {
+        if (ch is null) return;
+        foreach (var c in Channels)
+        {
+            c.IsSelected = false;
+        }
+        ch.IsSelected = true;
+        OnPropertyChanged(nameof(Channels));
+        LogMessages.Add($"Selected only {ch.BoardID}/{ch.Name}");
+    }
+
+    private void SelectAllOnBoard(Channel? ch)
+    {
+        if (ch is null) return;
+        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID))
+        {
+            c.IsSelected = true;
+        }
+        OnPropertyChanged(nameof(Channels));
+        LogMessages.Add($"Selected all channels on Board {ch.BoardID}");
+    }
+
+    private void DeselectAllOnBoard(Channel? ch)
+    {
+        if (ch is null) return;
+        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID))
+        {
+            c.IsSelected = false;
+        }
+        OnPropertyChanged(nameof(Channels));
+        LogMessages.Add($"Deselected all channels on Board {ch.BoardID}");
     }
 }
 

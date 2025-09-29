@@ -21,81 +21,88 @@
                 Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#444444}"
                 Margin="0,0,0,5">
             <HorizontalStackLayout Spacing="5">
-                <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />           
+                <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />
                 <Button Text="Start Acquisition" Command="{Binding StartAcquisitionCommand}" />
                 <Button Text="Stop Acquisition" Command="{Binding StopAcquisitionCommand}" />
                 <Button Text="Toggle Theme" Command="{Binding ToggleThemeCommand}" />
+                <Label Text="Y Min:" VerticalOptions="Center"/>
+                <Entry Text="{Binding YAxisMin, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
+                <Label Text="Y Max:" VerticalOptions="Center"/>
+                <Entry Text="{Binding YAxisMax, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
             </HorizontalStackLayout>
         </Border>
 
-        <ScrollView Grid.Row="1" Grid.Column="0">
-            <VerticalStackLayout Padding="30,0" Spacing="25">
+        <!-- CONTENT: plot (not scrollable) + rest (scrollable) -->
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- plot -->
+                <RowDefinition Height="*"/>
+                <!-- scrollable content -->
+            </Grid.RowDefinitions>
 
-                <Label Text="System Information"
-                       Style="{StaticResource SubHeadline}"
-                       SemanticProperties.HeadingLevel="Level2" HorizontalOptions="Start" />
+            <!-- Plot is outside the ScrollView so wheel only affects the plot -->
+            <ScottPlot:MauiPlot x:Name="MauiPlot1"
+                                Grid.Row="0"
+                                HeightRequest="400" />
 
-                <HorizontalStackLayout Spacing="10">
-                    <Label Text="Y Min:" VerticalOptions="Center"/>
-                    <Entry Text="{Binding YAxisMin, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
-                    <Label Text="Y Max:" VerticalOptions="Center"/>
-                    <Entry Text="{Binding YAxisMax, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
-                </HorizontalStackLayout>
+            <!-- Everything else stays scrollable -->
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="30,0" Spacing="25">
+                    <CollectionView Grid.Column="2"
+                                    ItemsSource="{Binding DigitalMeters}"
+                                    BackgroundColor="LightGray"
+                                    SelectionMode="None"
+                                    Margin="10,0,0,0"
+                                    HorizontalOptions="Fill">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="2" Padding="8,4">
+                                    <HorizontalStackLayout>
+                                        <Label FontSize="14">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Label} " />
+                                                    <Span Text="  " />
+                                                    <Span Text="{Binding Value, StringFormat='{0:F2} '}" />
+                                                    <Span Text="{Binding Unit}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
 
-                <ScottPlot:MauiPlot x:Name="MauiPlot1" HeightRequest="400" />
+                    <!-- Logs -->
+                    <Label Text="Log"
+                           Style="{StaticResource SubHeadline}"
+                           SemanticProperties.HeadingLevel="Level2"
+                           HorizontalOptions="Start" />
 
-                <CollectionView Grid.Column="2"
-                                ItemsSource="{Binding DigitalMeters}"
-                                BackgroundColor="LightGray"
-                                SelectionMode="None"
-                                Margin="10,0,0,0"
-                                HorizontalOptions="Fill">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="2" Padding="8,4">
-                                <HorizontalStackLayout>
-                                    <Label FontSize="14">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="{Binding Label} " />
-                                                <Span Text="  " />
-                                                <Span Text="{Binding Value, StringFormat='{0:F2} '}" />
-                                                <Span Text="{Binding Unit}" />
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>
-                                </HorizontalStackLayout>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    <CollectionView x:Name="LogView"
+                                    ItemsSource="{Binding LogMessages}"
+                                    HeightRequest="200"
+                                    BackgroundColor="#11111111"
+                                    SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="2" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Label Text="{Binding .}"
+                                       FontSize="12"
+                                       FontFamily="Consolas"
+                                       LineBreakMode="WordWrap"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
 
-                <!-- Logs -->
-                <Label Text="Log"
-                       Style="{StaticResource SubHeadline}"
-                       SemanticProperties.HeadingLevel="Level2"
-                       HorizontalOptions="Start" />     
-
-                <CollectionView x:Name="LogView"
-                ItemsSource="{Binding LogMessages}"
-                HeightRequest="200"
-                BackgroundColor="#11111111"
-                SelectionMode="None">
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="2" />
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Label Text="{Binding .}"
-                   FontSize="12"
-                   FontFamily="Consolas"
-                   LineBreakMode="WordWrap"
-                   TextColor="{AppThemeBinding Light=Black, Dark=White}" />
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
 
         <BoxView Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
                  BackgroundColor="DarkGray"
@@ -117,6 +124,28 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <HorizontalStackLayout Spacing="20" Padding="0" VerticalOptions="Center">
+                        <FlyoutBase.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="Show Channel Properties"
+                                                Command="{Binding BindingContext.ShowChannelPropertiesCommand, Source={x:Reference RootGrid}}"
+                                                CommandParameter="{Binding .}" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem Text="Copy Channel Path"
+                                                Command="{Binding BindingContext.CopyChannelPathCommand, Source={x:Reference RootGrid}}"
+                                                CommandParameter="{Binding .}" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem Text="Select only this"
+                                                Command="{Binding BindingContext.SelectOnlyChannelCommand, Source={x:Reference RootGrid}}"
+                                                CommandParameter="{Binding .}" />
+                                <MenuFlyoutItem Text="Select all on board"
+                                                Command="{Binding BindingContext.SelectAllOnBoardCommand, Source={x:Reference RootGrid}}"
+                                                CommandParameter="{Binding .}" />
+                                <MenuFlyoutItem Text="Deselect all on board"
+                                                Command="{Binding BindingContext.DeselectAllOnBoardCommand, Source={x:Reference RootGrid}}"
+                                                CommandParameter="{Binding .}" />
+                            </MenuFlyout>
+                        </FlyoutBase.ContextFlyout>
+
                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalOptions="Center" />
                         <Label Text="{Binding ., Converter={StaticResource ChannelToStringConverter}}"
                                FontSize="12"
@@ -127,6 +156,6 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-                
+
     </Grid>
 </ContentPage>
