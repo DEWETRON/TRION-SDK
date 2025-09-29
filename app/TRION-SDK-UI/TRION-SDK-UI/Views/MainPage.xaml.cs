@@ -9,9 +9,23 @@ namespace TRION_SDK_UI
         public MainPage()
         {
             InitializeComponent();
-            //BindingContext = this;
-            BindingContext = new MainViewModel();
 
+            // Set up the sample data
+            double[] dataX = { 1, 2, 3, 4, 5 };
+            double[] dataY = { 1, 4, 9, 16, 25 };
+            
+            // Set the BindingContext
+            BindingContext = new MainViewModel();
+            
+            // Add the plot data AFTER setting BindingContext
+            MauiPlot1.Plot.Clear(); // Clear any previous data
+            MauiPlot1.Plot.Add.Scatter(dataX, dataY);
+            MauiPlot1.Plot.Title("Sample Data");
+            MauiPlot1.Plot.XLabel("X Values");
+            MauiPlot1.Plot.YLabel("Y Values");
+            MauiPlot1.Refresh();
+            
+            // Rest of your initialization
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += OnDragHandlePanUpdated;
             DragHandle.GestureRecognizers.Add(panGesture);

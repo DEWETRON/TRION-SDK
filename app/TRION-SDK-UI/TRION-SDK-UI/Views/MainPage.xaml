@@ -2,8 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
-             xmlns:oxy="http://oxyplot.org/schemas/2013"
+             xmlns:ScottPlot="clr-namespace:ScottPlot.Maui;assembly=ScottPlot.Maui"
              x:Class="TRION_SDK_UI.MainPage">
+
 
     <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
@@ -53,13 +54,15 @@
                     <Entry Text="{Binding YAxisMax, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
                 </HorizontalStackLayout>
 
-                <!-- Chart -->
+                <ScottPlot:MauiPlot x:Name="MauiPlot1" HeightRequest="400" />
+                <!-- Chart 
                 <lvc:CartesianChart
                     Series="{Binding MeasurementSeries}"
                     YAxes="{Binding YAxes}"
                     HeightRequest="400"
                     Margin="0,20,0,0"
-                    ZoomMode="X"/>
+                    ZoomMode="X"/>-->
+                
                 <Slider
                     Minimum="100"
                     Maximum="5000"
