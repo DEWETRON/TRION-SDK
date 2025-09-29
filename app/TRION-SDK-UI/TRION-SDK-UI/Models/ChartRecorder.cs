@@ -32,15 +32,14 @@ public class ChartRecorder
         }
     }
 
+    // NEW: cap the number of samples kept per channel
+    public int MaxHistorySamples { get; set; } = 200_000;
+
     public ObservableCollection<double> GetWindow(string channel)
     {
         if (!_windows.ContainsKey(channel))
         {
             _windows[channel] = [];
-        }
-        else
-        {
-            //System.Diagnostics.Debug.WriteLine($"Returning existing window for channel: {channel} (HashCode: {_windows[channel].GetHashCode()})");
         }
         return _windows[channel];
     }
@@ -54,6 +53,17 @@ public class ChartRecorder
         }
 
         value.AddRange(samples);
+
+        // NEW: trim oldest data to avoid unbounded growth
+        if (value.Count > MaxHistorySamples)
+        {
+            int remove = value.Count - MaxHistorySamples;
+            value.RemoveRange(0, remove);
+            // adjust scroll so window stays aligned with trimmed data
+            if (ScrollIndex > 0)
+                ScrollIndex = Math.Max(0, ScrollIndex - remove);
+        }
+
         UpdateWindow(channel);
     }
 
