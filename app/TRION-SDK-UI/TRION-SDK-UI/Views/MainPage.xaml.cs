@@ -123,9 +123,5 @@ namespace TRION_SDK_UI
                     break;
             }
         }
-
-        private void OnCounterClicked(object sender, EventArgs e)
-        {
-        }
     }
 }

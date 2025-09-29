@@ -32,7 +32,6 @@ public class ChartRecorder
         }
     }
 
-    // NEW: cap the number of samples kept per channel
     public int MaxHistorySamples { get; set; } = 200_000;
 
     public ObservableCollection<double> GetWindow(string channel)
@@ -54,14 +53,14 @@ public class ChartRecorder
 
         value.AddRange(samples);
 
-        // NEW: trim oldest data to avoid unbounded growth
         if (value.Count > MaxHistorySamples)
         {
             int remove = value.Count - MaxHistorySamples;
             value.RemoveRange(0, remove);
-            // adjust scroll so window stays aligned with trimmed data
             if (ScrollIndex > 0)
+            {
                 ScrollIndex = Math.Max(0, ScrollIndex - remove);
+            }
         }
 
         UpdateWindow(channel);
