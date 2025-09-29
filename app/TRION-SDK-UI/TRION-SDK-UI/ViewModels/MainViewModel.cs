@@ -49,12 +49,40 @@ public class MainViewModel : BaseViewModel, IDisposable
     public double YAxisMax
     {
         get => _yAxisMax;
-        set { if (_yAxisMax != value) { _yAxisMax = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_yAxisMax == value)
+            {
+                return;
+            }
+            _yAxisMax = value;
+            if (_yAxisMax <= _yAxisMin)
+            {      
+                _yAxisMax = _yAxisMin + 1;
+                LogMessages.Add("Invalid Y limits. Max adjusted above Min.");
+                _ = ShowAlertAsync("Invalid Y limits", "Y Max must be greater than Y Min.");
+            }      
+            OnPropertyChanged();
+        }
     }
     public double YAxisMin
     {
         get => _yAxisMin;
-        set { if (_yAxisMin != value) { _yAxisMin = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_yAxisMin == value)
+            {
+                return;
+            }
+            _yAxisMin = value;
+            if (_yAxisMin >= _yAxisMax)
+            {
+                _yAxisMin = _yAxisMax - 1;
+                LogMessages.Add("Invalid Y limits. Min adjusted below Max.");
+                _ = ShowAlertAsync("Invalid Y limits", "Y Min must be less than Y Max.");
+            }
+            OnPropertyChanged();
+        }
     }
 
     public void Dispose()
@@ -137,6 +165,8 @@ public class MainViewModel : BaseViewModel, IDisposable
         else
         {
             LogMessages.Add("No Trion Boards found.");
+            _ = ShowAlertAsync("No TRION boards", "No TRION boards were detected. Configure a system and try again.");
+            return;
         }
 
         numberOfBoards = Math.Abs(numberOfBoards);
