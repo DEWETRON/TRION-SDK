@@ -128,15 +128,15 @@ public class MainViewModel : BaseViewModel, IDisposable
         var numberOfBoards = TrionApi.Initialize();
         if (numberOfBoards < 0)
         {
-            Debug.WriteLine($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
+            LogMessages.Add($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
         }
         else if (numberOfBoards > 0)
         {
-            Debug.WriteLine($"Number of real Boards found: {numberOfBoards}");
+            LogMessages.Add($"Number of real Boards found: {numberOfBoards}");
         }
         else
         {
-            Debug.WriteLine("No Trion Boards found.");
+            LogMessages.Add("No Trion Boards found.");
         }
 
         numberOfBoards = Math.Abs(numberOfBoards);
@@ -147,10 +147,13 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
+
             foreach (var channel in board.BoardProperties.GetChannels())
             {
                 if (channel.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital)
+                {
                     Channels.Add(channel);
+                }
             }
         }
 
@@ -171,6 +174,8 @@ public class MainViewModel : BaseViewModel, IDisposable
         if (selectedChannels.Count == 0)
         {
             LogMessages.Add("No channels selected. Please select at least one channel.");
+            await ShowAlertAsync("No channels selected",
+                "Please select at least one channel and try again.");
             return;
         }
 

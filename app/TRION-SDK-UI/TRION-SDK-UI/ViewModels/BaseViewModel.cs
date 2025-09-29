@@ -9,4 +9,11 @@ public class BaseViewModel : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+    protected static Task ShowAlertAsync(string title, string message, string ok = "OK")
+    {
+        // run on UI thread to avoid cross-thread issues
+        return MainThread.InvokeOnMainThreadAsync(() =>
+            (Application.Current?.MainPage?.DisplayAlert(title, message, ok)) ?? Task.CompletedTask
+        );
+    }
 }
