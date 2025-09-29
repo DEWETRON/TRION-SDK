@@ -56,6 +56,7 @@ public class AcquisitionManager(Enclosure enclosure)
             var channelKeys = boardChannels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
+
             var task = Task.Run(() => AcquireDataLoop(
                 board,
                 boardChannels,
@@ -64,6 +65,7 @@ public class AcquisitionManager(Enclosure enclosure)
                 channelKeys,
                 onSamplesReceived,
                 cts.Token), cts.Token);
+
             _acquisitionTasks.Add(task);
         }
 

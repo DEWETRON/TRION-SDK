@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
+             xmlns:oxy="http://oxyplot.org/schemas/2013"
              x:Class="TRION_SDK_UI.MainPage">
 
     <Grid x:Name="RootGrid">
@@ -72,7 +73,7 @@
                     Margin="0,10,0,0"/>
 
 
-                <!-- Digital Meters Display - NEW SECTION -->
+                <!-- Digital Meters Display -->
                 <CollectionView Grid.Column="2"
                         ItemsSource="{Binding DigitalMeters}"
                         BackgroundColor="LightGray"

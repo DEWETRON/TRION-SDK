@@ -117,7 +117,7 @@ public class MainViewModel : BaseViewModel, IDisposable
             {
                 if (channel.Type != Channel.ChannelType.Analog && channel.Type != Channel.ChannelType.Digital)
                 {
-                    continue; // Only add analog and digital channels for now
+                    continue;
                 }
                 Channels.Add(channel);
             }
@@ -136,28 +136,39 @@ public class MainViewModel : BaseViewModel, IDisposable
     private async Task StartAcquisition()
     {
         LogMessages.Add("Starting acquisition...");
-        ChannelSeries.Clear();
-        DigitalMeters.Clear(); // Clear existing meters
-
-        Recorder.UpdateAllWindows();
-        OnPropertyChanged(nameof(MeasurementSeries));
-        OnPropertyChanged(nameof(ChannelSeries));
-
+        
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
+        if (!selectedChannels.Any())
+        {
+            LogMessages.Add("No channels selected. Please select at least one channel.");
+            return;
+        }
+        
+        PrepareUIForAcquisition(selectedChannels);
+        
+        await _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
+    }
 
-        // Create a digital meter for each selected channel
+    private void PrepareUIForAcquisition(List<Channel> selectedChannels)
+    {
+        ChannelSeries.Clear();
+        DigitalMeters.Clear();
+        
+        Recorder.UpdateAllWindows();
+        
         foreach (var channel in selectedChannels)
         {
-            var meter = new DigitalMeter();
-            meter.Label = $"{channel.BoardID}/{channel.Name}";
-            meter.Value = channel.CurrentValue;
-            meter.Unit = channel.Unit; // Set appropriate unit based on channel mode
+            var meter = new DigitalMeter
+            {
+                Label = $"{channel.BoardID}/{channel.Name}",
+                Value = channel.CurrentValue,
+                Unit = channel.Unit
+            };
             DigitalMeters.Add(meter);
+            
+            Recorder.GetWindow($"{channel.BoardID}/{channel.Name}");
         }
-        OnPropertyChanged(nameof(DigitalMeters));
-
-        await _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
-
+        
         MeasurementSeries = [.. selectedChannels.Select(ch => new LineSeries<double>
         {
             Values = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}"),
@@ -165,12 +176,9 @@ public class MainViewModel : BaseViewModel, IDisposable
             AnimationsSpeed = TimeSpan.Zero,
             GeometrySize = 0
         })];
-        OnPropertyChanged(nameof(MeasurementSeries));
-
-        foreach (var ch in Channels.Where(c => c.IsSelected))
+        
+        foreach (var ch in selectedChannels)
         {
-            var window = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}");
-
             var series = new LineSeries<double>
             {
                 Values = Recorder.GetWindow($"{ch.BoardID}/{ch.Name}"),
@@ -180,8 +188,12 @@ public class MainViewModel : BaseViewModel, IDisposable
             };
             ChannelSeries.Add([series]);
         }
+        
+        OnPropertyChanged(nameof(DigitalMeters));
+        OnPropertyChanged(nameof(MeasurementSeries));
         OnPropertyChanged(nameof(ChannelSeries));
     }
+
     private async Task StopAcquisition()
     {
         LogMessages.Add("Stopping acquisition...");
@@ -227,30 +239,20 @@ public class MainViewModel : BaseViewModel, IDisposable
         {
             Recorder.AddSamples(channelName, samples);
             var latestValue = samples.Last();
-            Debug.WriteLine($"Latest value for {channelName}: {latestValue}");
-
-            // Find which channel this belongs to
+            
             var channelParts = channelName.Split('/');
             if (channelParts.Length == 2)
             {
                 var boardId = int.Parse(channelParts[0]);
                 var chName = channelParts[1];
                 
-                // Find the channel and update its current value
                 var channel = Channels.FirstOrDefault(c => c.BoardID == boardId && c.Name == chName);
                 if (channel != null)
                 {
                     channel.CurrentValue = latestValue;
                     
-                    // Find the index of this channel in the selected channels list
-                    var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
-                    var index = selectedChannels.IndexOf(channel);
-                    
-                    // If we have a digital meter for this channel, update it
-                    if (index >= 0 && index < DigitalMeters.Count)
-                    {
-                        DigitalMeters[index].AddSample(latestValue);
-                    }
+                    var meter = DigitalMeters.FirstOrDefault(m => m.Label == channelName);
+                    meter?.AddSample(latestValue);
                 }
             }
 
@@ -259,10 +261,10 @@ public class MainViewModel : BaseViewModel, IDisposable
                 Recorder.AutoScroll();
                 OnPropertyChanged(nameof(ScrollIndex));
             }
+            
             OnPropertyChanged(nameof(MaxScrollIndex));
             OnPropertyChanged(nameof(MeasurementSeries));
             OnPropertyChanged(nameof(ChannelSeries));
-            OnPropertyChanged(nameof(DigitalMeters));
         });
     }
 }
