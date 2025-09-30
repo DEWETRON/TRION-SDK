@@ -87,10 +87,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         private set { if (_followLatest != value) { _followLatest = value; OnPropertyChanged(); } }
     }
 
-    // Default Y-axis limits. The View reads these and applies them on every redraw.
-    private double _yAxisMin = -10;
-    private double _yAxisMax = 10;
-
     /// <summary>
     /// Raised after <see cref="StartAcquisition"/> validates selection but before data begins to arrive.
     /// The View uses this moment to clear existing plot content and pre-create per-channel visuals.
