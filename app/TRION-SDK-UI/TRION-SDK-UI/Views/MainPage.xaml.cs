@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-using System.Collections.Specialized;
-using ScottPlot;
+﻿using ScottPlot;
 using ScottPlot.Plottables;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using TRION_SDK_UI.Models;
 
 namespace TRION_SDK_UI
@@ -31,33 +31,27 @@ namespace TRION_SDK_UI
     /// </summary>
     public partial class MainPage : ContentPage
     {
-        /// <summary>
-        /// Starting width of the sidebar column at the beginning of a drag gesture.
-        /// Used to calculate deltas while dragging the resize handle.
-        /// </summary>
         double _startWidth;
 
-        /// <summary>
-        /// One DataStreamer per channel (key format: "BoardID/ChannelName").
-        /// The streamer holds a fixed width history used for on-screen rendering.
-        /// </summary>
+        // One DataStreamer per channel (key: "BoardID/ChannelName")
         private readonly Dictionary<string, DataStreamer> _streams = [];
 
-        /// <summary>
-        /// Palette for assigning stable colors per channel.
-        /// </summary>
         private readonly ScottPlot.Palettes.Category10 Palette = new();
-
-        /// <summary>
-        /// Cache mapping from channel key to a chosen color (stable across updates).
-        /// </summary>
         private readonly Dictionary<string, ScottPlot.Color> _lineColors = [];
 
-        /// <summary>
-        /// Flag to allow a one-time X autoscale after acquisition starts so initial content is visible.
-        /// </summary>
+        // Render throttle (30 FPS) to avoid UI thrash when many channels push data
+        private readonly IDispatcherTimer? _renderTimer;
+        private volatile bool _plotDirty;
+
+        // If you want a time axis, set this to 1.0 / sampleRate at acquisition start
+        private double _samplePeriod = 1;
+
         private bool _needInitialAutoScaleX = false;
 
+        // Cap plotted channels to avoid excessive memory/CPU (extras still acquire but won’t be plotted)
+        private const int MaxPlottedChannels = 16;
+
+        // Visible window width (streamer capacity)
         /// <summary>
         /// Width of the visible window in samples and the capacity of each DataStreamer.
         /// Increase for a wider live view; reduce for tighter focus.
@@ -97,14 +91,27 @@ namespace TRION_SDK_UI
             MauiPlot1.Plot.Title("Live Signals");
             MauiPlot1.Plot.XLabel("Samples");
             MauiPlot1.Plot.YLabel("Value");
+            MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
             MauiPlot1.Refresh();
 
-            // Drag-to-resize setup for the sidebar column
+            // Throttle renders to ~30 FPS
+            _renderTimer = Dispatcher.CreateTimer();
+            _renderTimer.Interval = TimeSpan.FromMilliseconds(33);
+            _renderTimer.Tick += (s, e) =>
+            {
+                if (_plotDirty)
+                {
+                    MauiPlot1.Refresh();
+                    _plotDirty = false;
+                }
+            };
+            _renderTimer.Start();
+
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += OnDragHandlePanUpdated;
             DragHandle.GestureRecognizers.Add(panGesture);
         }
-
+            
         /// <summary>
         /// Keep the log list scrolled to the newest item as messages are appended.
         /// </summary>
@@ -132,29 +139,38 @@ namespace TRION_SDK_UI
             // We will manage axes explicitly; per-channel X is managed by streamers when following
             MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
-            // Pre-create one DataStreamer per selected channel (lazy creation would also work)
-            foreach (var ch in channels)
+            var vm = (MainViewModel)BindingContext;
+
+            // Pick first plotted channel as the axis manager
+            var plotted = channels.Take(MaxPlottedChannels).ToList();
+            
+            // Optionally set true time axis if you know the sample rate:
+            // _samplePeriod = 1.0 / sampleRate;
+            _samplePeriod = 1;
+
+            foreach (var ch in plotted)
             {
                 string key = $"{ch.BoardID}/{ch.Name}";
                 var ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
                 ds.LineWidth = 2;
                 ds.Color = GetColorForChannel(key);
 
-                // Choose a scrolling view (wipe is also available via ds.ViewWipeRight(rate))
-                ds.ViewScrollLeft();
+                // Pick a view mode: wipe or scroll. Keep one consistently.
+                ds.ViewWipeRight(0.0);
+                // ds.ViewScrollLeft();
 
-                // Use implicit X: 1 sample per index (set to 1/sampleRate for seconds)
-                ds.Data.SamplePeriod = 1;
+                ds.Data.SamplePeriod = _samplePeriod;
                 ds.Data.OffsetX = 0;
-
-                // Let the streamer keep X limits aligned while "follow latest" is on
-                ds.ManageAxisLimits = true;
 
                 _streams[key] = ds;
             }
 
+            // Inform the user if more channels were selected than we plot
+            if (channels.Count > MaxPlottedChannels)
+                vm.LogMessages.Add($"Plotting limited to first {MaxPlottedChannels} channels out of {channels.Count} selected.");
+
             _needInitialAutoScaleX = true;
-            MauiPlot1.Refresh();
+            _plotDirty = true; // schedule a refresh via timer
         }
 
         /// <summary>
@@ -162,41 +178,36 @@ namespace TRION_SDK_UI
         /// </summary>
         private void VmOnSamplesAppended(object? sender, MainViewModel.SamplesAppendedEventArgs e)
         {
-            if (sender is not MainViewModel vm) return;
-
-            // Ensure a streamer exists for this channel (create on-demand if it was not pre-created)
-            if (!_streams.TryGetValue(e.ChannelKey, out var ds))
+            try
             {
-                ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
-                ds.LineWidth = 2;
-                ds.Color = GetColorForChannel(e.ChannelKey);
-                ds.ViewScrollLeft();
-                ds.Data.SamplePeriod = 1;
-                ds.Data.OffsetX = 0;
-                ds.ManageAxisLimits = true;
-                _streams[e.ChannelKey] = ds;
+                var vm = (MainViewModel)BindingContext;
+
+                // Ignore channels beyond cap (still acquired, just not plotted)
+                if (!_streams.TryGetValue(e.ChannelKey, out var ds))
+                    return;
+
+                if (e.Count > 0)
+                {
+                    // Prefer Span if your ScottPlot has this overload. If not, keep ToArray().
+                    // ds.AddRange(e.Samples.Span);
+                    ds.AddRange(e.Samples.ToArray());
+                }
+
+                if (_needInitialAutoScaleX)
+                {
+                    MauiPlot1.Plot.Axes.AutoScaleX();
+                    _needInitialAutoScaleX = false;
+                }
+
+                // Defer redraw to the render timer
+                _plotDirty = true;
             }
-
-            // Feed only the newest batch into the streamer.
-            // NOTE: ToArray() materializes the batch. If your ScottPlot supports Span, prefer:
-            // ds.AddRange(e.Samples.Span) to avoid allocation.
-            if (e.Count > 0)
-                ds.AddRange(e.Samples.ToArray());
-
-            // Apply current Y limits from the ViewModel (kept in sync with the UI)
-
-            // Perform a one-time X autoscale after acquisition starts so initial lines are visible
-            if (_needInitialAutoScaleX)
+            catch (Exception ex)
             {
-                MauiPlot1.Plot.Axes.AutoScaleX();
-                _needInitialAutoScaleX = false;
+                // Never let the UI event chain crash the app; log and keep going
+                if (BindingContext is MainViewModel vm)
+                    vm.LogMessages.Add($"Plot error for {e.ChannelKey}: {ex.Message}");
             }
-
-            // Follow behavior: let streamer manage X when following, freeze when not
-            ds.ManageAxisLimits = vm.FollowLatest;
-
-            // Request a redraw
-            MauiPlot1.Refresh();
         }
 
         /// <summary>
