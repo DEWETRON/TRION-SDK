@@ -91,7 +91,6 @@ namespace TRION_SDK_UI
             // Wire ViewModel events to UI handlers
             vm.AcquisitionStarting += VmOnAcquisitionStarted;     // prepare plot surface
             vm.SamplesAppended += VmOnSamplesAppended;            // append newest batch per channel
-            vm.PropertyChanged += VmOnPropertyChanged;            // react to Y-axis bounds changes
             vm.LogMessages.CollectionChanged += VmLogMessages_CollectionChanged; // keep log scrolled
 
             // Initial plot labels
@@ -185,7 +184,6 @@ namespace TRION_SDK_UI
                 ds.AddRange(e.Samples.ToArray());
 
             // Apply current Y limits from the ViewModel (kept in sync with the UI)
-            MauiPlot1.Plot.Axes.SetLimitsY(vm.YAxisMin, vm.YAxisMax);
 
             // Perform a one-time X autoscale after acquisition starts so initial lines are visible
             if (_needInitialAutoScaleX)
@@ -199,21 +197,6 @@ namespace TRION_SDK_UI
 
             // Request a redraw
             MauiPlot1.Refresh();
-        }
-
-        /// <summary>
-        /// React to ViewModel property changes that affect the plot.
-        /// Currently supports Y-axis bounds updates.
-        /// </summary>
-        private void VmOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (sender is not MainViewModel vm) return;
-
-            if (e.PropertyName is nameof(MainViewModel.YAxisMin) or nameof(MainViewModel.YAxisMax))
-            {
-                MauiPlot1.Plot.Axes.SetLimitsY(vm.YAxisMin, vm.YAxisMax);
-                MauiPlot1.Refresh();
-            }
         }
 
         /// <summary>

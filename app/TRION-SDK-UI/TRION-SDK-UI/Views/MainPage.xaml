@@ -25,10 +25,6 @@
                 <Button Text="Start Acquisition" Command="{Binding StartAcquisitionCommand}" />
                 <Button Text="Stop Acquisition" Command="{Binding StopAcquisitionCommand}" />
                 <Button Text="Toggle Theme" Command="{Binding ToggleThemeCommand}" />
-                <Label Text="Y Min:" VerticalOptions="Center"/>
-                <Entry Text="{Binding YAxisMin, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
-                <Label Text="Y Max:" VerticalOptions="Center"/>
-                <Entry Text="{Binding YAxisMax, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="80"/>
             </HorizontalStackLayout>
         </Border>
 

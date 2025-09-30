@@ -126,51 +126,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
     }
 
-    /// <summary>
-    /// Upper bound of the plot's visible Y range.
-    /// Enforced to always remain strictly greater than <see cref="YAxisMin"/>.
-    /// Invalid inputs are clamped and a message is logged (with an alert for the user).
-    /// </summary>
-    public double YAxisMax
-    {
-        get => _yAxisMax;
-        set
-        {
-            if (_yAxisMax == value) return;
-            _yAxisMax = value;
-            if (_yAxisMax <= _yAxisMin)
-            {
-                // Preserve a minimal span to avoid degenerate axes.
-                _yAxisMax = _yAxisMin + 1;
-                LogMessages.Add("Invalid Y limits. Max adjusted above Min.");
-                _ = ShowAlertAsync("Invalid Y limits", "Y Max must be greater than Y Min.");
-            }
-            OnPropertyChanged();
-        }
-    }
-
-    /// <summary>
-    /// Lower bound of the plot's visible Y range.
-    /// Enforced to always remain strictly less than <see cref="YAxisMax"/>.
-    /// Invalid inputs are clamped and a message is logged (with an alert for the user).
-    /// </summary>
-    public double YAxisMin
-    {
-        get => _yAxisMin;
-        set
-        {
-            if (_yAxisMin == value) return;
-            _yAxisMin = value;
-            if (_yAxisMin >= _yAxisMax)
-            {
-                // Preserve a minimal span to avoid degenerate axes.
-                _yAxisMin = _yAxisMax - 1;
-                LogMessages.Add("Invalid Y limits. Min adjusted below Max.");
-                _ = ShowAlertAsync("Invalid Y limits", "Y Min must be less than Y Max.");
-            }
-            OnPropertyChanged();
-        }
-    }
 
     /// <summary>
     /// Dispose pattern: close all boards and uninitialize the TRION API.
