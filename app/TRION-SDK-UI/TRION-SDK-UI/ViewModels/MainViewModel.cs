@@ -3,51 +3,57 @@ using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
 
+/// <summary>
+/// Main ViewModel for the .NET MAUI UI.
+/// Initializes TRION API, discovers channels, starts/stops acquisition,
+/// updates meters/logs, and notifies the View when new samples arrive.
+/// </summary>
 public class MainViewModel : BaseViewModel, IDisposable
 {
-    public ObservableCollection<DigitalMeter> DigitalMeters { get; } = new();
+    public ObservableCollection<DigitalMeter> DigitalMeters { get; } = [];
     public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
 
-    public ICommand StartAcquisitionCommand { get; private set; }
-    public ICommand StopAcquisitionCommand { get; private set; }
-    public ICommand LockScrollingCommand { get; private set; }
-    public ICommand ToggleThemeCommand { get; private set; }
-    public ICommand ShowChannelPropertiesCommand { get; private set; }
-    public ICommand CopyChannelPathCommand { get; private set; }
-    public ICommand SelectOnlyChannelCommand { get; private set; }
-    public ICommand SelectAllOnBoardCommand { get; private set; }
-    public ICommand DeselectAllOnBoardCommand { get; private set; }
+    // Commands (nullable to satisfy CS8618 at construction time)
+    public ICommand? StartAcquisitionCommand { get; private set; }
+    public ICommand? StopAcquisitionCommand { get; private set; }
+    public ICommand? LockScrollingCommand { get; private set; }
+    public ICommand? ToggleThemeCommand { get; private set; }
+    public ICommand? ShowChannelPropertiesCommand { get; private set; }
+    public ICommand? CopyChannelPathCommand { get; private set; }
+    public ICommand? SelectOnlyChannelCommand { get; private set; }
+    public ICommand? SelectAllOnBoardCommand { get; private set; }
+    public ICommand? DeselectAllOnBoardCommand { get; private set; }
 
-    private readonly AcquisitionManager _acquisitionManager;
+    private readonly AcquisitionManager? _acquisitionManager;
+
     private bool _isScrollingLocked = true;
-
     private bool _followLatest = true;
     public bool FollowLatest
     {
         get => _followLatest;
-        private set
-        {
-            if (_followLatest != value)
-            {
-                _followLatest = value;
-                OnPropertyChanged();
-            }
-        }
+        private set { if (_followLatest != value) { _followLatest = value; OnPropertyChanged(); } }
     }
 
     private double _yAxisMin = -10;
     private double _yAxisMax = 10;
 
-    // events for the View
     public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
+
+    // EVENT NOW CARRIES THE NEWEST BATCH
     public event EventHandler<SamplesAppendedEventArgs>? SamplesAppended;
 
-    // EventArgs
-    public sealed class SamplesAppendedEventArgs(string channelKey, int count) : EventArgs
+    /// <summary>Event args carrying the channel key and newest batch of samples.</summary>
+    public sealed class SamplesAppendedEventArgs : EventArgs
     {
-        public string ChannelKey { get; } = channelKey;
-        public int Count { get; } = count;
+        public string ChannelKey { get; }
+        public ReadOnlyMemory<double> Samples { get; }
+        public int Count => Samples.Length;
+        public SamplesAppendedEventArgs(string channelKey, ReadOnlyMemory<double> samples)
+        {
+            ChannelKey = channelKey;
+            Samples = samples;
+        }
     }
 
     public double YAxisMax
@@ -55,29 +61,24 @@ public class MainViewModel : BaseViewModel, IDisposable
         get => _yAxisMax;
         set
         {
-            if (_yAxisMax == value)
-            {
-                return;
-            }
+            if (_yAxisMax == value) return;
             _yAxisMax = value;
             if (_yAxisMax <= _yAxisMin)
-            {      
+            {
                 _yAxisMax = _yAxisMin + 1;
                 LogMessages.Add("Invalid Y limits. Max adjusted above Min.");
                 _ = ShowAlertAsync("Invalid Y limits", "Y Max must be greater than Y Min.");
-            }      
+            }
             OnPropertyChanged();
         }
     }
+
     public double YAxisMin
     {
         get => _yAxisMin;
         set
         {
-            if (_yAxisMin == value)
-            {
-                return;
-            }
+            if (_yAxisMin == value) return;
             _yAxisMin = value;
             if (_yAxisMin >= _yAxisMax)
             {
@@ -95,81 +96,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         TrionApi.Uninitialize();
     }
 
-    public Enclosure MyEnc { get; } = new Enclosure
-    {
-        Name = "MyEnc",
-        Boards = []
-    };
-
-    // plotting buffer (per channel): ring buffer if capacity > 0, otherwise List<double>
-    private sealed class ChannelSeriesBuffer
-    {
-        private readonly int _maxSamples;
-        private readonly DoubleRingBuffer? _ring;   // used when _maxSamples > 0
-        private readonly List<double>? _list;       // used when unlimited
-
-        // global indices (keep X continuous if old samples are overwritten)
-        public long FirstSampleIndex { get; private set; } = 0;
-        public long NextSampleIndex  { get; private set; } = 0;
-
-        public ChannelSeriesBuffer(int maxSamples)
-        {
-            _maxSamples = maxSamples;
-            if (_maxSamples > 0)
-            {
-                _ring = new DoubleRingBuffer(_maxSamples);
-            }
-            else
-            {
-                _list = new List<double>(capacity: 8192);
-            }
-        }
-
-        public void Append(IEnumerable<double> samples)
-        {
-            var arr = samples as double[] ?? [.. samples];
-            if (arr.Length == 0) return;
-
-            if (_ring is not null)
-            {
-                int overwritten = _ring.AddRange(arr);
-                if (overwritten > 0)
-                {
-                    FirstSampleIndex += overwritten;
-                }
-                NextSampleIndex += arr.Length;
-            }
-            else
-            {
-                _list!.AddRange(arr);
-                NextSampleIndex += arr.Length;
-            }
-        }
-
-        // Return full series as X (indices) and Y (values)
-        public (double[] X, double[] Y) GetSeries()
-        {
-            // Y-values: copy current sample values to an array regardless of storage
-            double[] samples = _ring is not null ? _ring.ToArray() : [.. _list!];
-            if (samples.Length == 0)
-            {
-                return (Array.Empty<double>(), Array.Empty<double>());
-            }
-
-            // X-values: monotonically increasing sample indices aligned to current history window
-            var indices = new double[samples.Length];
-            double start = FirstSampleIndex;
-            for (int i = 0; i < samples.Length; i++, start++)
-            {
-                indices[i] = start;
-            }
-
-            return (indices, samples);
-        }
-    }
-
-    private readonly Dictionary<string, ChannelSeriesBuffer> _buffersByChannel = new();
-    private const int SampleHistoryCapacity = 5_000; // 0 = unlimited history; set >0 to cap memory
+    public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
 
     public MainViewModel()
     {
@@ -177,13 +104,9 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         var numberOfBoards = TrionApi.Initialize();
         if (numberOfBoards < 0)
-        {
             LogMessages.Add($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
-        }
         else if (numberOfBoards > 0)
-        {
             LogMessages.Add($"Number of real Boards found: {numberOfBoards}");
-        }
         else
         {
             LogMessages.Add("No Trion Boards found.");
@@ -192,20 +115,17 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         numberOfBoards = Math.Abs(numberOfBoards);
-
         MyEnc.Init(numberOfBoards);
         OnPropertyChanged(nameof(MyEnc));
 
+        // Discover channels
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
-
             foreach (var channel in board.BoardProperties.GetChannels())
             {
                 if (channel.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital)
-                {
                     Channels.Add(channel);
-                }
             }
         }
 
@@ -231,17 +151,14 @@ public class MainViewModel : BaseViewModel, IDisposable
         if (selectedChannels.Count == 0)
         {
             LogMessages.Add("No channels selected. Please select at least one channel.");
-            await ShowAlertAsync("No channels selected",
-                "Please select at least one channel and try again.");
+            await ShowAlertAsync("No channels selected", "Please select at least one channel and try again.");
             return;
         }
 
         PrepareUIForAcquisition(selectedChannels);
-
-        // notify view early so it can clear plottables
         AcquisitionStarting?.Invoke(this, selectedChannels);
 
-        await _acquisitionManager.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
+        await _acquisitionManager!.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
     }
 
     private void PrepareUIForAcquisition(List<Channel> selectedChannels)
@@ -259,20 +176,13 @@ public class MainViewModel : BaseViewModel, IDisposable
             DigitalMeters.Add(meter);
         }
 
-        // clear plot buffers for selected channels
-        foreach (var ch in selectedChannels)
-        {
-            var key = $"{ch.BoardID}/{ch.Name}";
-            _buffersByChannel[key] = new ChannelSeriesBuffer(SampleHistoryCapacity);
-        }
-
         OnPropertyChanged(nameof(DigitalMeters));
     }
 
     private async Task StopAcquisition()
     {
         LogMessages.Add("Stopping acquisition...");
-        await _acquisitionManager.StopAcquisitionAsync();
+        await _acquisitionManager!.StopAcquisitionAsync();
     }
 
     private void LockScrolling()
@@ -291,13 +201,17 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
     }
 
+    /// <summary>
+    /// Acquisition callback: update meters and raise event with the newest batch.
+    /// </summary>
     private void OnSamplesReceived(string channelName, IEnumerable<double> samples)
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var latestValue = samples.LastOrDefault();
+            var batch = samples as double[] ?? [.. samples];
+            var latestValue = batch.Length > 0 ? batch[^1] : 0;
 
-            // update meter value
+            // Update per-channel latest value and the DigitalMeter
             var parts = channelName.Split('/');
             if (parts.Length == 2 && int.TryParse(parts[0], out var boardId))
             {
@@ -311,29 +225,10 @@ public class MainViewModel : BaseViewModel, IDisposable
                 }
             }
 
-            // plot buffer (full history)
-            if (!_buffersByChannel.TryGetValue(channelName, out var buf))
-            {
-                buf = new ChannelSeriesBuffer(SampleHistoryCapacity);
-                _buffersByChannel[channelName] = buf;
-            }
-            buf.Append(samples);
-
-            SamplesAppended?.Invoke(this, new SamplesAppendedEventArgs(channelName, samples.Count()));
+            // Notify the View with this batch for plotting
+            SamplesAppended?.Invoke(this, new SamplesAppendedEventArgs(channelName, batch));
         });
     }
-
-    // ScottPlot: full history accessor
-    public (IReadOnlyList<double> X, IReadOnlyList<double> Y) GetFullSeries(string channelKey)
-    {
-        if (_buffersByChannel.TryGetValue(channelKey, out var buf))
-        {
-            var (x, y) = buf.GetSeries();
-            return (x, y);
-        }
-        return (Array.Empty<double>(), Array.Empty<double>());
-    }
-
 
     private async Task ShowChannelPropertiesAsync(Channel? ch)
     {
@@ -342,14 +237,11 @@ public class MainViewModel : BaseViewModel, IDisposable
         string target = $"BoardID{ch.BoardID}/{ch.Name}";
         var props = new List<(string Key, string? Val)>();
 
-        // Try common keys; failures are silently ignored
         foreach (var key in GetKeysForChannelType(ch.Type))
         {
             var (ok, val) = TryGetParam(target, key);
             if (ok && !string.IsNullOrWhiteSpace(val))
-            {
                 props.Add((key, val));
-            }
         }
 
         if (props.Count == 0)
@@ -370,7 +262,6 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private static IEnumerable<string> GetKeysForChannelType(Channel.ChannelType type)
     {
-        // Safe, read‑only keys; adjust as needed for your hardware
         if (type == Channel.ChannelType.Analog)
         {
             return
@@ -381,10 +272,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
         if (type == Channel.ChannelType.Digital)
         {
-            return
-            [
-                "Used", "Mode"
-            ];
+            return ["Used", "Mode"];
         }
         return ["Used", "Mode"];
     }
@@ -406,10 +294,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void SelectOnlyChannel(Channel? ch)
     {
         if (ch is null) return;
-        foreach (var c in Channels)
-        {
-            c.IsSelected = false;
-        }
+        foreach (var c in Channels) c.IsSelected = false;
         ch.IsSelected = true;
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Selected only {ch.BoardID}/{ch.Name}");
@@ -418,10 +303,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void SelectAllOnBoard(Channel? ch)
     {
         if (ch is null) return;
-        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID))
-        {
-            c.IsSelected = true;
-        }
+        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID)) c.IsSelected = true;
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Selected all channels on Board {ch.BoardID}");
     }
@@ -429,15 +311,13 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void DeselectAllOnBoard(Channel? ch)
     {
         if (ch is null) return;
-        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID))
-        {
-            c.IsSelected = false;
-        }
+        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID)) c.IsSelected = false;
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Deselected all channels on Board {ch.BoardID}");
     }
 }
 
+/// <summary>Lightweight identifier for a channel used in keys, logs, and bindings.</summary>
 public readonly record struct ChannelId(int BoardId, string Name)
 {
     public override string ToString() => $"{BoardId}/{Name}";
