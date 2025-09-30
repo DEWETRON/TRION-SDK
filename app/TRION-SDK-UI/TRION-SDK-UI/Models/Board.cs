@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Trion;
+﻿using Trion;
 using TrionApiUtils;
 
 namespace TRION_SDK_UI.Models
@@ -95,14 +89,12 @@ namespace TRION_SDK_UI.Models
         {
             var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.RESET_BOARD, 0);
             Utils.CheckErrorCode(error, $"Failed to reset board {Id}");
-            Debug.WriteLine($"Board {Id} reset.");
         }
 
         public void Update()
         {
             var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.UPDATE_PARAM_ALL, 0);
             Utils.CheckErrorCode(error, $"Failed to update board {Id}");
-            Debug.WriteLine($"Board {Id} updated.");
         }
     }
 }

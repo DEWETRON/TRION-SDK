@@ -1,9 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows.Input;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.ApplicationModel.DataTransfer;
-using Microsoft.Maui.Controls;
 using Trion;
 using TRION_SDK_UI.Models;
 
@@ -105,54 +101,70 @@ public class MainViewModel : BaseViewModel, IDisposable
         Boards = []
     };
 
-    // plotting buffer (per channel), unlimited history when capacity == 0
+    // plotting buffer (per channel): ring buffer if capacity > 0, otherwise List<double>
     private sealed class ChannelSeriesBuffer
     {
-        // All samples for this channel in chronological order
-        public List<double> Samples { get; } = new(capacity: 8192);
+        private readonly int _maxSamples;
+        private readonly DoubleRingBuffer? _ring;   // used when _maxSamples > 0
+        private readonly List<double>? _list;       // used when unlimited
 
-        // Global index of Samples[0] (advances when oldest samples are trimmed)
+        // global indices (keep X continuous if old samples are overwritten)
         public long FirstSampleIndex { get; private set; } = 0;
+        public long NextSampleIndex  { get; private set; } = 0;
 
-        // Global index to assign to the next appended sample
-        public long NextSampleIndex { get; private set; } = 0;
-
-        // 0 = unlimited; if > 0 keep at most this many newest samples
-        public int MaxSamples { get; }
-
-        public ChannelSeriesBuffer(int maxSamples) => MaxSamples = maxSamples;
+        public ChannelSeriesBuffer(int maxSamples)
+        {
+            _maxSamples = maxSamples;
+            if (_maxSamples > 0)
+            {
+                _ring = new DoubleRingBuffer(_maxSamples);
+            }
+            else
+            {
+                _list = new List<double>(capacity: 8192);
+            }
+        }
 
         public void Append(IEnumerable<double> samples)
         {
-            foreach (var v in samples)
-            {
-                Samples.Add(v);
-                NextSampleIndex++;
+            var arr = samples as double[] ?? [.. samples];
+            if (arr.Length == 0) return;
 
-                if (MaxSamples > 0 && Samples.Count > MaxSamples)
+            if (_ring is not null)
+            {
+                int overwritten = _ring.AddRange(arr);
+                if (overwritten > 0)
                 {
-                    int remove = Samples.Count - MaxSamples;
-                    Samples.RemoveRange(0, remove);
-                    FirstSampleIndex += remove;
+                    FirstSampleIndex += overwritten;
                 }
+                NextSampleIndex += arr.Length;
+            }
+            else
+            {
+                _list!.AddRange(arr);
+                NextSampleIndex += arr.Length;
             }
         }
 
         // Return full series as X (indices) and Y (values)
         public (double[] X, double[] Y) GetSeries()
         {
-            int count = Samples.Count;
-            if (count == 0) return (Array.Empty<double>(), Array.Empty<double>());
-
-            var ys = Samples.ToArray();
-            var xs = new double[count];
-            double x = FirstSampleIndex;
-            for (int i = 0; i < count; i++, x++)
+            // Y-values: copy current sample values to an array regardless of storage
+            double[] samples = _ring is not null ? _ring.ToArray() : [.. _list!];
+            if (samples.Length == 0)
             {
-                xs[i] = x;
+                return (Array.Empty<double>(), Array.Empty<double>());
             }
 
-            return (xs, ys);
+            // X-values: monotonically increasing sample indices aligned to current history window
+            var indices = new double[samples.Length];
+            double start = FirstSampleIndex;
+            for (int i = 0; i < samples.Length; i++, start++)
+            {
+                indices[i] = start;
+            }
+
+            return (indices, samples);
         }
     }
 
@@ -326,6 +338,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private async Task ShowChannelPropertiesAsync(Channel? ch)
     {
         if (ch is null) return;
+
         string target = $"BoardID{ch.BoardID}/{ch.Name}";
         var props = new List<(string Key, string? Val)>();
 
@@ -334,7 +347,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         {
             var (ok, val) = TryGetParam(target, key);
             if (ok && !string.IsNullOrWhiteSpace(val))
+            {
                 props.Add((key, val));
+            }
         }
 
         if (props.Count == 0)

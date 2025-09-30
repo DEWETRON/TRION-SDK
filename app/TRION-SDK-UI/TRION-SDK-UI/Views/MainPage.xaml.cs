@@ -1,7 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Collections.Specialized;
-using System.Linq;
 using ScottPlot;
 using ScottPlot.Plottables;
 using TRION_SDK_UI.Models;
@@ -123,8 +121,6 @@ namespace TRION_SDK_UI
                 MauiPlot1.Plot.Axes.SetLimitsY(vm.YAxisMin, vm.YAxisMax);
                 MauiPlot1.Refresh();
             }
-
-            // When FollowLatest toggles on, the next SamplesAppended will snap the X window
         }
 
         private void OnDragHandlePanUpdated(object? sender, PanUpdatedEventArgs e)

@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using System.Xml.XPath;
 using TRION_SDK_UI.Models;
 using static TRION_SDK_UI.Models.Channel;
@@ -35,10 +34,8 @@ public class BoardPropertyModel
 
     static ChannelType GetChannelType(string name)
     {
-        if (name.StartsWith("AI"))
-            return ChannelType.Analog;
-        if (name.StartsWith("Di"))
-            return ChannelType.Digital;
+        if (name.StartsWith("AI")) return ChannelType.Analog;
+        if (name.StartsWith("Di")) return ChannelType.Digital;
         return ChannelType.Unknown;
     }
 
@@ -80,7 +77,9 @@ public class BoardPropertyModel
         {
             var idStr = propertiesNode.GetAttribute("BoardID", "");
             if (int.TryParse(idStr, out int id))
+            {
                 return id;
+            }
         }
         return -1;
     }

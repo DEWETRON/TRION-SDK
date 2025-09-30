@@ -11,9 +11,6 @@ public class BaseViewModel : INotifyPropertyChanged
     }
     protected static Task ShowAlertAsync(string title, string message, string ok = "OK")
     {
-        // run on UI thread to avoid cross-thread issues
-        return MainThread.InvokeOnMainThreadAsync(() =>
-            (Application.Current?.MainPage?.DisplayAlert(title, message, ok)) ?? Task.CompletedTask
-        );
+        return MainThread.InvokeOnMainThreadAsync(() => (Application.Current?.MainPage?.DisplayAlert(title, message, ok)) ?? Task.CompletedTask);
     }
 }
