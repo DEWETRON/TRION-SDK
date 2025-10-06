@@ -1,22 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    MainPage UI Layout ( .NET MAUI )
+-->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:ScottPlot="clr-namespace:ScottPlot.Maui;assembly=ScottPlot.Maui"
              x:Class="TRION_SDK_UI.MainPage">
 
+    <!-- Root layout grid: content + sidebar separated by a draggable handle -->
     <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- Toolbar -->
             <RowDefinition Height="*"/>
+            <!-- Body -->
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="6" />
+            <ColumnDefinition Width="*"/>
+            <!-- Main interactive area (plot + scrollable content) -->
+            <ColumnDefinition Width="6"/>
+            <!-- Drag handle column -->
             <ColumnDefinition Width="300" x:Name="SidebarColumn" />
+            <!-- Sidebar with channels -->
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" 
-                Padding="10" 
+        <!-- Toolbar: acquisition + UI control buttons -->
+        <Border Grid.Row="0" Grid.Column="0"
+                Padding="10"
                 BackgroundColor="{AppThemeBinding Light=#f8f8f8, Dark=#333333}"
                 Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#444444}"
                 Margin="0,0,0,5">
@@ -28,23 +38,25 @@
             </HorizontalStackLayout>
         </Border>
 
-        <!-- CONTENT: plot (not scrollable) + rest (scrollable) -->
+        <!-- MAIN LEFT AREA: Plot (fixed area) + scrollable metrics/log -->
         <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- plot -->
+                <!-- Plot row -->
                 <RowDefinition Height="*"/>
-                <!-- scrollable content -->
+                <!-- ScrollView row -->
             </Grid.RowDefinitions>
 
-            <!-- Plot is outside the ScrollView so wheel only affects the plot -->
+            <!-- Plot kept separate from ScrollView so wheel / gestures interact with the plot first -->
             <ScottPlot:MauiPlot x:Name="MauiPlot1"
                                 Grid.Row="0"
                                 HeightRequest="400" />
 
-            <!-- Everything else stays scrollable -->
+            <!-- Scrollable content: digital meters and log -->
             <ScrollView Grid.Row="1">
                 <VerticalStackLayout Padding="30,0" Spacing="25">
+
+                    <!-- Digital Meters: laid out as a responsive 3-column grid -->
                     <CollectionView Grid.Column="2"
                                     ItemsSource="{Binding DigitalMeters}"
                                     BackgroundColor="LightGray"
@@ -52,7 +64,7 @@
                                     Margin="10,0,0,0"
                                     HorizontalOptions="Fill">
                         <CollectionView.ItemsLayout>
-                            <!-- 3 items per row -->
+                            <!-- 3 items per row; vertical stacking by rows -->
                             <GridItemsLayout Orientation="Vertical" Span="3" />
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
@@ -66,10 +78,12 @@
                                     <VerticalStackLayout Spacing="2"
                                                          HorizontalOptions="Center"
                                                          VerticalOptions="Center">
+                                        <!-- Meter label -->
                                         <Label Text="{Binding Label}"
                                                FontSize="12"
                                                HorizontalTextAlignment="Center"
                                                TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                        <!-- Numeric value with unit (formatted to 3 decimals) -->
                                         <Label>
                                             <Label.FormattedText>
                                                 <FormattedString>
@@ -87,12 +101,13 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
 
-                    <!-- Logs -->
+                    <!-- Log header -->
                     <Label Text="Log"
                            Style="{StaticResource SubHeadline}"
                            SemanticProperties.HeadingLevel="Level2"
                            HorizontalOptions="Start" />
 
+                    <!-- Log messages list: simple vertical text list -->
                     <CollectionView x:Name="LogView"
                                     ItemsSource="{Binding LogMessages}"
                                     HeightRequest="200"
@@ -116,6 +131,7 @@
             </ScrollView>
         </Grid>
 
+        <!-- Drag handle: user drags horizontally to resize the right sidebar (handled in code-behind) -->
         <BoxView Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
                  BackgroundColor="DarkGray"
                  WidthRequest="20"
@@ -127,15 +143,21 @@
             </BoxView.GestureRecognizers>
         </BoxView>
 
+        <!-- SIDEBAR: Channel list with contextual actions -->
         <CollectionView Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
                         ItemsSource="{Binding Channels}"
                         BackgroundColor="LightGray"
                         SelectionMode="None"
                         Margin="10,0,0,0"
                         HorizontalOptions="Fill">
+
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <HorizontalStackLayout Spacing="20" Padding="0" VerticalOptions="Center">
+
+                        <!-- Context flyout:
+                             Commands are resolved via RootGrid's BindingContext (the page's view model).
+                             CommandParameter passes the bound Channel object. -->
                         <FlyoutBase.ContextFlyout>
                             <MenuFlyout>
                                 <MenuFlyoutItem Text="Show Channel Properties"
@@ -158,7 +180,10 @@
                             </MenuFlyout>
                         </FlyoutBase.ContextFlyout>
 
+                        <!-- Channel selection checkbox (two-way binding to Channel.IsSelected) -->
                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalOptions="Center" />
+
+                        <!-- Display string for channel (uses a converter to format nicely) -->
                         <Label Text="{Binding ., Converter={StaticResource ChannelToStringConverter}}"
                                FontSize="12"
                                TextColor="Black"
@@ -167,7 +192,6 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
 
     </Grid>
 </ContentPage>
