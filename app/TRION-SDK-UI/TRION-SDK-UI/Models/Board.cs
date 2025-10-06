@@ -4,18 +4,6 @@ using TrionApiUtils;
 namespace TRION_SDK_UI.Models
 {
     /// <summary>
-    /// Classifies a TRION board by its dominant functional type.
-    /// The value can influence how channels are interpreted or configured.
-    /// </summary>
-    public enum BoardType
-    {
-        Unknown = 0,
-        Analog = 1,
-        Digital = 2,
-        Counter = 3
-    }
-
-    /// <summary>
     /// Represents a single physical TRION board and encapsulates
     /// identification, configuration, channel activation, and acquisition settings.
     /// </summary>
@@ -88,12 +76,6 @@ namespace TRION_SDK_UI.Models
         /// Number of hardware buffer blocks to allocate.
         /// </summary>
         public int BufferBlockCount { get; set; }
-
-        /// <summary>
-        /// Indicates whether the board is currently part of an active acquisition workflow.
-        /// Not toggled internally here; expected to be managed by a higher-level service.
-        /// </summary>
-        public bool IsAcquiring { get; set; }
 
         /// <summary>
         /// Initializes <see cref="Id"/> and <see cref="Name"/> from <see cref="BoardProperties"/>.
