@@ -75,14 +75,17 @@ namespace TRION_SDK_UI.Models
             BufferBlockCount = buffer_block_count;
             BufferBlockSize = buffer_block_size;
             var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "OperationMode", operationMode);
-            error    |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", externalTrigger);
-            error    |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
-            error    |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate.ToString());
-
-            error    |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
-            error    |= TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
-
-            Utils.CheckErrorCode(error, $"Failed to set acquisition properties for board {Id}");
+            Utils.CheckErrorCode(error, $"Failed to set operation mode for board {Id}");
+            error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", externalTrigger);
+            Utils.CheckErrorCode(error, $"Failed to set external trigger for board {Id}");
+            error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
+            Utils.CheckErrorCode(error, $"Failed to set external clock for board {Id}");
+            error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate.ToString());
+            Utils.CheckErrorCode(error, $"Failed to set sample rate for board {Id}");
+            error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
+            Utils.CheckErrorCode(error, $"Failed to set buffer block size for board {Id}");
+            error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
+            Utils.CheckErrorCode(error, $"Failed to set buffer block count for board {Id}");
         }
 
         public void Reset()
