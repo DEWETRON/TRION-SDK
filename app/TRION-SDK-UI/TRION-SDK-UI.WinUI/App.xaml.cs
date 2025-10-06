@@ -1,8 +1,6 @@
 ﻿using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using WinRT.Interop; // For WindowNative
-using Microsoft.UI; // For WindowId
-using System.Linq; // For FirstOrDefault
 
 namespace TRION_SDK_UI.WinUI
 {
@@ -30,7 +28,7 @@ namespace TRION_SDK_UI.WinUI
                 var appWindow = AppWindow.GetFromWindowId(windowId);
 
                 // Set your desired window size here
-                appWindow.Resize(new Windows.Graphics.SizeInt32 { Width = 1200, Height = 800 });
+                appWindow.Resize(new Windows.Graphics.SizeInt32 { Width = 1200, Height = 1200 });
             }
         }
     }

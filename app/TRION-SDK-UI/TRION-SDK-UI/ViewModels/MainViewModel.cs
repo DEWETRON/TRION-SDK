@@ -173,10 +173,12 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
-            foreach (var channel in board.BoardProperties.GetChannels())
+
+            // board.Channels is initialized to [] in Board, so it's never null
+            foreach (var channel in board.Channels.Where(c =>
+                     c.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital))
             {
-                if (channel.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital)
-                    Channels.Add(channel);
+                Channels.Add(channel);
             }
         }
 

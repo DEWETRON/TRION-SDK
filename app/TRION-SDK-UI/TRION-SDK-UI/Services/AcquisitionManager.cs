@@ -81,8 +81,10 @@ public class AcquisitionManager(Enclosure enclosure)
             var scanDescriptor = board.ScanDescriptorDecoder;
 
             var boardChannels = boardGroup.ToList();
+
+            // If the scan descriptor misses any requested channel, skip this board (defensive)
             var channelInfos = boardChannels
-                .Select(ch => scanDescriptor.Channels.FirstOrDefault(c => c.Name == ch.Name))
+                .Select(selector: ch => scanDescriptor?.Channels.FirstOrDefault(c => c.Name == ch.Name))
                 .ToArray();
 
             // If the scan descriptor misses any requested channel, skip this board (defensive)
@@ -92,8 +94,8 @@ public class AcquisitionManager(Enclosure enclosure)
             }
 
             // Sample offsets and sizes come from the ScanDescriptor (bit units -> bytes)
-            var offsets = channelInfos.Select(ci => (int)ci.SampleOffset / 8).ToArray();
-            var sampleSizes = channelInfos.Select(ci => (int)ci.SampleSize).ToArray();
+            var offsets = channelInfos.Select(ci => (int)ci!.SampleOffset / 8).ToArray();
+            var sampleSizes = channelInfos.Select(ci => (int)ci!.SampleSize).ToArray();
             var channelKeys = boardChannels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
 
             var cts = new CancellationTokenSource();

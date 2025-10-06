@@ -36,7 +36,7 @@ namespace TRION_SDK_UI.Models
         /// <summary>
         /// Parsed board metadata source (XML-backed). Required before calling <see cref="SetBoardProperties"/>.
         /// </summary>
-        public BoardPropertyModel? BoardProperties { get; set; }
+        public BoardPropertyModel? BoardProperties { get; init; }
 
         /// <summary>
         /// In-memory collection of channel objects associated with this board.
