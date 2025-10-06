@@ -51,21 +51,37 @@
                                     SelectionMode="None"
                                     Margin="10,0,0,0"
                                     HorizontalOptions="Fill">
+                        <CollectionView.ItemsLayout>
+                            <!-- 3 items per row -->
+                            <GridItemsLayout Orientation="Vertical" Span="3" />
+                        </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Border Margin="2" Padding="8,4">
-                                    <HorizontalStackLayout>
-                                        <Label FontSize="14">
+                                <Border Margin="4"
+                                        Padding="8,6"
+                                        StrokeThickness="1"
+                                        Stroke="{AppThemeBinding Light=#cccccc, Dark=#555555}"
+                                        BackgroundColor="{AppThemeBinding Light=#ffffff, Dark=#222222}"
+                                        StrokeShape="RoundRectangle 6">
+                                    <VerticalStackLayout Spacing="2"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center">
+                                        <Label Text="{Binding Label}"
+                                               FontSize="12"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                        <Label>
                                             <Label.FormattedText>
                                                 <FormattedString>
-                                                    <Span Text="{Binding Label} " />
-                                                    <Span Text="  " />
-                                                    <Span Text="{Binding Value, StringFormat='{0:F2} '}" />
-                                                    <Span Text="{Binding Unit}" />
+                                                    <Span Text="{Binding Value, StringFormat='{0:F3}'}" FontAttributes="Bold" />
+                                                    <Span Text=" " />
+                                                    <Span Text="{Binding Unit}" FontSize="10" />
                                                 </FormattedString>
                                             </Label.FormattedText>
+                                            <Label.FontSize>18</Label.FontSize>
+                                            <Label.HorizontalTextAlignment>Center</Label.HorizontalTextAlignment>
                                         </Label>
-                                    </HorizontalStackLayout>
+                                    </VerticalStackLayout>
                                 </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
