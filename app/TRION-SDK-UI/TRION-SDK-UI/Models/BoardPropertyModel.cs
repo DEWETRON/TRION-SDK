@@ -197,7 +197,7 @@ public class BoardPropertyModel
         return unit switch
         {
             "V" => ChannelMode.UnitEnum.Voltage,
-            "mA" => ChannelMode.UnitEnum.MiliAmperes,
+            "mA" => ChannelMode.UnitEnum.MilliAmperes,
             "Hz" => ChannelMode.UnitEnum.Hertz,
             "Ohm" => ChannelMode.UnitEnum.Ohm,
             _ => ChannelMode.UnitEnum.None
