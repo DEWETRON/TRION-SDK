@@ -141,7 +141,7 @@ namespace TRION_SDK_UI
                 // Choose a view mode:
                 // - ViewWipeRight(rate): oscilloscope-like wipe; rate 0.0 means rely on capacity/window
                 // - ViewScrollLeft(): classic scrolling window leftwards
-                ds.ViewWipeRight(0.0);
+                ds.ViewScrollLeft();
 
                 // Implicit X: 1 unit per sample => X is sample index (set to 1/sampleRate for seconds)
                 ds.Data.SamplePeriod = 1;
