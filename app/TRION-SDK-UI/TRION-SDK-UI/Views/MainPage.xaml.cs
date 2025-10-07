@@ -54,7 +54,7 @@ namespace TRION_SDK_UI
         /// Visible window width (samples) and capacity for each DataStreamer.
         /// Increase for a wider recent history; decrease for a tighter live window.
         /// </summary>
-        private readonly int _followWindowSamples = 10_000;
+        private readonly int _followWindowSamples = 1_000;
 
         /// <summary>
         /// Returns a stable color for the provided channel key using a categorical palette.
