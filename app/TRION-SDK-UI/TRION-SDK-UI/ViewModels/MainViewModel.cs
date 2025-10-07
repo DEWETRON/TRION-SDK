@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
@@ -110,12 +111,12 @@ public class MainViewModel : BaseViewModel, IDisposable
         public string ChannelKey { get; }
 
         /// <summary>Newest sample batch for this channel. May be empty.</summary>
-        public ReadOnlyMemory<double> Samples { get; }
+        public double[] Samples { get; }
 
         /// <summary>Number of samples in this batch.</summary>
         public int Count => Samples.Length;
 
-        public SamplesAppendedEventArgs(string channelKey, ReadOnlyMemory<double> samples)
+        public SamplesAppendedEventArgs(string channelKey, double[] samples)
         {
             ChannelKey = channelKey;
             Samples = samples;
@@ -145,6 +146,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     /// </summary>
     public MainViewModel()
     {
+        Debug.WriteLine("Started");
         LogMessages.Add("App started.");
 
         // Initialize the TRION API:
@@ -203,6 +205,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     /// </summary>
     private async Task StartAcquisition()
     {
+        Debug.WriteLine("Starting acquisition...");
         LogMessages.Add("Starting acquisition...");
 
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
@@ -228,6 +231,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     /// </summary>
     private void PrepareUIForAcquisition(List<Channel> selectedChannels)
     {
+
         DigitalMeters.Clear();
 
         foreach (var channel in selectedChannels)

@@ -1,5 +1,6 @@
 ﻿using ScottPlot.Plottables;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using TRION_SDK_UI.Models;
 
 namespace TRION_SDK_UI
@@ -162,16 +163,16 @@ namespace TRION_SDK_UI
         /// New samples arrived for a specific channel:
         /// - Ensure a streamer exists for it (create lazily if needed),
         /// - Append the newest batch,
-        /// - Perform initial X autoscale if pending,
-        /// - Toggle auto-follow via ManageAxisLimits based on VM.FollowLatest.
         /// </summary>
         private void VmOnSamplesAppended(object? sender, MainViewModel.SamplesAppendedEventArgs e)
         {
+            Debug.WriteLine($"SamplesAppended: {e.ChannelKey} +{e.Count}");
             if (sender is not MainViewModel vm) return;
 
             // Make sure a streamer exists for this channel (handles late channels)
             if (!_streams.TryGetValue(e.ChannelKey, out var ds))
             {
+                Debug.WriteLine($"Creating lazy DataStreamer for {e.ChannelKey}");
                 ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
                 ds.LineWidth = 2;
                 ds.Color = GetColorForChannel(e.ChannelKey);
@@ -182,20 +183,8 @@ namespace TRION_SDK_UI
                 _streams[e.ChannelKey] = ds;
             }
 
-            // Append newest batch only (no full-history copies)
-            if (e.Count > 0)
-                ds.AddRange(e.Samples.ToArray()); // prefer Span overload if your ScottPlot supports it
-
-            // One-time X autoscale right after acquisition start so users see signal immediately
-            if (_needInitialAutoScaleX)
-            {
-                MauiPlot1.Plot.Axes.AutoScaleX();
-                _needInitialAutoScaleX = false;
-            }
-
-            // When following, the streamer keeps the X view aligned to the newest samples;
-            // when not, the user can pan/zoom freely without being pulled forward.
-            ds.ManageAxisLimits = vm.FollowLatest;
+            // Adding samples to the Data Streamer
+            ds.Add(e.Samples);
 
             // Redraw the plot
             MauiPlot1.Refresh();
