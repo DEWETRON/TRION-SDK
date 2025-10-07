@@ -136,11 +136,6 @@ namespace TRION_SDK_UI.Models
             Utils.CheckErrorCode(
                 TrionApi.DeWeSetParamStruct($"BoardID{boardId}/AIAll", "Used", "False"),
                 $"Failed to deactivate all analog channels on board {boardId}");
-
-            // If/when digital channel group deactivation is needed, uncomment and validate:
-            // Utils.CheckErrorCode(
-            //     TrionApi.DeWeSetParamStruct($"BoardID{boardId}/DiAll", "Used", "False"),
-            //     $"Failed to deactivate all digital channels on board {boardId}");
         }
 
         /// <summary>
@@ -150,7 +145,7 @@ namespace TRION_SDK_UI.Models
         /// <param name="operationMode">Operation mode string (e.g., "Slave", "Master").</param>
         /// <param name="externalTrigger">"True"/"False" flag for external trigger usage.</param>
         /// <param name="externalClock">"True"/"False" flag for external clock usage.</param>
-        /// <param name="sampleRate">Sampling rate in Hz.</param>
+        /// <param name="sampleRate">Sampling rate</param>
         /// <param name="buffer_block_size">Size of one buffer block.</param>
         /// <param name="buffer_block_count">Number of buffer blocks.</param>
         /// <remarks>

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrionApiUtils
+﻿namespace TrionApiUtils
 {
     public class Utils
     {
@@ -19,9 +13,9 @@ namespace TrionApiUtils
             }
             if ((int)error_code == 0)
             {
-                //Console.ForegroundColor = ConsoleColor.Green;
-                //System.Diagnostics.Debug.WriteLine($"TRION API Success: {user_message} {error_code}");
-                //Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.Green;
+                System.Diagnostics.Debug.WriteLine($"TRION API Success: {user_message} {error_code}");
+                Console.ResetColor();
                 return;
             }
             if ((int)error_code > 0)

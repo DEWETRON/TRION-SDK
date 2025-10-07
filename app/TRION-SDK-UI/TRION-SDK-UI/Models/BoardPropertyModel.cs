@@ -10,35 +10,6 @@ using static TRION_SDK_UI.Models.Channel;
 /// <remarks>
 /// The constructor accepts the full XML string delivered by the TRION API
 /// (typically something like DeWeGetParamStruct_String("BoardIDX", "BoardProperties")).
-/// Expected (simplified) XML shape:
-/// <![CDATA[
-/// <Properties BoardID="0">
-///   <BoardInfo>
-///     <BoardName>TRION-XXXX</BoardName>
-///   </BoardInfo>
-///   <ChannelProperties>
-///     <AI0>
-///       <Mode Mode="Voltage">
-///         <Range Unit="V">
-///           <ID0>-10</ID0>
-///           <ID1>10</ID1>
-///         </Range>
-///       </Mode>
-///       <Mode Mode="IEPE">
-///         <Range Unit="V">
-///           <ID0>-5</ID0>
-///           <ID1>5</ID1>
-///         </Range>
-///       </Mode>
-///     </AI0>
-///     <Di0>
-///       <Mode Mode="Digital">
-///         <Range Unit="None" />
-///       </Mode>
-///     </Di0>
-///   </ChannelProperties>
-/// </Properties>
-/// ]]>
 /// The parser is resilient to missing nodes and returns defaults (empty lists / strings / -1).
 /// </remarks>
 public class BoardPropertyModel
@@ -58,27 +29,6 @@ public class BoardPropertyModel
         using var stringReader = new StringReader(boardXML);
         _document = new XPathDocument(stringReader);
         _navigator = _document.CreateNavigator();
-    }
-
-    /// <summary>
-    /// Returns all channel element names found under /Properties/ChannelProperties.
-    /// </summary>
-    /// <returns>List of channel identifiers (e.g. AI0, AI1, Di0).</returns>
-    public List<string> GetChannelNames()
-    {
-        var channelNames = new List<string>();
-        var iterator = _navigator.Select("Properties/ChannelProperties/*");
-
-        while (iterator.MoveNext())
-        {
-            var channelNav = iterator.Current;
-            if (channelNav != null)
-            {
-                channelNames.Add(channelNav.Name);
-            }
-        }
-
-        return channelNames;
     }
 
     /// <summary>

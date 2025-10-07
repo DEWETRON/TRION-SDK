@@ -6,20 +6,6 @@ using System.Xml.XPath;
 /// (offsets, sizes, ordering) to logical channels.
 /// </summary>
 /// <remarks>
-/// Expected (simplified) XML pattern:
-/// <ScanDescriptor>
-///   <SomeRoot>
-///     <ScanDescription scan_size="256">
-///       <Channel name="AI0" type="analog" index="0">
-///         <Sample pos="0" size="32" offset="0" />
-///       </Channel>
-///       <Channel name="AI1" type="analog" index="1">
-///         <Sample pos="32" size="32" offset="4" />
-///       </Channel>
-///       ...
-///     </ScanDescription>
-///   </SomeRoot>
-/// </ScanDescriptor>
 /// Notes:
 /// - scan_size attribute is given in bits (divided by 8 to get bytes).
 /// - Sample 'size' is assumed to be in bits (kept as-is here; consumer can interpret).
@@ -35,7 +21,7 @@ public partial class ScanDescriptorDecoder
     /// </summary>
     public class ChannelInfo
     {
-        /// <summary>Channel name (e.g., AI0, Di3).</summary>
+        /// <summary>Channel name (e.g., AI0).</summary>
         public string? Name { get; set; }
         /// <summary>Channel type string as supplied by XML (e.g., analog, digital).</summary>
         public string? Type { get; set; }

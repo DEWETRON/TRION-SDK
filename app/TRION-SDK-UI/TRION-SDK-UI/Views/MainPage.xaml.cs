@@ -92,7 +92,7 @@ namespace TRION_SDK_UI
 
             // Initial plot cosmetics
             MauiPlot1.Plot.Title("Live Signals");
-            MauiPlot1.Plot.XLabel("Samples");  // X is sample index when SamplePeriod=1
+            MauiPlot1.Plot.XLabel("Samples");
             MauiPlot1.Plot.YLabel("Value");
             MauiPlot1.Refresh();
 
