@@ -183,6 +183,8 @@ namespace TRION_SDK_UI
                 _streams[e.ChannelKey] = ds;
             }
 
+            ds.ManageAxisLimits = vm.FollowLatest;
+
             // Adding samples to the Data Streamer
             ds.Add(e.Samples);
 
