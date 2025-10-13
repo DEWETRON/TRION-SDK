@@ -105,16 +105,22 @@ public class MainViewModel : BaseViewModel, IDisposable
     /// Event args carrying the channel key and newest batch of samples.
     /// ChannelKey format: "BoardID/ChannelName" (e.g., "1/AI0").
     /// </summary>
-    public sealed class SamplesAppendedEventArgs(string channelKey, double[] samples) : EventArgs
+    public sealed class SamplesAppendedEventArgs : EventArgs
     {
         /// <summary>Composite key used by the view layer to route data to a per-channel plottable.</summary>
-        public string ChannelKey { get; } = channelKey;
+        public string ChannelKey { get; }
 
         /// <summary>Newest sample batch for this channel. May be empty.</summary>
-        public double[] Samples { get; } = samples;
+        public double[] Samples { get; }
 
         /// <summary>Number of samples in this batch.</summary>
         public int Count => Samples.Length;
+
+        public SamplesAppendedEventArgs(string channelKey, double[] samples)
+        {
+            ChannelKey = channelKey;
+            Samples = samples;
+        }
     }
 
 
