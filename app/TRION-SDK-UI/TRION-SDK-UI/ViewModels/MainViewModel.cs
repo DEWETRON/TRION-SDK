@@ -4,118 +4,45 @@ using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
 
-/// <summary>
-/// Main ViewModel for the .NET MAUI UI.
-/// Initializes TRION API, discovers channels, starts/stops acquisition,
-/// updates meters/logs, and notifies the View when new samples arrive.
-///
-/// Threading:
-/// - Acquisition callbacks occur on worker threads. This VM marshals UI updates to the main thread.
-/// - ObservableCollection and property changes are raised from the UI thread only.
-///
-/// Plotting/data flow (current design):
-/// - This VM does NOT retain long plotting history. It raises SamplesAppended with only the newest batch.
-/// - The View (MainPage) uses ScottPlot DataStreamer per channel to render incoming batches efficiently.
-/// - If you need export/analytics or pan-back history, reintroduce a history buffer here (ring/list).
-/// </summary>
 public class MainViewModel : BaseViewModel, IDisposable
 {
-    /// <summary>
-    /// Digital readout per selected channel. Updated with latest values during acquisition.
-    /// The View binds to this to display per-channel "meter" widgets.
-    /// </summary>
     public ObservableCollection<DigitalMeter> DigitalMeters { get; } = [];
-
-    /// <summary>
-    /// All channels discovered across all boards. Users select from this list before acquisition.
-    /// </summary>
     public ObservableCollection<Channel> Channels { get; } = [];
-
-    /// <summary>
-    /// UI-visible log lines for diagnostics, status changes, and user feedback.
-    /// </summary>
     public ObservableCollection<string> LogMessages { get; } = [];
 
-    // Commands are nullable to satisfy CS8618 (assigned in constructor).
-
-    /// <summary>Start acquisition on the currently selected Channels.</summary>
     public ICommand? StartAcquisitionCommand { get; private set; }
-
-    /// <summary>Stop all ongoing acquisitions.</summary>
     public ICommand? StopAcquisitionCommand { get; private set; }
-
-    /// <summary>Toggle "follow latest" behavior for the live plot (auto-scroll).</summary>
     public ICommand? LockScrollingCommand { get; private set; }
-
-    /// <summary>Toggle application theme between Light and Dark.</summary>
     public ICommand? ToggleThemeCommand { get; private set; }
-
-    /// <summary>Show channel properties (read-only) using TRION string-get API.</summary>
     public ICommand? ShowChannelPropertiesCommand { get; private set; }
-
-    /// <summary>Copy "BoardIDx/ChName" target string to clipboard for diagnostics/automation.</summary>
     public ICommand? CopyChannelPathCommand { get; private set; }
-
-    /// <summary>Unselect all channels then select only the specified one.</summary>
     public ICommand? SelectOnlyChannelCommand { get; private set; }
-
-    /// <summary>Select all channels on the same board as the specified channel.</summary>
     public ICommand? SelectAllOnBoardCommand { get; private set; }
-
-    /// <summary>Deselect all channels on the same board as the specified channel.</summary>
     public ICommand? DeselectAllOnBoardCommand { get; private set; }
 
-    /// <summary>
-    /// Orchestrates low-level acquisition (TRION buffer handling) for all boards in <see cref="MyEnc"/>.
-    /// Created after successful TRION initialization and enclosure discovery.
-    /// </summary>
     private readonly AcquisitionManager? _acquisitionManager;
 
-    /// <summary>
-    /// Backing field for FollowLatest toggle. When true, the View should keep X-axis scrolled to newest data.
-    /// </summary>
     private bool _isScrollingLocked = true;
-
     private bool _followLatest = true;
-
-    /// <summary>
-    /// Indicates whether the plot should follow the newest samples.
-    /// This is toggled by the LockScrollingCommand.
-    /// </summary>
     public bool FollowLatest
     {
         get => _followLatest;
         private set { if (_followLatest != value) { _followLatest = value; OnPropertyChanged(); } }
     }
 
-    /// <summary>
-    /// Raised after <see cref="StartAcquisition"/> validates selection but before data begins to arrive.
-    /// The View uses this moment to clear existing plot content and pre-create per-channel visuals.
-    /// </summary>
     public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
 
-    /// <summary>
-    /// Raised when a new batch of samples has arrived for a channel.
-    /// This event carries only the newest batch (not the whole history).
-    /// The View feeds the batch into its streaming plot (ScottPlot DataStreamer).
-    /// </summary>
+    // OLD per-channel event (you can keep for compatibility if needed)
     public event EventHandler<SamplesAppendedEventArgs>? SamplesAppended;
 
-    /// <summary>
-    /// Event args carrying the channel key and newest batch of samples.
-    /// ChannelKey format: "BoardID/ChannelName" (e.g., "1/AI0").
-    /// </summary>
+    // NEW: one batched event per tick
+    public event EventHandler<SamplesBatchAppendedEventArgs>? SamplesBatchAppended;
+
     public sealed class SamplesAppendedEventArgs : EventArgs
     {
-        /// <summary>Composite key used by the view layer to route data to a per-channel plottable.</summary>
         public string ChannelKey { get; }
-
-        /// <summary>Newest sample batch for this channel. May be empty.</summary>
         public double[] Samples { get; }
-
-        /// <summary>Number of samples in this batch.</summary>
         public int Count => Samples.Length;
-
         public SamplesAppendedEventArgs(string channelKey, double[] samples)
         {
             ChannelKey = channelKey;
@@ -123,36 +50,30 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
     }
 
+    // NEW batched args
+    public sealed class SamplesBatchAppendedEventArgs : EventArgs
+    {
+        public IReadOnlyDictionary<string, double[]> Batches { get; }
+        public SamplesBatchAppendedEventArgs(IReadOnlyDictionary<string, double[]> batches) => Batches = batches;
+    }
 
-    /// <summary>
-    /// Dispose pattern: close all boards and uninitialize the TRION API.
-    /// The app calls this when shutting down to free native resources deterministically.
-    /// </summary>
     public void Dispose()
     {
         TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
         TrionApi.Uninitialize();
     }
 
-    /// <summary>
-    /// Enclosure abstraction which discovers and stores the opened boards and their properties/channels.
-    /// </summary>
     public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
 
-    /// <summary>
-    /// Constructor: initializes TRION API, builds enclosure/board model, populates Channels,
-    /// and wires all UI commands.
-    /// Logs whether simulation or real hardware is found.
-    /// </summary>
+    // NEW: O(1) lookups, avoid LINQ scans on UI thread
+    private readonly Dictionary<string, Channel> _channelByKey = new();
+    private readonly Dictionary<string, DigitalMeter> _meterByKey = new();
+
     public MainViewModel()
     {
         Debug.WriteLine("Started");
         LogMessages.Add("App started.");
 
-        // Initialize the TRION API:
-        // - Positive return: number of real boards
-        // - Negative return: number of simulated boards (absolute value)
-        // - Zero: nothing found
         var numberOfBoards = TrionApi.Initialize();
         if (numberOfBoards < 0)
             LogMessages.Add($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
@@ -160,23 +81,18 @@ public class MainViewModel : BaseViewModel, IDisposable
             LogMessages.Add($"Number of real Boards found: {numberOfBoards}");
         else
         {
-            // Inform the user and stop early; keep the app responsive for reconfiguration.
             LogMessages.Add("No Trion Boards found.");
             _ = ShowAlertAsync("No TRION boards", "No TRION boards were detected. Configure a system and try again.");
             return;
         }
 
-        // Initialize enclosure and load board properties for each detected board ID.
         numberOfBoards = Math.Abs(numberOfBoards);
         MyEnc.Init(numberOfBoards);
         OnPropertyChanged(nameof(MyEnc));
 
-        // Flatten all boards' eligible channels (Analog/Digital) into a single list for selection.
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
-
-            // board.Channels is initialized to [] in Board, so it's never null
             foreach (var channel in board.Channels.Where(c =>
                      c.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital))
             {
@@ -187,7 +103,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         _acquisitionManager = new AcquisitionManager(MyEnc);
         OnPropertyChanged(nameof(Channels));
 
-        // Wire up UI commands
         StartAcquisitionCommand      = new Command(async () => await StartAcquisition());
         StopAcquisitionCommand       = new Command(async () => await StopAcquisition());
         LockScrollingCommand         = new Command(LockScrolling);
@@ -199,10 +114,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         DeselectAllOnBoardCommand    = new Command<Channel>(DeselectAllOnBoard);
     }
 
-    /// <summary>
-    /// Validate selection and start acquisition on selected channels.
-    /// Raises <see cref="AcquisitionStarting"/> so the View can clear and pre-allocate visuals.
-    /// </summary>
     private async Task StartAcquisition()
     {
         Debug.WriteLine("Starting acquisition...");
@@ -217,41 +128,36 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         PrepareUIForAcquisition(selectedChannels);
-
-        // Allow the View to reset plot state before data begins to flow.
         AcquisitionStarting?.Invoke(this, selectedChannels);
 
-        // Disable per-batch callbacks and use timer-driven draining
         await _acquisitionManager!.StartAcquisitionAsync(selectedChannels, onSamplesReceived: null);
         StartUiDrainTimer();
     }
 
-    /// <summary>
-    /// Prepare UI state for a new acquisition:
-    /// - Clear and recreate the DigitalMeters (one per selected channel).
-    /// </summary>
     private void PrepareUIForAcquisition(List<Channel> selectedChannels)
     {
-
         DigitalMeters.Clear();
+        _channelByKey.Clear();
+        _meterByKey.Clear();
 
         foreach (var channel in selectedChannels)
         {
+            var key = $"{channel.BoardID}/{channel.Name}";
+            _channelByKey[key] = channel;
+
             var meter = new DigitalMeter
             {
-                Label = $"{channel.BoardID}/{channel.Name}",
+                Label = key,
                 Value = channel.CurrentValue,
                 Unit = channel.Unit
             };
+            _meterByKey[key] = meter;
             DigitalMeters.Add(meter);
         }
 
         OnPropertyChanged(nameof(DigitalMeters));
     }
 
-    /// <summary>
-    /// Stop acquisition by signaling the AcquisitionManager and ending the board loops.
-    /// </summary>
     private async Task StopAcquisition()
     {
         LogMessages.Add("Stopping acquisition...");
@@ -259,10 +165,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         await _acquisitionManager!.StopAcquisitionAsync();
     }
 
-    /// <summary>
-    /// Toggle FollowLatest (auto-follow plotting). When locked, the plot stays at the newest data.
-    /// When unlocked, the user can pan without being pulled forward by incoming data.
-    /// </summary>
     private void LockScrolling()
     {
         _isScrollingLocked = !_isScrollingLocked;
@@ -270,9 +172,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
     }
 
-    /// <summary>
-    /// Toggle between Light and Dark themes at runtime and log the change.
-    /// </summary>
     private void ToggleTheme()
     {
         if (Application.Current is not null)
@@ -282,39 +181,69 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
     }
 
-    /// <summary>
-    /// Acquisition callback (invoked by AcquisitionManager) with the newest batch for a channel.
-    /// Marshals to the UI thread to:
-    /// - Update the DigitalMeter and channel's CurrentValue,
-    /// - Raise <see cref="SamplesAppended"/> with the batch for the View's plot layer.
-    /// </summary>
-    private void OnSamplesReceived(string channelName, IEnumerable<double> samples)
+    // Dispatcher timer (keep your chosen rate)
+    private IDispatcherTimer? _uiDrainTimer;
+    private EventHandler? _drainTickHandler;
+
+    private void StartUiDrainTimer()
     {
-        // Ensure all UI-bound changes happen on the main thread.
-        MainThread.BeginInvokeOnMainThread(() =>
+        StopUiDrainTimer();
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null) return;
+
+        _uiDrainTimer = dispatcher.CreateTimer();
+        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33); // ~30 Hz (tune)
+        _uiDrainTimer.IsRepeating = true;
+
+        _drainTickHandler = (s, e) => DrainAndPublish();
+        _uiDrainTimer.Tick += _drainTickHandler;
+        _uiDrainTimer.Start();
+    }
+
+    private void StopUiDrainTimer()
+    {
+        if (_uiDrainTimer is null) return;
+        if (_drainTickHandler is not null)
+            _uiDrainTimer.Tick -= _drainTickHandler;
+
+        _uiDrainTimer.Stop();
+        _uiDrainTimer = null;
+        _drainTickHandler = null;
+    }
+
+    // Throttle meter updates to reduce UI churn
+    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(100); // 10 Hz
+    private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
+
+    private void DrainAndPublish()
+    {
+        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 1000);
+        if (batches.Count == 0) return;
+
+        // Single UI block per tick
+        var now = DateTime.UtcNow;
+        bool updateMeters = (now - _lastMeterUpdateUtc) >= _meterUpdatePeriod;
+        if (updateMeters) _lastMeterUpdateUtc = now;
+
+        foreach (var (channelKey, samples) in batches)
         {
-            // Materialize the batch once. Using it for meters and event args.
-            var batch = samples as double[] ?? [.. samples];
-            var latestValue = batch.Length > 0 ? batch[^1] : 0;
-
-            // Update the channel's latest value and corresponding meter.
-            var parts = channelName.Split('/');
-            if (parts.Length == 2 && int.TryParse(parts[0], out var boardId))
+            // Update meters less frequently
+            if (updateMeters)
             {
-                var chName = parts[1];
-                var channel = Channels.FirstOrDefault(c => c.BoardID == boardId && c.Name == chName);
-                if (channel is not null)
-                {
-                    channel.CurrentValue = latestValue;
-
-                    var meter = DigitalMeters.FirstOrDefault(m => m.Label == channelName);
-                    meter?.AddSample(latestValue);
-                }
+                var latestValue = samples.Length > 0 ? samples[^1] : 0;
+                if (_channelByKey.TryGetValue(channelKey, out var ch))
+                    ch.CurrentValue = latestValue;
+                if (_meterByKey.TryGetValue(channelKey, out var meter))
+                    meter.AddSample(latestValue);
             }
+        }
 
-            // Notify the View; it will push this batch into the DataStreamer for drawing.
-            SamplesAppended?.Invoke(this, new SamplesAppendedEventArgs(channelName, batch));
-        });
+        // Single event with all channel batches (replace many per-channel events)
+        SamplesBatchAppended?.Invoke(this, new SamplesBatchAppendedEventArgs(batches));
+
+        // If you must keep the old per-channel event for compatibility, you can emit it here,
+        // but be aware it increases main-thread work:
+        // foreach (var (k, s) in batches) SamplesAppended?.Invoke(this, new SamplesAppendedEventArgs(k, s));
     }
 
     /// <summary>
@@ -424,61 +353,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID)) c.IsSelected = false;
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Deselected all channels on Board {ch.BoardID}");
-    }
-
-    private IDispatcherTimer? _uiDrainTimer;
-    private EventHandler? _drainTickHandler;
-
-    private void StartUiDrainTimer()
-    {
-        StopUiDrainTimer();
-        var dispatcher = Application.Current?.Dispatcher;
-        if (dispatcher is null) return;
-
-        _uiDrainTimer = dispatcher.CreateTimer();
-        _uiDrainTimer.Interval = TimeSpan.FromSeconds(1.0 / 10.0);
-        _uiDrainTimer.IsRepeating = true;
-
-        _drainTickHandler = (s, e) => DrainAndPublish();
-        _uiDrainTimer.Tick += _drainTickHandler;
-        _uiDrainTimer.Start();
-    }
-
-    private void StopUiDrainTimer()
-    {
-        if (_uiDrainTimer is null) return;
-        if (_drainTickHandler is not null)
-            _uiDrainTimer.Tick -= _drainTickHandler;
-
-        _uiDrainTimer.Stop();
-        _uiDrainTimer = null;
-        _drainTickHandler = null;
-    }
-
-    private void DrainAndPublish()
-    {
-        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 1000);
-        if (batches.Count == 0) return;
-
-        foreach (var (channelKey, samples) in batches)
-        {
-            var latestValue = samples.Length > 0 ? samples[^1] : 0;
-
-            var parts = channelKey.Split('/');
-            if (parts.Length == 2 && int.TryParse(parts[0], out var boardId))
-            {
-                var chName = parts[1];
-                var channel = Channels.FirstOrDefault(c => c.BoardID == boardId && c.Name == chName);
-                if (channel is not null)
-                {
-                    channel.CurrentValue = latestValue;
-                    var meter = DigitalMeters.FirstOrDefault(m => m.Label == channelKey);
-                    meter?.AddSample(latestValue);
-                }
-            }
-
-            SamplesAppended?.Invoke(this, new SamplesAppendedEventArgs(channelKey, samples));
-        }
     }
 }
 

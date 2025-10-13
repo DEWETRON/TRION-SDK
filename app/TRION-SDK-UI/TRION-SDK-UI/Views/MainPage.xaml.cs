@@ -85,9 +85,13 @@ namespace TRION_SDK_UI
             // - AcquisitionStarting: reset plot and create per-channel plottables
             // - SamplesAppended: append newest batch into the corresponding streamer
             vm.AcquisitionStarting += VmOnAcquisitionStarted;
-            vm.SamplesAppended += VmOnSamplesAppended;
 
-            // Keep the log view auto-scrolled to the most recent message
+            // keep old per-channel subscription if you want backward compatibility
+            // vm.SamplesAppended += VmOnSamplesAppended;
+
+            // NEW: subscribe to the batched event
+            vm.SamplesBatchAppended += VmOnSamplesBatchAppended;
+
             vm.LogMessages.CollectionChanged += VmLogMessages_CollectionChanged;
 
             // Initial plot cosmetics
@@ -100,6 +104,40 @@ namespace TRION_SDK_UI
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += OnDragHandlePanUpdated;
             DragHandle.GestureRecognizers.Add(panGesture);
+        }
+
+        // NEW: batch handler (one UI refresh per tick)
+        private void VmOnSamplesBatchAppended(object? sender, MainViewModel.SamplesBatchAppendedEventArgs e)
+        {
+            if (sender is not MainViewModel vm) return;
+
+            foreach (var (channelKey, samples) in e.Batches)
+            {
+                if (!_streams.TryGetValue(channelKey, out var ds))
+                {
+                    // create streamer lazily if needed
+                    ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
+                    ds.LineWidth = 2;
+                    ds.Color = GetColorForChannel(channelKey);
+                    ds.ViewScrollLeft();
+                    ds.Data.SamplePeriod = 1;
+                    ds.Data.OffsetX = 0;
+                    ds.ManageAxisLimits = true;
+                    _streams[channelKey] = ds;
+                }
+
+                ds.ManageAxisLimits = vm.FollowLatest;
+                ds.Add(samples);
+            }
+
+            // optional: do a one-time autoscale when data first arrives
+            if (_needInitialAutoScaleX)
+            {
+                MauiPlot1.Plot.Axes.AutoScale();
+                _needInitialAutoScaleX = false;
+            }
+
+            MauiPlot1.Refresh();
         }
 
         /// <summary>
