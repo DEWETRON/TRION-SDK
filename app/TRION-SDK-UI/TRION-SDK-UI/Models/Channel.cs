@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Trion; // added
 using TrionApiUtils;
 
 namespace TRION_SDK_UI.Models
@@ -161,16 +162,55 @@ namespace TRION_SDK_UI.Models
 
         /// <summary>
         /// Performs digital activation steps:
-        /// Sets mode to DIO.
+        /// Tries Mode=DIO, then falls back to DI or DO if not supported.
+        /// Always attempts to set Used=True. Never throws; logs on failure.
         /// </summary>
         private void ActivateDigitalChannel()
         {
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct($"BoardID{BoardID}/{Name}", "Mode", "DIO"),
-                $"Failed to set DIO mode {BoardID}");
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct($"BoardID{BoardID}/{Name}", "Used", "True"),
-                $"Failed to activate channel {Name} on board {BoardID}");
+            string target = $"BoardID{BoardID}/{Name}";
+
+            // Try preferred mode first, then safe fallbacks.
+            string[] candidateModes =
+            [
+                "DIO",
+                "DI",
+                "DO"
+            ];
+
+            // If metadata is present, prioritize modes that actually exist for this channel.
+            if (Modes.Count > 0)
+            {
+                var known = Modes.Select(m => m.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                candidateModes =
+                [
+                    .. candidateModes.Where(m => known.Contains(m)),
+                    .. candidateModes.Where(m => !known.Contains(m)),
+                ];
+            }
+
+            TrionError lastErr = TrionError.NONE;
+            bool modeSet = false;
+            foreach (var mode in candidateModes)
+            {
+                var err = TrionApi.DeWeSetParamStruct(target, "Mode", mode);
+                if (err == TrionError.NONE)
+                {
+                    modeSet = true;
+                    break;
+                }
+                lastErr = err;
+            }
+
+            if (!modeSet)
+            {
+                System.Diagnostics.Debug.WriteLine($"[WARN] Could not set mode to DIO/DI/DO for {target}. Last error={lastErr}");
+            }
+
+            var usedErr = TrionApi.DeWeSetParamStruct(target, "Used", "True");
+            if (usedErr != TrionError.NONE)
+            {
+                System.Diagnostics.Debug.WriteLine($"[WARN] Could not set Used=True for {target}. Error={usedErr}");
+            }
         }
     }
 }
