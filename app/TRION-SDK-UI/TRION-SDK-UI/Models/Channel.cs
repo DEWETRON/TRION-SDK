@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Trion; // added
+using Trion;
 using TrionApiUtils;
 
 namespace TRION_SDK_UI.Models

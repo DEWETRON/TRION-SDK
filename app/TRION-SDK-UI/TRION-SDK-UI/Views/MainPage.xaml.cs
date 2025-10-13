@@ -166,7 +166,7 @@ namespace TRION_SDK_UI
         /// </summary>
         private void VmOnSamplesAppended(object? sender, MainViewModel.SamplesAppendedEventArgs e)
         {
-            Debug.WriteLine($"SamplesAppended: {e.ChannelKey} +{e.Count}");
+            //Debug.WriteLine($"SamplesAppended: {e.ChannelKey} +{e.Count}");
             if (sender is not MainViewModel vm) return;
 
             // Make sure a streamer exists for this channel (handles late channels)

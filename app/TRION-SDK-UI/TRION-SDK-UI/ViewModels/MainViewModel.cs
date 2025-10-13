@@ -221,8 +221,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         // Allow the View to reset plot state before data begins to flow.
         AcquisitionStarting?.Invoke(this, selectedChannels);
 
-        // Start low-level acquisition; samples will arrive via OnSamplesReceived callback.
-        await _acquisitionManager!.StartAcquisitionAsync(selectedChannels, OnSamplesReceived);
+        // Disable per-batch callbacks and use timer-driven draining
+        await _acquisitionManager!.StartAcquisitionAsync(selectedChannels, onSamplesReceived: null);
+        StartUiDrainTimer();
     }
 
     /// <summary>
@@ -254,6 +255,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private async Task StopAcquisition()
     {
         LogMessages.Add("Stopping acquisition...");
+        StopUiDrainTimer();
         await _acquisitionManager!.StopAcquisitionAsync();
     }
 
@@ -422,6 +424,61 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID)) c.IsSelected = false;
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Deselected all channels on Board {ch.BoardID}");
+    }
+
+    private IDispatcherTimer? _uiDrainTimer;
+    private EventHandler? _drainTickHandler;
+
+    private void StartUiDrainTimer()
+    {
+        StopUiDrainTimer();
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null) return;
+
+        _uiDrainTimer = dispatcher.CreateTimer();
+        _uiDrainTimer.Interval = TimeSpan.FromSeconds(1.0 / 10.0);
+        _uiDrainTimer.IsRepeating = true;
+
+        _drainTickHandler = (s, e) => DrainAndPublish();
+        _uiDrainTimer.Tick += _drainTickHandler;
+        _uiDrainTimer.Start();
+    }
+
+    private void StopUiDrainTimer()
+    {
+        if (_uiDrainTimer is null) return;
+        if (_drainTickHandler is not null)
+            _uiDrainTimer.Tick -= _drainTickHandler;
+
+        _uiDrainTimer.Stop();
+        _uiDrainTimer = null;
+        _drainTickHandler = null;
+    }
+
+    private void DrainAndPublish()
+    {
+        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 1000);
+        if (batches.Count == 0) return;
+
+        foreach (var (channelKey, samples) in batches)
+        {
+            var latestValue = samples.Length > 0 ? samples[^1] : 0;
+
+            var parts = channelKey.Split('/');
+            if (parts.Length == 2 && int.TryParse(parts[0], out var boardId))
+            {
+                var chName = parts[1];
+                var channel = Channels.FirstOrDefault(c => c.BoardID == boardId && c.Name == chName);
+                if (channel is not null)
+                {
+                    channel.CurrentValue = latestValue;
+                    var meter = DigitalMeters.FirstOrDefault(m => m.Label == channelKey);
+                    meter?.AddSample(latestValue);
+                }
+            }
+
+            SamplesAppended?.Invoke(this, new SamplesAppendedEventArgs(channelKey, samples));
+        }
     }
 }
 

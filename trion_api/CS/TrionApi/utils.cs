@@ -11,13 +11,13 @@
                 Console.ResetColor();
                 return;
             }
-            if ((int)error_code == 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                System.Diagnostics.Debug.WriteLine($"TRION API Success: {user_message} {error_code}");
-                Console.ResetColor();
-                return;
-            }
+            //if ((int)error_code == 0)
+            //{
+             //   Console.ForegroundColor = ConsoleColor.Green;
+              //  System.Diagnostics.Debug.WriteLine($"TRION API Success: {user_message} {error_code}");
+              //  Console.ResetColor();
+               // return;
+            //}
             if ((int)error_code > 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;

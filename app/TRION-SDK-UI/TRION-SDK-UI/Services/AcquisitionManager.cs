@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Trion;
@@ -37,6 +38,11 @@ public class AcquisitionManager(Enclosure enclosure)
 
     /// <summary>True while at least one board is actively acquiring.</summary>
     public bool _isRunning = false;
+
+    // Thread-safe queues per channel key
+    private readonly ConcurrentDictionary<string, ConcurrentQueue<double>> _sampleQueues = new();
+    public IReadOnlyDictionary<string, ConcurrentQueue<double>> SampleQueues => _sampleQueues;
+
 
     /// <summary>
     /// Configure selected boards/channels and start acquisition loops (one per board).
@@ -98,6 +104,11 @@ public class AcquisitionManager(Enclosure enclosure)
             var sampleSizes = channelInfos.Select(ci => (int)ci!.SampleSize).ToArray();
             var channelKeys = boardChannels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
 
+
+            // Ensure queues exist
+            for (int i = 0; i < channelKeys.Length; i++)
+                _sampleQueues.TryAdd(channelKeys[i], new ConcurrentQueue<double>());
+
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
 
@@ -141,6 +152,20 @@ public class AcquisitionManager(Enclosure enclosure)
         _isRunning = false;
     }
 
+    // Drain up to maxPerChannel samples per channel
+    public Dictionary<string, double[]> DrainSamples(int maxPerChannel = 100_000)
+    {
+        var result = new Dictionary<string, double[]>();
+        foreach (var (key, q) in _sampleQueues)
+        {
+            if (q.IsEmpty) continue;
+            var list = new List<double>(Math.Min(q.Count, maxPerChannel));
+            for (int i = 0; i < maxPerChannel && q.TryDequeue(out var v); i++) list.Add(v);
+            if (list.Count > 0) result[key] = [.. list];
+        }
+        return result;
+    }
+
     /// <summary>
     /// Read the LSB from a discrete (digital) sample position.
     /// Assumes one bit indicates the digital state.
@@ -160,7 +185,7 @@ public class AcquisitionManager(Enclosure enclosure)
     /// - Return buffer space
     /// - Notify UI with per-channel batches
     /// </summary>
-    private static async Task AcquireDataLoop(
+    private async Task AcquireDataLoop(
         Board board,
         List<Channel> selectedChannels,
         int[] offsets,
@@ -263,14 +288,15 @@ public class AcquisitionManager(Enclosure enclosure)
                 readPos += scanSize;
             }
 
-            // Tell the API we consumed this many samples from buffer 0
             TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
-
             Debug.WriteLine($"Board {board.Id} read {availableSamples} samples");
-            // Deliver per-channel batches to the UI layer
+
+            // Enqueue per-channel; optionally notify callback
             for (int c = 0; c < selectedChannels.Count; ++c)
             {
-                onSamplesReceived(channelKeys[c], sampleLists[c]);
+                var key = channelKeys[c];
+                var q = _sampleQueues[key];
+                foreach (var v in sampleLists[c]) q.Enqueue(v);
             }
         }
 

@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<PublishReadyToRun>true</PublishReadyToRun>
+	</PropertyGroup>
+	
+	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
