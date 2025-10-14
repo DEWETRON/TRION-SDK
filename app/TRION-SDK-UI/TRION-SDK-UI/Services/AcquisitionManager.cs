@@ -310,11 +310,11 @@ public class AcquisitionManager(Enclosure enclosure)
                     {
                         // Analog: read signed sample (16/24/32), scale to engineering units (approx. ±10V here)
                         double value = ReadAnalogSample(samplePos, sampleSize);
-                        Stopwatch sw = Stopwatch.StartNew();
+                        //Stopwatch sw = Stopwatch.StartNew();
                  
                         sampleLists[c].Add(value);
 
-                        Debug.WriteLine($"ReadAnalogSample took {sw.ElapsedMilliseconds}ms");
+                        //Debug.WriteLine($"ReadAnalogSample took {sw.ElapsedMilliseconds}ms");
                         continue;
                     }
                     else
@@ -351,18 +351,17 @@ public class AcquisitionManager(Enclosure enclosure)
     /// - Two's complement for signed values
     /// - Scaled to an approximate ±10V full-scale (adjust scaling according to board configuration)
     /// </summary>
-    private static double ReadAnalogSample(nint samplePos, int sampleSize)
+    private unsafe static double ReadAnalogSample(nint samplePos, int sampleSize)
     {
-        // NOTE: If a board uses different endianness or scaling, adapt this per ScanDescriptor/BoardProperties.
         int raw;
         switch (sampleSize)
         {
             case 16:
                 {
-                    byte b0 = Marshal.ReadByte(samplePos);
-                    byte b1 = Marshal.ReadByte(samplePos + 1);
+                    byte *test = (byte *)samplePos;
+                    byte b0 = test[0];
+                    byte b1 = test[1];
                     raw = b0 | (b1 << 8);
-                    // sign extend from 16-bit
                     if ((raw & 0x8000) != 0)
                     {
                         raw |= unchecked((int)0xFFFF0000);
@@ -371,9 +370,10 @@ public class AcquisitionManager(Enclosure enclosure)
                 }
             case 24:
                 {
-                    byte b0 = Marshal.ReadByte(samplePos);
-                    byte b1 = Marshal.ReadByte(samplePos + 1);
-                    byte b2 = Marshal.ReadByte(samplePos + 2);
+                    byte *test = (byte *)samplePos;
+                    byte b0 = test[0];
+                    byte b1 = test[1];
+                    byte b2 = test[2];
                     raw = b0 | (b1 << 8) | (b2 << 16);
                     // sign extend from 24-bit
                     if ((raw & 0x800000) != 0)
@@ -384,7 +384,7 @@ public class AcquisitionManager(Enclosure enclosure)
                 }
             case 32:
                 {
-                    raw = Marshal.ReadInt32(samplePos);
+                    raw = System.Runtime.CompilerServices.Unsafe.ReadUnaligned<int>((byte*)samplePos);
                     // already 32-bit signed; no sign extension needed
                     break;
                 }
