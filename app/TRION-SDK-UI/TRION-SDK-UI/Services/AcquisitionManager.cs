@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -41,8 +42,6 @@ public class AcquisitionManager(Enclosure enclosure)
 
     // Thread-safe queues per channel key
     private readonly ConcurrentDictionary<string, ConcurrentQueue<double>> _sampleQueues = new();
-    public IReadOnlyDictionary<string, ConcurrentQueue<double>> SampleQueues => _sampleQueues;
-
 
     /// <summary>
     /// Configure selected boards/channels and start acquisition loops (one per board).
@@ -104,10 +103,11 @@ public class AcquisitionManager(Enclosure enclosure)
             var sampleSizes = channelInfos.Select(ci => (int)ci!.SampleSize).ToArray();
             var channelKeys = boardChannels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
 
-
             // Ensure queues exist
             for (int i = 0; i < channelKeys.Length; i++)
+            {
                 _sampleQueues.TryAdd(channelKeys[i], new ConcurrentQueue<double>());
+            }
 
             var cts = new CancellationTokenSource();
             _ctsList.Add(cts);
@@ -119,7 +119,6 @@ public class AcquisitionManager(Enclosure enclosure)
                 offsets,
                 sampleSizes,
                 channelKeys,
-                onSamplesReceived,
                 cts.Token), cts.Token);
 
             _acquisitionTasks.Add(task);
@@ -153,15 +152,48 @@ public class AcquisitionManager(Enclosure enclosure)
     }
 
     // Drain up to maxPerChannel samples per channel
-    public Dictionary<string, double[]> DrainSamples(int maxPerChannel = 100_000)
+    public Dictionary<string, double[]> DrainSamples(int maxPerChannel = 1000)
     {
         var result = new Dictionary<string, double[]>();
+        int minCount = int.MaxValue;
+
         foreach (var (key, q) in _sampleQueues)
         {
-            if (q.IsEmpty) continue;
-            var list = new List<double>(Math.Min(q.Count, maxPerChannel));
-            for (int i = 0; i < maxPerChannel && q.TryDequeue(out var v); i++) list.Add(v);
-            if (list.Count > 0) result[key] = [.. list];
+            if (q.IsEmpty)
+            {
+                continue;
+            }
+            minCount = Math.Min(q.Count, minCount);
+        }
+
+        if (minCount == int.MaxValue)
+        {
+            // all queues empty
+            return result;
+        }
+
+        // return the same number of samples per channel to keep them aligned in time
+        int toTake = Math.Min(minCount, maxPerChannel);
+
+        foreach (var (key, q) in _sampleQueues)
+        {
+            if (q.IsEmpty)
+            {
+                continue;
+            }
+            var samples = new double[toTake];
+            for (int i = 0; i < toTake; i++)
+            {
+                if (q.TryDequeue(out var sample))
+                {
+                    samples[i] = sample;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            result[key] = samples;
         }
         return result;
     }
@@ -191,7 +223,6 @@ public class AcquisitionManager(Enclosure enclosure)
         int[] offsets,
         int[] sampleSizes,
         string[] channelKeys,
-        Action<string, IEnumerable<double>> onSamplesReceived,
         CancellationToken token)
     {
         // Scan size = total bytes per scan across all active channels on this board

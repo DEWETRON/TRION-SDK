@@ -109,7 +109,10 @@ namespace TRION_SDK_UI
         // NEW: batch handler (one UI refresh per tick)
         private void VmOnSamplesBatchAppended(object? sender, MainViewModel.SamplesBatchAppendedEventArgs e)
         {
-            if (sender is not MainViewModel vm) return;
+            if (sender is not MainViewModel vm)
+            {
+                return;
+            }
 
             foreach (var (channelKey, samples) in e.Batches)
             {

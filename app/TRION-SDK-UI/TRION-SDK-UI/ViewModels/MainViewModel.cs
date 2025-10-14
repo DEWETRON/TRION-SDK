@@ -32,29 +32,17 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
 
-    // OLD per-channel event (you can keep for compatibility if needed)
-    public event EventHandler<SamplesAppendedEventArgs>? SamplesAppended;
-
-    // NEW: one batched event per tick
     public event EventHandler<SamplesBatchAppendedEventArgs>? SamplesBatchAppended;
 
     public sealed class SamplesAppendedEventArgs : EventArgs
     {
-        public string ChannelKey { get; }
-        public double[] Samples { get; }
-        public int Count => Samples.Length;
-        public SamplesAppendedEventArgs(string channelKey, double[] samples)
-        {
-            ChannelKey = channelKey;
-            Samples = samples;
-        }
+        public string? ChannelKey { get; }
+        public double[]? Samples { get; }
     }
 
-    // NEW batched args
-    public sealed class SamplesBatchAppendedEventArgs : EventArgs
+    public sealed class SamplesBatchAppendedEventArgs(IReadOnlyDictionary<string, double[]> batches) : EventArgs
     {
-        public IReadOnlyDictionary<string, double[]> Batches { get; }
-        public SamplesBatchAppendedEventArgs(IReadOnlyDictionary<string, double[]> batches) => Batches = batches;
+        public IReadOnlyDictionary<string, double[]> Batches { get; } = batches;
     }
 
     public void Dispose()
@@ -181,7 +169,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
     }
 
-    // Dispatcher timer (keep your chosen rate)
+    // Dispatcher timer
     private IDispatcherTimer? _uiDrainTimer;
     private EventHandler? _drainTickHandler;
 
@@ -189,36 +177,47 @@ public class MainViewModel : BaseViewModel, IDisposable
     {
         StopUiDrainTimer();
         var dispatcher = Application.Current?.Dispatcher;
-        if (dispatcher is null) return;
+        if (dispatcher is null)
+        {
+            return;
+        }
 
         _uiDrainTimer = dispatcher.CreateTimer();
         _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33); // ~30 Hz (tune)
         _uiDrainTimer.IsRepeating = true;
 
-        _drainTickHandler = (s, e) => DrainAndPublish();
+        _drainTickHandler = (_, _) => DrainAndPublish();
         _uiDrainTimer.Tick += _drainTickHandler;
         _uiDrainTimer.Start();
     }
 
     private void StopUiDrainTimer()
     {
-        if (_uiDrainTimer is null) return;
+        if (_uiDrainTimer is null)
+        {
+            return;
+        }
         if (_drainTickHandler is not null)
+        {
             _uiDrainTimer.Tick -= _drainTickHandler;
+        }
 
         _uiDrainTimer.Stop();
         _uiDrainTimer = null;
         _drainTickHandler = null;
     }
 
-    // Throttle meter updates to reduce UI churn
-    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(100); // 10 Hz
+    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(1000); // 1 Hz
     private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
 
     private void DrainAndPublish()
     {
+        // get a batch of samples per channel (up to maxPerChannel)
         var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 1000);
-        if (batches.Count == 0) return;
+        if (0 == batches.Count)
+        {
+            return;
+        }
 
         // Single UI block per tick
         var now = DateTime.UtcNow;
@@ -232,18 +231,18 @@ public class MainViewModel : BaseViewModel, IDisposable
             {
                 var latestValue = samples.Length > 0 ? samples[^1] : 0;
                 if (_channelByKey.TryGetValue(channelKey, out var ch))
+                {
                     ch.CurrentValue = latestValue;
+                }
                 if (_meterByKey.TryGetValue(channelKey, out var meter))
+                {
                     meter.AddSample(latestValue);
+                }
             }
         }
 
         // Single event with all channel batches (replace many per-channel events)
         SamplesBatchAppended?.Invoke(this, new SamplesBatchAppendedEventArgs(batches));
-
-        // If you must keep the old per-channel event for compatibility, you can emit it here,
-        // but be aware it increases main-thread work:
-        // foreach (var (k, s) in batches) SamplesAppended?.Invoke(this, new SamplesAppendedEventArgs(k, s));
     }
 
     /// <summary>
@@ -252,7 +251,10 @@ public class MainViewModel : BaseViewModel, IDisposable
     /// </summary>
     private async Task ShowChannelPropertiesAsync(Channel? ch)
     {
-        if (ch is null) return;
+        if (ch is null)
+        {
+            return;
+        }
 
         string target = $"BoardID{ch.BoardID}/{ch.Name}";
         var props = new List<(string Key, string? Val)>();
@@ -261,7 +263,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         {
             var (ok, val) = TryGetParam(target, key);
             if (ok && !string.IsNullOrWhiteSpace(val))
+            {
                 props.Add((key, val));
+            }
         }
 
         if (props.Count == 0)
@@ -274,7 +278,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         sb.AppendLine($"Channel: {target}");
         sb.AppendLine($"Type: {ch.Type}");
         foreach (var (k, v) in props)
+        {
             sb.AppendLine($"{k}: {v}");
+        }
 
         LogMessages.Add($"Shown properties for {target}");
         await ShowAlertAsync("Channel Properties", sb.ToString());
@@ -354,12 +360,4 @@ public class MainViewModel : BaseViewModel, IDisposable
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Deselected all channels on Board {ch.BoardID}");
     }
-}
-
-/// <summary>
-/// Lightweight identifier for a channel (useful for keys, logs, and bindings).
-/// </summary>
-public readonly record struct ChannelId(int BoardId, string Name)
-{
-    public override string ToString() => $"{BoardId}/{Name}";
 }
