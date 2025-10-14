@@ -250,6 +250,10 @@ public class AcquisitionManager(Enclosure enclosure)
             // Query number of contiguous samples currently available in the circular buffer
             (error, availableSamples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {availableSamples}");
+            if (availableSamples >= 40_000)
+            {
+                Debug.WriteLine($"Available Samples {availableSamples}");
+            }
 
             if (availableSamples <= 0)
             {
@@ -306,7 +310,11 @@ public class AcquisitionManager(Enclosure enclosure)
                     {
                         // Analog: read signed sample (16/24/32), scale to engineering units (approx. ±10V here)
                         double value = ReadAnalogSample(samplePos, sampleSize);
+                        Stopwatch sw = Stopwatch.StartNew();
+                 
                         sampleLists[c].Add(value);
+
+                        Debug.WriteLine($"ReadAnalogSample took {sw.ElapsedMilliseconds}ms");
                         continue;
                     }
                     else
@@ -320,7 +328,7 @@ public class AcquisitionManager(Enclosure enclosure)
             }
 
             TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
-            Debug.WriteLine($"Board {board.Id} read {availableSamples} samples");
+            //Debug.WriteLine($"Board {board.Id} read {availableSamples} samples");
 
             // Enqueue per-channel; optionally notify callback
             for (int c = 0; c < selectedChannels.Count; ++c)

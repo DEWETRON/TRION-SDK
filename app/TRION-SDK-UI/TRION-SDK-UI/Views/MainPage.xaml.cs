@@ -213,7 +213,7 @@ namespace TRION_SDK_UI
             // Make sure a streamer exists for this channel (handles late channels)
             if (!_streams.TryGetValue(e.ChannelKey, out var ds))
             {
-                Debug.WriteLine($"Creating lazy DataStreamer for {e.ChannelKey}");
+                //Debug.WriteLine($"Creating lazy DataStreamer for {e.ChannelKey}");
                 ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
                 ds.LineWidth = 2;
                 ds.Color = GetColorForChannel(e.ChannelKey);

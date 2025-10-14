@@ -1,4 +1,5 @@
-﻿using Trion;
+﻿using System.Diagnostics;
+using Trion;
 using TrionApiUtils;
 
 namespace TRION_SDK_UI.Models
@@ -155,10 +156,11 @@ namespace TRION_SDK_UI.Models
         public void SetAcquisitionProperties(string operationMode = "Slave",
                                              string externalTrigger = "False",
                                              string externalClock = "False",
-                                             int sampleRate = 2000,
-                                             int buffer_block_size = 200,
+                                             int sampleRate = 200_000,
+                                             int buffer_block_size = 2000,
                                              int buffer_block_count = 50)
         {
+            Debug.WriteLine($"Setting sampling rate to {sampleRate} Hz on board {Id}");
             SamplingRate = sampleRate;
             BufferBlockCount = buffer_block_count;
             BufferBlockSize = buffer_block_size;
