@@ -66,14 +66,17 @@ namespace TRION_SDK_UI
             DragHandle.GestureRecognizers.Add(panGesture);
         }
 
-        private static (double[] ys, double[] xs) ConvertSamplesToXYArrays(Sample[] samples)
+        private static (double[] ys, double[] xs) ConvertSamplesToXYArrays(ReadOnlySpan<Sample> samples)
         {
-            var ys = new double[samples.Length];
-            var xs = new double[samples.Length];
-            for (int i = 0; i < samples.Length; i++)
+            int n = samples.Length;
+            var ys = GC.AllocateUninitializedArray<double>(n);
+            var xs = GC.AllocateUninitializedArray<double>(n);
+
+            for (int i = 0; i < n; i++)
             {
-                ys[i] = samples[i].Value;
-                xs[i] = samples[i].ElapsedSeconds;
+                ref readonly var s = ref samples[i];
+                ys[i] = s.Value;
+                xs[i] = s.ElapsedSeconds;
             }
 
             return (ys, xs);
