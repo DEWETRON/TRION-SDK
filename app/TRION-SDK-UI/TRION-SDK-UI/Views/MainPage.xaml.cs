@@ -78,23 +78,23 @@ namespace TRION_SDK_UI
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                foreach (var (channelKey, samples) in e.Batches)
+            foreach (var (channelKey, samples) in e.Batches)
+            {
+                if (samples is { Length: > 0 })
                 {
-                    if (samples is { Length: > 0 })
-                    {
-                        var dl = GetOrCreateLogger(channelKey);
-                        dl.ManageAxisLimits = vm.FollowLatest;
+                    var dl = GetOrCreateLogger(channelKey);
+                    dl.ManageAxisLimits = vm.FollowLatest;
 
-                        double[] ys = ConvertSamplesToYValues(samples);
-                        dl.Add(ys);
-                    }
+                    double[] ys = ConvertSamplesToYValues(samples);
+                    dl.Add(ys);
                 }
+            }
 
-                if (_needInitialAutoScaleX)
-                {
-                    MauiPlot1.Plot.Axes.AutoScale();
-                    _needInitialAutoScaleX = false;
-                }
+            if (_needInitialAutoScaleX)
+            {
+                MauiPlot1.Plot.Axes.AutoScale();
+                _needInitialAutoScaleX = false;
+            }
 
                 MauiPlot1.Refresh();
             });
@@ -114,6 +114,7 @@ namespace TRION_SDK_UI
 
         private void VmOnAcquisitionStarted(object? sender, IReadOnlyList<Channel> channels)
         {
+            var keys = channels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToHashSet();
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 _loggers.Clear();
@@ -121,14 +122,10 @@ namespace TRION_SDK_UI
 
                 MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
-                foreach (var ch in channels)
+                foreach (var key in keys)
                 {
-                    string key = $"{ch.BoardID}/{ch.Name}";
                     var dl = GetOrCreateLogger(key);
-
-
                     dl.Period = 1;
-                    // dl.OffsetX = 0; // REMOVE THIS LINE
                     dl.ManageAxisLimits = true;
                 }
 
