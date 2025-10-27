@@ -6,26 +6,6 @@ using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
 
-/// <summary>
-/// Coordinates acquisition for the selected boards/channels and pushes decoded, scaled
-/// samples to the UI layer via a callback.
-///
-/// Design:
-/// - One background Task per selected board. Each task reads the board's circular buffer,
-///   decodes samples for the board's selected channels, and invokes the provided callback.
-/// - Acquisition is started/stopped per board (START/STOP_ACQUISITION) and buffer space is released
-///   using BUFFER_0_FREE_NO_SAMPLE after processing blocks.
-/// - Cancellation is cooperative (CancellationTokenSource per board task).
-///
-/// Threading:
-/// - All SDK calls within the acquisition loop run on background threads.
-/// - The callback Action<string, IEnumerable<double>> is invoked on the background thread;
-///   the ViewModel is responsible for marshaling to the UI thread as needed.
-///
-/// Error handling:
-/// - SDK return codes are validated using Utils.CheckErrorCode which throws detailed exceptions.
-/// - Stop waits for all tasks. Exceptions during shutdown are traced and suppressed.
-/// </summary>
 public class AcquisitionManager(Enclosure enclosure)
 {
     /// <summary>The discovered enclosure which owns the boards used for acquisition.</summary>
@@ -43,22 +23,82 @@ public class AcquisitionManager(Enclosure enclosure)
     // Thread-safe queues per channel key
     private readonly ConcurrentDictionary<string, ConcurrentQueue<Sample>> _sampleQueues = new();
 
-    /// <summary>
-    /// Configure selected boards/channels and start acquisition loops (one per board).
-    /// If already running, this method stops the previous acquisition first.
-    /// </summary>
-    /// <param name="selectedChannels">All channels across boards to acquire.</param>
-    /// <param name="onSamplesReceived">
-    /// Per-channel callback invoked with the decoded, scaled samples (newest batch).
-    /// Parameter 1 is "BoardID/ChannelName". Parameter 2 is an enumerable of double samples.
-    /// </param>
+    // Encapsulates all precomputed, per-board data needed to run the acquisition loop.
+    private sealed record BoardRunContext(
+        Board Board,
+        List<Channel> Channels,
+        int[] Offsets,
+        int[] SampleSizes,
+        string[] ChannelKeys
+    );
+
+    private BoardRunContext? PrepareBoardRunContext(IGrouping<int, Channel> boardGroup)
+    {
+        var board = _enclosure.Boards.FirstOrDefault(b => b.Id == boardGroup.Key);
+        if (board is null)
+        {
+            Debug.WriteLine($"Skipping board {boardGroup.Key}: board not found in enclosure.");
+            return null;
+        }
+
+        var scanDescriptor = board.ScanDescriptorDecoder;
+        if (scanDescriptor is null)
+        {
+            Debug.WriteLine($"Skipping board {board.Id}: ScanDescriptor is null.");
+            return null;
+        }
+
+        var channels = boardGroup.ToList();
+
+        var channelInfos = channels
+            .Select(ch => scanDescriptor.Channels.FirstOrDefault(c => c.Name == ch.Name))
+            .ToArray();
+
+        if (channelInfos.Any(ci => ci is null))
+        {
+            var missing = channels
+                .Select((ch, i) => (ch, ci: channelInfos[i]))
+                .Where(x => x.ci is null)
+                .Select(x => x.ch.Name)
+                .ToArray();
+
+            Debug.WriteLine($"Skipping board {board.Id}: ScanDescriptor missing channels [{string.Join(", ", missing)}].");
+            return null;
+        }
+
+        // Offsets are bit-based in XML; convert to bytes here.
+        var offsets = channelInfos.Select(ci => (int)ci!.SampleOffset / 8).ToArray();
+        var sampleSizes = channelInfos.Select(ci => (int)ci!.SampleSize).ToArray();
+        var channelKeys = channels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
+
+        // Ensure per-channel queues exist (idempotent)
+        for (int i = 0; i < channelKeys.Length; i++)
+        {
+            _sampleQueues.TryAdd(channelKeys[i], new ConcurrentQueue<Sample>());
+        }
+
+        return new BoardRunContext(board, channels, offsets, sampleSizes, channelKeys);
+    }
+
+    private void StartBoardAcquisition(BoardRunContext ctx)
+    {
+        var cts = new CancellationTokenSource();
+        _ctsList.Add(cts);
+
+        var task = Task.Run(() => AcquireDataLoop(
+            ctx.Board,
+            ctx.Channels,
+            ctx.Offsets,
+            ctx.SampleSizes,
+            ctx.ChannelKeys,
+            cts.Token), cts.Token);
+
+        _acquisitionTasks.Add(task);
+    }
+
     public async Task StartAcquisitionAsync(IEnumerable<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived)
     {
-        if (_isRunning)
-        {
-            // Ensure a clean slate when restarting with different selections
-            await StopAcquisitionAsync();
-        }
+        if (_isRunning) await StopAcquisitionAsync();
 
         _acquisitionTasks.Clear();
         _ctsList.Clear();
@@ -69,7 +109,6 @@ public class AcquisitionManager(Enclosure enclosure)
 
         foreach (var board in selectedBoards)
         {
-            // Safe board state prior to applying new acquisition properties
             board.Reset();
             board.SetAcquisitionProperties();
             board.ActivateChannels(selectedChannels.Where(c => c.BoardID == board.Id));
@@ -77,59 +116,19 @@ public class AcquisitionManager(Enclosure enclosure)
             board.RefreshScanDescriptor();
         }
 
-        // Create one acquisition Task per board. Pre-compute per-channel offsets and sizes to speed up the loop.
+        // Prepare and start one acquisition task per board.
         var channelsByBoard = selectedChannels.GroupBy(c => c.BoardID);
 
         foreach (var boardGroup in channelsByBoard)
         {
-            var board = _enclosure.Boards.First(b => b.Id == boardGroup.Key);
-            var scanDescriptor = board.ScanDescriptorDecoder;
-
-            var boardChannels = boardGroup.ToList();
-
-            // If the scan descriptor misses any requested channel, skip this board (defensive)
-            var channelInfos = boardChannels
-                .Select(selector: ch => scanDescriptor?.Channels.FirstOrDefault(c => c.Name == ch.Name))
-                .ToArray();
-
-            // If the scan descriptor misses any requested channel, skip this board (defensive)
-            if (channelInfos.Any(ci => ci == null))
-            {
-                continue;
-            }
-
-            // Sample offsets and sizes come from the ScanDescriptor (bit units -> bytes)
-            var offsets = channelInfos.Select(ci => (int)ci!.SampleOffset / 8).ToArray();
-            var sampleSizes = channelInfos.Select(ci => (int)ci!.SampleSize).ToArray();
-            var channelKeys = boardChannels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
-
-            // Ensure queues exist
-            for (int i = 0; i < channelKeys.Length; i++)
-            {
-                _sampleQueues.TryAdd(channelKeys[i], new ConcurrentQueue<Sample>());
-            }
-
-            var cts = new CancellationTokenSource();
-            _ctsList.Add(cts);
-
-            // Start the acquisition loop for this board
-            var task = Task.Run(() => AcquireDataLoop(
-                board,
-                boardChannels,
-                offsets,
-                sampleSizes,
-                channelKeys,
-                cts.Token), cts.Token);
-
-            _acquisitionTasks.Add(task);
+            var ctx = PrepareBoardRunContext(boardGroup);
+            if (ctx is null) continue;
+            StartBoardAcquisition(ctx);
         }
 
         _isRunning = true;
     }
 
-    /// <summary>
-    /// Stop all acquisition tasks, wait for completion, and reset internal state.
-    /// </summary>
     public async Task StopAcquisitionAsync()
     {
         // Request all loops to exit
