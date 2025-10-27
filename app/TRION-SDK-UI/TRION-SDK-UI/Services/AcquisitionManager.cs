@@ -8,22 +8,16 @@ using TrionApiUtils;
 
 public class AcquisitionManager(Enclosure enclosure)
 {
-    /// <summary>The discovered enclosure which owns the boards used for acquisition.</summary>
     private readonly Enclosure _enclosure = enclosure;
 
-    /// <summary>Background acquisition tasks (one per board with selected channels).</summary>
     private readonly List<Task> _acquisitionTasks = [];
 
-    /// <summary>Cancellation tokens for running acquisition tasks.</summary>
     private readonly List<CancellationTokenSource> _ctsList = [];
 
-    /// <summary>True while at least one board is actively acquiring.</summary>
     public bool _isRunning = false;
 
-    // Thread-safe queues per channel key
     private readonly ConcurrentDictionary<string, ConcurrentQueue<Sample>> _sampleQueues = new();
 
-    // Encapsulates all precomputed, per-board data needed to run the acquisition loop.
     private sealed record BoardRunContext(
         Board Board,
         List<Channel> Channels,
@@ -66,12 +60,10 @@ public class AcquisitionManager(Enclosure enclosure)
             return null;
         }
 
-        // Offsets are bit-based in XML; convert to bytes here.
         var offsets = channelInfos.Select(ci => (int)ci!.SampleOffset / 8).ToArray();
         var sampleSizes = channelInfos.Select(ci => (int)ci!.SampleSize).ToArray();
         var channelKeys = channels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToArray();
 
-        // Ensure per-channel queues exist (idempotent)
         for (int i = 0; i < channelKeys.Length; i++)
         {
             _sampleQueues.TryAdd(channelKeys[i], new ConcurrentQueue<Sample>());
@@ -103,7 +95,6 @@ public class AcquisitionManager(Enclosure enclosure)
         _acquisitionTasks.Clear();
         _ctsList.Clear();
 
-        // Open/configure only boards that own at least one selected channel
         var selectedBoardIds = selectedChannels.Select(c => c.BoardID).Distinct();
         var selectedBoards = _enclosure.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
 
@@ -116,7 +107,6 @@ public class AcquisitionManager(Enclosure enclosure)
             board.RefreshScanDescriptor();
         }
 
-        // Prepare and start one acquisition task per board.
         var channelsByBoard = selectedChannels.GroupBy(c => c.BoardID);
 
         foreach (var boardGroup in channelsByBoard)
@@ -131,14 +121,12 @@ public class AcquisitionManager(Enclosure enclosure)
 
     public async Task StopAcquisitionAsync()
     {
-        // Request all loops to exit
         foreach (var cts in _ctsList)
         {
             cts.Cancel();
         }
         try
         {
-            // Await all tasks; exceptions are traced but suppressed to keep shutdown robust
             await Task.WhenAll(_acquisitionTasks);
         }
         catch (Exception ex)
@@ -150,7 +138,6 @@ public class AcquisitionManager(Enclosure enclosure)
         _isRunning = false;
     }
 
-    // Drain up to maxPerChannel samples per channel
     public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 1000)
     {
         var result = new Dictionary<string, Sample[]>();
@@ -188,25 +175,12 @@ public class AcquisitionManager(Enclosure enclosure)
         return result;
     }
 
-    /// <summary>
-    /// Read the LSB from a discrete (digital) sample position.
-    /// Assumes one bit indicates the digital state.
-    /// </summary>
     private static uint ReadDiscreteSample(nint samplePos)
     {
         int raw = Marshal.ReadByte(samplePos);
-        return (uint)(raw & 0x1); // only the least significant bit
+        return (uint)(raw & 0x1);
     }
 
-    /// <summary>
-    /// Core acquisition loop for a single board:
-    /// - Poll available samples
-    /// - Adjust for ADC delay
-    /// - Compute the read pointer in the circular buffer
-    /// - Decode per-channel values for the available block
-    /// - Return buffer space
-    /// - Notify UI with per-channel batches
-    /// </summary>
     private async Task AcquireDataLoop(
         Board board,
         List<Channel> selectedChannels,
@@ -304,7 +278,6 @@ public class AcquisitionManager(Enclosure enclosure)
                 }
             }
 
-            // IMPORTANT: advance sampleIndex per block so time progresses
             sampleIndex += availableSamples;
         }
 
@@ -312,13 +285,6 @@ public class AcquisitionManager(Enclosure enclosure)
         Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0), $"Failed to stop acquisition {board.Id}");
     }
 
-    /// <summary>
-    /// Read a signed analog sample at the given position for a specific bit width and scale it.
-    /// Assumptions:
-    /// - Little-endian order
-    /// - Two's complement for signed values
-    /// - Scaled to an approximate ±10V full-scale (adjust scaling according to board configuration)
-    /// </summary>
     private unsafe static double ReadAnalogSample(nint samplePos, int sampleSize)
     {
         int raw;
@@ -343,7 +309,6 @@ public class AcquisitionManager(Enclosure enclosure)
                     byte b1 = test[1];
                     byte b2 = test[2];
                     raw = b0 | (b1 << 8) | (b2 << 16);
-                    // sign extend from 24-bit
                     if ((raw & 0x800000) != 0)
                     {
                         raw |= unchecked((int)0xFF000000);
@@ -353,15 +318,12 @@ public class AcquisitionManager(Enclosure enclosure)
             case 32:
                 {
                     raw = System.Runtime.CompilerServices.Unsafe.ReadUnaligned<int>((byte*)samplePos);
-                    // already 32-bit signed; no sign extension needed
                     break;
                 }
             default:
                 throw new NotSupportedException($"Unsupported sample size: {sampleSize}");
         }
 
-        // Normalize to [-1, +1] using the MSB as sign bit, then scale to ~±10V.
-        // For precise scaling, consider querying "scalevalue"/"scaleoffset" or Range from TRION.
         int signBit = 1 << (sampleSize - 1);
         double value = (double)raw / (double)(signBit - 1) * 10.0;
         return value;
