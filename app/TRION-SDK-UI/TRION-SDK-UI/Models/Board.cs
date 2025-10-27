@@ -156,8 +156,8 @@ namespace TRION_SDK_UI.Models
         public void SetAcquisitionProperties(string operationMode = "Slave",
                                              string externalTrigger = "False",
                                              string externalClock = "False",
-                                             int sampleRate = 200_000,
-                                             int buffer_block_size = 20_000,
+                                             int sampleRate = 2_000,
+                                             int buffer_block_size = 200,
                                              int buffer_block_count = 50)
         {
             Debug.WriteLine($"Setting sampling rate to {sampleRate} Hz on board {Id}");

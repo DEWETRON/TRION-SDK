@@ -47,9 +47,8 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
 
-    // NEW: O(1) lookups, avoid LINQ scans on UI thread
-    private readonly Dictionary<string, Channel> _channelByKey = new();
-    private readonly Dictionary<string, DigitalMeter> _meterByKey = new();
+    private readonly Dictionary<string, Channel> _channelByKey = [];
+    private readonly Dictionary<string, DigitalMeter> _meterByKey = [];
 
     public MainViewModel()
     {
@@ -58,9 +57,13 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         var numberOfBoards = TrionApi.Initialize();
         if (numberOfBoards < 0)
+        {
             LogMessages.Add($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
+        }
         else if (numberOfBoards > 0)
+        {
             LogMessages.Add($"Number of real Boards found: {numberOfBoards}");
+        }
         else
         {
             LogMessages.Add("No Trion Boards found.");
@@ -75,8 +78,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
-            foreach (var channel in board.Channels.Where(c =>
-                     c.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital))
+            foreach (var channel in board.Channels.Where(c => c.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital))
             {
                 Channels.Add(channel);
             }
@@ -201,7 +203,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         _drainTickHandler = null;
     }
 
-    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(1000); // 1 Hz
+    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(33.3); // 30 Hz
     private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
 
     private void DrainAndPublish()
