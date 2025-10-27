@@ -157,7 +157,7 @@ namespace TRION_SDK_UI.Models
                                              string externalTrigger = "False",
                                              string externalClock = "False",
                                              int sampleRate = 200_000,
-                                             int buffer_block_size = 2000,
+                                             int buffer_block_size = 20_000,
                                              int buffer_block_count = 50)
         {
             Debug.WriteLine($"Setting sampling rate to {sampleRate} Hz on board {Id}");

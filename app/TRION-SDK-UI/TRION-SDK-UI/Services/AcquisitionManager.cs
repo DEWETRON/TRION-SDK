@@ -41,7 +41,7 @@ public class AcquisitionManager(Enclosure enclosure)
     public bool _isRunning = false;
 
     // Thread-safe queues per channel key
-    private readonly ConcurrentDictionary<string, ConcurrentQueue<double>> _sampleQueues = new();
+    private readonly ConcurrentDictionary<string, ConcurrentQueue<Sample>> _sampleQueues = new();
 
     /// <summary>
     /// Configure selected boards/channels and start acquisition loops (one per board).
@@ -106,7 +106,7 @@ public class AcquisitionManager(Enclosure enclosure)
             // Ensure queues exist
             for (int i = 0; i < channelKeys.Length; i++)
             {
-                _sampleQueues.TryAdd(channelKeys[i], new ConcurrentQueue<double>());
+                _sampleQueues.TryAdd(channelKeys[i], new ConcurrentQueue<Sample>());
             }
 
             var cts = new CancellationTokenSource();
@@ -152,36 +152,27 @@ public class AcquisitionManager(Enclosure enclosure)
     }
 
     // Drain up to maxPerChannel samples per channel
-    public Dictionary<string, double[]> DrainSamples(int maxPerChannel = 1000)
+    public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 1000)
     {
-        var result = new Dictionary<string, double[]>();
+        var result = new Dictionary<string, Sample[]>();
         int minCount = int.MaxValue;
 
         foreach (var (key, q) in _sampleQueues)
         {
-            if (q.IsEmpty)
-            {
-                continue;
-            }
+            if (q.IsEmpty) continue;
             minCount = Math.Min(q.Count, minCount);
         }
 
         if (minCount == int.MaxValue)
-        {
-            // all queues empty
             return result;
-        }
 
-        // return the same number of samples per channel to keep them aligned in time
         int toTake = Math.Min(minCount, maxPerChannel);
 
         foreach (var (key, q) in _sampleQueues)
         {
-            if (q.IsEmpty)
-            {
-                continue;
-            }
-            var samples = new double[toTake];
+            if (q.IsEmpty) continue;
+
+            var samples = new Sample[toTake];
             for (int i = 0; i < toTake; i++)
             {
                 if (q.TryDequeue(out var sample))
@@ -244,6 +235,9 @@ public class AcquisitionManager(Enclosure enclosure)
         // Convenience wrapper to query end pointer and total size for wrap handling
         CircularBuffer buffer = new(board.Id);
         int availableSamples = 0;
+
+        long startTicks = DateTime.UtcNow.Ticks;
+        long sampleIndex = 0;
 
         while (!token.IsCancellationRequested)
         {
@@ -330,14 +324,21 @@ public class AcquisitionManager(Enclosure enclosure)
             TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
             //Debug.WriteLine($"Board {board.Id} read {availableSamples} samples");
 
-            // Enqueue per-channel; optionally notify callback
-            for (int c = 0; c < selectedChannels.Count; ++c)
+            // Enqueue value+timestamp pairs
+            for (int i = 0; i < availableSamples; i++)
             {
-                var key = channelKeys[c];
-                var q = _sampleQueues[key];
-                foreach (var v in sampleLists[c]) q.Enqueue(v);
+                long tsTicks = startTicks + ((sampleIndex + i) * TimeSpan.TicksPerSecond) / board.SamplingRate;
+                var ts = new DateTime(tsTicks, DateTimeKind.Utc);
+
+                for (int c = 0; c < selectedChannels.Count; ++c)
+                {
+                    var key = channelKeys[c];
+                    var q = _sampleQueues[key];
+                    q.Enqueue(new Sample(sampleLists[c][i], ts));
+                }
             }
         }
+        sampleIndex += availableSamples;
 
         // Graceful exit: release any remaining samples and stop acquisition
         TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);

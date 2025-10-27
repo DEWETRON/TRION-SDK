@@ -37,12 +37,12 @@ public class MainViewModel : BaseViewModel, IDisposable
     public sealed class SamplesAppendedEventArgs : EventArgs
     {
         public string? ChannelKey { get; }
-        public double[]? Samples { get; }
+        public Sample[]? Samples { get; }
     }
 
-    public sealed class SamplesBatchAppendedEventArgs(IReadOnlyDictionary<string, double[]> batches) : EventArgs
+    public sealed class SamplesBatchAppendedEventArgs(IReadOnlyDictionary<string, Sample[]> batches) : EventArgs
     {
-        public IReadOnlyDictionary<string, double[]> Batches { get; } = batches;
+        public IReadOnlyDictionary<string, Sample[]> Batches { get; } = batches;
     }
 
     public void Dispose()
@@ -229,7 +229,7 @@ public class MainViewModel : BaseViewModel, IDisposable
             // Update meters less frequently
             if (updateMeters)
             {
-                var latestValue = samples.Length > 0 ? samples[^1] : 0;
+                var latestValue = samples.Length > 0 ? samples[^1].Value : 0;
                 if (_channelByKey.TryGetValue(channelKey, out var ch))
                 {
                     ch.CurrentValue = latestValue;
