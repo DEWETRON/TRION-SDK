@@ -215,23 +215,16 @@ public class AcquisitionManager(Enclosure enclosure)
         string[] channelKeys,
         CancellationToken token)
     {
-        // Scan size = total bytes per scan across all active channels on this board
         var scanSize = (int)board.ScanSizeBytes;
-
-        // Poll interval heuristic: convert a buffer block duration to milliseconds
-        // (Avoids hot-loop polling when no samples are available)
         var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
 
-        // Acquire and apply ADC delay compensation
         TrionError error;
         (error, var adcDelay) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BOARD_ADC_DELAY);
         Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board.Id}");
 
-        // Start board acquisition
         error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.START_ACQUISITION, 0);
         Utils.CheckErrorCode(error, $"Failed start acquisition {board.Id}");
 
-        // Convenience wrapper to query end pointer and total size for wrap handling
         CircularBuffer buffer = new(board.Id);
         int availableSamples = 0;
 
@@ -240,22 +233,15 @@ public class AcquisitionManager(Enclosure enclosure)
 
         while (!token.IsCancellationRequested)
         {
-            // Query number of contiguous samples currently available in the circular buffer
             (error, availableSamples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {availableSamples}");
-            if (availableSamples >= 40_000)
-            {
-                Debug.WriteLine($"Available Samples {availableSamples}");
-            }
 
             if (availableSamples <= 0)
             {
-                // Nothing to read yet; sleep a bit (cooperative with cancellation)
                 await Task.Delay(polling_interval, token);
                 continue;
             }
 
-            // Compensate ADC pipeline delay to ensure we're only reading settled samples
             availableSamples -= adcDelay;
             if (availableSamples <= 0)
             {
@@ -263,29 +249,20 @@ public class AcquisitionManager(Enclosure enclosure)
                 continue;
             }
 
-            // Compute current read pointer and advance by the adcDelay window
             (error, var readPos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
             Utils.CheckErrorCode(error, $"Failed to get actual sample position {board.Id}");
 
             readPos += adcDelay * scanSize;
 
-            // Prepare per-channel accumulation lists sized to the number of available samples
             var sampleLists = new List<double>[selectedChannels.Count];
             for (int c = 0; c < selectedChannels.Count; ++c)
-            {
                 sampleLists[c] = new List<double>(availableSamples);
-            }
 
-            // Decode the contiguous block
             for (int i = 0; i < availableSamples; ++i)
             {
-                // Handle wrap-around of the circular buffer
                 if (readPos >= buffer.EndPosition)
-                {
                     readPos -= buffer.Size;
-                }
 
-                // Extract values for all selected channels from this scan position
                 for (int c = 0; c < selectedChannels.Count; ++c)
                 {
                     var channel = selectedChannels[c];
@@ -294,21 +271,13 @@ public class AcquisitionManager(Enclosure enclosure)
 
                     if (channel.Type == Channel.ChannelType.Digital)
                     {
-                        // Digital: read a discrete state (LSB)
                         uint value = ReadDiscreteSample(samplePos);
                         sampleLists[c].Add(value);
-                        continue;
                     }
                     else if (channel.Type == Channel.ChannelType.Analog)
                     {
-                        // Analog: read signed sample (16/24/32), scale to engineering units (approx. ±10V here)
                         double value = ReadAnalogSample(samplePos, sampleSize);
-                        //Stopwatch sw = Stopwatch.StartNew();
-                 
                         sampleLists[c].Add(value);
-
-                        //Debug.WriteLine($"ReadAnalogSample took {sw.ElapsedMilliseconds}ms");
-                        continue;
                     }
                     else
                     {
@@ -316,30 +285,29 @@ public class AcquisitionManager(Enclosure enclosure)
                     }
                 }
 
-                // Advance to the next scan
                 readPos += scanSize;
             }
 
             TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
-            //Debug.WriteLine($"Board {board.Id} read {availableSamples} samples");
 
-            // Enqueue value+timestamp pairs
             for (int i = 0; i < availableSamples; i++)
             {
                 long tsTicks = startTicks + ((sampleIndex + i) * TimeSpan.TicksPerSecond) / board.SamplingRate;
                 var ts = new DateTime(tsTicks, DateTimeKind.Utc);
+                double elapsedSeconds = (sampleIndex + i) / (double)board.SamplingRate;
 
                 for (int c = 0; c < selectedChannels.Count; ++c)
                 {
                     var key = channelKeys[c];
                     var q = _sampleQueues[key];
-                    q.Enqueue(new Sample(sampleLists[c][i], ts));
+                    q.Enqueue(new Sample(sampleLists[c][i], ts, elapsedSeconds));
                 }
             }
-        }
-        sampleIndex += availableSamples;
 
-        // Graceful exit: release any remaining samples and stop acquisition
+            // IMPORTANT: advance sampleIndex per block so time progresses
+            sampleIndex += availableSamples;
+        }
+
         TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
         Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0), $"Failed to stop acquisition {board.Id}");
     }

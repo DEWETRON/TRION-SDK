@@ -55,7 +55,7 @@ namespace TRION_SDK_UI
             vm.LogMessages.CollectionChanged += VmLogMessages_CollectionChanged;
 
             MauiPlot1.Plot.Title("Live Signals");
-            MauiPlot1.Plot.XLabel("Samples");
+            MauiPlot1.Plot.XLabel("Elapsed Seconds");
             MauiPlot1.Plot.YLabel("Value");
             MauiPlot1.Refresh();
 
@@ -64,12 +64,16 @@ namespace TRION_SDK_UI
             DragHandle.GestureRecognizers.Add(panGesture);
         }
 
-        private static double[] ConvertSamplesToYValues(Sample[] samples)
+        private static (double[] ys, double[] xs) ConvertSamplesToYValues(Sample[] samples)
         {
             var ys = new double[samples.Length];
+            var xs = new double[samples.Length];
             for (int i = 0; i < samples.Length; i++)
+            {
                 ys[i] = samples[i].Value;
-            return ys;
+                xs[i] = samples[i].ElapsedSeconds;
+            }
+            return (ys, xs);
         }
 
         private void VmOnSamplesBatchAppended(object? sender, MainViewModel.SamplesBatchAppendedEventArgs e)
@@ -78,23 +82,23 @@ namespace TRION_SDK_UI
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
-            foreach (var (channelKey, samples) in e.Batches)
-            {
-                if (samples is { Length: > 0 })
+                foreach (var (channelKey, samples) in e.Batches)
                 {
-                    var dl = GetOrCreateLogger(channelKey);
-                    dl.ManageAxisLimits = vm.FollowLatest;
+                    if (samples is { Length: > 0 })
+                    {
+                        var dl = GetOrCreateLogger(channelKey);
+                        dl.ManageAxisLimits = vm.FollowLatest;
 
-                    double[] ys = ConvertSamplesToYValues(samples);
-                    dl.Add(ys);
+                        var (ys, xs) = ConvertSamplesToYValues(samples);
+                        dl.Add(xs, ys);
+                    }
                 }
-            }
 
-            if (_needInitialAutoScaleX)
-            {
-                MauiPlot1.Plot.Axes.AutoScale();
-                _needInitialAutoScaleX = false;
-            }
+                if (_needInitialAutoScaleX)
+                {
+                    MauiPlot1.Plot.Axes.AutoScale();
+                    _needInitialAutoScaleX = false;
+                }
 
                 MauiPlot1.Refresh();
             });
