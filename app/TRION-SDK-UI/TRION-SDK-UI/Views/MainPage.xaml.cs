@@ -69,6 +69,29 @@ namespace TRION_SDK_UI
             _lineColors[channelKey] = color;
             return color;
         }
+        private DataStreamer GetOrCreateStreamer(string channelKey)
+        {
+            if (_streams.TryGetValue(channelKey, out var existing))
+                return existing;
+
+            var ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
+            ds.LineWidth = 2;
+            ds.Color = GetColorForChannel(channelKey);
+
+            // View mode: scrolling left
+            ds.ViewScrollLeft();
+
+            // Implicit X: sample index
+            ds.Data.SamplePeriod = 1;
+            ds.Data.OffsetX = 0;
+
+            // Streamer manages X-limits while following
+            ds.ManageAxisLimits = true;
+
+            _streams[channelKey] = ds;
+            return ds;
+        }
+
 
         /// <summary>
         /// Construct the UI, create/bind the ViewModel, wire events, and set initial plot labels.
@@ -106,7 +129,15 @@ namespace TRION_SDK_UI
             DragHandle.GestureRecognizers.Add(panGesture);
         }
 
-        // NEW: batch handler (one UI refresh per tick)
+        private static double[] ConvertSamplesToYValues(Sample[] samples)
+        {
+            var ys = new double[samples.Length];
+            for (int i = 0; i < samples.Length; i++)
+                ys[i] = samples[i].Value;
+            return ys;
+        }
+
+        //batch handler (one UI refresh per tick)
         private void VmOnSamplesBatchAppended(object? sender, MainViewModel.SamplesBatchAppendedEventArgs e)
         {
             if (sender is not MainViewModel vm)
@@ -116,28 +147,14 @@ namespace TRION_SDK_UI
 
             foreach (var (channelKey, samples) in e.Batches)
             {
-                if (!_streams.TryGetValue(channelKey, out var ds))
-                {
-                    // create streamer lazily if needed
-                    ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
-                    ds.LineWidth = 2;
-                    ds.Color = GetColorForChannel(channelKey);
-                    ds.ViewScrollLeft();
-                    ds.Data.SamplePeriod = 1; // keep X as sample index (timestamps are stored in Sample)
-                    ds.Data.OffsetX = 0;
-                    ds.ManageAxisLimits = true;
-                    _streams[channelKey] = ds;
-                }
-
+                var ds = GetOrCreateStreamer(channelKey);
                 ds.ManageAxisLimits = vm.FollowLatest;
 
                 // Convert Sample[] -> double[] (values only) for plotting
                 if (samples is { Length: > 0 })
                 {
-                    var ys = new double[samples.Length];
-                    for (int i = 0; i < samples.Length; i++)
-                        ys[i] = samples[i].Value;
-
+                    _ = new double[samples.Length];
+                    double[]? ys = ConvertSamplesToYValues(samples);
                     ds.Add(ys);
                 }
             }
@@ -184,9 +201,7 @@ namespace TRION_SDK_UI
             foreach (var ch in channels)
             {
                 string key = $"{ch.BoardID}/{ch.Name}";
-                var ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
-                ds.LineWidth = 2;
-                ds.Color = GetColorForChannel(key);
+                var ds = GetOrCreateStreamer(key);
 
                 // Choose a view mode:
                 // - ViewWipeRight(rate): oscilloscope-like wipe; rate 0.0 means rely on capacity/window
@@ -208,44 +223,6 @@ namespace TRION_SDK_UI
             MauiPlot1.Refresh();
         }
 
-        /// <summary>
-        /// New samples arrived for a specific channel:
-        /// - Ensure a streamer exists for it (create lazily if needed),
-        /// - Append the newest batch,
-        /// </summary>
-private void VmOnSamplesAppended(object? sender, MainViewModel.SamplesAppendedEventArgs e)
-{
-            //Debug.WriteLine($"SamplesAppended: {e.ChannelKey} +{e.Count}");
-    if (sender is not MainViewModel vm) return;
-
-            // Make sure a streamer exists for this channel (handles late channels)
-    if (!_streams.TryGetValue(e.ChannelKey, out var ds))
-    {
-                //Debug.WriteLine($"Creating lazy DataStreamer for {e.ChannelKey}");
-        ds = MauiPlot1.Plot.Add.DataStreamer(_followWindowSamples);
-        ds.LineWidth = 2;
-        ds.Color = GetColorForChannel(e.ChannelKey);
-        ds.ViewScrollLeft();      // scroll view for lazily created channels
-        ds.Data.SamplePeriod = 1; // keep X as sample indexes (timestamps remain in Sample)
-        ds.Data.OffsetX = 0;
-        ds.ManageAxisLimits = true;
-        _streams[e.ChannelKey] = ds;
-    }
-
-    ds.ManageAxisLimits = vm.FollowLatest;
-
-    // Convert Sample[] -> double[] for plotting
-    if (e.Samples is { Length: > 0 })
-    {
-        var ys = new double[e.Samples.Length];
-        for (int i = 0; i < e.Samples.Length; i++)
-            ys[i] = e.Samples[i].Value;
-
-        ds.Add(ys);
-    }
-
-    MauiPlot1.Refresh();
-}
         /// <summary>
         /// Handle drag gestures on the sidebar handle to resize the left column.
         /// Applies clamping to keep the sidebar within a usable width range.

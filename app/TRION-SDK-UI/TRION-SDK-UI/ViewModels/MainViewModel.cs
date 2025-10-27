@@ -34,12 +34,6 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     public event EventHandler<SamplesBatchAppendedEventArgs>? SamplesBatchAppended;
 
-    public sealed class SamplesAppendedEventArgs : EventArgs
-    {
-        public string? ChannelKey { get; }
-        public Sample[]? Samples { get; }
-    }
-
     public sealed class SamplesBatchAppendedEventArgs(IReadOnlyDictionary<string, Sample[]> batches) : EventArgs
     {
         public IReadOnlyDictionary<string, Sample[]> Batches { get; } = batches;
