@@ -179,7 +179,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         _uiDrainTimer = dispatcher.CreateTimer();
-        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33); // ~30 Hz (tune)
+        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33.3); // ~30 Hz (tune)
         _uiDrainTimer.IsRepeating = true;
 
         _drainTickHandler = (_, _) => DrainAndPublish();
@@ -237,14 +237,9 @@ public class MainViewModel : BaseViewModel, IDisposable
             }
         }
 
-        // Single event with all channel batches (replace many per-channel events)
         SamplesBatchAppended?.Invoke(this, new SamplesBatchAppendedEventArgs(batches));
     }
 
-    /// <summary>
-    /// Read and display a small set of commonly useful TRION properties for a channel.
-    /// Uses safe "string-get" calls which fail gracefully if a property is unsupported on the hardware.
-    /// </summary>
     private async Task ShowChannelPropertiesAsync(Channel? ch)
     {
         if (ch is null)
@@ -281,11 +276,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         LogMessages.Add($"Shown properties for {target}");
         await ShowAlertAsync("Channel Properties", sb.ToString());
     }
-
-    /// <summary>
-    /// Curated read-only property keys to query for the channel type.
-    /// Avoids write-only or complex interdependent properties.
-    /// </summary>
     private static IEnumerable<string> GetKeysForChannelType(Channel.ChannelType type)
     {
         if (type == Channel.ChannelType.Analog)
@@ -303,18 +293,12 @@ public class MainViewModel : BaseViewModel, IDisposable
         return ["Used", "Mode"];
     }
 
-    /// <summary>
-    /// Wrapper around TRION string-get API to obtain a (ok,value) tuple without throwing.
-    /// </summary>
     private static (bool ok, string value) TryGetParam(string target, string key)
     {
         var (err, val) = TrionApi.DeWeGetParamStruct_String(target, key);
         return (err == TrionError.NONE, val);
     }
 
-    /// <summary>
-    /// Copy a TRION channel path like "BoardID1/AI0" to the clipboard and log the action.
-    /// </summary>
     private async Task CopyChannelPathAsync(Channel? ch)
     {
         if (ch is null) return;
@@ -334,10 +318,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Selected only {ch.BoardID}/{ch.Name}");
     }
-
-    /// <summary>
-    /// Select every channel on the same board as the provided channel. Handy for board-level operations.
-    /// </summary>
     private void SelectAllOnBoard(Channel? ch)
     {
         if (ch is null) return;
@@ -345,10 +325,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Selected all channels on Board {ch.BoardID}");
     }
-
-    /// <summary>
-    /// Deselect every channel on the same board as the provided channel.
-    /// </summary>
     private void DeselectAllOnBoard(Channel? ch)
     {
         if (ch is null) return;

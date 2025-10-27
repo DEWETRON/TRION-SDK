@@ -28,7 +28,9 @@ namespace TRION_SDK_UI
         private DataLogger GetOrCreateLogger(string channelKey)
         {
             if (_loggers.TryGetValue(channelKey, out var existing))
+            {
                 return existing;
+            }
 
             var dl = MauiPlot1.Plot.Add.DataLogger();
             dl.LineWidth = 2;
@@ -64,7 +66,7 @@ namespace TRION_SDK_UI
             DragHandle.GestureRecognizers.Add(panGesture);
         }
 
-        private static (double[] ys, double[] xs) ConvertSamplesToYValues(Sample[] samples)
+        private static (double[] ys, double[] xs) ConvertSamplesToXYArrays(Sample[] samples)
         {
             var ys = new double[samples.Length];
             var xs = new double[samples.Length];
@@ -73,6 +75,7 @@ namespace TRION_SDK_UI
                 ys[i] = samples[i].Value;
                 xs[i] = samples[i].ElapsedSeconds;
             }
+
             return (ys, xs);
         }
 
@@ -89,7 +92,7 @@ namespace TRION_SDK_UI
                         var dl = GetOrCreateLogger(channelKey);
                         dl.ManageAxisLimits = vm.FollowLatest;
 
-                        var (ys, xs) = ConvertSamplesToYValues(samples);
+                        var (ys, xs) = ConvertSamplesToXYArrays(samples);
                         dl.Add(xs, ys);
                     }
                 }
