@@ -140,41 +140,35 @@ public class AcquisitionManager(Enclosure enclosure)
 
     public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 1000)
     {
-        var result = new Dictionary<string, Sample[]>();
-        int minCount = int.MaxValue;
-
-        foreach (var (key, q) in _sampleQueues)
-        {
-            if (q.IsEmpty) continue;
-            minCount = Math.Min(q.Count, minCount);
-        }
-
-        if (minCount == int.MaxValue)
-            return result;
-
-        int toTake = Math.Min(minCount, maxPerChannel);
+        var result = new Dictionary<string, Sample[]>(_sampleQueues.Count);
 
         foreach (var (key, q) in _sampleQueues)
         {
             if (q.IsEmpty) continue;
 
-            var samples = new Sample[toTake];
-            for (int i = 0; i < toTake; i++)
+            var rented = ArrayPool<Sample>.Shared.Rent(maxPerChannel);
+            int n = 0;
+            try
             {
-                if (q.TryDequeue(out var sample))
+                while (n < maxPerChannel && q.TryDequeue(out var sample))
                 {
-                    samples[i] = sample;
+                    rented[n++] = sample;
                 }
-                else
-                {
-                    break;
-                }
+
+                if (n <= 0) continue;
+
+                var arr = GC.AllocateUninitializedArray<Sample>(n);
+                Array.Copy(rented, arr, n);
+                result[key] = arr;
             }
-            result[key] = samples;
+            finally
+            {
+                ArrayPool<Sample>.Shared.Return(rented, clearArray: false);
+            }
         }
+
         return result;
     }
-
     private static uint ReadDiscreteSample(nint samplePos)
     {
         int raw = Marshal.ReadByte(samplePos);

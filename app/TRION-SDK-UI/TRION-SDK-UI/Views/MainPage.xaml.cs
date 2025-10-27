@@ -35,13 +35,11 @@ namespace TRION_SDK_UI
             var dl = MauiPlot1.Plot.Add.DataLogger();
             dl.LineWidth = 2;
             dl.Color = GetColorForChannel(channelKey);
-
             dl.Period = 1;
-
             dl.ManageAxisLimits = true;
 
-
             _loggers[channelKey] = dl;
+
             return dl;
         }
 
@@ -128,8 +126,8 @@ namespace TRION_SDK_UI
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 _loggers.Clear();
-                MauiPlot1.Plot.Clear();
 
+                MauiPlot1.Plot.Clear();
                 MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
                 foreach (var key in keys)
