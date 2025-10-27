@@ -88,7 +88,7 @@ public class AcquisitionManager(Enclosure enclosure)
         _acquisitionTasks.Add(task);
     }
 
-    public async Task StartAcquisitionAsync(IEnumerable<Channel> selectedChannels, Action<string, IEnumerable<double>> onSamplesReceived)
+    public async Task StartAcquisitionAsync(IEnumerable<Channel> selectedChannels)
     {
         if (_isRunning) await StopAcquisitionAsync();
 

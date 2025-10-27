@@ -114,7 +114,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         PrepareUIForAcquisition(selectedChannels);
         AcquisitionStarting?.Invoke(this, selectedChannels);
 
-        await _acquisitionManager!.StartAcquisitionAsync(selectedChannels, onSamplesReceived: null);
+        await _acquisitionManager!.StartAcquisitionAsync(selectedChannels);
         StartUiDrainTimer();
     }
 
