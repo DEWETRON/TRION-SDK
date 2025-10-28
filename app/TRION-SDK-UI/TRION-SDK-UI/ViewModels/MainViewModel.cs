@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
+using System.ComponentModel;
 
 public class MainViewModel : BaseViewModel, IDisposable
 {
@@ -29,6 +30,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         get => _followLatest;
         private set { if (_followLatest != value) { _followLatest = value; OnPropertyChanged(); } }
     }
+
+    private const int MaxSelectableChannels = 8;
+    private bool _suppressSelectionGuard = false;
 
     public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
 
@@ -81,6 +85,7 @@ public class MainViewModel : BaseViewModel, IDisposable
             foreach (var channel in board.Channels.Where(c => c.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital))
             {
                 Channels.Add(channel);
+                channel.PropertyChanged += OnChannelPropertyChanged;
             }
         }
 
@@ -98,12 +103,43 @@ public class MainViewModel : BaseViewModel, IDisposable
         DeselectAllOnBoardCommand    = new Command<Channel>(DeselectAllOnBoard);
     }
 
+    // NEW: guard to revert selection when over limit
+    private void OnChannelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (_suppressSelectionGuard) return;
+        if (sender is not Channel ch) return;
+        if (e.PropertyName != nameof(Channel.IsSelected)) return;
+
+        if (ch.IsSelected)
+        {
+            int selected = Channels.Count(c => c.IsSelected);
+            if (selected > MaxSelectableChannels)
+            {
+                // revert this selection
+                _suppressSelectionGuard = true;
+                ch.IsSelected = false;
+                _suppressSelectionGuard = false;
+                LogMessages.Add($"You can select up to {MaxSelectableChannels} channels.");
+            }
+        }
+    }
+
     private async Task StartAcquisition()
     {
         Debug.WriteLine("Starting acquisition...");
         LogMessages.Add("Starting acquisition...");
 
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
+
+        if (selectedChannels.Count > MaxSelectableChannels)
+        {
+            foreach (var extra in selectedChannels.Skip(MaxSelectableChannels))
+                extra.IsSelected = false;
+
+            selectedChannels = selectedChannels.Take(MaxSelectableChannels).ToList();
+            LogMessages.Add($"Selection limited to {MaxSelectableChannels} channels.");
+        }
+
         if (selectedChannels.Count == 0)
         {
             LogMessages.Add("No channels selected. Please select at least one channel.");
@@ -321,9 +357,23 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void SelectAllOnBoard(Channel? ch)
     {
         if (ch is null) return;
-        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID)) c.IsSelected = true;
+
+        int selected = Channels.Count(x => x.IsSelected);
+        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID))
+        {
+            if (!c.IsSelected)
+            {
+                if (selected >= MaxSelectableChannels) break;
+                c.IsSelected = true;
+                selected++;
+            }
+        }
+
         OnPropertyChanged(nameof(Channels));
-        LogMessages.Add($"Selected all channels on Board {ch.BoardID}");
+        if (selected >= MaxSelectableChannels)
+            LogMessages.Add($"Selection limited to {MaxSelectableChannels} channels.");
+        else
+            LogMessages.Add($"Selected all channels on Board {ch.BoardID}");
     }
     private void DeselectAllOnBoard(Channel? ch)
     {
