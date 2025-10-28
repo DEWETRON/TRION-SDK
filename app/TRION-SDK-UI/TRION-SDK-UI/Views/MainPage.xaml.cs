@@ -31,6 +31,7 @@ namespace TRION_SDK_UI
 
             var dl = MauiPlot1.Plot.Add.DataLogger();
             dl.LineWidth = 2;
+            dl.LegendText = channelKey;
             dl.Color = GetColorForChannel(channelKey);
 
             dl.ViewSlide(5.0);
