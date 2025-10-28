@@ -12,9 +12,6 @@ namespace TRION_SDK_UI
 
         private readonly ScottPlot.Palettes.Category10 Palette = new();
         private readonly Dictionary<string, ScottPlot.Color> _lineColors = [];
-        private bool _needInitialAutoScaleX = false;
-
-        private readonly int _followWindowSamples = 1_000;
 
         private ScottPlot.Color GetColorForChannel(string channelKey)
         {
@@ -35,8 +32,8 @@ namespace TRION_SDK_UI
             var dl = MauiPlot1.Plot.Add.DataLogger();
             dl.LineWidth = 2;
             dl.Color = GetColorForChannel(channelKey);
-            dl.Period = 1;
-            dl.ManageAxisLimits = true;
+
+            dl.ViewSlide(5.0);
 
             _loggers[channelKey] = dl;
 
@@ -57,6 +54,9 @@ namespace TRION_SDK_UI
             MauiPlot1.Plot.Title("Live Signals");
             MauiPlot1.Plot.XLabel("Elapsed Seconds");
             MauiPlot1.Plot.YLabel("Value");
+
+            MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
+
             MauiPlot1.Refresh();
 
             var panGesture = new PanGestureRecognizer();
@@ -91,17 +91,13 @@ namespace TRION_SDK_UI
                     if (samples is { Length: > 0 })
                     {
                         var dl = GetOrCreateLogger(channelKey);
+
+                        // follow latest when locked; allow panning when unlocked
                         dl.ManageAxisLimits = vm.FollowLatest;
 
                         var (ys, xs) = ConvertSamplesToXYArrays(samples);
                         dl.Add(xs, ys);
                     }
-                }
-
-                if (_needInitialAutoScaleX)
-                {
-                    MauiPlot1.Plot.Axes.AutoScale();
-                    _needInitialAutoScaleX = false;
                 }
 
                 MauiPlot1.Refresh();
@@ -132,12 +128,9 @@ namespace TRION_SDK_UI
 
                 foreach (var key in keys)
                 {
-                    var dl = GetOrCreateLogger(key);
-                    dl.Period = 1;
-                    dl.ManageAxisLimits = true;
+                    _ = GetOrCreateLogger(key); // ViewSlide(5) applied inside
                 }
 
-                _needInitialAutoScaleX = true;
                 MauiPlot1.Refresh();
             });
         }
