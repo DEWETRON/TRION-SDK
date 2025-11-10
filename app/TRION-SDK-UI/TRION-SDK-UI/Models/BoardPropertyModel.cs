@@ -30,18 +30,17 @@ public class BoardPropertyModel
         while (iterator.MoveNext())
         {
             var channelNav = iterator.Current;
-            if (channelNav != null)
+            if (channelNav == null) continue;
+
+            var channel = new Channel()
             {
-                var channel = new Channel()
-                {
-                    BoardID = GetBoardID(),
-                    BoardName = GetBoardName(),
-                    Name = channelNav.Name,
-                    Type = GetChannelType(channelNav.Name),
-                    Modes = GetChannelModes(channelNav),
-                };
-                channels.Add(channel);
-            }
+                BoardID = GetBoardID(),
+                BoardName = GetBoardName(),
+                Name = channelNav.Name,
+                Type = GetChannelType(channelNav.Name),
+                Modes = GetChannelModes(channelNav),
+            };
+            channels.Add(channel);
         }
         return channels;
     }
@@ -73,10 +72,8 @@ public class BoardPropertyModel
         while (optionIterator.MoveNext())
         {
             var optionNav = optionIterator.Current;
-            if (optionNav == null)
-            {
-                continue;
-            }
+            if (optionNav == null) continue;
+            
             var option = new ModeOption
             {
                 Name = optionNav.Name,
@@ -98,17 +95,15 @@ public class BoardPropertyModel
         return options;
     }
 
-    public List<ChannelMode> GetChannelModes(XPathNavigator channelNav)
+    public static List<ChannelMode> GetChannelModes(XPathNavigator channelNav)
     {
         var modes = new List<ChannelMode>();
         var modeIterator = channelNav.SelectChildren("Mode", "");
         while (modeIterator.MoveNext())
         {
             var modeNav = modeIterator.Current;
-            if (modeNav == null)
-            {
-                continue;
-            }
+            if (modeNav == null) continue;
+
             var rangeNav = modeNav.SelectSingleNode("Range");
             var mode = new ChannelMode
             {
@@ -117,7 +112,7 @@ public class BoardPropertyModel
                 Ranges = rangeNav?
                     .SelectChildren(XPathNodeType.Element)
                     .Cast<XPathNavigator>()
-                    .Where(e => e.Name.StartsWith("ID")) // Accepts ID0, ID1, ID2...
+                    .Where(e => e.Name.StartsWith("ID"))
                     .Select(e => double.TryParse(e.Value, out var v) ? v : 0)
                     .ToList() ?? [],
                 Options = GetModeOptions(modeNav)
