@@ -34,7 +34,7 @@ namespace TRION_SDK_UI
             dl.LegendText = channelKey;
             dl.Color = GetColorForChannel(channelKey);
 
-            dl.ViewSlide(5.0);
+            dl.ViewSlide(22.0);
 
             _loggers[channelKey] = dl;
 
@@ -50,7 +50,7 @@ namespace TRION_SDK_UI
 
             vm.AcquisitionStarting += VmOnAcquisitionStarted;
             vm.SamplesBatchAppended += VmOnSamplesBatchAppended;
-            vm.LogMessages.CollectionChanged += VmLogMessages_CollectionChanged;
+            vm.LogMessages.CollectionChanged += VmLogMessagesCollectionChanged;
 
             MauiPlot1.Plot.Title("Live Signals");
             MauiPlot1.Plot.XLabel("Elapsed Seconds");
@@ -105,7 +105,7 @@ namespace TRION_SDK_UI
             });
         }
 
-        private void VmLogMessages_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private void VmLogMessagesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is { Count: > 0 })
             {
@@ -129,7 +129,7 @@ namespace TRION_SDK_UI
 
                 foreach (var key in keys)
                 {
-                    _ = GetOrCreateLogger(key); // ViewSlide(5) applied inside
+                    _ = GetOrCreateLogger(key);
                 }
 
                 MauiPlot1.Refresh();
