@@ -94,6 +94,7 @@ public class AcquisitionManager(Enclosure enclosure)
 
         _acquisitionTasks.Clear();
         _ctsList.Clear();
+        _sampleQueues.Clear();
 
         var selectedBoardIds = selectedChannels.Select(c => c.BoardID).Distinct();
         var selectedBoards = _enclosure.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
