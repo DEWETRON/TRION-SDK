@@ -66,6 +66,33 @@ public class BoardPropertyModel
         return -1;
     }
 
+    private static List<ModeOption> GetModeOptions(XPathNavigator channelNav)
+    {
+        var options = new List<ModeOption>();
+        var optionIterator = channelNav.SelectChildren("", "");
+        while (optionIterator.MoveNext())
+        {
+            var optionNav = optionIterator.Current;
+            if (optionNav == null)
+            {
+                continue;
+            }
+            var option = new ModeOption
+            {
+                Name = channelNav.GetAttribute("", ""),
+                Default = double.TryParse(optionNav.GetAttribute("Default", ""), out var def) ? def : 0,
+                Values = optionNav?
+                    .SelectChildren(XPathNodeType.Element)
+                    .Cast<XPathNavigator>()
+                    .Where(e => double.TryParse(e.Value, out _))
+                    .Select(e => double.Parse(e.Value))
+                    .ToList() ?? [],
+            };
+            options.Add(option);
+        }
+        return options;
+    }
+
     public List<ChannelMode> GetChannelModes(XPathNavigator channelNav)
     {
         var modes = new List<ChannelMode>();
@@ -85,7 +112,8 @@ public class BoardPropertyModel
                         .Cast<XPathNavigator>()
                         .Where(e => e.Name.StartsWith("ID")) // Accepts ID0, ID1, ID2...
                         .Select(e => double.TryParse(e.Value, out var v) ? v : 0)
-                        .ToList() ?? []
+                        .ToList() ?? [],
+                    Options = GetModeOptions(modeNav)
                 };
                 modes.Add(mode);
             }

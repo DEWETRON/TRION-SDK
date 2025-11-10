@@ -1,3 +1,5 @@
+using TRION_SDK_UI.Models;
+
 public class ChannelMode
 {
     public enum UnitEnum
@@ -14,4 +16,5 @@ public class ChannelMode
     public UnitEnum Unit { get; set; }
 
     public required List<double> Ranges { get; set; }
+    public required List<ModeOption> Options { get; set; }
 }
