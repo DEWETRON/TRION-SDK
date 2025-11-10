@@ -28,7 +28,7 @@ namespace TRION_SDK_UI.WinUI
                 var appWindow = AppWindow.GetFromWindowId(windowId);
 
                 // Set your desired window size here
-                appWindow.Resize(new Windows.Graphics.SizeInt32 { Width = 1200, Height = 1200 });
+                appWindow.Resize(new Windows.Graphics.SizeInt32 { Width = 1200, Height = 800 });
             }
         }
     }
