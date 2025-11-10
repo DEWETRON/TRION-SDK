@@ -66,10 +66,10 @@ public class BoardPropertyModel
         return -1;
     }
 
-    private static List<ModeOption> GetModeOptions(XPathNavigator channelNav)
+    private static List<ModeOption> GetModeOptions(XPathNavigator modeNav)
     {
         var options = new List<ModeOption>();
-        var optionIterator = channelNav.SelectChildren("", "");
+        var optionIterator = modeNav.SelectChildren("", "");
         while (optionIterator.MoveNext())
         {
             var optionNav = optionIterator.Current;
@@ -79,13 +79,18 @@ public class BoardPropertyModel
             }
             var option = new ModeOption
             {
-                Name = channelNav.GetAttribute("", ""),
+                Name = optionNav.Name,
                 Default = double.TryParse(optionNav.GetAttribute("Default", ""), out var def) ? def : 0,
+                Unit = optionNav.GetAttribute("Unit", ""),
+                Programmable = optionNav.GetAttribute("Programmable", ""),
+                ProgMax = double.TryParse(optionNav.GetAttribute("ProgMax", ""), out var pmax) ? pmax : 0,
+                ProgMin = double.TryParse(optionNav.GetAttribute("ProgMin", ""), out var pmin) ? pmin : 0,
+                ProgRes = double.TryParse(optionNav.GetAttribute("ProgRes", ""), out var pres) ? pres : 0,
                 Values = optionNav?
                     .SelectChildren(XPathNodeType.Element)
                     .Cast<XPathNavigator>()
-                    .Where(e => double.TryParse(e.Value, out _))
-                    .Select(e => double.Parse(e.Value))
+                    .Where(static e => !string.IsNullOrEmpty(e.Value))
+                    .Select(e => (e.Value))
                     .ToList() ?? [],
             };
             options.Add(option);
@@ -100,23 +105,24 @@ public class BoardPropertyModel
         while (modeIterator.MoveNext())
         {
             var modeNav = modeIterator.Current;
-            if (modeNav != null)
+            if (modeNav == null)
             {
-                var rangeNav = modeNav.SelectSingleNode("Range");
-                var mode = new ChannelMode
-                {
-                    Name = modeNav.GetAttribute("Mode", ""),
-                    Unit = ParseUnit(rangeNav?.GetAttribute("Unit", "")),
-                    Ranges = rangeNav?
-                        .SelectChildren(XPathNodeType.Element)
-                        .Cast<XPathNavigator>()
-                        .Where(e => e.Name.StartsWith("ID")) // Accepts ID0, ID1, ID2...
-                        .Select(e => double.TryParse(e.Value, out var v) ? v : 0)
-                        .ToList() ?? [],
-                    Options = GetModeOptions(modeNav)
-                };
-                modes.Add(mode);
+                continue;
             }
+            var rangeNav = modeNav.SelectSingleNode("Range");
+            var mode = new ChannelMode
+            {
+                Name = modeNav.GetAttribute("Mode", ""),
+                Unit = ParseUnit(rangeNav?.GetAttribute("Unit", "")),
+                Ranges = rangeNav?
+                    .SelectChildren(XPathNodeType.Element)
+                    .Cast<XPathNavigator>()
+                    .Where(e => e.Name.StartsWith("ID")) // Accepts ID0, ID1, ID2...
+                    .Select(e => double.TryParse(e.Value, out var v) ? v : 0)
+                    .ToList() ?? [],
+                Options = GetModeOptions(modeNav)
+            };
+            modes.Add(mode);
         }
         return modes;
     }

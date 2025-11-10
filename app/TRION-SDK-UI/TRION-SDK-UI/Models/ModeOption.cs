@@ -1,4 +1,5 @@
 ﻿
+using ScottPlot.Interactivity.UserActionResponses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,13 @@ namespace TRION_SDK_UI.Models
 {
     public class ModeOption
     {
-        public required string Name { get; set; }
         public double Default { get; set; }
-        public required List<double> Values { get; set; }
+        public required string Name { get; set; }
+        public required List<string> Values { get; set; }
+        public string Unit { get; set; }
+        public string Programmable { get; set; }
+        public double ProgMax { get; set; }
+        public double ProgMin { get; set; }
+        public double ProgRes { get; set; }
     }
 }
