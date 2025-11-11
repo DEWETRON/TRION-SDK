@@ -138,7 +138,8 @@ public class BoardPropertyModel
                     .Where(e => e.Name.StartsWith("ID"))
                     .Select(e => double.TryParse(e.Value, out var v) ? v : 0)
                     .ToList() ?? [],
-                Options = GetModeOptions(modeNav)
+                Options = GetModeOptions(modeNav),
+                DefaultValue = modeNav.GetAttribute("Default", "") ?? string.Empty
             };
             modes.Add(mode);
         }

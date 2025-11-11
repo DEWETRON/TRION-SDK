@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using Trion;
 using TrionApiUtils;
@@ -25,7 +26,6 @@ namespace TRION_SDK_UI.Models
         public string? Name { get; set; }
         public ChannelType Type { get; set; }
 
-        // Mode now raises notifications and updates Unit if needed
         private ChannelMode _mode = null!;
         public required ChannelMode Mode
         {
@@ -36,7 +36,6 @@ namespace TRION_SDK_UI.Models
                 {
                     _mode = value;
                     OnPropertyChanged();
-                    // If the mode implies a unit, keep Unit in sync
                     if (!string.IsNullOrWhiteSpace(value.Unit) &&
                         !string.Equals(_unit, value.Unit, StringComparison.OrdinalIgnoreCase))
                     {
@@ -46,7 +45,6 @@ namespace TRION_SDK_UI.Models
             }
         }
 
-        // New: reflect hardware "Used"
         private bool _used;
         public bool Used
         {
@@ -55,19 +53,6 @@ namespace TRION_SDK_UI.Models
             {
                 if (value == _used) return;
                 _used = value;
-                OnPropertyChanged();
-            }
-        }
-
-        // New: reflect hardware "Range" (string like "10 V")
-        private string? _range;
-        public string? Range
-        {
-            get => _range;
-            set
-            {
-                if (value == _range) return;
-                _range = value;
                 OnPropertyChanged();
             }
         }
@@ -84,7 +69,6 @@ namespace TRION_SDK_UI.Models
             }
         }
 
-        // Unit now raises notifications
         private string _unit = null!;
         public required string Unit
         {
@@ -116,12 +100,41 @@ namespace TRION_SDK_UI.Models
 
         private void ActivateAnalogChannel()
         {
+            string target = $"BoardID{BoardID}/{Name}";
+
+            // Enable channel
             Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct($"BoardID{BoardID}/{Name}", "Used", "True"),
-                $"Failed to activate channel {Name}  on board  {BoardID}");
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct($"BoardID{BoardID}/{Name}", "Range", "10 V"),
-                $"Failed to set range for channel {Name}  on board  {BoardID}");
+                TrionApi.DeWeSetParamStruct(target, "Used", "True"),
+                $"Failed to activate channel {Name} on board {BoardID}");
+
+            // Set a default range derived from Mode (if available)
+            var defaultRange = GetDefaultRangeParameter();
+            if (!string.IsNullOrWhiteSpace(defaultRange))
+            {
+                Utils.CheckErrorCode(
+                    TrionApi.DeWeSetParamStruct(target, "Range", defaultRange!),
+                    $"Failed to set range for channel {Name} on board {BoardID}");
+            }
+        }
+
+        private string? GetDefaultRangeParameter()
+        {
+            // Prefer provided default value if Mode supplies one (assumed already in device format)
+            if (!string.IsNullOrWhiteSpace(Mode.DefaultValue))
+                return Mode.DefaultValue;
+
+            // Otherwise choose a reasonable range from available list (largest magnitude is typical default, e.g., 10 V)
+            if (Mode.Ranges is { Count: > 0 })
+            {
+                double v = Mode.Ranges.OrderByDescending(Math.Abs).First();
+                var unit = !string.IsNullOrWhiteSpace(Mode.Unit) ? Mode.Unit : Unit;
+                return string.IsNullOrWhiteSpace(unit)
+                    ? v.ToString("G", CultureInfo.InvariantCulture)
+                    : $"{v.ToString("G", CultureInfo.InvariantCulture)} {unit}";
+            }
+
+            // No known default
+            return null;
         }
 
         private void ActivateDigitalChannel()

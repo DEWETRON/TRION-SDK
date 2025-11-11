@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Input;
 using Trion;
 using TrionApiUtils;
@@ -65,13 +66,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         // Initialize from Channel selection state
         IsSelected = Channel.IsSelected;
 
-        if (!string.IsNullOrWhiteSpace(Channel.Range))
-        {
-            SelectedRange = Channel.Range;
-            if (!Ranges.Contains(Channel.Range))
-                Ranges.Add(Channel.Range);
-        }
-
         Channel.PropertyChanged += ChannelOnPropertyChanged;
 
         ApplyCommand = new Command(async () => await ApplyAsync());
@@ -98,13 +92,8 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                         Ranges.Add(r);
                 }
                 break;
-            case nameof(Channel.Range):
-                if (!string.IsNullOrWhiteSpace(Channel.Range))
-                {
-                    if (!Ranges.Contains(Channel.Range))
-                        Ranges.Add(Channel.Range);
-                    SelectedRange = Channel.Range;
-                }
+            case nameof(Channel.Unit):
+                // Unit is shown via Channel.Mode.Unit; no VM property needed
                 break;
         }
     }
@@ -113,13 +102,14 @@ public sealed class ChannelDetailViewModel : BaseViewModel
 
     private async Task RefreshAsync()
     {
-        // Only hardware-driven fields; selection is purely UI
+        // Read live values from hardware for mode/range
         SelectedMode ??= ReadString("Mode");
         SelectedRange ??= ReadString("Range");
 
         if (!string.IsNullOrWhiteSpace(SelectedRange) && !Ranges.Contains(SelectedRange))
             Ranges.Add(SelectedRange);
 
+        // Keep Channel in-sync for Mode only (no Channel.Range anymore)
         _suppressSync = true;
         try
         {
@@ -130,8 +120,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                 if (newMode is not null && !ReferenceEquals(newMode, Channel.Mode))
                     Channel.Mode = newMode;
             }
-            Channel.Range = SelectedRange;
-            // selection not synced from hardware
+            // Selection stays app-level only
         }
         finally
         {
@@ -155,7 +144,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
             if (!string.IsNullOrWhiteSpace(SelectedRange))
                 TrySet("Range", SelectedRange);
 
-            // Do NOT send IsSelected to hardware; it is an application-level selection
+            // Mirror Mode to Channel; do not send or store selection in hardware
             _suppressSync = true;
             try
             {
@@ -167,7 +156,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                         Channel.Mode = newMode;
                 }
 
-                Channel.Range = SelectedRange;
                 Channel.IsSelected = IsSelected;
             }
             finally
@@ -175,7 +163,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                 _suppressSync = false;
             }
 
-            await ShowAlertAsync("Channel Updated", "Changes applied successfully.");
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
