@@ -20,6 +20,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand? SelectOnlyChannelCommand { get; private set; }
     public ICommand? SelectAllOnBoardCommand { get; private set; }
     public ICommand? DeselectAllOnBoardCommand { get; private set; }
+    public ICommand? OpenChannelWindowCommand { get; private set; }
 
     private readonly AcquisitionManager? _acquisitionManager;
 
@@ -101,6 +102,18 @@ public class MainViewModel : BaseViewModel, IDisposable
         SelectOnlyChannelCommand     = new Command<Channel>(SelectOnlyChannel);
         SelectAllOnBoardCommand      = new Command<Channel>(SelectAllOnBoard);
         DeselectAllOnBoardCommand    = new Command<Channel>(DeselectAllOnBoard);
+        OpenChannelWindowCommand     = new Command<Channel>(OpenChannelWindow);
+    }
+
+    // NEW: open a separate window for the clicked channel
+    private void OpenChannelWindow(Channel? ch)
+    {
+        if (ch is null) return;
+
+        var window = new TRION_SDK_UI.ChannelDetailWindow(ch);
+        Application.Current?.OpenWindow(window);
+
+        LogMessages.Add($"Opened window for {ch.BoardID}/{ch.Name} ({window.Width}x{window.Height})");
     }
 
     // NEW: guard to revert selection when over limit

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TRION_SDK_UI.ChannelDetailPage"
+             Title="Channel Details">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Label Text="Channel Details" FontSize="20" FontAttributes="Bold" />
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="8">
+                <Label Grid.Row="0" Grid.Column="0" Text="Board ID:" FontAttributes="Bold" />
+                <Label Grid.Row="0" Grid.Column="1" Text="{Binding BoardID}" />
+
+                <Label Grid.Row="1" Grid.Column="0" Text="Board Name:" FontAttributes="Bold" />
+                <Label Grid.Row="1" Grid.Column="1" Text="{Binding BoardName}" />
+
+                <Label Grid.Row="2" Grid.Column="0" Text="Channel Name:" FontAttributes="Bold" />
+                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Name}" />
+
+                <Label Grid.Row="3" Grid.Column="0" Text="Type:" FontAttributes="Bold" />
+                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Type}" />
+
+                <Label Grid.Row="4" Grid.Column="0" Text="Unit:" FontAttributes="Bold" />
+                <Label Grid.Row="4" Grid.Column="1" Text="{Binding Unit}" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

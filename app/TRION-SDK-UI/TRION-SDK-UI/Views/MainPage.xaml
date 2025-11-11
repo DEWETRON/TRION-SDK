@@ -155,9 +155,7 @@
                 <DataTemplate>
                     <HorizontalStackLayout Spacing="20" Padding="0" VerticalOptions="Center">
 
-                        <!-- Context flyout:
-                             Commands are resolved via RootGrid's BindingContext (the page's view model).
-                             CommandParameter passes the bound Channel object. -->
+                        <!-- Context flyout -->
                         <FlyoutBase.ContextFlyout>
                             <MenuFlyout>
                                 <MenuFlyoutItem Text="Show Channel Properties"
@@ -180,14 +178,21 @@
                             </MenuFlyout>
                         </FlyoutBase.ContextFlyout>
 
-                        <!-- Channel selection checkbox (two-way binding to Channel.IsSelected) -->
+                        <!-- Channel selection checkbox -->
                         <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalOptions="Center" />
 
-                        <!-- Display string for channel (uses a converter to format nicely) -->
+                        <!-- Channel display; click to open new window -->
                         <Label Text="{Binding ., Converter={StaticResource ChannelToStringConverter}}"
                                FontSize="12"
                                TextColor="Black"
-                               VerticalOptions="Center" />
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    NumberOfTapsRequired="1"
+                                    Command="{Binding BindingContext.OpenChannelWindowCommand, Source={x:Reference RootGrid}}"
+                                    CommandParameter="{Binding .}" />
+                            </Label.GestureRecognizers>
+                        </Label>
                     </HorizontalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

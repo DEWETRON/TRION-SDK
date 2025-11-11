@@ -56,4 +56,10 @@
 	  <ProjectReference Include="..\..\..\trion_api\CS\TrionApi\TrionApi.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <MauiXaml Update="Views\ChannelDetailPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>
