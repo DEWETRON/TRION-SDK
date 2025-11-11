@@ -34,7 +34,7 @@
 
                 <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
                     <Label Text="Used:" WidthRequest="80" VerticalOptions="Center" />
-                    <Switch IsToggled="{Binding Used, Mode=TwoWay}" />
+                    <Switch IsToggled="{Binding IsSelected, Mode=TwoWay}" />
                 </HorizontalStackLayout>
 
                 <VerticalStackLayout>

@@ -8,6 +8,14 @@ public partial class ChannelDetailPage : ContentPage
     public ChannelDetailPage(Channel ch)
     {
         InitializeComponent();
-        BindingContext = new ChannelDetailViewModel(ch);
+
+        var vm = new ChannelDetailViewModel(ch);
+        vm.CloseRequested += (_, __) =>
+        {
+            var window = this.Window;
+            if (window is not null)
+                Application.Current?.CloseWindow(window);
+        };
+        BindingContext = vm;
     }
 }

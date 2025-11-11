@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Input;
 using Trion;
 using TrionApiUtils;
@@ -8,13 +9,15 @@ namespace TRION_SDK_UI.ViewModels;
 
 public sealed class ChannelDetailViewModel : BaseViewModel
 {
-    private readonly Channel _channel;
-    public Channel Channel => _channel;
+    public Channel Channel { get; }
 
-    public string Title => $"Channel {_channel.BoardID}/{_channel.Name}";
+    public string Title => $"Channel {Channel.BoardID}/{Channel.Name}";
 
     public ObservableCollection<string> Modes { get; } = [];
     public ObservableCollection<string> Ranges { get; } = [];
+
+    // Event the view listens to in order to close the window
+    public event EventHandler? CloseRequested;
 
     private string? _selectedMode;
     public string? SelectedMode
@@ -30,56 +33,110 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         set { if (_selectedRange != value) { _selectedRange = value; OnPropertyChanged(); } }
     }
 
-    private bool _used;
-    public bool Used
+    // Track UI selection (Channel.IsSelected) instead of hardware "Used"
+    private bool _isSelected;
+    public bool IsSelected
     {
-        get => _used;
-        set { if (_used != value) { _used = value; OnPropertyChanged(); } }
+        get => _isSelected;
+        set { if (_isSelected != value) { _isSelected = value; OnPropertyChanged(); } }
     }
 
     public ICommand ApplyCommand { get; }
     public ICommand RefreshCommand { get; }
 
+    private bool _suppressSync;
+
     public ChannelDetailViewModel(Channel channel)
     {
-        _channel = channel;
+        Channel = channel;
 
         // Populate pickers from channel metadata
-        if (_channel.ModeList is { Count: > 0 })
+        if (Channel.ModeList is { Count: > 0 })
         {
-            foreach (var m in _channel.ModeList)
+            foreach (var m in Channel.ModeList)
                 Modes.Add(m.Name);
-            SelectedMode = _channel.Mode?.Name;
-            // Use first mode's ranges (or aggregate unique ranges)
-            foreach (var range in _channel.Mode.Ranges.Select(r => r.ToString("G")))
+            SelectedMode = Channel.Mode?.Name;
+
+            foreach (var range in Channel.Mode.Ranges.Select(r => r.ToString("G")))
                 if (!Ranges.Contains(range))
                     Ranges.Add(range);
         }
 
+        // Initialize from Channel selection state
+        IsSelected = Channel.IsSelected;
+
+        if (!string.IsNullOrWhiteSpace(Channel.Range))
+        {
+            SelectedRange = Channel.Range;
+            if (!Ranges.Contains(Channel.Range))
+                Ranges.Add(Channel.Range);
+        }
+
+        Channel.PropertyChanged += ChannelOnPropertyChanged;
+
         ApplyCommand = new Command(async () => await ApplyAsync());
         RefreshCommand = new Command(async () => await RefreshAsync());
 
-        _ = RefreshAsync(); // initial load of live values
+        _ = RefreshAsync(); // initial load of live values (mode/range from hardware)
     }
 
-    private string TargetPath => $"BoardID{_channel.BoardID}/{_channel.Name}";
+    private void ChannelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (_suppressSync) return;
+
+        switch (e.PropertyName)
+        {
+            case nameof(Channel.IsSelected):
+                IsSelected = Channel.IsSelected;
+                break;
+            case nameof(Channel.Mode):
+                if (!string.Equals(SelectedMode, Channel.Mode?.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    SelectedMode = Channel.Mode?.Name;
+                    Ranges.Clear();
+                    foreach (var r in Channel.Mode.Ranges.Select(x => x.ToString("G")))
+                        Ranges.Add(r);
+                }
+                break;
+            case nameof(Channel.Range):
+                if (!string.IsNullOrWhiteSpace(Channel.Range))
+                {
+                    if (!Ranges.Contains(Channel.Range))
+                        Ranges.Add(Channel.Range);
+                    SelectedRange = Channel.Range;
+                }
+                break;
+        }
+    }
+
+    private string TargetPath => $"BoardID{Channel.BoardID}/{Channel.Name}";
 
     private async Task RefreshAsync()
     {
-        // Read live values from hardware
-        Used = ReadBool("Used");
+        // Only hardware-driven fields; selection is purely UI
         SelectedMode ??= ReadString("Mode");
         SelectedRange ??= ReadString("Range");
 
-        // If hardware reports a range not present yet, add it
         if (!string.IsNullOrWhiteSpace(SelectedRange) && !Ranges.Contains(SelectedRange))
             Ranges.Add(SelectedRange);
-    }
 
-    private bool ReadBool(string key)
-    {
-        var (err, val) = TrionApi.DeWeGetParamStruct_String(TargetPath, key);
-        return err == TrionError.NONE && bool.TryParse(val, out var b) && b;
+        _suppressSync = true;
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(SelectedMode))
+            {
+                var newMode = Channel.ModeList
+                    .FirstOrDefault(m => string.Equals(m.Name, SelectedMode, StringComparison.OrdinalIgnoreCase));
+                if (newMode is not null && !ReferenceEquals(newMode, Channel.Mode))
+                    Channel.Mode = newMode;
+            }
+            Channel.Range = SelectedRange;
+            // selection not synced from hardware
+        }
+        finally
+        {
+            _suppressSync = false;
+        }
     }
 
     private string ReadString(string key)
@@ -92,33 +149,34 @@ public sealed class ChannelDetailViewModel : BaseViewModel
     {
         try
         {
-            // Apply in a safe order: Mode -> Range -> Used
             if (!string.IsNullOrWhiteSpace(SelectedMode))
                 TrySet("Mode", SelectedMode);
 
             if (!string.IsNullOrWhiteSpace(SelectedRange))
+                TrySet("Range", SelectedRange);
+
+            // Do NOT send IsSelected to hardware; it is an application-level selection
+            _suppressSync = true;
+            try
             {
-                // Normalize: append unit if user selected only numeric part and channel unit is known
-                var rangeVal = SelectedRange;
-                if (!_channel.Unit.StartsWith("V", StringComparison.OrdinalIgnoreCase) &&
-                    rangeVal.EndsWith(" V", StringComparison.OrdinalIgnoreCase) == false &&
-                    _channel.Unit is { Length: > 0 })
+                if (!string.IsNullOrWhiteSpace(SelectedMode))
                 {
-                    // Keep as-is (hardware may expect "10 V" style). If numeric only and unit present, append.
+                    var newMode = Channel.ModeList
+                        .FirstOrDefault(m => string.Equals(m.Name, SelectedMode, StringComparison.OrdinalIgnoreCase));
+                    if (newMode is not null && !ReferenceEquals(newMode, Channel.Mode))
+                        Channel.Mode = newMode;
                 }
-                TrySet("Range", rangeVal);
+
+                Channel.Range = SelectedRange;
+                Channel.IsSelected = IsSelected;
             }
-
-            TrySet("Used", Used ? "True" : "False");
-
-            // Optionally refresh scan descriptor if analog channel & active
-            if (_channel.Type == Channel.ChannelType.Analog)
+            finally
             {
-                // The board instance is not directly accessible here; caller could trigger RefreshScanDescriptor.
-                // For now just notify user.
+                _suppressSync = false;
             }
 
             await ShowAlertAsync("Channel Updated", "Changes applied successfully.");
+            CloseRequested?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {

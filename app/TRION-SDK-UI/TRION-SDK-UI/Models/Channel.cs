@@ -8,7 +8,6 @@ namespace TRION_SDK_UI.Models
     public class Channel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-
         private void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -25,7 +24,54 @@ namespace TRION_SDK_UI.Models
         public string? BoardName { get; set; }
         public string? Name { get; set; }
         public ChannelType Type { get; set; }
-        public required ChannelMode Mode { get; set; } 
+
+        // Mode now raises notifications and updates Unit if needed
+        private ChannelMode _mode = null!;
+        public required ChannelMode Mode
+        {
+            get => _mode;
+            set
+            {
+                if (!ReferenceEquals(_mode, value))
+                {
+                    _mode = value;
+                    OnPropertyChanged();
+                    // If the mode implies a unit, keep Unit in sync
+                    if (!string.IsNullOrWhiteSpace(value.Unit) &&
+                        !string.Equals(_unit, value.Unit, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Unit = value.Unit;
+                    }
+                }
+            }
+        }
+
+        // New: reflect hardware "Used"
+        private bool _used;
+        public bool Used
+        {
+            get => _used;
+            set
+            {
+                if (value == _used) return;
+                _used = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // New: reflect hardware "Range" (string like "10 V")
+        private string? _range;
+        public string? Range
+        {
+            get => _range;
+            set
+            {
+                if (value == _range) return;
+                _range = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool _isSelected;
         public bool IsSelected
         {
@@ -38,7 +84,18 @@ namespace TRION_SDK_UI.Models
             }
         }
 
-        public required string Unit { get; set; }
+        // Unit now raises notifications
+        private string _unit = null!;
+        public required string Unit
+        {
+            get => _unit;
+            set
+            {
+                if (value == _unit) return;
+                _unit = value;
+                OnPropertyChanged();
+            }
+        }
 
         public void Activate()
         {
