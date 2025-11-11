@@ -245,7 +245,12 @@ public class AcquisitionManager(Enclosure enclosure)
                     }
                     else if (channel.Type == Channel.ChannelType.Analog)
                     {
-                        double value = ReadAnalogSample(samplePos, sampleSize);
+                        double range = 1; // Default scale value
+                        if (double.TryParse(selectedChannels[c].Range, out var parsedRange))
+                        {
+                            range = parsedRange;
+                        }
+                        double value = ReadAnalogSample(samplePos, sampleSize, range);
                         sampleLists[c].Add(value);
                     }
                     else
@@ -280,7 +285,7 @@ public class AcquisitionManager(Enclosure enclosure)
         Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0), $"Failed to stop acquisition {board.Id}");
     }
 
-    private unsafe static double ReadAnalogSample(nint samplePos, int sampleSize)
+    private unsafe static double ReadAnalogSample(nint samplePos, int sampleSize, double scale)
     {
         int raw;
         switch (sampleSize)
@@ -320,7 +325,8 @@ public class AcquisitionManager(Enclosure enclosure)
         }
 
         int signBit = 1 << (sampleSize - 1);
-        double value = (double)raw / (double)(signBit - 1) * 10.0;
+        // somehow use the range of the channel to scale the value
+        double value = (double)raw / (double)(signBit - 1) * scale;
         return value;
     }
 

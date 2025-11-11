@@ -58,7 +58,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                 Modes.Add(m.Name);
             SelectedMode = Channel.Mode?.Name;
 
-            foreach (var range in Channel.Mode.Ranges.Select(r => r.ToString("G")))
+            foreach (var range in Channel.Mode.Ranges)
                 if (!Ranges.Contains(range))
                     Ranges.Add(range);
         }
@@ -87,7 +87,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                 {
                     SelectedMode = Channel.Mode?.Name;
                     Ranges.Clear();
-                    foreach (var r in Channel.Mode.Ranges.Select(x => x.ToString("G")))
+                    foreach (var r in Channel.Mode.Ranges)
                         Ranges.Add(r);
                 }
                 break;
@@ -101,17 +101,46 @@ public sealed class ChannelDetailViewModel : BaseViewModel
 
     private async Task RefreshAsync()
     {
-        // Read live values from hardware for mode/range
-        SelectedMode ??= ReadString("Mode");
-        SelectedRange ??= ReadString("Range");
-
-        if (!string.IsNullOrWhiteSpace(SelectedRange) && !Ranges.Contains(SelectedRange))
-            Ranges.Add(SelectedRange);
-
-        // Keep Channel in-sync for Mode only (no Channel.Range anymore)
+        // Refresh from Channel model only (no hardware access)
         _suppressSync = true;
         try
         {
+            // Sync SelectedMode from Channel
+            SelectedMode = Channel.Mode?.Name;
+
+            // Rebuild Ranges from the current mode
+            Ranges.Clear();
+            if (Channel.Mode?.Ranges is { Count: > 0 })
+            {
+                foreach (var r in Channel.Mode.Ranges)
+                    Ranges.Add(r);
+            }
+
+            // Determine SelectedRange:
+            // 1) Prefer Channel.Range if present and exists in current Ranges
+            // 2) Else use Mode.DefaultValue (index) if valid
+            // 3) Else fallback to first available range
+            string? rangeToSelect = null;
+
+            if (!string.IsNullOrWhiteSpace(Channel.Range) && Ranges.Contains(Channel.Range))
+            {
+                rangeToSelect = Channel.Range;
+            }
+            else if (!string.IsNullOrWhiteSpace(Channel.Mode?.DefaultValue)
+                     && int.TryParse(Channel.Mode.DefaultValue, out var idx)
+                     && idx >= 0
+                     && Channel.Mode.Ranges.Count > idx)
+            {
+                rangeToSelect = Channel.Mode.Ranges[idx];
+            }
+            else if (Channel.Mode?.Ranges.Count > 0)
+            {
+                rangeToSelect = Channel.Mode.Ranges[0];
+            }
+
+            SelectedRange = rangeToSelect;
+
+            // Keep Channel in-sync for Mode only
             if (!string.IsNullOrWhiteSpace(SelectedMode))
             {
                 var newMode = Channel.ModeList
@@ -119,7 +148,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                 if (newMode is not null && !ReferenceEquals(newMode, Channel.Mode))
                     Channel.Mode = newMode;
             }
-            // Selection stays app-level only
+            // Selection stays app-level only (do not push SelectedRange to Channel.Range here)
         }
         finally
         {
@@ -127,34 +156,40 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         }
     }
 
-    private string ReadString(string key)
-    {
-        var (err, val) = TrionApi.DeWeGetParamStruct_String(TargetPath, key);
-        return err == TrionError.NONE ? val : string.Empty;
-    }
-
     private async Task ApplyAsync()
     {
         try
         {
-            if (!string.IsNullOrWhiteSpace(SelectedMode))
-                TrySet("Mode", SelectedMode);
-
-            if (!string.IsNullOrWhiteSpace(SelectedRange))
-                TrySet("Range", SelectedRange);
-
-            // Mirror Mode to Channel; do not send or store selection in hardware
             _suppressSync = true;
             try
             {
+                // Apply Mode -> Channel.Mode (and Unit from the mode)
                 if (!string.IsNullOrWhiteSpace(SelectedMode))
                 {
                     var newMode = Channel.ModeList
                         .FirstOrDefault(m => string.Equals(m.Name, SelectedMode, StringComparison.OrdinalIgnoreCase));
+
                     if (newMode is not null && !ReferenceEquals(newMode, Channel.Mode))
+                    {
                         Channel.Mode = newMode;
+
+                        // keep Channel.Unit consistent with the selected mode
+                        if (!string.IsNullOrWhiteSpace(newMode.Unit))
+                            Channel.Unit = newMode.Unit!;
+                    }
                 }
 
+                // Apply Range -> Channel.Range
+                if (!string.IsNullOrWhiteSpace(SelectedRange))
+                {
+                    // guard: ensure SelectedRange is valid for the current mode
+                    if (Channel.Mode?.Ranges?.Contains(SelectedRange) == true)
+                        Channel.Range = SelectedRange;
+                    else if (Channel.Mode?.Ranges?.Count > 0)
+                        Channel.Range = Channel.Mode.Ranges[0];
+                }
+
+                // Apply selection flag (app-level)
                 Channel.IsSelected = IsSelected;
             }
             finally
@@ -168,11 +203,5 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         {
             await ShowAlertAsync("Apply Failed", ex.Message);
         }
-    }
-
-    private void TrySet(string key, string value)
-    {
-        var err = TrionApi.DeWeSetParamStruct(TargetPath, key, value);
-        Utils.CheckErrorCode(err, $"Failed to set {key}={value} for {TargetPath}");
     }
 }
