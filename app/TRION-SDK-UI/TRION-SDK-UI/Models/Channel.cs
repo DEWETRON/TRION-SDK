@@ -20,28 +20,12 @@ namespace TRION_SDK_UI.Models
             Counter = 3
         }
 
-        public enum ChannelModeAnalog
-        {
-            Calibration = 0,
-            Voltage = 1,
-            Resistance = 2,
-            IEPE = 3,
-            Bridge = 4,
-            ExcCurrentMonitor = 5,
-            ExcVoltMonitor = 6
-        }
-
-        public List<ChannelMode> Modes { get; set; } = [];
-
+        public List<ChannelMode> ModeList { get; set; } = [];
         public int BoardID { get; set; }
-
         public string? BoardName { get; set; }
-
         public string? Name { get; set; }
-
         public ChannelType Type { get; set; }
-
-
+        public required ChannelMode Mode { get; set; } 
         private bool _isSelected;
         public bool IsSelected
         {
@@ -66,7 +50,7 @@ namespace TRION_SDK_UI.Models
             }
         }
 
-        public string Unit => Type == ChannelType.Analog ? "V" : "";
+        public required string Unit { get; set; }
 
         public void Activate()
         {
@@ -106,9 +90,9 @@ namespace TRION_SDK_UI.Models
                 "DO"
             ];
 
-            if (Modes.Count > 0)
+            if (ModeList.Count > 0)
             {
-                var known = Modes.Select(m => m.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var known = ModeList.Select(m => m.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
                 candidateModes =
                 [
                     .. candidateModes.Where(m => known.Contains(m)),

@@ -318,8 +318,17 @@ public class MainViewModel : BaseViewModel, IDisposable
         {
             return
             [
-                "Used", "Mode", "Range", "Excitation", "InputType",
-                "LPFilter_Val", "HPFilter_Val", "BridgeRes", "ShuntType", "ShuntResistance"
+                "Used", "Mode", "Range", 
+                "InputOffset", 
+                "LPFilter_Val", 
+                "HPFilter_Val",
+                "LPFilter_Order",
+                "HPFilter_Order",
+                "LPFilter_Type",
+                "HPFilter_Type",
+                "InputType",
+                "Excitation",
+                "ChannelFeatures",
             ];
         }
         if (type == Channel.ChannelType.Digital)

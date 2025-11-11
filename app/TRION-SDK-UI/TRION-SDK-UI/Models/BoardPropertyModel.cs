@@ -23,6 +23,26 @@ public class BoardPropertyModel
         return ChannelType.Unknown;
     }
 
+    public string GetDefaultMode(string name)
+    {
+        var defaultNode = _navigator.SelectSingleNode($"Properties/ChannelProperties/{name}");
+        if (defaultNode != null)
+        {
+            return defaultNode.GetAttribute("Default", "");
+        }
+        return string.Empty;
+    }
+
+    public string GetUnit(string name)
+    {
+        var unitNode = _navigator.SelectSingleNode($"Properties/ChannelProperties/{name}/Mode[@Mode='{GetDefaultMode(name)}']/Range");
+        if (unitNode != null)
+        {
+            return unitNode.GetAttribute("Unit", "");
+        }
+        return string.Empty;
+    }
+
     public List<Channel> GetChannels()
     {
         var channels = new List<Channel>();
@@ -38,7 +58,10 @@ public class BoardPropertyModel
                 BoardName = GetBoardName(),
                 Name = channelNav.Name,
                 Type = GetChannelType(channelNav.Name),
-                Modes = GetChannelModes(channelNav),
+                ModeList = GetChannelModes(channelNav),
+                Mode = GetChannelModes(channelNav)
+                    .FirstOrDefault(m => m.Name == GetDefaultMode(channelNav.Name))!,
+                Unit = GetUnit(channelNav.Name)
             };
             channels.Add(channel);
         }
