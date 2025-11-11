@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using Trion;
 using TrionApiUtils;
@@ -25,34 +24,26 @@ namespace TRION_SDK_UI.Models
         public string? BoardName { get; set; }
         public string? Name { get; set; }
         public ChannelType Type { get; set; }
+        private string? _range;
+        public string? Range
+        {
+            get => _range;
+            set
+            {
+                if (value == _range) return;
+                _range = value;
+                OnPropertyChanged();
+            }
+        }
 
         private ChannelMode _mode = null!;
-        public required ChannelMode Mode
+        public ChannelMode Mode
         {
             get => _mode;
             set
             {
-                if (!ReferenceEquals(_mode, value))
-                {
-                    _mode = value;
-                    OnPropertyChanged();
-                    if (!string.IsNullOrWhiteSpace(value.Unit) &&
-                        !string.Equals(_unit, value.Unit, StringComparison.OrdinalIgnoreCase))
-                    {
-                        Unit = value.Unit;
-                    }
-                }
-            }
-        }
-
-        private bool _used;
-        public bool Used
-        {
-            get => _used;
-            set
-            {
-                if (value == _used) return;
-                _used = value;
+                if (ReferenceEquals(_mode, value)) return;
+                _mode = value;
                 OnPropertyChanged();
             }
         }
@@ -74,7 +65,7 @@ namespace TRION_SDK_UI.Models
         {
             get => _unit;
             set
-            {
+        {
                 if (value == _unit) return;
                 _unit = value;
                 OnPropertyChanged();
@@ -102,39 +93,15 @@ namespace TRION_SDK_UI.Models
         {
             string target = $"BoardID{BoardID}/{Name}";
 
-            // Enable channel
             Utils.CheckErrorCode(
                 TrionApi.DeWeSetParamStruct(target, "Used", "True"),
                 $"Failed to activate channel {Name} on board {BoardID}");
 
-            // Set a default range derived from Mode (if available)
-            var defaultRange = GetDefaultRangeParameter();
-            if (!string.IsNullOrWhiteSpace(defaultRange))
-            {
-                Utils.CheckErrorCode(
-                    TrionApi.DeWeSetParamStruct(target, "Range", defaultRange!),
-                    $"Failed to set range for channel {Name} on board {BoardID}");
-            }
-        }
+            string rangecomb = $"{_range} {_unit}";
 
-        private string? GetDefaultRangeParameter()
-        {
-            // Prefer provided default value if Mode supplies one (assumed already in device format)
-            if (!string.IsNullOrWhiteSpace(Mode.DefaultValue))
-                return Mode.DefaultValue;
-
-            // Otherwise choose a reasonable range from available list (largest magnitude is typical default, e.g., 10 V)
-            if (Mode.Ranges is { Count: > 0 })
-            {
-                double v = Mode.Ranges.OrderByDescending(Math.Abs).First();
-                var unit = !string.IsNullOrWhiteSpace(Mode.Unit) ? Mode.Unit : Unit;
-                return string.IsNullOrWhiteSpace(unit)
-                    ? v.ToString("G", CultureInfo.InvariantCulture)
-                    : $"{v.ToString("G", CultureInfo.InvariantCulture)} {unit}";
-            }
-
-            // No known default
-            return null;
+            Utils.CheckErrorCode(
+                TrionApi.DeWeSetParamStruct(target, "Range", rangecomb),
+                $"Failed to set range for channel {Name} on board {BoardID}");
         }
 
         private void ActivateDigitalChannel()

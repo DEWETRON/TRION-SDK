@@ -63,7 +63,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                     Ranges.Add(range);
         }
 
-        // Initialize from Channel selection state
         IsSelected = Channel.IsSelected;
 
         Channel.PropertyChanged += ChannelOnPropertyChanged;
@@ -71,7 +70,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         ApplyCommand = new Command(async () => await ApplyAsync());
         RefreshCommand = new Command(async () => await RefreshAsync());
 
-        _ = RefreshAsync(); // initial load of live values (mode/range from hardware)
+        _ = RefreshAsync(); 
     }
 
     private void ChannelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

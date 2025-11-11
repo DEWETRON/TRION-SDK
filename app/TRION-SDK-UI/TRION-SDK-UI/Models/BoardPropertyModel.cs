@@ -23,48 +23,92 @@ public class BoardPropertyModel
         return ChannelType.Unknown;
     }
 
-    public string GetDefaultMode(string name)
+    private static ChannelMode CreatePlaceholderMode() => new()
     {
-        var defaultNode = _navigator.SelectSingleNode($"Properties/ChannelProperties/{name}");
-        if (defaultNode != null)
-        {
-            return defaultNode.GetAttribute("Default", "");
-        }
-        return string.Empty;
-    }
+        Name = "Unknown",
+        Unit = string.Empty,
+        Ranges = [],
+        Options = [],
+        DefaultValue = string.Empty
+    };
 
-    public string GetUnit(string name)
+    /// <summary>
+    /// Attempts to get the default mode for a channel node.
+    /// Returns false if the node does not represent a real channel (no modes found).
+    /// Never returns a null ChannelMode.
+    /// </summary>
+    public bool TryGetDefaultMode(XPathNavigator channelNav, out ChannelMode mode)
     {
-        var unitNode = _navigator.SelectSingleNode($"Properties/ChannelProperties/{name}/Mode[@Mode='{GetDefaultMode(name)}']/Range");
-        if (unitNode != null)
+        mode = CreatePlaceholderMode();
+
+        if (channelNav is null) return false;
+        if (channelNav.NodeType != XPathNodeType.Element) return false;
+
+        var modes = GetChannelModes(channelNav);
+        if (modes.Count == 0)
         {
-            return unitNode.GetAttribute("Unit", "");
+            // Not a channel node (likely metadata) -> signal caller to skip
+            return false;
         }
-        return string.Empty;
+
+        var defaultName = channelNav.GetAttribute("Default", "");
+        if (!string.IsNullOrWhiteSpace(defaultName))
+        {
+            var match = modes.FirstOrDefault(m => string.Equals(m.Name, defaultName, StringComparison.OrdinalIgnoreCase));
+            if (match != null)
+            {
+                mode = match;
+                return true;
+            }
+        }
+
+        // Fallback to first available mode
+        mode = modes[0];
+        return true;
     }
 
     public List<Channel> GetChannels()
     {
         var channels = new List<Channel>();
+
+        var boardId = GetBoardID();
+        var boardName = GetBoardName();
+
         var iterator = _navigator.Select("Properties/ChannelProperties/*");
         while (iterator.MoveNext())
         {
             var channelNav = iterator.Current;
             if (channelNav == null) continue;
 
-            var channel = new Channel()
+            // Skip non-element or metadata nodes early
+            if (channelNav.NodeType != XPathNodeType.Element) continue;
+
+            // Determine if this node yields any modes; skip if not
+            var allModes = GetChannelModes(channelNav);
+            if (allModes.Count == 0)
+                continue;
+
+            if (!TryGetDefaultMode(channelNav, out var defaultMode))
+                continue; // Defensive; should already be covered by modes count
+
+            var unit = defaultMode.Unit ?? string.Empty;
+            var range = defaultMode.DefaultValue ?? string.Empty;
+
+            var channel = new Channel
             {
-                BoardID = GetBoardID(),
-                BoardName = GetBoardName(),
+                BoardID = boardId,
+                BoardName = boardName,
                 Name = channelNav.Name,
                 Type = GetChannelType(channelNav.Name),
-                ModeList = GetChannelModes(channelNav),
-                Mode = GetChannelModes(channelNav)
-                    .FirstOrDefault(m => m.Name == GetDefaultMode(channelNav.Name))!,
-                Unit = GetUnit(channelNav.Name)
+                ModeList = allModes,
+                Mode = defaultMode,
+                Unit = unit,
+                Range = range
             };
+
             channels.Add(channel);
         }
+
         return channels;
     }
 
@@ -96,7 +140,7 @@ public class BoardPropertyModel
         {
             var optionNav = optionIterator.Current;
             if (optionNav == null) continue;
-            
+
             var option = new ModeOption
             {
                 Name = optionNav.Name,
@@ -110,7 +154,7 @@ public class BoardPropertyModel
                     .SelectChildren(XPathNodeType.Element)
                     .Cast<XPathNavigator>()
                     .Where(static e => !string.IsNullOrEmpty(e.Value))
-                    .Select(e => (e.Value))
+                    .Select(e => e.Value)
                     .ToList() ?? [],
             };
             options.Add(option);
@@ -139,7 +183,7 @@ public class BoardPropertyModel
                     .Select(e => double.TryParse(e.Value, out var v) ? v : 0)
                     .ToList() ?? [],
                 Options = GetModeOptions(modeNav),
-                DefaultValue = modeNav.GetAttribute("Default", "") ?? string.Empty
+                DefaultValue = rangeNav?.GetAttribute("Default", "") ?? string.Empty
             };
             modes.Add(mode);
         }
