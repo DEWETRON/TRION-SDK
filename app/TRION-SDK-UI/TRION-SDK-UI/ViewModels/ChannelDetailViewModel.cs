@@ -17,7 +17,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
     public ObservableCollection<string> Modes { get; } = [];
     public ObservableCollection<string> Ranges { get; } = [];
 
-    // Event the view listens to in order to close the window
     public event EventHandler? CloseRequested;
 
     private string? _selectedMode;
@@ -29,7 +28,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
             if (_selectedMode == value) return;
             _selectedMode = value;
             OnPropertyChanged();
-            OnSelectedModeChanged(); // update ranges immediately when mode changes in the picker
+            OnSelectedModeChanged();
         }
     }
 
@@ -40,7 +39,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         set { if (_selectedRange != value) { _selectedRange = value; OnPropertyChanged(); } }
     }
 
-    // Track UI selection (Channel.IsSelected) instead of hardware "Used"
     private bool _isSelected;
     public bool IsSelected
     {
@@ -57,7 +55,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
     {
         Channel = channel;
 
-        // Populate pickers from channel metadata
         if (Channel.ModeList is { Count: > 0 })
         {
             foreach (var m in Channel.ModeList)
