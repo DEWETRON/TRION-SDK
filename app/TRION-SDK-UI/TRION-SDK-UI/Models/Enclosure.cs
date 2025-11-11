@@ -55,7 +55,7 @@ public class Enclosure
         var newBoard = new Board
         {
             Id = boardId,
-            Name = boardPropertiesModel.GetBoardName(),
+            Name = boardPropertiesModel.BoardName,
             BoardProperties = boardPropertiesModel,
             Channels = boardPropertiesModel.GetChannels(),
             IsOpen = true,

@@ -1,29 +1,32 @@
-using ScottPlot.Interactivity;
 using System.Xml.XPath;
 using Trion;
 using TRION_SDK_UI.Models;
 using static TRION_SDK_UI.Models.Channel;
 
-public class BoardPropertyModel
+public sealed class BoardPropertyModel
 {
-    private readonly XPathDocument _document;
     private readonly XPathNavigator _navigator;
+    private readonly int _boardId;
+    private readonly string _boardName;
+    public int BoardId => _boardId;
+    public string BoardName => _boardName;
 
-    public BoardPropertyModel(string boardXML)
+    public BoardPropertyModel(string boardXml)
     {
-        ArgumentNullException.ThrowIfNull(boardXML);
+        ArgumentNullException.ThrowIfNull(boardXml);
 
-        using var stringReader = new StringReader(boardXML);
-        _document = new XPathDocument(stringReader);
-        _navigator = _document.CreateNavigator();
+        using var sr = new StringReader(boardXml);
+        var doc = new XPathDocument(sr);
+        _navigator = doc.CreateNavigator();
+
+        _boardId = GetBoardID();
+        _boardName = GetBoardName();
     }
 
-    private static ChannelType GetChannelType(string name)
-    {
-        if (name.StartsWith("AI")) return ChannelType.Analog;
-        if (name.StartsWith("Di")) return ChannelType.Digital;
-        return ChannelType.Unknown;
-    }
+    private static ChannelType GetChannelType(string name) =>
+        name.StartsWith("AI", StringComparison.OrdinalIgnoreCase) ? ChannelType.Analog :
+        name.StartsWith("Di", StringComparison.OrdinalIgnoreCase) ? ChannelType.Digital :
+        ChannelType.Unknown;
 
     private static ChannelMode CreatePlaceholderMode() => new()
     {
@@ -34,113 +37,109 @@ public class BoardPropertyModel
         DefaultValue = string.Empty
     };
 
-    public bool TryGetDefaultMode(XPathNavigator channelNav, out ChannelMode mode)
+    public static (bool ok, ChannelMode mode) TryGetDefaultMode(XPathNavigator channelNav)
     {
-        mode = CreatePlaceholderMode();
-
-        if (channelNav is null) return false;
-        if (channelNav.NodeType != XPathNodeType.Element) return false;
+        if (channelNav is null || channelNav.NodeType != XPathNodeType.Element)
+        {
+            return (false, CreatePlaceholderMode());
+        }
 
         var modes = GetChannelModes(channelNav);
         if (modes.Count == 0)
-            return false;
+        {
+            return (false, CreatePlaceholderMode());
+        }
 
         var defaultName = channelNav.GetAttribute("Default", "");
         if (!string.IsNullOrWhiteSpace(defaultName))
         {
-            var match = modes.FirstOrDefault(m => string.Equals(m.Name, defaultName, StringComparison.OrdinalIgnoreCase));
-            if (match != null)
+            var found = modes.FirstOrDefault(m => string.Equals(m.Name, defaultName, StringComparison.OrdinalIgnoreCase));
+            if (found is not null)
             {
-                mode = match;
-                return true;
+                return (true, found);
             }
         }
 
-        mode = modes[0];
-        return true;
+        return (true, modes[0]);
     }
 
     public List<Channel> GetChannels()
     {
-        var channels = new List<Channel>();
+        var channels = new List<Channel>(capacity: 64);
 
-        var boardId = GetBoardID();
-        var boardName = GetBoardName();
-
-        var iterator = _navigator.Select("Properties/ChannelProperties/*");
+        var iterator = _navigator.Select("/Properties/ChannelProperties/*");
         while (iterator.MoveNext())
         {
             var channelNav = iterator.Current;
-            if (channelNav == null) continue;
-            if (channelNav.NodeType != XPathNodeType.Element) continue;
+            if (channelNav is null || channelNav.NodeType != XPathNodeType.Element)
+            {
+                continue;
+            }
 
             var allModes = GetChannelModes(channelNav);
             if (allModes.Count == 0)
+            { 
                 continue;
+            }
 
-            if (!TryGetDefaultMode(channelNav, out var defaultMode))
-                continue;
+            var (ok, defaultMode) = TryGetDefaultMode(channelNav);
+            if (!ok) continue;
 
-            var unit = defaultMode.Unit ?? string.Empty;
+            // Resolve default range index -> textual range
             var rangeIndexStr = defaultMode.DefaultValue ?? string.Empty;
-            int rangeIndex = int.TryParse(rangeIndexStr, out var dint) ? dint : 0;
-            string defaultRange = (rangeIndex >= 0 && rangeIndex < defaultMode.Ranges.Count)
-                ? defaultMode.Ranges[rangeIndex]
-                : defaultMode.Ranges.FirstOrDefault() ?? string.Empty;
+            int idx = int.TryParse(rangeIndexStr, out var parsed) ? parsed : 0;
+            string defaultRange =
+                (idx >= 0 && idx < defaultMode.Ranges.Count)
+                ? defaultMode.Ranges[idx]
+                : (defaultMode.Ranges.FirstOrDefault() ?? string.Empty);
 
-            string targetPath = $"BoardID{boardId}/{channelNav.Name}";
-
-            var (err, val) = TrionApi.DeWeGetParamStruct_String(targetPath, "Mode");
-            string resultMode = err == TrionError.NONE ? val : string.Empty;
-            (err, val) = TrionApi.DeWeGetParamStruct_String(targetPath, "Range");
-            string resultRange = err == TrionError.NONE ? val : string.Empty;
-
-            var channel = new Channel
+            channels.Add(new Channel
             {
-                BoardID = boardId,
-                BoardName = boardName,
+                BoardID = _boardId,
+                BoardName = _boardName,
                 Name = channelNav.Name,
                 Type = GetChannelType(channelNav.Name),
                 ModeList = allModes,
                 Mode = defaultMode,
-                Unit = unit,
+                Unit = defaultMode.Unit ?? string.Empty,
                 Range = defaultRange
-            };
-
-            channels.Add(channel);
+            });
         }
 
         return channels;
     }
 
-    public string GetBoardName()
+    private string GetBoardName()
     {
-        var boardName = _navigator.SelectSingleNode("/Properties/BoardInfo/BoardName");
-        return boardName != null ? boardName.Value : string.Empty;
+        var boardNameNode = _navigator.SelectSingleNode("/Properties/BoardInfo/BoardName");
+        return boardNameNode?.Value ?? string.Empty;
     }
 
-    public int GetBoardID()
+    private int GetBoardID()
     {
         var propertiesNode = _navigator.SelectSingleNode("/Properties");
-        if (propertiesNode != null)
-        {
-            var idStr = propertiesNode.GetAttribute("BoardID", "");
-            if (int.TryParse(idStr, out int id))
-                return id;
-        }
-        return -1;
+        if (propertiesNode == null) return -1;
+        var idStr = propertiesNode.GetAttribute("BoardID", "");
+        return int.TryParse(idStr, out var id) ? id : -1;
     }
 
     private static List<ModeOption> GetModeOptions(XPathNavigator modeNav)
     {
-        var options = new List<ModeOption>();
-        var optionIterator = modeNav.SelectChildren("", "");
-        while (optionIterator.MoveNext())
+        var list = new List<ModeOption>(8);
+        var iter = modeNav.SelectChildren(XPathNodeType.Element);
+        while (iter.MoveNext())
         {
-            var optionNav = optionIterator.Current;
-            if (optionNav == null) continue;
+            var optionNav = iter.Current;
+            if (optionNav is null) continue;
 
-            var option = new ModeOption
+            var values = optionNav
+                .SelectChildren(XPathNodeType.Element)
+                .Cast<XPathNavigator>()
+                .Select(v => v.Value?.Trim())
+                .Where(v => !string.IsNullOrEmpty(v))
+                .ToList();
+
+            list.Add(new ModeOption
             {
                 Name = optionNav.Name,
                 Default = double.TryParse(optionNav.GetAttribute("Default", ""), out var def) ? def : 0,
@@ -149,66 +148,66 @@ public class BoardPropertyModel
                 ProgMax = double.TryParse(optionNav.GetAttribute("ProgMax", ""), out var pmax) ? pmax : 0,
                 ProgMin = double.TryParse(optionNav.GetAttribute("ProgMin", ""), out var pmin) ? pmin : 0,
                 ProgRes = double.TryParse(optionNav.GetAttribute("ProgRes", ""), out var pres) ? pres : 0,
-                Values = optionNav?
-                    .SelectChildren(XPathNodeType.Element)
-                    .Cast<XPathNavigator>()
-                    .Where(static e => !string.IsNullOrEmpty(e.Value))
-                    .Select(e => e.Value)
-                    .ToList() ?? [],
-            };
-            options.Add(option);
+                Values = values
+            });
         }
-        return options;
+        return list;
     }
 
     public static List<ChannelMode> GetChannelModes(XPathNavigator channelNav)
     {
         var modes = new List<ChannelMode>();
         if (channelNav is null || channelNav.NodeType != XPathNodeType.Element)
-            return modes;
-
-        var modeIterator = channelNav.SelectChildren("Mode", "");
-        while (modeIterator.MoveNext())
         {
-            var modeNav = modeIterator.Current;
-            if (modeNav == null) continue;
+            return modes;
+        }
+
+        var iterator = channelNav.SelectChildren("Mode", "");
+        while (iterator.MoveNext())
+        {
+            var modeNav = iterator.Current;
+            if (modeNav is null) continue;
 
             var rangeNav = modeNav.SelectSingleNode("Range");
 
-            // Name attribute may be "Mode" or "Name"; fallback to node name
+            // Resolve name
             var name = modeNav.GetAttribute("Mode", "");
             if (string.IsNullOrWhiteSpace(name))
+            {
                 name = modeNav.GetAttribute("Name", "");
+            }
             if (string.IsNullOrWhiteSpace(name))
+            {
                 name = modeNav.Name;
+            }
 
-            // Unit can reside on Range or Mode level
+            // Unit fallback
             var unit = rangeNav?.GetAttribute("Unit", "");
             if (string.IsNullOrWhiteSpace(unit))
+            {
                 unit = modeNav.GetAttribute("Unit", "");
+            }
             unit ??= string.Empty;
 
-            // Collect textual ranges (IDs like ID0, ID1...). Preserve as strings.
+            // Ranges
             var ranges = rangeNav?
                 .SelectChildren(XPathNodeType.Element)
                 .Cast<XPathNavigator>()
-                .Where(e => e.Name.StartsWith("ID", StringComparison.OrdinalIgnoreCase))
-                .Select(e => e.Value?.Trim())
+                .Where(n => n.Name.StartsWith("ID", StringComparison.OrdinalIgnoreCase))
+                .Select(n => n.Value?.Trim())
                 .Where(v => !string.IsNullOrWhiteSpace(v))
                 .ToList() ?? [];
 
             var defaultValue = rangeNav?.GetAttribute("Default", "") ?? string.Empty;
 
-            var mode = new ChannelMode
+            modes.Add(new ChannelMode
             {
                 Name = name,
                 Unit = unit,
                 Ranges = ranges,
                 Options = GetModeOptions(modeNav),
                 DefaultValue = defaultValue
-            };
-
-            modes.Add(mode);
+            });
         }
 
         return modes;

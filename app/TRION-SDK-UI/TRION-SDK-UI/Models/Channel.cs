@@ -100,6 +100,10 @@ namespace TRION_SDK_UI.Models
             string rangecomb = $"{_range} {_unit}";
 
             Utils.CheckErrorCode(
+                TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name),
+                $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
+
+            Utils.CheckErrorCode(
                 TrionApi.DeWeSetParamStruct(target, "Range", rangecomb),
                 $"Failed to set range for channel {Name} on board {BoardID}");
         }
@@ -108,46 +112,13 @@ namespace TRION_SDK_UI.Models
         {
             string target = $"BoardID{BoardID}/{Name}";
 
-            string[] candidateModes =
-            [
-                "DIO",
-                "DI",
-                "DO"
-            ];
+            Utils.CheckErrorCode(
+                TrionApi.DeWeSetParamStruct(target, "Used", "True"),
+                $"Failed to activate channel {Name} on board {BoardID}");
 
-            if (ModeList.Count > 0)
-            {
-                var known = ModeList.Select(m => m.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-                candidateModes =
-                [
-                    .. candidateModes.Where(m => known.Contains(m)),
-                    .. candidateModes.Where(m => !known.Contains(m)),
-                ];
-            }
-
-            TrionError lastErr = TrionError.NONE;
-            bool modeSet = false;
-            foreach (var mode in candidateModes)
-            {
-                var err = TrionApi.DeWeSetParamStruct(target, "Mode", mode);
-                if (err == TrionError.NONE)
-                {
-                    modeSet = true;
-                    break;
-                }
-                lastErr = err;
-            }
-
-            if (!modeSet)
-            {
-                System.Diagnostics.Debug.WriteLine($"[WARN] Could not set mode to DIO/DI/DO for {target}. Last error={lastErr}");
-            }
-
-            var usedErr = TrionApi.DeWeSetParamStruct(target, "Used", "True");
-            if (usedErr != TrionError.NONE)
-            {
-                System.Diagnostics.Debug.WriteLine($"[WARN] Could not set Used=True for {target}. Error={usedErr}");
-            }
+            Utils.CheckErrorCode(
+                TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name),
+                $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
         }
     }
 }

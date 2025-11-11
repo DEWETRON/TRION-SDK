@@ -24,7 +24,13 @@ public sealed class ChannelDetailViewModel : BaseViewModel
     public string? SelectedMode
     {
         get => _selectedMode;
-        set { if (_selectedMode != value) { _selectedMode = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_selectedMode == value) return;
+            _selectedMode = value;
+            OnPropertyChanged();
+            OnSelectedModeChanged(); // update ranges immediately when mode changes in the picker
+        }
     }
 
     private string? _selectedRange;
@@ -55,15 +61,23 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         if (Channel.ModeList is { Count: > 0 })
         {
             foreach (var m in Channel.ModeList)
+            {
                 Modes.Add(m.Name);
+            }
+
             SelectedMode = Channel.Mode?.Name;
 
             foreach (var range in Channel.Mode.Ranges)
-                if (!Ranges.Contains(range))
-                    Ranges.Add(range);
+            {
+                if (Ranges.Contains(range))
+                {
+                    continue;
+                }
+                Ranges.Add(range);
+            }
         }
 
-        IsSelected = Channel.IsSelected;
+            IsSelected = Channel.IsSelected;
 
         Channel.PropertyChanged += ChannelOnPropertyChanged;
 
@@ -88,38 +102,31 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                     SelectedMode = Channel.Mode?.Name;
                     Ranges.Clear();
                     foreach (var r in Channel.Mode.Ranges)
+                    {
                         Ranges.Add(r);
+                    }
                 }
                 break;
             case nameof(Channel.Unit):
-                // Unit is shown via Channel.Mode.Unit; no VM property needed
                 break;
         }
     }
-
-    private string TargetPath => $"BoardID{Channel.BoardID}/{Channel.Name}";
-
     private async Task RefreshAsync()
     {
-        // Refresh from Channel model only (no hardware access)
         _suppressSync = true;
         try
         {
-            // Sync SelectedMode from Channel
             SelectedMode = Channel.Mode?.Name;
 
-            // Rebuild Ranges from the current mode
             Ranges.Clear();
             if (Channel.Mode?.Ranges is { Count: > 0 })
             {
                 foreach (var r in Channel.Mode.Ranges)
+                {
                     Ranges.Add(r);
+                }
             }
 
-            // Determine SelectedRange:
-            // 1) Prefer Channel.Range if present and exists in current Ranges
-            // 2) Else use Mode.DefaultValue (index) if valid
-            // 3) Else fallback to first available range
             string? rangeToSelect = null;
 
             if (!string.IsNullOrWhiteSpace(Channel.Range) && Ranges.Contains(Channel.Range))
@@ -140,19 +147,56 @@ public sealed class ChannelDetailViewModel : BaseViewModel
 
             SelectedRange = rangeToSelect;
 
-            // Keep Channel in-sync for Mode only
             if (!string.IsNullOrWhiteSpace(SelectedMode))
             {
-                var newMode = Channel.ModeList
-                    .FirstOrDefault(m => string.Equals(m.Name, SelectedMode, StringComparison.OrdinalIgnoreCase));
+                var newMode = Channel.ModeList.FirstOrDefault(m => string.Equals(m.Name, SelectedMode, StringComparison.OrdinalIgnoreCase));
                 if (newMode is not null && !ReferenceEquals(newMode, Channel.Mode))
+                {
                     Channel.Mode = newMode;
+                }
             }
-            // Selection stays app-level only (do not push SelectedRange to Channel.Range here)
         }
         finally
         {
             _suppressSync = false;
+        }
+    }
+
+    private void OnSelectedModeChanged()
+    {
+        var mode = Channel.ModeList.FirstOrDefault(m => string.Equals(m.Name, _selectedMode, StringComparison.OrdinalIgnoreCase));
+
+        Ranges.Clear();
+        if (mode?.Ranges is { Count: > 0 })
+        {
+            foreach (var r in mode.Ranges)
+            {
+                if (string.IsNullOrWhiteSpace(r))
+                {
+                    continue;
+                }
+                Ranges.Add(r);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(SelectedRange) && Ranges.Contains(SelectedRange))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Channel.Range) && Ranges.Contains(Channel.Range))
+        {
+            SelectedRange = Channel.Range;
+            return;
+        }
+
+        if (mode != null && int.TryParse(mode.DefaultValue, out var idx) && idx >= 0 && idx < Ranges.Count)
+        {
+            SelectedRange = Ranges[idx];
+        }
+        else
+        {
+            SelectedRange = Ranges.FirstOrDefault();
         }
     }
 
@@ -163,33 +207,32 @@ public sealed class ChannelDetailViewModel : BaseViewModel
             _suppressSync = true;
             try
             {
-                // Apply Mode -> Channel.Mode (and Unit from the mode)
                 if (!string.IsNullOrWhiteSpace(SelectedMode))
                 {
-                    var newMode = Channel.ModeList
-                        .FirstOrDefault(m => string.Equals(m.Name, SelectedMode, StringComparison.OrdinalIgnoreCase));
+                    var newMode = Channel.ModeList.FirstOrDefault(m => string.Equals(m.Name, SelectedMode, StringComparison.OrdinalIgnoreCase));
 
                     if (newMode is not null && !ReferenceEquals(newMode, Channel.Mode))
                     {
                         Channel.Mode = newMode;
-
-                        // keep Channel.Unit consistent with the selected mode
                         if (!string.IsNullOrWhiteSpace(newMode.Unit))
+                        {
                             Channel.Unit = newMode.Unit!;
+                        }
                     }
                 }
 
-                // Apply Range -> Channel.Range
                 if (!string.IsNullOrWhiteSpace(SelectedRange))
                 {
-                    // guard: ensure SelectedRange is valid for the current mode
                     if (Channel.Mode?.Ranges?.Contains(SelectedRange) == true)
+                    {
                         Channel.Range = SelectedRange;
+                    }
                     else if (Channel.Mode?.Ranges?.Count > 0)
+                    {
                         Channel.Range = Channel.Mode.Ranges[0];
+                    }
                 }
 
-                // Apply selection flag (app-level)
                 Channel.IsSelected = IsSelected;
             }
             finally

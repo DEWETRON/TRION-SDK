@@ -88,8 +88,8 @@ namespace TRION_SDK_UI.Models
             {
                 throw new InvalidOperationException("BoardProperties must not be null when setting board properties.");
             }
-            Id = BoardProperties.GetBoardID();
-            Name = BoardProperties.GetBoardName();
+            Id = BoardProperties.BoardId;
+            Name = BoardProperties.BoardName;
         }
 
         /// <summary>
