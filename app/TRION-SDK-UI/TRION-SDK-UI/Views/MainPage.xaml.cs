@@ -93,7 +93,6 @@ namespace TRION_SDK_UI
                     {
                         var dl = GetOrCreateLogger(channelKey);
 
-                        // follow latest when locked; allow panning when unlocked
                         dl.ManageAxisLimits = vm.FollowLatest;
 
                         var (ys, xs) = ConvertSamplesToXYArrays(samples);

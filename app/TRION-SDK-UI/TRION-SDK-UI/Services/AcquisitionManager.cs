@@ -325,7 +325,6 @@ public class AcquisitionManager(Enclosure enclosure)
         }
 
         int signBit = 1 << (sampleSize - 1);
-        // somehow use the range of the channel to scale the value
         double value = (double)raw / (double)(signBit - 1) * scale;
         return value;
     }

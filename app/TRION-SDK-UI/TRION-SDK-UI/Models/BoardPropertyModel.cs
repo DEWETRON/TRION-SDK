@@ -1,5 +1,4 @@
 using System.Xml.XPath;
-using Trion;
 using TRION_SDK_UI.Models;
 using static TRION_SDK_UI.Models.Channel;
 
@@ -85,7 +84,6 @@ public sealed class BoardPropertyModel
             var (ok, defaultMode) = TryGetDefaultMode(channelNav);
             if (!ok) continue;
 
-            // Resolve default range index -> textual range
             var rangeIndexStr = defaultMode.DefaultValue ?? string.Empty;
             int idx = int.TryParse(rangeIndexStr, out var parsed) ? parsed : 0;
             string defaultRange =
@@ -170,7 +168,6 @@ public sealed class BoardPropertyModel
 
             var rangeNav = modeNav.SelectSingleNode("Range");
 
-            // Resolve name
             var name = modeNav.GetAttribute("Mode", "");
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -181,7 +178,6 @@ public sealed class BoardPropertyModel
                 name = modeNav.Name;
             }
 
-            // Unit fallback
             var unit = rangeNav?.GetAttribute("Unit", "");
             if (string.IsNullOrWhiteSpace(unit))
             {
@@ -189,7 +185,6 @@ public sealed class BoardPropertyModel
             }
             unit ??= string.Empty;
 
-            // Ranges
             var ranges = rangeNav?
                 .SelectChildren(XPathNodeType.Element)
                 .Cast<XPathNavigator>()

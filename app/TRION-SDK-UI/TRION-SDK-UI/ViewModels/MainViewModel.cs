@@ -103,7 +103,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         OpenChannelWindowCommand     = new Command<Channel>(OpenChannelWindow);
     }
 
-    // NEW: open a separate window for the clicked channel
     private void OpenChannelWindow(Channel? ch)
     {
         if (ch is null) return;
@@ -114,7 +113,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         LogMessages.Add($"Opened window for {ch.BoardID}/{ch.Name} ({window.Width}x{window.Height})");
     }
 
-    // NEW: guard to revert selection when over limit
     private void OnChannelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (_suppressSelectionGuard) return;
@@ -211,7 +209,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
     }
 
-    // Dispatcher timer
     private IDispatcherTimer? _uiDrainTimer;
     private EventHandler? _drainTickHandler;
 
@@ -254,21 +251,18 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private void DrainAndPublish()
     {
-        // get a batch of samples per channel (up to maxPerChannel)
         var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 1000);
         if (0 == batches.Count)
         {
             return;
         }
 
-        // Single UI block per tick
         var now = DateTime.UtcNow;
         bool updateMeters = (now - _lastMeterUpdateUtc) >= _meterUpdatePeriod;
         if (updateMeters) _lastMeterUpdateUtc = now;
 
         foreach (var (channelKey, samples) in batches)
         {
-            // Update meters less frequently
             if (updateMeters)
             {
                 var latestValue = samples.Length > 0 ? samples[^1].Value : 0;
@@ -289,10 +283,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         await Clipboard.SetTextAsync(channelPath);
         LogMessages.Add($"Copied: {channelPath}");
     }
-
-    /// <summary>
-    /// Deselect all channels and select only the provided one. Useful for quick isolation and testing.
-    /// </summary>
     private void SelectOnlyChannel(Channel? ch)
     {
         if (ch is null) return;
