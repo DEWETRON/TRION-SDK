@@ -2,26 +2,65 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TRION_SDK_UI.ChannelDetailPage"
-             Title="Channel Details">
+             Title="{Binding Title}">
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Text="Channel Details" FontSize="20" FontAttributes="Bold" />
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="8">
+        <VerticalStackLayout Padding="16" Spacing="14">
+            <Label Text="{Binding Title}" FontSize="22" FontAttributes="Bold" />
+
+            <!-- Basic info (read-only) -->
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="6">
                 <Label Grid.Row="0" Grid.Column="0" Text="Board ID:" FontAttributes="Bold" />
-                <Label Grid.Row="0" Grid.Column="1" Text="{Binding BoardID}" />
+                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Channel.BoardID}" />
 
                 <Label Grid.Row="1" Grid.Column="0" Text="Board Name:" FontAttributes="Bold" />
-                <Label Grid.Row="1" Grid.Column="1" Text="{Binding BoardName}" />
+                <Label Grid.Row="1" Grid.Column="1" Text="{Binding Channel.BoardName}" />
 
-                <Label Grid.Row="2" Grid.Column="0" Text="Channel Name:" FontAttributes="Bold" />
-                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Name}" />
+                <Label Grid.Row="2" Grid.Column="0" Text="Channel:" FontAttributes="Bold" />
+                <Label Grid.Row="2" Grid.Column="1" Text="{Binding Channel.Name}" />
 
                 <Label Grid.Row="3" Grid.Column="0" Text="Type:" FontAttributes="Bold" />
-                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Type}" />
+                <Label Grid.Row="3" Grid.Column="1" Text="{Binding Channel.Type}" />
 
                 <Label Grid.Row="4" Grid.Column="0" Text="Unit:" FontAttributes="Bold" />
-                <Label Grid.Row="4" Grid.Column="1" Text="{Binding Unit}" />
+                <Label Grid.Row="4" Grid.Column="1" Text="{Binding Channel.Mode.Unit}" />
+
             </Grid>
+
+            <BoxView HeightRequest="1"
+                     Color="{AppThemeBinding Light=#cccccc, Dark=#444444}" />
+
+            <!-- Editable properties -->
+            <VerticalStackLayout Spacing="10">
+
+                <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                    <Label Text="Used:" WidthRequest="80" VerticalOptions="Center" />
+                    <Switch IsToggled="{Binding Used, Mode=TwoWay}" />
+                </HorizontalStackLayout>
+
+                <VerticalStackLayout>
+                    <Label Text="Mode" FontAttributes="Bold" />
+                    <Picker ItemsSource="{Binding Modes}"
+                            SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
+                            Title="Select mode" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout>
+                    <Label Text="Range" FontAttributes="Bold" />
+                    <Picker ItemsSource="{Binding Ranges}"
+                            SelectedItem="{Binding SelectedRange, Mode=TwoWay}"
+                            Title="Select range" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Spacing="12" Margin="0,10,0,0">
+                <Button Text="Refresh" Command="{Binding RefreshCommand}" />
+                <Button Text="Apply" Command="{Binding ApplyCommand}" />
+            </HorizontalStackLayout>
+
+            <Label FontSize="11"
+                   Text="Note: After changing mode or range you may need to refresh the board scan descriptor before starting a new acquisition."
+                   TextColor="{AppThemeBinding Light=#555555, Dark=#bbbbbb}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

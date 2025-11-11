@@ -8,7 +8,7 @@ public sealed class ChannelDetailWindow : Window
         Title = $"Channel {channel.BoardID}/{channel.Name}";
         // Set desired size (supported on Windows & MacCatalyst)
         Width = 600;
-        Height = 420;
+        Height = 600;
 
         // Optional initial position (ignored on some platforms)
         X = 120;
