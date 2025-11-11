@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
 using Trion;
-using TRION_SDK_UI.Models;
 using TrionApiUtils;
 
-public class Enclosure
+namespace TRION_SDK_UI.Models;
+    public class Enclosure
 {
     public string? Name { get; set; }
 

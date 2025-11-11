@@ -1,5 +1,6 @@
 using System.Xml.XPath;
 
+namespace TRION_SDK_UI.Models;
 public partial class ScanDescriptorDecoder
 {
     public class ChannelInfo

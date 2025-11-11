@@ -1,6 +1,7 @@
 ﻿using ScottPlot.Plottables;
 using System.Collections.Specialized;
 using TRION_SDK_UI.Models;
+using TRION_SDK_UI.ViewModels;
 
 namespace TRION_SDK_UI
 {

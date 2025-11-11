@@ -1,6 +1,7 @@
 using System.Xml.XPath;
-using TRION_SDK_UI.Models;
 using static TRION_SDK_UI.Models.Channel;
+
+namespace TRION_SDK_UI.Models;
 
 public sealed class BoardPropertyModel
 {
@@ -123,11 +124,11 @@ public sealed class BoardPropertyModel
 
     private static List<ModeOption> GetModeOptions(XPathNavigator modeNav)
     {
-        var list = new List<ModeOption>(8);
-        var iter = modeNav.SelectChildren(XPathNodeType.Element);
-        while (iter.MoveNext())
+        var list = new List<ModeOption>();
+        var iterator = modeNav.SelectChildren(XPathNodeType.Element);
+        while (iterator.MoveNext())
         {
-            var optionNav = iter.Current;
+            var optionNav = iterator.Current;
             if (optionNav is null) continue;
 
             var values = optionNav
@@ -143,9 +144,9 @@ public sealed class BoardPropertyModel
                 Default = double.TryParse(optionNav.GetAttribute("Default", ""), out var def) ? def : 0,
                 Unit = optionNav.GetAttribute("Unit", ""),
                 Programmable = optionNav.GetAttribute("Programmable", ""),
-                ProgMax = double.TryParse(optionNav.GetAttribute("ProgMax", ""), out var pmax) ? pmax : 0,
-                ProgMin = double.TryParse(optionNav.GetAttribute("ProgMin", ""), out var pmin) ? pmin : 0,
-                ProgRes = double.TryParse(optionNav.GetAttribute("ProgRes", ""), out var pres) ? pres : 0,
+                ProgMax = double.TryParse(optionNav.GetAttribute("ProgMax", ""), out var programmingMax) ? programmingMax : 0,
+                ProgMin = double.TryParse(optionNav.GetAttribute("ProgMin", ""), out var programmingMin) ? programmingMin : 0,
+                ProgRes = double.TryParse(optionNav.GetAttribute("ProgRes", ""), out var ProgrammingRes) ? ProgrammingRes : 0,
                 Values = values
             });
         }

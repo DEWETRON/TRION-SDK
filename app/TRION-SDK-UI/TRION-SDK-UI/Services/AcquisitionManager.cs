@@ -6,6 +6,7 @@ using Trion;
 using TRION_SDK_UI.Models;
 using TrionApiUtils;
 
+namespace TRION_SDK_UI.Services;
 public class AcquisitionManager(Enclosure enclosure)
 {
     private readonly Enclosure _enclosure = enclosure;

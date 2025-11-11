@@ -4,7 +4,9 @@ using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
 using System.ComponentModel;
+using TRION_SDK_UI.Services;
 
+namespace TRION_SDK_UI.ViewModels;
 public class MainViewModel : BaseViewModel, IDisposable
 {
     public ObservableCollection<DigitalMeter> DigitalMeters { get; } = [];
@@ -45,6 +47,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
         TrionApi.Uninitialize();
     }
@@ -145,7 +148,7 @@ public class MainViewModel : BaseViewModel, IDisposable
             foreach (var extra in selectedChannels.Skip(MaxSelectableChannels))
                 extra.IsSelected = false;
 
-            selectedChannels = selectedChannels.Take(MaxSelectableChannels).ToList();
+            selectedChannels = [.. selectedChannels.Take(MaxSelectableChannels)];
             LogMessages.Add($"Selection limited to {MaxSelectableChannels} channels.");
         }
 

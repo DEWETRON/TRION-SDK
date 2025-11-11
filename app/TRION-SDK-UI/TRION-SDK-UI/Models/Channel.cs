@@ -96,14 +96,12 @@ namespace TRION_SDK_UI.Models
                 TrionApi.DeWeSetParamStruct(target, "Used", "True"),
                 $"Failed to activate channel {Name} on board {BoardID}");
 
-            string rangecomb = $"{_range} {_unit}";
-
             Utils.CheckErrorCode(
                 TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name),
                 $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
 
             Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct(target, "Range", rangecomb),
+                TrionApi.DeWeSetParamStruct(target, "Range", $"{_range} {_unit}"),
                 $"Failed to set range for channel {Name} on board {BoardID}");
         }
 

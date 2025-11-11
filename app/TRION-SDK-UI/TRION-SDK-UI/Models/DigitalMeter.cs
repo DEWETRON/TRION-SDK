@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
+namespace TRION_SDK_UI.Models;
 public class DigitalMeter : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
