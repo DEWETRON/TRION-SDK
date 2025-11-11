@@ -53,6 +53,9 @@ public sealed class ChannelDetailViewModel : BaseViewModel
 
     public ChannelDetailViewModel(Channel channel)
     {
+        ArgumentNullException.ThrowIfNull(channel);
+        ArgumentNullException.ThrowIfNull(channel.Mode);
+
         Channel = channel;
 
         if (Channel.ModeList is { Count: > 0 })
@@ -62,21 +65,23 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                 Modes.Add(m.Name);
             }
 
-            SelectedMode = Channel.Mode?.Name;
+            SelectedMode = channel.Mode?.Name;
 
-            foreach (var range in Channel.Mode.Ranges)
+            if (channel.Mode?.Ranges is { Count: > 0 })
             {
-                if (Ranges.Contains(range))
+                foreach (var range in channel.Mode.Ranges)
                 {
-                    continue;
+                    if (Ranges.Contains(range))
+                    {
+                        continue;
+                    }
+                    Ranges.Add(range);
                 }
-                Ranges.Add(range);
             }
         }
+        IsSelected = channel.IsSelected;
 
-            IsSelected = Channel.IsSelected;
-
-        Channel.PropertyChanged += ChannelOnPropertyChanged;
+        channel.PropertyChanged += ChannelOnPropertyChanged;
 
         ApplyCommand = new Command(async () => await ApplyAsync());
         RefreshCommand = new Command(async () => await RefreshAsync());
@@ -98,9 +103,12 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                 {
                     SelectedMode = Channel.Mode?.Name;
                     Ranges.Clear();
-                    foreach (var r in Channel.Mode.Ranges)
+                    if (Channel.Mode?.Ranges is { Count: > 0 })
                     {
-                        Ranges.Add(r);
+                        foreach (var r in Channel.Mode.Ranges)
+                        {
+                            Ranges.Add(r);
+                        }
                     }
                 }
                 break;
@@ -110,6 +118,8 @@ public sealed class ChannelDetailViewModel : BaseViewModel
     }
     private async Task RefreshAsync()
     {
+        await Task.Yield();
+
         _suppressSync = true;
         try
         {

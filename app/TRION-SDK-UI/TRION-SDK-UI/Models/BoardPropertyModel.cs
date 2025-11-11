@@ -136,6 +136,7 @@ public sealed class BoardPropertyModel
                 .Cast<XPathNavigator>()
                 .Select(v => v.Value?.Trim())
                 .Where(v => !string.IsNullOrEmpty(v))
+                .Select(v => v!)
                 .ToList();
 
             list.Add(new ModeOption
@@ -192,6 +193,7 @@ public sealed class BoardPropertyModel
                 .Where(n => n.Name.StartsWith("ID", StringComparison.OrdinalIgnoreCase))
                 .Select(n => n.Value?.Trim())
                 .Where(v => !string.IsNullOrWhiteSpace(v))
+                .Select(v => v!)
                 .ToList() ?? [];
 
             var defaultValue = rangeNav?.GetAttribute("Default", "") ?? string.Empty;
