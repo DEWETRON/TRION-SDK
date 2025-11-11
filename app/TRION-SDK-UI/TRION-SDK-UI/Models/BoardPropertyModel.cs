@@ -131,7 +131,7 @@ public class BoardPropertyModel
             var mode = new ChannelMode
             {
                 Name = modeNav.GetAttribute("Mode", ""),
-                Unit = ParseUnit(rangeNav?.GetAttribute("Unit", "")),
+                Unit = rangeNav?.GetAttribute("Unit", "") ?? string.Empty,
                 Ranges = rangeNav?
                     .SelectChildren(XPathNodeType.Element)
                     .Cast<XPathNavigator>()
@@ -143,16 +143,5 @@ public class BoardPropertyModel
             modes.Add(mode);
         }
         return modes;
-    }
-    private static ChannelMode.UnitEnum ParseUnit(string? unit)
-    {
-        return unit switch
-        {
-            "V" => ChannelMode.UnitEnum.Voltage,
-            "mA" => ChannelMode.UnitEnum.MilliAmperes,
-            "Hz" => ChannelMode.UnitEnum.Hertz,
-            "Ohm" => ChannelMode.UnitEnum.Ohm,
-            _ => ChannelMode.UnitEnum.None
-        };
     }
 }
