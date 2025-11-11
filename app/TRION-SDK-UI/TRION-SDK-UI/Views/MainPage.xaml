@@ -158,10 +158,6 @@
                         <!-- Context flyout -->
                         <FlyoutBase.ContextFlyout>
                             <MenuFlyout>
-                                <MenuFlyoutItem Text="Show Channel Properties"
-                                                Command="{Binding BindingContext.ShowChannelPropertiesCommand, Source={x:Reference RootGrid}}"
-                                                CommandParameter="{Binding .}" />
-                                <MenuFlyoutSeparator />
                                 <MenuFlyoutItem Text="Copy Channel Path"
                                                 Command="{Binding BindingContext.CopyChannelPathCommand, Source={x:Reference RootGrid}}"
                                                 CommandParameter="{Binding .}" />
