@@ -38,18 +38,6 @@ namespace TRION_SDK_UI.Models
             }
         }
 
-        private double _currentValue;
-        public double CurrentValue
-        {
-            get => _currentValue;
-            set
-            {
-                if (value.Equals(_currentValue)) return;
-                _currentValue = value;
-                OnPropertyChanged();
-            }
-        }
-
         public required string Unit { get; set; }
 
         public void Activate()

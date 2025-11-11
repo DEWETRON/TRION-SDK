@@ -168,7 +168,6 @@ public class MainViewModel : BaseViewModel, IDisposable
             var meter = new DigitalMeter
             {
                 Label = key,
-                Value = channel.CurrentValue,
                 Unit = channel.Unit
             };
             _meterByKey[key] = meter;
@@ -262,10 +261,7 @@ public class MainViewModel : BaseViewModel, IDisposable
             if (updateMeters)
             {
                 var latestValue = samples.Length > 0 ? samples[^1].Value : 0;
-                if (_channelByKey.TryGetValue(channelKey, out var ch))
-                {
-                    ch.CurrentValue = latestValue;
-                }
+           
                 if (_meterByKey.TryGetValue(channelKey, out var meter))
                 {
                     meter.AddSample(latestValue);
