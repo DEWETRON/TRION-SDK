@@ -50,7 +50,13 @@
             <!-- Plot kept separate from ScrollView so wheel / gestures interact with the plot first -->
             <ScottPlot:MauiPlot x:Name="MauiPlot1"
                                 Grid.Row="0"
-                                HeightRequest="400" />
+                                HeightRequest="400">
+                <ScottPlot:MauiPlot.GestureRecognizers>
+                    <PointerGestureRecognizer PointerEntered="OnPointerEntered"
+                                              PointerExited="OnPointerExited"
+                                              PointerMoved="OnPointerMoved" />
+                </ScottPlot:MauiPlot.GestureRecognizers>
+            </ScottPlot:MauiPlot>
 
             <!-- Scrollable content: digital meters and log -->
             <ScrollView Grid.Row="1">
