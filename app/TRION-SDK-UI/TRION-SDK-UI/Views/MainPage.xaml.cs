@@ -2,6 +2,7 @@
 using ScottPlot.Plottables;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using TRION_SDK_UI.Models;
 using TRION_SDK_UI.ViewModels;
 
@@ -48,6 +49,7 @@ namespace TRION_SDK_UI
             DataPoint nearestPoint = DataPoint.None;
             DataLogger? nearestLogger = null;
             double minDeltaX = double.MaxValue;
+            double minDeltaY = double.MaxValue;
 
             foreach (var logger in _loggers.Values)
             {
@@ -55,15 +57,19 @@ namespace TRION_SDK_UI
                 if (logger.Data.Coordinates.Count == 0)
                     continue;
 
-                var candidatePoint = logger.GetNearestX(cursorCoordinates, lastRender.DataRect, maxDistance: 5);
-                Debug.WriteLine($"  CandidatePoint from '{logger.LegendText}' = {candidatePoint.X} - {cursorCoordinates.X})");
+                var candidatePoint = logger.GetNearest(cursorCoordinates, lastRender.DataRect, maxDistance: 128);
+                Debug.WriteLine($"candidatePoint = {candidatePoint.Coordinates} from logger {logger.LegendText}");
 
                 double deltaX = Math.Abs(candidatePoint.X - cursorCoordinates.X);
+                double deltaY = Math.Abs(candidatePoint.Y - cursorCoordinates.Y);
                 if (deltaX >= minDeltaX)
+                    continue;
+                if (deltaY >= minDeltaY)
                     continue;
 
 
                 minDeltaX = deltaX;
+                minDeltaY = deltaY;
                 nearestPoint = candidatePoint;
                 nearestLogger = logger;
             }
