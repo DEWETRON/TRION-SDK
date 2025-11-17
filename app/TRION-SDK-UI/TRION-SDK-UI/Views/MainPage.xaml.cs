@@ -3,7 +3,6 @@ using ScottPlot.Plottables;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using TRION_SDK_UI.Models;
 using TRION_SDK_UI.ViewModels;
 
@@ -18,6 +17,9 @@ namespace TRION_SDK_UI
         private Crosshair _crosshair = null!;
         private VerticalLine _lockLine = null!;
         private bool _isScrollLocked;
+
+        private Coordinates _lastCursorCoordinates;
+        private bool _hasCursor;
 
         private const double CursorLabelOffsetX = 14;
         private const double CursorLabelOffsetY = 14;
@@ -57,6 +59,9 @@ namespace TRION_SDK_UI
             var cursorCoordinates = MauiPlot1.Plot.GetCoordinates(cursorPixel);
             var lastRender = MauiPlot1.Plot.LastRender;
 
+            _lastCursorCoordinates = cursorCoordinates;
+            _hasCursor = true;
+
             if (_isScrollLocked)
             {
                 RenderLine(cursorPixel, cursorCoordinates);
@@ -69,33 +74,27 @@ namespace TRION_SDK_UI
 
         private void RenderCrosshair(Pixel cursorPixel, Coordinates cursorCoordinates, RenderDetails lastRender)
         {
-        
-
             DataPoint nearestPoint = DataPoint.None;
             DataLogger? nearestLogger = null;
-            double minDeltaX = double.MaxValue;
-            double minDeltaY = double.MaxValue;
+            double bestDist2 = double.MaxValue;
 
             foreach (var logger in _loggers.Values)
             {
-                // Skip series without data to avoid index issues
                 if (logger.Data.Coordinates.Count == 0)
                     continue;
 
-                var candidatePoint = logger.GetNearest(cursorCoordinates, lastRender.DataRect, maxDistance: 128);
-                Debug.WriteLine($"candidatePoint = {candidatePoint.Coordinates} from logger {logger.LegendText}");
-
-                double deltaX = Math.Abs(candidatePoint.X - cursorCoordinates.X);
-                double deltaY = Math.Abs(candidatePoint.Y - cursorCoordinates.Y);
-                if (deltaX >= minDeltaX)
-                    continue;
-                if (deltaY >= minDeltaY)
+                var candidate = logger.GetNearest(cursorCoordinates, lastRender.DataRect, maxDistance: 128);
+                if (!candidate.IsReal)
                     continue;
 
+                double dx = candidate.X - cursorCoordinates.X;
+                double dy = candidate.Y - cursorCoordinates.Y;
+                double d2 = dx * dx + dy * dy;
+                if (d2 >= bestDist2)
+                    continue;
 
-                minDeltaX = deltaX;
-                minDeltaY = deltaY;
-                nearestPoint = candidatePoint;
+                bestDist2 = d2;
+                nearestPoint = candidate;
                 nearestLogger = logger;
             }
 
@@ -288,7 +287,7 @@ namespace TRION_SDK_UI
                 _crosshair.IsVisible = !_isScrollLocked && CursorLabel.IsVisible;
 
                 if (_isScrollLocked)
-                    _lockLine.X = _crosshair.X;
+                    _lockLine.X = _hasCursor ? _lastCursorCoordinates.X : _crosshair.X;
 
                 MauiPlot1.Refresh();
 
@@ -314,17 +313,11 @@ namespace TRION_SDK_UI
                 if (logger.Data.Coordinates.Count == 0)
                     continue;
 
-                DataPoint dp;
-                try
-                {
-                    dp = logger.GetNearestX(queryCoords, lastRender.DataRect, maxDistance: 1_000_000);
-                }
-                catch
-                {
+                var dp = logger.GetNearestX(queryCoords, lastRender.DataRect, maxDistance: 1_000_000);
+                if (!dp.IsReal)
                     dp = logger.GetNearest(queryCoords, lastRender.DataRect, maxDistance: 1_000_000);
-                }
 
-                if (double.IsNaN(dp.X))
+                if (!dp.IsReal)
                     continue;
 
                 lines.Add($"{logger.LegendText}: {dp.Y:F3}");
@@ -333,8 +326,7 @@ namespace TRION_SDK_UI
             if (lines.Count == 0)
                 return;
 
-            CursorLabelText.Text = string.Join("\n", lines);
-            CursorLabelText.Text += $"\nX: {x:F3}";
+            CursorLabelText.Text = string.Join("\n", lines) + $"\nX: {x:F3}";
         }
 
         private void OnDragHandlePanUpdated(object? sender, PanUpdatedEventArgs e)
