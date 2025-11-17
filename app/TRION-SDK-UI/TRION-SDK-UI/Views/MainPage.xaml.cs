@@ -69,38 +69,34 @@ namespace TRION_SDK_UI
 
         private void RenderCrosshair(Pixel cursorPixel, Coordinates cursorCoordinates, RenderDetails lastRender)
         {
+        
+
             DataPoint nearestPoint = DataPoint.None;
             DataLogger? nearestLogger = null;
-            double minDist2 = double.MaxValue;
+            double minDeltaX = double.MaxValue;
+            double minDeltaY = double.MaxValue;
 
-            var xAxis = MauiPlot1.Plot.Axes.GetXAxes().FirstOrDefault();
-            var yAxis = MauiPlot1.Plot.Axes.GetYAxes().FirstOrDefault();
-
-            double pxPerUnitX = 1.0, pxPerUnitY = 1.0;
-            if (xAxis != null && yAxis != null)
-            {
-                var xRange = xAxis.GetRange();
-                var yRange = yAxis.GetRange();
-                pxPerUnitX = lastRender.DataRect.Width / xRange.Span;
-                pxPerUnitY = lastRender.DataRect.Height / yRange.Span;
-            }
             foreach (var logger in _loggers.Values)
             {
+                // Skip series without data to avoid index issues
                 if (logger.Data.Coordinates.Count == 0)
                     continue;
 
                 var candidatePoint = logger.GetNearest(cursorCoordinates, lastRender.DataRect, maxDistance: 128);
+                Debug.WriteLine($"candidatePoint = {candidatePoint.Coordinates} from logger {logger.LegendText}");
 
-                double dxPx = (candidatePoint.X - cursorCoordinates.X) * pxPerUnitX;
-                double dyPx = (candidatePoint.Y - cursorCoordinates.Y) * pxPerUnitY;
-                double dist2 = dxPx * dxPx + dyPx * dyPx;
+                double deltaX = Math.Abs(candidatePoint.X - cursorCoordinates.X);
+                double deltaY = Math.Abs(candidatePoint.Y - cursorCoordinates.Y);
+                if (deltaX >= minDeltaX)
+                    continue;
+                if (deltaY >= minDeltaY)
+                    continue;
 
-                if (dist2 < minDist2)
-                {
-                    minDist2 = dist2;
-                    nearestPoint = candidatePoint;
-                    nearestLogger = logger;
-                }
+
+                minDeltaX = deltaX;
+                minDeltaY = deltaY;
+                nearestPoint = candidatePoint;
+                nearestLogger = logger;
             }
 
             if (!nearestPoint.IsReal || nearestLogger is null)
@@ -111,21 +107,20 @@ namespace TRION_SDK_UI
 
             CursorLabelText.Text = $"{nearestLogger.LegendText}\nX: {nearestPoint.X:F3}\nY: {nearestPoint.Y:F3}";
 
-            double labelX2 = cursorPixel.X + CursorLabelOffsetX;
-            double labelY2 = cursorPixel.Y + CursorLabelOffsetY;
+            double labelX = cursorPixel.X + CursorLabelOffsetX;
+            double labelY = cursorPixel.Y + CursorLabelOffsetY;
 
-            double maxLabelX2 = MauiPlot1.Width - CursorLabel.Width - 4;
-            double maxLabelY2 = MauiPlot1.Height - CursorLabel.Height - 4;
+            double maxLabelX = MauiPlot1.Width - CursorLabel.Width - 4;
+            double maxLabelY = MauiPlot1.Height - CursorLabel.Height - 4;
 
-            if (maxLabelX2 > 0 && labelX2 > maxLabelX2) labelX2 = maxLabelX2;
-            if (maxLabelY2 > 0 && labelY2 > maxLabelY2) labelY2 = maxLabelY2;
+            if (maxLabelX > 0 && labelX > maxLabelX) labelX = maxLabelX;
+            if (maxLabelY > 0 && labelY > maxLabelY) labelY = maxLabelY;
 
-            CursorLabel.TranslationX = labelX2;
-            CursorLabel.TranslationY = labelY2;
+            CursorLabel.TranslationX = labelX;
+            CursorLabel.TranslationY = labelY;
 
             MauiPlot1.Refresh();
         }
-
         private void RenderLine(Pixel cursorPixel, Coordinates cursorCoordinates)
         {
             _lockLine.X = cursorCoordinates.X;
