@@ -35,56 +35,58 @@ namespace TRION_SDK_UI
 
         void OnPointerMoved(object sender, PointerEventArgs e)
         {
-            var pt = e.GetPosition(MauiPlot1);
-            if (pt is null)
+            var pointerPos = e.GetPosition(MauiPlot1);
+            if (pointerPos is null)
                 return;
 
-            var pixel = new Pixel(pt.Value.X, pt.Value.Y);
-            var coords = MauiPlot1.Plot.GetCoordinates(pixel);
-            var rd = MauiPlot1.Plot.LastRender;
-            DataPoint best = DataPoint.None;
-            DataLogger? bestLogger = null;
-            double bestDx = double.MaxValue;
+            var cursorPixel = new Pixel(pointerPos.Value.X, pointerPos.Value.Y);
+            //Debug.WriteLine($"CursorPixel = {cursorPixel}");
+            var cursorCoordinates = MauiPlot1.Plot.GetCoordinates(cursorPixel);
 
-            foreach (var dl in _loggers.Values)
+            var lastRender = MauiPlot1.Plot.LastRender;
+
+            DataPoint nearestPoint = DataPoint.None;
+            DataLogger? nearestLogger = null;
+            double minDeltaX = double.MaxValue;
+
+            foreach (var logger in _loggers.Values)
             {
-                var dp = dl.GetNearestX(coords, rd.DataRect, maxDistance: 25);
+                // Skip series without data to avoid index issues
+                if (logger.Data.Coordinates.Count == 0)
+                    continue;
 
-                double dx = Math.Abs(dp.X - coords.X);
-                if (dx < bestDx)
-                {
-                    bestDx = dx;
-                    best = dp;
-                    bestLogger = dl;
-                }
+                var candidatePoint = logger.GetNearestX(cursorCoordinates, lastRender.DataRect, maxDistance: 5);
+                Debug.WriteLine($"  CandidatePoint from '{logger.LegendText}' = {candidatePoint.X} - {cursorCoordinates.X})");
+
+                double deltaX = Math.Abs(candidatePoint.X - cursorCoordinates.X);
+                if (deltaX >= minDeltaX)
+                    continue;
+
+
+                minDeltaX = deltaX;
+                nearestPoint = candidatePoint;
+                nearestLogger = logger;
             }
 
-            
-            // With this block:
-            if (!best.IsReal || bestLogger is null)
-            {
+            if (!nearestPoint.IsReal || nearestLogger is null)
                 return;
-            }
-            _crosshair.X = best.X;
-            _crosshair.Y = best.Y;
 
-            // Build label text
-            CursorLabelText.Text =
-                $"{bestLogger.LegendText}\nX: {best.X:F3}\nY: {best.Y:F3}";
+            _crosshair.X = nearestPoint.X;
+            _crosshair.Y = nearestPoint.Y;
 
-            // Position label (clamp inside plot area)
-            double targetX = pixel.X + CursorLabelOffsetX;
-            double targetY = pixel.Y + CursorLabelOffsetY;
+            CursorLabelText.Text = $"{nearestLogger.LegendText}\nX: {nearestPoint.X:F3}\nY: {nearestPoint.Y:F3}";
 
-            // After first measure Width/Height may be 0; allow translation anyway
-            double maxX = MauiPlot1.Width - CursorLabel.Width - 4;
-            double maxY = MauiPlot1.Height - CursorLabel.Height - 4;
+            double labelX = cursorPixel.X + CursorLabelOffsetX;
+            double labelY = cursorPixel.Y + CursorLabelOffsetY;
 
-            if (maxX > 0 && targetX > maxX) targetX = maxX;
-            if (maxY > 0 && targetY > maxY) targetY = maxY;
+            double maxLabelX = MauiPlot1.Width - CursorLabel.Width - 4;
+            double maxLabelY = MauiPlot1.Height - CursorLabel.Height - 4;
 
-            CursorLabel.TranslationX = targetX;
-            CursorLabel.TranslationY = targetY;
+            if (maxLabelX > 0 && labelX > maxLabelX) labelX = maxLabelX;
+            if (maxLabelY > 0 && labelY > maxLabelY) labelY = maxLabelY;
+
+            CursorLabel.TranslationX = labelX;
+            CursorLabel.TranslationY = labelY;
 
             MauiPlot1.Refresh();
         }
