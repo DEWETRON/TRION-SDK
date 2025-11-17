@@ -10,65 +10,84 @@ namespace TRION_SDK_UI
     public partial class MainPage : ContentPage
     {
         double _startWidth;
-
         private readonly Dictionary<string, DataLogger> _loggers = [];
         private readonly ScottPlot.Palettes.Category10 Palette = new();
         private readonly Dictionary<string, ScottPlot.Color> _lineColors = [];
-
-        // Add: crosshair plottable
         private Crosshair _crosshair = null!;
+
+        // Optional: offset for label so it does not sit directly under the cursor
+        private const double CursorLabelOffsetX = 14;
+        private const double CursorLabelOffsetY = 14;
 
         void OnPointerEntered(object sender, PointerEventArgs e)
         {
             _crosshair.IsVisible = true;
+            CursorLabel.IsVisible = true;
             MauiPlot1.Refresh();
         }
 
         void OnPointerExited(object sender, PointerEventArgs e)
         {
             _crosshair.IsVisible = false;
+            CursorLabel.IsVisible = false;
             MauiPlot1.Refresh();
         }
+
         void OnPointerMoved(object sender, PointerEventArgs e)
         {
-            // 1) Get mouse position in control pixels
             var pt = e.GetPosition(MauiPlot1);
-            double x = pt?.X ?? 0;
-            double y = pt?.Y ?? 0;
+            if (pt is null)
+                return;
 
-            var pixel = new Pixel(x, y);
-
-            // 2) Convert to plot coordinates
-            Coordinates coords = MauiPlot1.Plot.GetCoordinates(pixel);
-
-            // 3) Get the data rectangle from the last render
+            var pixel = new Pixel(pt.Value.X, pt.Value.Y);
+            var coords = MauiPlot1.Plot.GetCoordinates(pixel);
             var rd = MauiPlot1.Plot.LastRender;
-
             DataPoint best = DataPoint.None;
+            DataLogger? bestLogger = null;
             double bestDx = double.MaxValue;
 
             foreach (var dl in _loggers.Values)
             {
-                var dp = dl.GetNearestX(coords, rd.DataRect, maxDistance: 20);
-                Debug.WriteLine($"  Nearest from '{dl.LegendText}' -> idx={dp.Index}, x={dp.X:F3}, y={dp.Y:F3}");
+                var dp = dl.GetNearestX(coords, rd.DataRect, maxDistance: 25);
 
                 double dx = Math.Abs(dp.X - coords.X);
                 if (dx < bestDx)
                 {
                     bestDx = dx;
                     best = dp;
+                    bestLogger = dl;
                 }
             }
-            if (!double.IsNaN(best.X))
+
+            
+            // With this block:
+            if (!best.IsReal || bestLogger is null)
             {
-                _crosshair.X = best.X;
-                _crosshair.Y = best.Y;
-                MauiPlot1.Refresh();
-
+                return;
             }
+            _crosshair.X = best.X;
+            _crosshair.Y = best.Y;
 
-            Debug.WriteLine($"Best nearest by X -> idx={best.Index}, x={best.X:F3}, y={best.Y:F3}");
-        } 
+            // Build label text
+            CursorLabelText.Text =
+                $"{bestLogger.LegendText}\nX: {best.X:F3}\nY: {best.Y:F3}";
+
+            // Position label (clamp inside plot area)
+            double targetX = pixel.X + CursorLabelOffsetX;
+            double targetY = pixel.Y + CursorLabelOffsetY;
+
+            // After first measure Width/Height may be 0; allow translation anyway
+            double maxX = MauiPlot1.Width - CursorLabel.Width - 4;
+            double maxY = MauiPlot1.Height - CursorLabel.Height - 4;
+
+            if (maxX > 0 && targetX > maxX) targetX = maxX;
+            if (maxY > 0 && targetY > maxY) targetY = maxY;
+
+            CursorLabel.TranslationX = targetX;
+            CursorLabel.TranslationY = targetY;
+
+            MauiPlot1.Refresh();
+        }
 
         private ScottPlot.Color GetColorForChannel(string channelKey)
         {
@@ -89,7 +108,6 @@ namespace TRION_SDK_UI
             dl.LegendText = channelKey;
             dl.Color = GetColorForChannel(channelKey);
             dl.ViewSlide(22.0);
-
             _loggers[channelKey] = dl;
             return dl;
         }
@@ -100,7 +118,6 @@ namespace TRION_SDK_UI
 
             BindingContext = new MainViewModel();
             var vm = (MainViewModel)BindingContext;
-
             vm.AcquisitionStarting += VmOnAcquisitionStarted;
             vm.SamplesBatchAppended += VmOnSamplesBatchAppended;
             vm.LogMessages.CollectionChanged += VmLogMessagesCollectionChanged;
@@ -111,7 +128,6 @@ namespace TRION_SDK_UI
             MauiPlot1.Plot.Axes.Hairline(true);
             MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
-            // Create crosshair (hidden until pointer enters)
             _crosshair = MauiPlot1.Plot.Add.Crosshair(0, 0);
             _crosshair.IsVisible = false;
 
@@ -127,14 +143,12 @@ namespace TRION_SDK_UI
             int n = samples.Length;
             var ys = GC.AllocateUninitializedArray<double>(n);
             var xs = GC.AllocateUninitializedArray<double>(n);
-
             for (int i = 0; i < n; i++)
             {
                 ref readonly var s = ref samples[i];
                 ys[i] = s.Value;
                 xs[i] = s.ElapsedSeconds;
             }
-
             return (ys, xs);
         }
 
@@ -150,12 +164,10 @@ namespace TRION_SDK_UI
                     {
                         var dl = GetOrCreateLogger(channelKey);
                         dl.ManageAxisLimits = vm.FollowLatest;
-
                         var (ys, xs) = ConvertSamplesToXYArrays(samples);
                         dl.Add(xs, ys);
                     }
                 }
-
                 MauiPlot1.Refresh();
             });
         }
@@ -178,16 +190,14 @@ namespace TRION_SDK_UI
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 _loggers.Clear();
-
                 MauiPlot1.Plot.Clear();
                 MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
                 foreach (var key in keys)
                     _ = GetOrCreateLogger(key);
 
-                // re-add crosshair after Clear()
                 _crosshair = MauiPlot1.Plot.Add.Crosshair(0, 0);
-                _crosshair.IsVisible = false;
+                _crosshair.IsVisible = CursorLabel.IsVisible; // keep sync
 
                 MauiPlot1.Refresh();
             });

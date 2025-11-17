@@ -48,15 +48,34 @@
             </Grid.RowDefinitions>
 
             <!-- Plot kept separate from ScrollView so wheel / gestures interact with the plot first -->
-            <ScottPlot:MauiPlot x:Name="MauiPlot1"
-                                Grid.Row="0"
-                                HeightRequest="400">
-                <ScottPlot:MauiPlot.GestureRecognizers>
-                    <PointerGestureRecognizer PointerEntered="OnPointerEntered"
-                                              PointerExited="OnPointerExited"
-                                              PointerMoved="OnPointerMoved" />
-                </ScottPlot:MauiPlot.GestureRecognizers>
-            </ScottPlot:MauiPlot>
+            <Grid Grid.Row="0">
+                <ScottPlot:MauiPlot x:Name="MauiPlot1"
+                                    HeightRequest="400">
+                    <ScottPlot:MauiPlot.GestureRecognizers>
+                        <PointerGestureRecognizer PointerEntered="OnPointerEntered"
+                                                  PointerExited="OnPointerExited"
+                                                  PointerMoved="OnPointerMoved" />
+                    </ScottPlot:MauiPlot.GestureRecognizers>
+                </ScottPlot:MauiPlot>
+
+                <!-- Floating cursor label -->
+                <Border x:Name="CursorLabel"
+                        Padding="6,4"
+                        BackgroundColor="#AA000000"
+                        StrokeThickness="1"
+                        Stroke="#666666"
+                        StrokeShape="RoundRectangle 4"
+                        IsVisible="False"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Start"
+                        InputTransparent="True">
+                    <Label x:Name="CursorLabelText"
+                           FontSize="12"
+                           FontFamily="Consolas"
+                           TextColor="White"
+                           LineBreakMode="NoWrap" />
+                </Border>
+            </Grid>
 
             <!-- Scrollable content: digital meters and log -->
             <ScrollView Grid.Row="1">
