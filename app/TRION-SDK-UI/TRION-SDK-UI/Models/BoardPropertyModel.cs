@@ -1,4 +1,5 @@
 using System.Xml.XPath;
+using TRION_SDK_UI.POCO;
 using static TRION_SDK_UI.Models.Channel;
 
 namespace TRION_SDK_UI.Models;
@@ -10,6 +11,7 @@ public sealed class BoardPropertyModel
     private readonly string _boardName;
     public int BoardId => _boardId;
     public string BoardName => _boardName;
+    public AcqProp AcqProp => GetAcqProp();
 
     public BoardPropertyModel(string boardXml)
     {
@@ -120,6 +122,43 @@ public sealed class BoardPropertyModel
         if (propertiesNode == null) return -1;
         var idStr = propertiesNode.GetAttribute("BoardID", "");
         return int.TryParse(idStr, out var id) ? id : -1;
+    }
+
+    public AcqProp GetAcqProp()
+    {
+        var acqPropNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp");
+        if (acqPropNav == null)
+            return new AcqProp();
+        return new AcqProp
+        {
+            SampleRateProp = GetSampleRateProp(),
+
+        };
+    }
+
+    public SampleRateProp GetSampleRateProp()
+    {
+        var sampleRateNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp/SampleRate");
+
+        if (sampleRateNav == null)
+            return new SampleRateProp();
+
+        return new SampleRateProp
+        {
+            Unit = sampleRateNav.GetAttribute("Unit", ""),
+            Count = sampleRateNav.GetAttribute("Count", ""),
+            Default = int.TryParse(sampleRateNav.GetAttribute("Default", ""), out var def) ? def : 0,
+            Programmable = bool.TryParse(sampleRateNav.GetAttribute("Programmable", ""), out var prog) && prog,
+            ProgMax = int.TryParse(sampleRateNav.GetAttribute("ProgMax", ""), out var progMax) ? progMax : 0,
+            ProgMin = int.TryParse(sampleRateNav.GetAttribute("ProgMin", ""), out var progMin) ? progMin : 0,
+            ProgRes = sampleRateNav.GetAttribute("ProgRes", ""),
+            AvailableRates = [.. sampleRateNav
+                .SelectChildren(XPathNodeType.Element)
+                .Cast<XPathNavigator>()
+                .Select(v => v.Value?.Trim())
+                .Where(v => !string.IsNullOrEmpty(v))
+                .Select(v => v!)]
+        };
     }
 
     private static List<ModeOption> GetModeOptions(XPathNavigator modeNav)

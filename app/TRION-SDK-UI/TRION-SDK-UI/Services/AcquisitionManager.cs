@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Trion;
 using TRION_SDK_UI.Models;
+using TRION_SDK_UI.POCO;
 using TrionApiUtils;
 
 namespace TRION_SDK_UI.Services;

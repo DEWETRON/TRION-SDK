@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using TRION_SDK_UI.POCO;
 using TrionApiUtils;
 
 namespace TRION_SDK_UI.Models

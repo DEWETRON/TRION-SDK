@@ -5,6 +5,7 @@ using Trion;
 using TRION_SDK_UI.Models;
 using System.ComponentModel;
 using TRION_SDK_UI.Services;
+using TRION_SDK_UI.POCO;
 
 namespace TRION_SDK_UI.ViewModels;
 public class MainViewModel : BaseViewModel, IDisposable

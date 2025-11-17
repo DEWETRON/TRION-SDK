@@ -1,4 +1,4 @@
-namespace TRION_SDK_UI.Models;
+namespace TRION_SDK_UI.POCO;
 public class ChannelMode
 {
     public required string Name { get; set; }
