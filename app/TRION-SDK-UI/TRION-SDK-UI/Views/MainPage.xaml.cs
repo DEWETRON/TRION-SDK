@@ -56,6 +56,7 @@ namespace TRION_SDK_UI
             MauiPlot1.Plot.Title("Live Signals");
             MauiPlot1.Plot.XLabel("Elapsed Seconds");
             MauiPlot1.Plot.YLabel("Value");
+            MauiPlot1.Plot.Axes.Hairline(true);
 
             MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
