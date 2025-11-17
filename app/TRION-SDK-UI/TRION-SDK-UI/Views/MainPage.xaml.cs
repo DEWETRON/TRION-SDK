@@ -1,6 +1,7 @@
 ﻿using ScottPlot;
 using ScottPlot.Plottables;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using TRION_SDK_UI.Models;
@@ -15,14 +16,25 @@ namespace TRION_SDK_UI
         private readonly ScottPlot.Palettes.Category10 Palette = new();
         private readonly Dictionary<string, ScottPlot.Color> _lineColors = [];
         private Crosshair _crosshair = null!;
+        private VerticalLine _lockLine = null!;
+        private bool _isScrollLocked;
 
-        // Optional: offset for label so it does not sit directly under the cursor
         private const double CursorLabelOffsetX = 14;
         private const double CursorLabelOffsetY = 14;
 
         void OnPointerEntered(object sender, PointerEventArgs e)
         {
-            _crosshair.IsVisible = true;
+            if (_isScrollLocked)
+            {
+                _lockLine.IsVisible = true;
+                _crosshair.IsVisible = false;
+            }
+            else
+            {
+                _crosshair.IsVisible = true;
+                _lockLine.IsVisible = false;
+            }
+
             CursorLabel.IsVisible = true;
             MauiPlot1.Refresh();
         }
@@ -30,6 +42,7 @@ namespace TRION_SDK_UI
         void OnPointerExited(object sender, PointerEventArgs e)
         {
             _crosshair.IsVisible = false;
+            _lockLine.IsVisible = false;
             CursorLabel.IsVisible = false;
             MauiPlot1.Refresh();
         }
@@ -41,37 +54,53 @@ namespace TRION_SDK_UI
                 return;
 
             var cursorPixel = new Pixel(pointerPos.Value.X, pointerPos.Value.Y);
-            //Debug.WriteLine($"CursorPixel = {cursorPixel}");
             var cursorCoordinates = MauiPlot1.Plot.GetCoordinates(cursorPixel);
-
             var lastRender = MauiPlot1.Plot.LastRender;
 
+            if (_isScrollLocked)
+            {
+                RenderLine(cursorPixel, cursorCoordinates);
+            }
+            else
+            {
+                RenderCrosshair(cursorPixel, cursorCoordinates, lastRender);
+            }
+        }
+
+        private void RenderCrosshair(Pixel cursorPixel, Coordinates cursorCoordinates, RenderDetails lastRender)
+        {
             DataPoint nearestPoint = DataPoint.None;
             DataLogger? nearestLogger = null;
-            double minDeltaX = double.MaxValue;
-            double minDeltaY = double.MaxValue;
+            double minDist2 = double.MaxValue;
 
+            var xAxis = MauiPlot1.Plot.Axes.GetXAxes().FirstOrDefault();
+            var yAxis = MauiPlot1.Plot.Axes.GetYAxes().FirstOrDefault();
+
+            double pxPerUnitX = 1.0, pxPerUnitY = 1.0;
+            if (xAxis != null && yAxis != null)
+            {
+                var xRange = xAxis.GetRange();
+                var yRange = yAxis.GetRange();
+                pxPerUnitX = lastRender.DataRect.Width / xRange.Span;
+                pxPerUnitY = lastRender.DataRect.Height / yRange.Span;
+            }
             foreach (var logger in _loggers.Values)
             {
-                // Skip series without data to avoid index issues
                 if (logger.Data.Coordinates.Count == 0)
                     continue;
 
                 var candidatePoint = logger.GetNearest(cursorCoordinates, lastRender.DataRect, maxDistance: 128);
-                Debug.WriteLine($"candidatePoint = {candidatePoint.Coordinates} from logger {logger.LegendText}");
 
-                double deltaX = Math.Abs(candidatePoint.X - cursorCoordinates.X);
-                double deltaY = Math.Abs(candidatePoint.Y - cursorCoordinates.Y);
-                if (deltaX >= minDeltaX)
-                    continue;
-                if (deltaY >= minDeltaY)
-                    continue;
+                double dxPx = (candidatePoint.X - cursorCoordinates.X) * pxPerUnitX;
+                double dyPx = (candidatePoint.Y - cursorCoordinates.Y) * pxPerUnitY;
+                double dist2 = dxPx * dxPx + dyPx * dyPx;
 
-
-                minDeltaX = deltaX;
-                minDeltaY = deltaY;
-                nearestPoint = candidatePoint;
-                nearestLogger = logger;
+                if (dist2 < minDist2)
+                {
+                    minDist2 = dist2;
+                    nearestPoint = candidatePoint;
+                    nearestLogger = logger;
+                }
             }
 
             if (!nearestPoint.IsReal || nearestLogger is null)
@@ -82,12 +111,31 @@ namespace TRION_SDK_UI
 
             CursorLabelText.Text = $"{nearestLogger.LegendText}\nX: {nearestPoint.X:F3}\nY: {nearestPoint.Y:F3}";
 
+            double labelX2 = cursorPixel.X + CursorLabelOffsetX;
+            double labelY2 = cursorPixel.Y + CursorLabelOffsetY;
+
+            double maxLabelX2 = MauiPlot1.Width - CursorLabel.Width - 4;
+            double maxLabelY2 = MauiPlot1.Height - CursorLabel.Height - 4;
+
+            if (maxLabelX2 > 0 && labelX2 > maxLabelX2) labelX2 = maxLabelX2;
+            if (maxLabelY2 > 0 && labelY2 > maxLabelY2) labelY2 = maxLabelY2;
+
+            CursorLabel.TranslationX = labelX2;
+            CursorLabel.TranslationY = labelY2;
+
+            MauiPlot1.Refresh();
+        }
+
+        private void RenderLine(Pixel cursorPixel, Coordinates cursorCoordinates)
+        {
+            _lockLine.X = cursorCoordinates.X;
+            UpdateValuesAtLockLine();
+
             double labelX = cursorPixel.X + CursorLabelOffsetX;
             double labelY = cursorPixel.Y + CursorLabelOffsetY;
 
             double maxLabelX = MauiPlot1.Width - CursorLabel.Width - 4;
             double maxLabelY = MauiPlot1.Height - CursorLabel.Height - 4;
-
             if (maxLabelX > 0 && labelX > maxLabelX) labelX = maxLabelX;
             if (maxLabelY > 0 && labelY > maxLabelY) labelY = maxLabelY;
 
@@ -95,6 +143,7 @@ namespace TRION_SDK_UI
             CursorLabel.TranslationY = labelY;
 
             MauiPlot1.Refresh();
+            return;
         }
 
         private ScottPlot.Color GetColorForChannel(string channelKey)
@@ -129,6 +178,7 @@ namespace TRION_SDK_UI
             vm.AcquisitionStarting += VmOnAcquisitionStarted;
             vm.SamplesBatchAppended += VmOnSamplesBatchAppended;
             vm.LogMessages.CollectionChanged += VmLogMessagesCollectionChanged;
+            vm.PropertyChanged += VmOnPropertyChanged;
 
             MauiPlot1.Plot.Title("Live Signals");
             MauiPlot1.Plot.XLabel("Elapsed Seconds");
@@ -137,7 +187,14 @@ namespace TRION_SDK_UI
             MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
             _crosshair = MauiPlot1.Plot.Add.Crosshair(0, 0);
+            _crosshair.LineWidth = 1;
+            _crosshair.LineColor = ScottPlot.Colors.Black;
             _crosshair.IsVisible = false;
+
+            _lockLine = MauiPlot1.Plot.Add.VerticalLine(0);
+            _lockLine.LineStyle.Width = 1;
+            _lockLine.LineStyle.Color = ScottPlot.Colors.Red;
+            _lockLine.IsVisible = false;
 
             MauiPlot1.Refresh();
 
@@ -176,7 +233,11 @@ namespace TRION_SDK_UI
                         dl.Add(xs, ys);
                     }
                 }
+
                 MauiPlot1.Refresh();
+
+                if (_isScrollLocked && _lockLine.IsVisible)
+                    UpdateValuesAtLockLine();
             });
         }
 
@@ -205,10 +266,80 @@ namespace TRION_SDK_UI
                     _ = GetOrCreateLogger(key);
 
                 _crosshair = MauiPlot1.Plot.Add.Crosshair(0, 0);
-                _crosshair.IsVisible = CursorLabel.IsVisible; // keep sync
+                _crosshair.LineWidth = 1;
+                _crosshair.LineColor = ScottPlot.Colors.Black;
+                _crosshair.IsVisible = !_isScrollLocked && CursorLabel.IsVisible;
+
+                _lockLine = MauiPlot1.Plot.Add.VerticalLine(_lockLine?.X ?? 0);
+                _lockLine.LineStyle.Width = 1;
+                _lockLine.LineStyle.Color = ScottPlot.Colors.Red;
+                _lockLine.IsVisible = _isScrollLocked && CursorLabel.IsVisible;
 
                 MauiPlot1.Refresh();
+
+                if (_isScrollLocked)
+                    UpdateValuesAtLockLine();
             });
+        }
+
+        private void VmOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainViewModel.FollowLatest))
+            {
+                var vm = (MainViewModel)BindingContext;
+                _isScrollLocked = !vm.FollowLatest;
+
+                _lockLine.IsVisible = _isScrollLocked && CursorLabel.IsVisible;
+                _crosshair.IsVisible = !_isScrollLocked && CursorLabel.IsVisible;
+
+                if (_isScrollLocked)
+                    _lockLine.X = _crosshair.X;
+
+                MauiPlot1.Refresh();
+
+                if (_isScrollLocked)
+                    UpdateValuesAtLockLine();
+            }
+        }
+
+        private void UpdateValuesAtLockLine()
+        {
+            if (!_isScrollLocked)
+                return;
+
+            var lastRender = MauiPlot1.Plot.LastRender;
+
+            double x = _lockLine.X;
+            var queryCoords = new Coordinates(x, 0);
+
+            var lines = new List<string>();
+
+            foreach (var logger in _loggers.Values)
+            {
+                if (logger.Data.Coordinates.Count == 0)
+                    continue;
+
+                DataPoint dp;
+                try
+                {
+                    dp = logger.GetNearestX(queryCoords, lastRender.DataRect, maxDistance: 1_000_000);
+                }
+                catch
+                {
+                    dp = logger.GetNearest(queryCoords, lastRender.DataRect, maxDistance: 1_000_000);
+                }
+
+                if (double.IsNaN(dp.X))
+                    continue;
+
+                lines.Add($"{logger.LegendText}: {dp.Y:F3}");
+            }
+
+            if (lines.Count == 0)
+                return;
+
+            CursorLabelText.Text = string.Join("\n", lines);
+            CursorLabelText.Text += $"\nX: {x:F3}";
         }
 
         private void OnDragHandlePanUpdated(object? sender, PanUpdatedEventArgs e)
