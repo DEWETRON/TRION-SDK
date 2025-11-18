@@ -1,9 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows.Input;
-using Trion;
-using TrionApiUtils;
 using TRION_SDK_UI.Models;
 
 namespace TRION_SDK_UI.ViewModels;
@@ -11,8 +8,6 @@ namespace TRION_SDK_UI.ViewModels;
 public sealed class ChannelDetailViewModel : BaseViewModel
 {
     public Channel Channel { get; }
-
-    public string Title => $"Channel {Channel.BoardID}/{Channel.Name}";
 
     public ObservableCollection<string> Modes { get; } = [];
     public ObservableCollection<string> Ranges { get; } = [];

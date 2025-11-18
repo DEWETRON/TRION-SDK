@@ -182,20 +182,27 @@ namespace TRION_SDK_UI
             MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
             _crosshair = MauiPlot1.Plot.Add.Crosshair(0, 0);
-            _crosshair.LineWidth = 1;
-            _crosshair.LineColor = ScottPlot.Colors.Black;
             _crosshair.IsVisible = false;
 
             _lockLine = MauiPlot1.Plot.Add.VerticalLine(0);
-            _lockLine.LineStyle.Width = 1;
-            _lockLine.LineStyle.Color = ScottPlot.Colors.Red;
             _lockLine.IsVisible = false;
-
-            MauiPlot1.Refresh();
 
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += OnDragHandlePanUpdated;
             DragHandle.GestureRecognizers.Add(panGesture);
+
+            if (Application.Current is null) return;
+            PlotThemeUtil.ApplyTheme(MauiPlot1.Plot, Application.Current.RequestedTheme, _crosshair, _lockLine);
+
+            Application.Current.RequestedThemeChanged += (s, a) =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    PlotThemeUtil.ApplyTheme(MauiPlot1.Plot, Application.Current.RequestedTheme, _crosshair, _lockLine);
+
+                    MauiPlot1.Refresh();
+                });
+            };
         }
 
         private static (double[] ys, double[] xs) ConvertSamplesToXYArrays(ReadOnlySpan<Sample> samples)
@@ -250,6 +257,8 @@ namespace TRION_SDK_UI
 
         private void VmOnAcquisitionStarted(object? sender, IReadOnlyList<Channel> channels)
         {
+            if (Application.Current is null) return;
+
             var keys = channels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToHashSet();
             MainThread.BeginInvokeOnMainThread(() =>
             {
@@ -261,14 +270,12 @@ namespace TRION_SDK_UI
                     _ = GetOrCreateLogger(key);
 
                 _crosshair = MauiPlot1.Plot.Add.Crosshair(0, 0);
-                _crosshair.LineWidth = 1;
-                _crosshair.LineColor = ScottPlot.Colors.Black;
                 _crosshair.IsVisible = !_isScrollLocked && CursorLabel.IsVisible;
 
                 _lockLine = MauiPlot1.Plot.Add.VerticalLine(_lockLine?.X ?? 0);
-                _lockLine.LineStyle.Width = 1;
-                _lockLine.LineStyle.Color = ScottPlot.Colors.Red;
                 _lockLine.IsVisible = _isScrollLocked && CursorLabel.IsVisible;
+
+                PlotThemeUtil.ApplyTheme(MauiPlot1.Plot, Application.Current.RequestedTheme, _crosshair, _lockLine);
 
                 MauiPlot1.Refresh();
 
@@ -279,22 +286,25 @@ namespace TRION_SDK_UI
 
         private void VmOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(MainViewModel.FollowLatest))
+            if (e.PropertyName != nameof(MainViewModel.FollowLatest))
             {
-                var vm = (MainViewModel)BindingContext;
-                _isScrollLocked = !vm.FollowLatest;
-
-                _lockLine.IsVisible = _isScrollLocked && CursorLabel.IsVisible;
-                _crosshair.IsVisible = !_isScrollLocked && CursorLabel.IsVisible;
-
-                if (_isScrollLocked)
-                    _lockLine.X = _hasCursor ? _lastCursorCoordinates.X : _crosshair.X;
-
-                MauiPlot1.Refresh();
-
-                if (_isScrollLocked)
-                    UpdateValuesAtLockLine();
+                return;
             }
+            if (Application.Current is null) return;
+            PlotThemeUtil.ApplyTheme(MauiPlot1.Plot, Application.Current.RequestedTheme, _crosshair, _lockLine);
+            var vm = (MainViewModel)BindingContext;
+            _isScrollLocked = !vm.FollowLatest;
+
+            _lockLine.IsVisible = _isScrollLocked && CursorLabel.IsVisible;
+            _crosshair.IsVisible = !_isScrollLocked && CursorLabel.IsVisible;
+
+            if (_isScrollLocked)
+                _lockLine.X = _hasCursor ? _lastCursorCoordinates.X : _crosshair.X;
+
+            MauiPlot1.Refresh();
+
+            if (_isScrollLocked)
+                UpdateValuesAtLockLine();
         }
 
         private void UpdateValuesAtLockLine()
@@ -305,7 +315,7 @@ namespace TRION_SDK_UI
             var lastRender = MauiPlot1.Plot.LastRender;
 
             double x = _lockLine.X;
-            var queryCoodinates = new Coordinates(x, 0);
+            var queryCoordinates = new Coordinates(x, 0);
 
             var lines = new List<string>();
 
@@ -314,9 +324,9 @@ namespace TRION_SDK_UI
                 if (logger.Data.Coordinates.Count == 0)
                     continue;
 
-                var dp = logger.GetNearestX(queryCoodinates, lastRender.DataRect, maxDistance: 1_000_000);
+                var dp = logger.GetNearestX(queryCoordinates, lastRender.DataRect, maxDistance: 1_000_000);
                 if (!dp.IsReal)
-                    dp = logger.GetNearest(queryCoodinates, lastRender.DataRect, maxDistance: 1_000_000);
+                    dp = logger.GetNearest(queryCoordinates, lastRender.DataRect, maxDistance: 1_000_000);
 
                 if (!dp.IsReal)
                     continue;
