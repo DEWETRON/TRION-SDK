@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Xml.XPath;
 using TRION_SDK_UI.POCO;
 using static TRION_SDK_UI.Models.Channel;
@@ -127,7 +128,6 @@ public sealed class BoardPropertyModel
         return new AcqProp
         {
             SampleRateProp = GetSampleRateProp(),
-
         };
     }
 

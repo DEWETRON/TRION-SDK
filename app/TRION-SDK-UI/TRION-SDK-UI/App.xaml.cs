@@ -1,6 +1,4 @@
-﻿using Trion;
-
-namespace TRION_SDK_UI
+﻿namespace TRION_SDK_UI
 {
     public partial class App : Application
     {

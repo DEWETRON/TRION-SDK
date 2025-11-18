@@ -277,10 +277,10 @@ namespace TRION_SDK_UI
 
                 PlotThemeUtil.ApplyTheme(MauiPlot1.Plot, Application.Current.RequestedTheme, _crosshair, _lockLine);
 
-                MauiPlot1.Refresh();
-
                 if (_isScrollLocked)
                     UpdateValuesAtLockLine();
+
+                MauiPlot1.Refresh();
             });
         }
 
@@ -309,8 +309,7 @@ namespace TRION_SDK_UI
 
         private void UpdateValuesAtLockLine()
         {
-            if (!_isScrollLocked)
-                return;
+            if (!_isScrollLocked) return;
 
             var lastRender = MauiPlot1.Plot.LastRender;
 
