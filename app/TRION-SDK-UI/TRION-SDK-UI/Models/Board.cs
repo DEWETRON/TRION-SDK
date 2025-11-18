@@ -7,44 +7,21 @@ namespace TRION_SDK_UI.Models
     public class Board()
     {
         public int Id { get; set; }
-
         public string? Name { get; set; }
-
         public bool IsOpen { get; set; }
-
         public BoardPropertyModel? BoardProperties { get; init; }
-
         public List<Channel> Channels { get; set; } = [];
-
-        public uint ScanSizeBytes { get; set; }
-
-        public ScanDescriptorDecoder? ScanDescriptorDecoder { get; set; }
-
+        public ScanDescriptorDecoder? ScanDescriptor { get; set; }
         public string ScanDescriptorXml { get; set; } = string.Empty;
-
         public int BufferBlockSize { get; set; }
-
         public int SamplingRate { get; set; }
-
         public int BufferBlockCount { get; set; }
-
-        public void SetBoardProperties()
-        {
-            if (BoardProperties == null)
-            {
-                throw new InvalidOperationException("BoardProperties must not be null when setting board properties.");
-            }
-            Id = BoardProperties.BoardId;
-            Name = BoardProperties.BoardName;
-        }
-
         public void RefreshScanDescriptor()
         {
             (var error, ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}", "ScanDescriptor_V3");
             Utils.CheckErrorCode(error, $"Failed to get scan descriptor {Id}");
 
-            ScanDescriptorDecoder = new ScanDescriptorDecoder(ScanDescriptorXml);
-            ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
+            ScanDescriptor = new ScanDescriptorDecoder(ScanDescriptorXml);
         }
 
         public void ActivateChannels(IEnumerable<Channel> selectedChannels)
@@ -63,7 +40,7 @@ namespace TRION_SDK_UI.Models
                 TrionApi.DeWeSetParamStruct($"BoardID{boardId}/AIAll", "Used", "False"),
                 $"Failed to deactivate all analog channels on board {boardId}");
         }
-
+        // TODO: make more robust
         public void SetAcquisitionProperties(string operationMode = "Slave",
                                              string externalTrigger = "False",
                                              string externalClock = "False",
@@ -74,7 +51,7 @@ namespace TRION_SDK_UI.Models
             Debug.WriteLine($"Setting sampling rate to {sampleRate} Hz on board {Id}");
             SamplingRate = sampleRate;
             BufferBlockCount = buffer_block_count;
-            BufferBlockSize = buffer_block_size;
+            BufferBlockSize = (int)(SamplingRate * 0.1); // 100 ms buffer
 
             var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "OperationMode", operationMode);
             Utils.CheckErrorCode(error, $"Failed to set operation mode for board {Id}");
@@ -85,13 +62,13 @@ namespace TRION_SDK_UI.Models
             error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
             Utils.CheckErrorCode(error, $"Failed to set external clock for board {Id}");
 
-            error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate.ToString());
+            error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", SamplingRate.ToString());
             Utils.CheckErrorCode(error, $"Failed to set sample rate for board {Id}");
 
-            error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
+            error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, BufferBlockSize);
             Utils.CheckErrorCode(error, $"Failed to set buffer block size for board {Id}");
 
-            error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
+            error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, BufferBlockCount);
             Utils.CheckErrorCode(error, $"Failed to set buffer block count for board {Id}");
         }
 

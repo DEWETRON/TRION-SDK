@@ -128,7 +128,6 @@ public class MainViewModel : BaseViewModel, IDisposable
             int selected = Channels.Count(c => c.IsSelected);
             if (selected > MaxSelectableChannels)
             {
-                // revert this selection
                 _suppressSelectionGuard = true;
                 ch.IsSelected = false;
                 _suppressSelectionGuard = false;
@@ -267,14 +266,13 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         foreach (var (channelKey, samples) in batches)
         {
-            if (updateMeters)
-            {
-                var latestValue = samples.Length > 0 ? samples[^1].Value : 0;
+            if (!updateMeters) continue;
+
+            var latestValue = samples.Length > 0 ? samples[^1].Value : 0;
            
-                if (_meterByKey.TryGetValue(channelKey, out var meter))
-                {
-                    meter.AddSample(latestValue);
-                }
+            if (_meterByKey.TryGetValue(channelKey, out var meter))
+            {
+                meter.AddSample(latestValue);
             }
         }
 

@@ -85,7 +85,7 @@ namespace TRION_SDK_UI.Models
                 case ChannelType.Counter:
                 case ChannelType.Unknown:
                 default:
-                    throw new NotSupportedException($"Channel type {Type} is not supported.");
+                    throw new NotSupportedException($"Channel type {Type} is not implemented.");
             }
         }
 

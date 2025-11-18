@@ -77,7 +77,7 @@ namespace TRION_SDK_UI
         {
             DataPoint nearestPoint = DataPoint.None;
             DataLogger? nearestLogger = null;
-            double bestDist2 = double.MaxValue;
+            double bestDistance = double.MaxValue;
 
             foreach (var logger in _loggers.Values)
             {
@@ -91,10 +91,10 @@ namespace TRION_SDK_UI
                 double dx = candidate.X - cursorCoordinates.X;
                 double dy = candidate.Y - cursorCoordinates.Y;
                 double d2 = dx * dx + dy * dy;
-                if (d2 >= bestDist2)
+                if (d2 >= bestDistance)
                     continue;
 
-                bestDist2 = d2;
+                bestDistance = d2;
                 nearestPoint = candidate;
                 nearestLogger = logger;
             }
@@ -305,7 +305,7 @@ namespace TRION_SDK_UI
             var lastRender = MauiPlot1.Plot.LastRender;
 
             double x = _lockLine.X;
-            var queryCoords = new Coordinates(x, 0);
+            var queryCoodinates = new Coordinates(x, 0);
 
             var lines = new List<string>();
 
@@ -314,9 +314,9 @@ namespace TRION_SDK_UI
                 if (logger.Data.Coordinates.Count == 0)
                     continue;
 
-                var dp = logger.GetNearestX(queryCoords, lastRender.DataRect, maxDistance: 1_000_000);
+                var dp = logger.GetNearestX(queryCoodinates, lastRender.DataRect, maxDistance: 1_000_000);
                 if (!dp.IsReal)
-                    dp = logger.GetNearest(queryCoords, lastRender.DataRect, maxDistance: 1_000_000);
+                    dp = logger.GetNearest(queryCoodinates, lastRender.DataRect, maxDistance: 1_000_000);
 
                 if (!dp.IsReal)
                     continue;

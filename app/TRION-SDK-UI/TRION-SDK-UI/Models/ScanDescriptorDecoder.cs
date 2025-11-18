@@ -11,6 +11,7 @@ public partial class ScanDescriptorDecoder
         public uint SamplePos { get; set; }
         public uint SampleSize { get; set; }
         public uint SampleOffset { get; set; }
+        public uint SampleSizeBytes => SampleSize / 8;
     }
 
     public List<ChannelInfo> Channels { get; private set; } = [];

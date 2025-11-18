@@ -7,10 +7,7 @@ namespace TRION_SDK_UI.Models;
 public sealed class BoardPropertyModel
 {
     private readonly XPathNavigator _navigator;
-    private readonly int _boardId;
-    private readonly string _boardName;
-    public int BoardId => _boardId;
-    public string BoardName => _boardName;
+    public string BoardName => GetBoardName();
     public AcqProp AcqProp => GetAcqProp();
 
     public BoardPropertyModel(string boardXml)
@@ -20,14 +17,12 @@ public sealed class BoardPropertyModel
         using var sr = new StringReader(boardXml);
         var doc = new XPathDocument(sr);
         _navigator = doc.CreateNavigator();
-
-        _boardId = GetBoardID();
-        _boardName = GetBoardName();
     }
 
     private static ChannelType GetChannelType(string name) =>
         name.StartsWith("AI", StringComparison.OrdinalIgnoreCase) ? ChannelType.Analog :
         name.StartsWith("Di", StringComparison.OrdinalIgnoreCase) ? ChannelType.Digital :
+        name.StartsWith("CNT", StringComparison.OrdinalIgnoreCase) ? ChannelType.Counter :
         ChannelType.Unknown;
 
     private static ChannelMode CreatePlaceholderMode() => new()
@@ -96,8 +91,8 @@ public sealed class BoardPropertyModel
 
             channels.Add(new Channel
             {
-                BoardID = _boardId,
-                BoardName = _boardName,
+                BoardID = GetBoardID(),
+                BoardName = GetBoardName(),
                 Name = channelNav.Name,
                 Type = GetChannelType(channelNav.Name),
                 ModeList = allModes,

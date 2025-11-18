@@ -37,7 +37,7 @@ public class AcquisitionManager(Enclosure enclosure)
             return null;
         }
 
-        var scanDescriptor = board.ScanDescriptorDecoder;
+        var scanDescriptor = board.ScanDescriptor;
         if (scanDescriptor is null)
         {
             Debug.WriteLine($"Skipping board {board.Id}: ScanDescriptor is null.");
@@ -186,7 +186,15 @@ public class AcquisitionManager(Enclosure enclosure)
         string[] channelKeys,
         CancellationToken token)
     {
-        var scanSize = (int)board.ScanSizeBytes;
+        if (board.ScanDescriptor is null)
+        {
+            // TODO: handle better
+            Debug.WriteLine($"ScanDescriptor is null for board {board.Id}. Acquisition loop will exit.");
+            return;
+        }
+        var scanSize = (int)board.ScanDescriptor.ScanSizeBytes;
+
+
         var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
 
         TrionError error;
@@ -199,7 +207,6 @@ public class AcquisitionManager(Enclosure enclosure)
         CircularBuffer buffer = new(board.Id);
         int availableSamples = 0;
 
-        long startTicks = DateTime.UtcNow.Ticks;
         long sampleIndex = 0;
 
         while (!token.IsCancellationRequested)
@@ -268,18 +275,15 @@ public class AcquisitionManager(Enclosure enclosure)
 
             for (int i = 0; i < availableSamples; i++)
             {
-                long tsTicks = startTicks + ((sampleIndex + i) * TimeSpan.TicksPerSecond) / board.SamplingRate;
-                var ts = new DateTime(tsTicks, DateTimeKind.Utc);
-                double elapsedSeconds = (sampleIndex + i) / (double)board.SamplingRate;
-
+                // TODO: the elapsed time is not accurate when the sampling size gets bigger
+                double elapsedSeconds = (sampleIndex + i) / ((double)board.SamplingRate);
                 for (int c = 0; c < selectedChannels.Count; ++c)
                 {
                     var key = channelKeys[c];
                     var q = _sampleQueues[key];
-                    q.Enqueue(new Sample(sampleLists[c][i], ts, elapsedSeconds));
+                    q.Enqueue(new Sample(sampleLists[c][i], elapsedSeconds));
                 }
             }
-
             sampleIndex += availableSamples;
         }
 
