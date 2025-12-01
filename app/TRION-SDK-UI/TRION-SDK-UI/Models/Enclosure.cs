@@ -23,7 +23,6 @@ namespace TRION_SDK_UI.Models;
             Name = boardPropertiesModel.BoardName,
             BoardProperties = boardPropertiesModel,
             Channels = boardPropertiesModel.GetChannels(),
-            IsOpen = true,
             ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value
         };
 

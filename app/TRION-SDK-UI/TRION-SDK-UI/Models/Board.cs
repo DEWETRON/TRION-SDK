@@ -8,7 +8,6 @@ namespace TRION_SDK_UI.Models
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public bool IsOpen { get; set; }
         public BoardPropertyModel? BoardProperties { get; init; }
         public List<Channel> Channels { get; set; } = [];
         public ScanDescriptorDecoder? ScanDescriptor { get; set; }
