@@ -24,8 +24,7 @@
 
             </Grid>
 
-            <BoxView HeightRequest="1"
-                     Color="{AppThemeBinding Light=#cccccc, Dark=#444444}" />
+            <BoxView HeightRequest="1" />
 
             <!-- Editable properties -->
             <VerticalStackLayout Spacing="10">
@@ -39,7 +38,6 @@
                     <Label Text="Mode" FontAttributes="Bold" />
                     <Picker ItemsSource="{Binding Modes}"
                             SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
-							BackgroundColor="{AppThemeBinding Light=Lightgrey, Dark=#444444}"
                             Title="Select mode" />
                 </VerticalStackLayout>
 
@@ -47,7 +45,6 @@
                     <Label Text="Range" FontAttributes="Bold" />
                     <Picker ItemsSource="{Binding Ranges}"
                             SelectedItem="{Binding SelectedRange, Mode=TwoWay}"
-					        BackgroundColor="{AppThemeBinding Light=Lightgrey, Dark=#444444}"
                             Title="Select range" />
 				</VerticalStackLayout>
 
@@ -59,8 +56,7 @@
             </HorizontalStackLayout>
 
             <Label FontSize="11"
-                   Text="Note: After changing mode or range you may need to refresh the board scan descriptor before starting a new acquisition."
-                   TextColor="{AppThemeBinding Light=#555555, Dark=#bbbbbb}" />
+                   Text="Note: After changing mode or range you may need to refresh the board scan descriptor before starting a new acquisition." />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

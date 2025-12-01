@@ -13,7 +13,6 @@ public static class PlotThemeUtil
         ScottPlot.Color fontColor;
         ScottPlot.Color crosshairColor;
         ScottPlot.Color gridColor;
-        ScottPlot.Color frameColor;
 
         if (theme == AppTheme.Light)
         {
@@ -21,7 +20,6 @@ public static class PlotThemeUtil
             crosshairColor = ScottPlot.Colors.Magenta;
             background = ScottPlot.Colors.White;
             gridColor = ScottPlot.Colors.Gray;
-            frameColor = ScottPlot.Colors.Black;
         }
         else if (theme == AppTheme.Dark)
         {
@@ -29,7 +27,6 @@ public static class PlotThemeUtil
             crosshairColor = ScottPlot.Colors.Magenta;
             background = ScottPlot.Colors.Black;
             gridColor = ScottPlot.Colors.Gray;
-            frameColor = ScottPlot.Colors.White;
         }
         else // System or default
         {
@@ -37,7 +34,6 @@ public static class PlotThemeUtil
             background = palette.GetColor(1);
             crosshairColor = palette.GetColor(2);
             gridColor = palette.GetColor(3);
-            frameColor = palette.GetColor(4);
         }
 
         // Figure & data area
