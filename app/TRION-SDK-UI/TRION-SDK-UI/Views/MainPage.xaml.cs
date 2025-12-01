@@ -25,6 +25,9 @@ namespace TRION_SDK_UI
         private const double CursorLabelOffsetX = 14;
         private const double CursorLabelOffsetY = 14;
 
+        // Sliding view width used by the DataLogger and initial X-axis limits
+        private const double ViewWidthSeconds = 22.0;
+
         void OnPointerEntered(object sender, PointerEventArgs e)
         {
             if (_isScrollLocked)
@@ -53,8 +56,7 @@ namespace TRION_SDK_UI
         void OnPointerMoved(object sender, PointerEventArgs e)
         {
             var pointerPos = e.GetPosition(MauiPlot1);
-            if (pointerPos is null)
-                return;
+            if (pointerPos is null) return;
 
             var cursorPixel = new Pixel(pointerPos.Value.X, pointerPos.Value.Y);
             var cursorCoordinates = MauiPlot1.Plot.GetCoordinates(cursorPixel);
@@ -81,26 +83,22 @@ namespace TRION_SDK_UI
 
             foreach (var logger in _loggers.Values)
             {
-                if (logger.Data.Coordinates.Count == 0)
-                    continue;
+                if (logger.Data.Coordinates.Count == 0) continue;
 
                 var candidate = logger.GetNearest(cursorCoordinates, lastRender.DataRect, maxDistance: 128);
-                if (!candidate.IsReal)
-                    continue;
+                if (!candidate.IsReal) continue;
 
                 double dx = candidate.X - cursorCoordinates.X;
                 double dy = candidate.Y - cursorCoordinates.Y;
                 double d2 = dx * dx + dy * dy;
-                if (d2 >= bestDistance)
-                    continue;
+                if (d2 >= bestDistance) continue;
 
                 bestDistance = d2;
                 nearestPoint = candidate;
                 nearestLogger = logger;
             }
 
-            if (!nearestPoint.IsReal || nearestLogger is null)
-                return;
+            if (!nearestPoint.IsReal || nearestLogger is null) return;
 
             _crosshair.X = nearestPoint.X;
             _crosshair.Y = nearestPoint.Y;
@@ -156,10 +154,10 @@ namespace TRION_SDK_UI
                 return existing;
 
             var dl = MauiPlot1.Plot.Add.DataLogger();
+            dl.ViewSlide(ViewWidthSeconds);
             dl.LineWidth = 2;
             dl.LegendText = channelKey;
             dl.Color = GetColorForChannel(channelKey);
-            dl.ViewSlide(22.0);
             _loggers[channelKey] = dl;
             return dl;
         }
