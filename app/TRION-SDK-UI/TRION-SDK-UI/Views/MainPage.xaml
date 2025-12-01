@@ -187,8 +187,10 @@
                         <HorizontalStackLayout Spacing="8">
                             <Label Text="{Binding Name}"
                                    FontAttributes="Bold"
+                                   TextColor="Black"
                                    FontSize="13" />
                             <Label Text="{Binding Id, StringFormat='ID {0}'}"
+                                   TextColor="Black"
                                    FontSize="13" />
                         </HorizontalStackLayout>
 
