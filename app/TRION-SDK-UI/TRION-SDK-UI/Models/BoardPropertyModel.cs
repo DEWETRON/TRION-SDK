@@ -1,3 +1,4 @@
+using ScottPlot;
 using System.Diagnostics;
 using System.Xml.XPath;
 using TRION_SDK_UI.POCO;
@@ -34,6 +35,34 @@ public sealed class BoardPropertyModel
         Options = [],
         DefaultValue = string.Empty
     };
+
+    public int getDefaultSamplingRate()
+    {
+        string[] samplingRates = AcqProp.SampleRateProp.AvailableRates;
+        int samplingRateDefaultValueIndex = AcqProp.SampleRateProp.Default;
+        return int.TryParse(samplingRates[samplingRateDefaultValueIndex], out var samplingRate) ? samplingRate : 0;
+    }
+
+    public string getDefaultExternalTrigger()
+    {
+        string[] externalTriggers = AcqProp.ExternalTriggerProp.Values;
+        int externalTriggerDefaultValueIndex = AcqProp.ExternalTriggerProp.DefaultIndex;
+        return externalTriggers[externalTriggerDefaultValueIndex];
+    }
+
+    public string getDefaultOperationMode()
+    {
+        string[] operationModes = AcqProp.OperationModeProp.Modes;
+        int operationModeDefaultValueIndex = AcqProp.OperationModeProp.DefaultIndex;
+        return operationModes[operationModeDefaultValueIndex];
+    }
+
+    public string getDefaultExternalClock()
+    {
+        string[] externalClocks = AcqProp.ExternalClockProp.Values;
+        int externalClockDefaultValueIndex = AcqProp.ExternalClockProp.DefaultIndex;
+        return externalClocks[externalClockDefaultValueIndex];
+    }
 
     public static (bool ok, ChannelMode mode) TryGetDefaultMode(XPathNavigator channelNav)
     {
@@ -123,12 +152,36 @@ public sealed class BoardPropertyModel
     public AcqProp GetAcqProp()
     {
         var acqPropNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp");
-        if (acqPropNav == null)
-            return new AcqProp();
+        if (null == acqPropNav) throw new Exception("Acquisition Properties not found");
+        (int defaultIndex, string[] modes) = GetAcqProperty("OperationMode");
+        var opmode = new OperationMode { DefaultIndex = defaultIndex, Modes = modes };
+        (defaultIndex, modes) = GetAcqProperty("ExtTrigger");
+        var exttrig = new ExternalTrigger { DefaultIndex = defaultIndex, Values = modes };
+        (defaultIndex, modes) = GetAcqProperty("ExtClk");
+        var extclk = new ExternalClockProp { DefaultIndex = defaultIndex, Values = modes };
         return new AcqProp
         {
             SampleRateProp = GetSampleRateProp(),
+            OperationModeProp = opmode,
+            ExternalTriggerProp = exttrig,
+            ExternalClockProp = extclk,
         };
+    }
+
+
+    private (int, string[]) GetAcqProperty(string propName)
+    {
+        var nav = _navigator.SelectSingleNode($"/Properties/AcquisitionProperties/AcqProp/{propName}");
+
+        var DefaultIndex = int.TryParse(nav.GetAttribute("Default", ""), out var def) ? def : 0;
+        string[] Modes = [.. nav
+            .SelectChildren(XPathNodeType.Element)
+            .Cast<XPathNavigator>()
+            .Select(v => v.Value?.Trim())
+            .Where(v => !string.IsNullOrEmpty(v))
+            .Select(v => v!)];
+
+        return (DefaultIndex, Modes);
     }
 
     public SampleRateProp GetSampleRateProp()

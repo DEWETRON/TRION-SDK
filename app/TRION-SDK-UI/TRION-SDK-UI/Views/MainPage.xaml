@@ -177,6 +177,12 @@
                                    FontSize="13" />
                             <Label Text="{Binding Id, StringFormat='ID {0}'}"
                                    FontSize="13" />
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    NumberOfTapsRequired="1"
+                                    Command="{Binding BindingContext.OpenBoardWindowCommand, Source={x:Reference RootGrid}}"
+                                    CommandParameter="{Binding .}" />
+                            </HorizontalStackLayout.GestureRecognizers>
                         </HorizontalStackLayout>
 
                         <!-- Channels for this board -->

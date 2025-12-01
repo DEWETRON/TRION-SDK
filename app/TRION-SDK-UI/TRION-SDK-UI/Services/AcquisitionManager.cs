@@ -104,7 +104,7 @@ public class AcquisitionManager(Enclosure enclosure)
         foreach (var board in selectedBoards)
         {
             board.Reset();
-            board.SetAcquisitionProperties();
+            board.UpdateAcquisitionProperties();
             board.ActivateChannels(selectedChannels.Where(c => c.BoardID == board.Id));
             board.Update();
             board.RefreshScanDescriptor();

@@ -23,6 +23,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand? SelectAllOnBoardCommand { get; private set; }
     public ICommand? DeselectAllOnBoardCommand { get; private set; }
     public ICommand? OpenChannelWindowCommand { get; private set; }
+    public ICommand? OpenBoardWindowCommand { get; private set; }
 
     private readonly AcquisitionManager? _acquisitionManager;
 
@@ -105,16 +106,27 @@ public class MainViewModel : BaseViewModel, IDisposable
         SelectAllOnBoardCommand      = new Command<Channel>(SelectAllOnBoard);
         DeselectAllOnBoardCommand    = new Command<Channel>(DeselectAllOnBoard);
         OpenChannelWindowCommand     = new Command<Channel>(OpenChannelWindow);
+        OpenBoardWindowCommand       = new Command<Board>(OpenBoardWindow);
     }
 
     private void OpenChannelWindow(Channel? ch)
     {
         if (ch is null) return;
 
-        var window = new TRION_SDK_UI.ChannelDetailWindow(ch);
+        var window = new ChannelDetailWindow(ch);
         Application.Current?.OpenWindow(window);
 
         LogMessages.Add($"Opened window for {ch.BoardID}/{ch.Name} ({window.Width}x{window.Height})");
+    }
+
+    private void OpenBoardWindow(Board? board)
+    {
+        if (board is null) return;
+
+        var window = new BoardDetailWindow(board);
+        Application.Current?.OpenWindow(window);
+
+        LogMessages.Add($"Opened board window for {board.Name} (ID: {board.Id})");
     }
 
     private void OnChannelPropertyChanged(object? sender, PropertyChangedEventArgs e)

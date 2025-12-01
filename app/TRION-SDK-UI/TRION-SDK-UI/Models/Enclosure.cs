@@ -23,7 +23,12 @@ namespace TRION_SDK_UI.Models;
             Name = boardPropertiesModel.BoardName,
             BoardProperties = boardPropertiesModel,
             Channels = boardPropertiesModel.GetChannels(),
-            ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value
+            ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value,
+            SamplingRate = boardPropertiesModel.getDefaultSamplingRate(),
+            ExternalTrigger = boardPropertiesModel.getDefaultExternalTrigger(),
+            ExternalClock = boardPropertiesModel.getDefaultExternalClock(),
+            OperationMode = boardPropertiesModel.getDefaultOperationMode(),
+            BufferBlockCount = 50
         };
 
         Boards.Add(newBoard);
