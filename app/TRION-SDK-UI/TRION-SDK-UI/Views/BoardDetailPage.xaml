@@ -23,25 +23,27 @@
                             SelectedItem="{Binding SelectedSampleRate, Mode=TwoWay}"
                             Title="Select sample rate" />
                 </VerticalStackLayout>
+				
+				<VerticalStackLayout>
+					<Label Text="External Trigger" FontAttributes="Bold" />
+					<Picker ItemsSource="{Binding ExternalTriggerValues}"
+                            SelectedItem="{Binding ExternalTrigger, Mode=TwoWay}"
+                            Title="Select trigger option" />
+				</VerticalStackLayout>
+				
+				<VerticalStackLayout>
+					<Label Text="External Clock" FontAttributes="Bold" />
+					<Picker ItemsSource="{Binding ExternalClockValues}"
+                            SelectedItem="{Binding ExternalClock, Mode=TwoWay}"
+                            Title="Select clock option" />
+				</VerticalStackLayout>
 
-                <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
-                    <Label Text="External Trigger" WidthRequest="150" VerticalOptions="Center" />
-                    <Switch IsToggled="{Binding ExternalTrigger, Mode=TwoWay}" />
-                </HorizontalStackLayout>
-
-                <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
-                    <Label Text="External Clock" WidthRequest="150" VerticalOptions="Center" />
-                    <Switch IsToggled="{Binding ExternalClock, Mode=TwoWay}" />
-                </HorizontalStackLayout>
             </VerticalStackLayout>
 
             <HorizontalStackLayout Spacing="12" Margin="0,10,0,0">
-                <Button Text="Refresh" Command="{Binding RefreshCommand}" />
                 <Button Text="Apply" Command="{Binding ApplyCommand}" />
             </HorizontalStackLayout>
 
-            <Label FontSize="11"
-                   Text="Note: After changing acquisition properties you may need to refresh the scan descriptor before starting a new acquisition." />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

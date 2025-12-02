@@ -11,6 +11,8 @@ public sealed class BoardDetailViewModel : BaseViewModel
 
     public ObservableCollection<string> OperationModes { get; } = [];
     public ObservableCollection<string> SampleRates { get; } = [];
+    public ObservableCollection<string> ExternalTriggerValues { get; } = [];
+    public ObservableCollection<string> ExternalClockValues { get; } = [];
 
     private string? _selectedOperationMode;
     public string? SelectedOperationMode
@@ -56,6 +58,9 @@ public sealed class BoardDetailViewModel : BaseViewModel
         SelectedSampleRate = board.SamplingRate.ToString();
         ExternalTrigger = board.ExternalTrigger;
         ExternalClock = board.ExternalClock;
+
+        ExternalTriggerValues = new ObservableCollection<string>(board.BoardProperties.AcqProp.ExternalTriggerProp.Values);
+        ExternalClockValues = new ObservableCollection<string>(board.BoardProperties.AcqProp.ExternalClockProp.Values);
 
         ApplyCommand = new Command(async () => await ApplyAsync());
         RefreshCommand = new Command(async () => await RefreshAsync());
