@@ -66,10 +66,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
             {
                 foreach (var range in channel.Mode.Ranges)
                 {
-                    if (Ranges.Contains(range))
-                    {
-                        continue;
-                    }
+                    if (Ranges.Contains(range)) continue;
                     Ranges.Add(range);
                 }
             }
@@ -117,10 +114,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         {
             foreach (var r in mode.Ranges)
             {
-                if (string.IsNullOrWhiteSpace(r))
-                {
-                    continue;
-                }
+                if (string.IsNullOrWhiteSpace(r)) continue;
                 Ranges.Add(r);
             }
         }

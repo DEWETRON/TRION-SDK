@@ -16,7 +16,7 @@ public class AcquisitionManager(Enclosure enclosure)
 
     private readonly List<CancellationTokenSource> _ctsList = [];
 
-    public bool _isRunning = false;
+    public bool IsRunning = false;
 
     private readonly ConcurrentDictionary<string, ConcurrentQueue<Sample>> _sampleQueues = new();
 
@@ -95,7 +95,7 @@ public class AcquisitionManager(Enclosure enclosure)
 
     public async Task StartAcquisitionAsync(IEnumerable<Channel> selectedChannels)
     {
-        if (_isRunning) await StopAcquisitionAsync();
+        if (IsRunning) await StopAcquisitionAsync();
 
         _acquisitionTasks.Clear();
         _ctsList.Clear();
@@ -124,7 +124,7 @@ public class AcquisitionManager(Enclosure enclosure)
             StartBoardAcquisition(ctx);
         }
 
-        _isRunning = true;
+        IsRunning = true;
     }
 
     public async Task StopAcquisitionAsync()
@@ -146,7 +146,7 @@ public class AcquisitionManager(Enclosure enclosure)
         }
         finally
         {
-            _isRunning = false;
+            IsRunning = false;
         }
 
         foreach (var boardId in _runningBoards.Keys)

@@ -119,6 +119,8 @@ public sealed class BoardPropertyModel
                 ? defaultMode.Ranges[idx]
                 : (defaultMode.Ranges.FirstOrDefault() ?? string.Empty);
 
+            if (ChannelType.Unknown == GetChannelType(channelNav.Name)) continue;
+
             channels.Add(new Channel
             {
                 BoardID = GetBoardID(),
