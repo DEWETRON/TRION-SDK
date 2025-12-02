@@ -79,9 +79,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
         channel.PropertyChanged += ChannelOnPropertyChanged;
 
         ApplyCommand = new Command(async () => await ApplyAsync());
-        RefreshCommand = new Command(async () => await RefreshAsync());
-
-        _ = RefreshAsync(); 
     }
 
     private void ChannelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -111,59 +108,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
                 break;
         }
     }
-    private async Task RefreshAsync()
-    {
-        await Task.Yield();
-
-        _suppressSync = true;
-        try
-        {
-            SelectedMode = Channel.Mode?.Name;
-
-            Ranges.Clear();
-            if (Channel.Mode?.Ranges is { Count: > 0 })
-            {
-                foreach (var r in Channel.Mode.Ranges)
-                {
-                    Ranges.Add(r);
-                }
-            }
-
-            string? rangeToSelect = null;
-
-            if (!string.IsNullOrWhiteSpace(Channel.Range) && Ranges.Contains(Channel.Range))
-            {
-                rangeToSelect = Channel.Range;
-            }
-            else if (!string.IsNullOrWhiteSpace(Channel.Mode?.DefaultValue)
-                     && int.TryParse(Channel.Mode.DefaultValue, out var idx)
-                     && idx >= 0
-                     && Channel.Mode.Ranges.Count > idx)
-            {
-                rangeToSelect = Channel.Mode.Ranges[idx];
-            }
-            else if (Channel.Mode?.Ranges.Count > 0)
-            {
-                rangeToSelect = Channel.Mode.Ranges[0];
-            }
-
-            SelectedRange = rangeToSelect;
-
-            if (!string.IsNullOrWhiteSpace(SelectedMode))
-            {
-                var newMode = Channel.ModeList.FirstOrDefault(m => string.Equals(m.Name, SelectedMode, StringComparison.OrdinalIgnoreCase));
-                if (newMode is not null && !ReferenceEquals(newMode, Channel.Mode))
-                {
-                    Channel.Mode = newMode;
-                }
-            }
-        }
-        finally
-        {
-            _suppressSync = false;
-        }
-    }
-
     private void OnSelectedModeChanged()
     {
         var mode = Channel.ModeList.FirstOrDefault(m => string.Equals(m.Name, _selectedMode, StringComparison.OrdinalIgnoreCase));
