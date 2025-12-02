@@ -20,6 +20,8 @@ public class AcquisitionManager(Enclosure enclosure)
 
     private readonly ConcurrentDictionary<string, ConcurrentQueue<Sample>> _sampleQueues = new();
 
+    private readonly ConcurrentDictionary<int, BoardRunContext> _runningBoards = new();
+
     private sealed record BoardRunContext(
         Board Board,
         List<Channel> Channels,
@@ -88,6 +90,7 @@ public class AcquisitionManager(Enclosure enclosure)
             cts.Token), cts.Token);
 
         _acquisitionTasks.Add(task);
+        _runningBoards[ctx.Board.Id] = ctx;
     }
 
     public async Task StartAcquisitionAsync(IEnumerable<Channel> selectedChannels)
@@ -97,6 +100,7 @@ public class AcquisitionManager(Enclosure enclosure)
         _acquisitionTasks.Clear();
         _ctsList.Clear();
         _sampleQueues.Clear();
+        _runningBoards.Clear();
 
         var selectedBoardIds = selectedChannels.Select(c => c.BoardID).Distinct();
         var selectedBoards = _enclosure.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
@@ -122,6 +126,8 @@ public class AcquisitionManager(Enclosure enclosure)
         _isRunning = true;
     }
 
+    public Task StopAcquisitionAsync(IEnumerable<Channel> SelectedChannels) => StopAcquisitionAsync();
+
     public async Task StopAcquisitionAsync()
     {
         foreach (var cts in _ctsList)
@@ -130,17 +136,31 @@ public class AcquisitionManager(Enclosure enclosure)
         }
         try
         {
-            await Task.WhenAll(_acquisitionTasks);
+            if (_acquisitionTasks.Count > 0)
+            {
+                await Task.WhenAll(_acquisitionTasks);
+            }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Exception during StopAcquisitionAsync: {ex}");
         }
+        finally
+        {
+            _isRunning = false;
+        }
+
+        foreach (var boardId in _runningBoards.Keys)
+        {
+            var error = TrionApi.DeWeSetParam_i32(boardId, TrionCommand.STOP_ACQUISITION, 0);
+            Utils.CheckErrorCode(error, $"Failed to stop acquisition on board {boardId}");
+        }
+
         _acquisitionTasks.Clear();
         _ctsList.Clear();
-        _isRunning = false;
+        _runningBoards.Clear();
     }
-
+    
     public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 1000)
     {
         var result = new Dictionary<string, Sample[]>(_sampleQueues.Count);
