@@ -19,6 +19,7 @@ namespace TRION_SDK_UI.Models
         public string OperationMode { get; set; }
         public string ExternalTrigger { get; set; }
         public string ExternalClock { get; set; }
+        public bool IsAcquiring { get; set; }
         public void RefreshScanDescriptor()
         {
             (var error, ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}", "ScanDescriptor_V3");

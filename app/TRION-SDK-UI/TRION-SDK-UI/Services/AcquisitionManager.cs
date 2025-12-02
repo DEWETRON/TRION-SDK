@@ -112,6 +112,7 @@ public class AcquisitionManager(Enclosure enclosure)
             board.ActivateChannels(selectedChannels.Where(c => c.BoardID == board.Id));
             board.Update();
             board.RefreshScanDescriptor();
+            board.IsAcquiring = true;
         }
 
         var channelsByBoard = selectedChannels.GroupBy(c => c.BoardID);
@@ -125,8 +126,6 @@ public class AcquisitionManager(Enclosure enclosure)
 
         _isRunning = true;
     }
-
-    public Task StopAcquisitionAsync(IEnumerable<Channel> SelectedChannels) => StopAcquisitionAsync();
 
     public async Task StopAcquisitionAsync()
     {
@@ -154,6 +153,7 @@ public class AcquisitionManager(Enclosure enclosure)
         {
             var error = TrionApi.DeWeSetParam_i32(boardId, TrionCommand.STOP_ACQUISITION, 0);
             Utils.CheckErrorCode(error, $"Failed to stop acquisition on board {boardId}");
+            _runningBoards[boardId].Board.IsAcquiring = false;
         }
 
         _acquisitionTasks.Clear();

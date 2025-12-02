@@ -63,16 +63,15 @@ public sealed class BoardDetailViewModel : BaseViewModel
         ExternalClockValues = new ObservableCollection<string>(board.BoardProperties.AcqProp.ExternalClockProp.Values);
 
         ApplyCommand = new Command(async () => await ApplyAsync());
-        RefreshCommand = new Command(async () => await RefreshAsync());
-    }
-
-    private async Task RefreshAsync()
-    {
-        return;
     }
 
     private async Task ApplyAsync()
     {
+        if (Board.IsAcquiring)
+        {
+            await ShowAlertAsync("Apply Failed", "Cannot apply settings while acquisition is running.");
+            return;
+        }
         try
         {
             Board.OperationMode = SelectedOperationMode ?? Board.OperationMode;
