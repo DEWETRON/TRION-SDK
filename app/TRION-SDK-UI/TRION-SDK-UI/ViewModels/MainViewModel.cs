@@ -237,7 +237,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         _uiDrainTimer = dispatcher.CreateTimer();
-        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(10); // ~30 Hz (tune)
+        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33.3); // ~30 Hz (tune)
         _uiDrainTimer.IsRepeating = true;
 
         _drainTickHandler = (_, _) => DrainAndPublish();
@@ -261,7 +261,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         _drainTickHandler = null;
     }
 
-    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(10); // 30 Hz
+    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(33.3); // 30 Hz
     private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
 
     private void DrainAndPublish()
