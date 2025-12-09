@@ -21,7 +21,7 @@ public sealed class BoardPropertyParser
 
     private static ChannelType GetChannelType(string name) =>
         name.StartsWith("AI", StringComparison.OrdinalIgnoreCase) ? ChannelType.Analog :
-        name.StartsWith("Di", StringComparison.OrdinalIgnoreCase) ? ChannelType.Digital :
+        name.StartsWith("Discret", StringComparison.OrdinalIgnoreCase) ? ChannelType.Digital :
         name.StartsWith("CNT", StringComparison.OrdinalIgnoreCase) ? ChannelType.Counter :
         ChannelType.Unknown;
 
@@ -36,7 +36,7 @@ public sealed class BoardPropertyParser
 
     public int GetDefaultSamplingRate()
     {
-        if (null == AcqProp.SampleRateProp.AvailableRates)
+        if (AcqProp.SampleRateProp.AvailableRates is null)
         {
             return 0;
         }
@@ -152,7 +152,7 @@ public sealed class BoardPropertyParser
     private int GetBoardID()
     {
         var propertiesNode = _navigator.SelectSingleNode("/Properties");
-        if (propertiesNode == null) return -1;
+        if (propertiesNode is null) return -1;
         var idStr = propertiesNode.GetAttribute("BoardID", "");
         return int.TryParse(idStr, out var id) ? id : -1;
     }
@@ -178,10 +178,7 @@ public sealed class BoardPropertyParser
 
     public AcqProp GetAcqProp()
     {
-        var acqPropNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp");
-        if (acqPropNav is null)
-            throw new InvalidOperationException("Acquisition Properties not found");
-
+        var acqPropNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp") ?? throw new InvalidOperationException("Acquisition Properties not found");
         var (opIdx, opModes, opPresent) = GetAcqProperty("OperationMode");
         var (trigIdx, trigValues, trigPresent) = GetAcqProperty("ExtTrigger");
         var (clkIdx, clkValues, clkPresent) = GetAcqProperty("ExtClk");
@@ -199,7 +196,7 @@ public sealed class BoardPropertyParser
     private SampleRateDividerProp? GetSampleRateDividerProp()
     {
         var sampleRateDividerNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp/SampleRateDivider");
-        if (null == sampleRateDividerNav)
+        if (sampleRateDividerNav is null)
         {
             return null;
         }

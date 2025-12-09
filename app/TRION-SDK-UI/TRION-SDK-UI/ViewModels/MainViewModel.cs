@@ -237,7 +237,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         _uiDrainTimer = dispatcher.CreateTimer();
-        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33.3); // ~30 Hz (tune)
+        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(10); // ~30 Hz (tune)
         _uiDrainTimer.IsRepeating = true;
 
         _drainTickHandler = (_, _) => DrainAndPublish();
@@ -261,13 +261,13 @@ public class MainViewModel : BaseViewModel, IDisposable
         _drainTickHandler = null;
     }
 
-    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(33.3); // 30 Hz
+    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(10); // 30 Hz
     private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
 
     private void DrainAndPublish()
     {
-        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 1000);
-        if (0 == batches.Count)
+        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 10000);
+        if (batches.Count == 0)
         {
             return;
         }
@@ -278,13 +278,13 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         foreach (var (channelKey, samples) in batches)
         {
-            if (!updateMeters) continue;
-
-            var latestValue = samples.Length > 0 ? samples[^1].Value : 0;
-           
-            if (_meterByKey.TryGetValue(channelKey, out var meter))
+            if (updateMeters && samples.Length > 0)
             {
-                meter.AddSample(latestValue);
+                var latestValue = samples[^1].Value;
+                if (_meterByKey.TryGetValue(channelKey, out var meter))
+                {
+                    meter.AddSample(latestValue);
+                }
             }
         }
 

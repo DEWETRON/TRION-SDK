@@ -208,7 +208,6 @@ public class AcquisitionManager(Enclosure enclosure)
     {
         if (board.ScanDescriptor is null)
         {
-            // TODO: handle better
             Debug.WriteLine($"ScanDescriptor is null for board {board.Id}. Acquisition loop will exit.");
             return;
         }
@@ -225,6 +224,7 @@ public class AcquisitionManager(Enclosure enclosure)
         int availableSamples = 0;
 
         long sampleIndex = 0;
+        double samplePeriod = 1.0 / board.SamplingRate;
 
         while (!token.IsCancellationRequested)
         {
@@ -234,7 +234,7 @@ public class AcquisitionManager(Enclosure enclosure)
             availableSamples -= adcDelay;
             if (availableSamples <= 0)
             {
-                await Task.Delay(100, token);
+                await Task.Delay(1, token);
                 continue;
             }
 
@@ -286,8 +286,7 @@ public class AcquisitionManager(Enclosure enclosure)
 
             for (int i = 0; i < availableSamples; i++)
             {
-                // TODO: the elapsed time is not accurate when the sampling size gets bigger
-                double elapsedSeconds = (sampleIndex + i) / ((double)board.SamplingRate);
+                double elapsedSeconds = (sampleIndex + i) * samplePeriod;
                 for (int c = 0; c < selectedChannels.Count; ++c)
                 {
                     var key = channelKeys[c];

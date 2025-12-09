@@ -7,8 +7,7 @@ namespace TRION_SDK_UI.Converters
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            var channel = value as Channel;
-            if (channel == null)
+            if (value is not Channel channel)
                 return string.Empty;
             return $"{channel.BoardName} - {channel.Name}";
         }

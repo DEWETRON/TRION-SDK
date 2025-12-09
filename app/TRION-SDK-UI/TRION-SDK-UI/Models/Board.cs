@@ -67,14 +67,21 @@ namespace TRION_SDK_UI.Models
 
         public void UpdateBuffer(bool update)
         {
-            BufferBlockSize = (int)(SamplingRate * 0.1);
+            const int MinBlockSize = 64;
+            const int MaxBlockSize = 4096;
+            const double TargetBlockDurationSeconds = 0.1; // 10ms target
+
+            int calculatedBlockSize = (int)(SamplingRate * TargetBlockDurationSeconds);
+            BufferBlockSize = Math.Clamp(calculatedBlockSize, MinBlockSize, MaxBlockSize);
+
             var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, BufferBlockSize);
             Utils.CheckErrorCode(error, $"Failed to set buffer block size for board {Id}");
 
             error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, BufferBlockCount);
             Utils.CheckErrorCode(error, $"Failed to set buffer block count for board {Id}");
 
-            error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", "2000");
+            // Use the actual SamplingRate, not hardcoded "2000"!
+            error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", SamplingRate.ToString());
             Utils.CheckErrorCode(error, $"Failed to set sampling rate for board {Id}");
 
             if (update) Update();

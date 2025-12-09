@@ -11,7 +11,6 @@ public partial class ScanDescriptorDecoder
         public uint SamplePos { get; set; }
         public uint SampleSize { get; set; }
         public uint SampleOffset { get; set; }
-        public uint SampleSizeBytes => SampleSize / 8;
     }
 
     public List<ChannelInfo> Channels { get; private set; } = [];
@@ -37,10 +36,10 @@ public partial class ScanDescriptorDecoder
         while (channelNodes.MoveNext())
         {
             var channel = channelNodes.Current;
-            if (channel == null) continue;
+            if (channel is null) continue;
 
             var sample = channel.SelectSingleNode("Sample");
-            if (sample == null) continue;
+            if (sample is null) continue;
 
             Channels.Add(new ChannelInfo
             {
