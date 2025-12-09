@@ -15,7 +15,7 @@ namespace TRION_SDK_UI.Models;
         Utils.CheckErrorCode(error, "Failed to open board");
 
         var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
-        var boardPropertiesModel = new BoardPropertyModel(boardPropertiesXml);
+        var boardPropertiesModel = new BoardPropertyParser(boardPropertiesXml);
 
         var newBoard = new Board
         {
@@ -24,11 +24,12 @@ namespace TRION_SDK_UI.Models;
             BoardProperties = boardPropertiesModel,
             Channels = boardPropertiesModel.GetChannels(),
             ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value,
-            SamplingRate = boardPropertiesModel.getDefaultSamplingRate(),
-            ExternalTrigger = boardPropertiesModel.getDefaultExternalTrigger(),
-            ExternalClock = boardPropertiesModel.getDefaultExternalClock(),
-            OperationMode = boardPropertiesModel.getDefaultOperationMode(),
-            BufferBlockCount = 50
+            SamplingRate = boardPropertiesModel.GetDefaultSamplingRate(),
+            ExternalTrigger = boardPropertiesModel.GetDefaultExternalTrigger(),
+            ExternalClock = boardPropertiesModel.GetDefaultExternalClock(),
+            OperationMode = boardPropertiesModel.GetDefaultOperationMode(),
+            BufferBlockCount = 50,
+            SampleRateDivider = boardPropertiesModel.GetDefaultSampleRateDivider()
         };
 
         Boards.Add(newBoard);

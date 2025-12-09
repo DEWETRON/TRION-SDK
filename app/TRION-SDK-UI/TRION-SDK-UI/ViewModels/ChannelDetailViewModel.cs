@@ -11,6 +11,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
 
     public ObservableCollection<string> Modes { get; } = [];
     public ObservableCollection<string> Ranges { get; } = [];
+    public string Title { get; set; }
 
     public event EventHandler? CloseRequested;
 
@@ -42,7 +43,6 @@ public sealed class ChannelDetailViewModel : BaseViewModel
     }
 
     public ICommand ApplyCommand { get; }
-    public ICommand RefreshCommand { get; }
 
     private bool _suppressSync;
 
@@ -50,6 +50,7 @@ public sealed class ChannelDetailViewModel : BaseViewModel
     {
         ArgumentNullException.ThrowIfNull(channel);
         ArgumentNullException.ThrowIfNull(channel.Mode);
+        Title = $"{channel.BoardName}/{channel.Name}"; 
 
         Channel = channel;
 

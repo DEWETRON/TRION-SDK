@@ -1,18 +1,16 @@
-using ScottPlot;
-using System.Diagnostics;
 using System.Xml.XPath;
 using TRION_SDK_UI.POCO;
 using static TRION_SDK_UI.Models.Channel;
 
 namespace TRION_SDK_UI.Models;
 
-public sealed class BoardPropertyModel
+public sealed class BoardPropertyParser
 {
     private readonly XPathNavigator _navigator;
     public string BoardName => GetBoardName();
     public AcqProp AcqProp => GetAcqProp();
 
-    public BoardPropertyModel(string boardXml)
+    public BoardPropertyParser(string boardXml)
     {
         ArgumentNullException.ThrowIfNull(boardXml);
 
@@ -36,28 +34,38 @@ public sealed class BoardPropertyModel
         DefaultValue = string.Empty
     };
 
-    public int getDefaultSamplingRate()
+    public int GetDefaultSamplingRate()
     {
         string[] samplingRates = AcqProp.SampleRateProp.AvailableRates;
         int samplingRateDefaultValueIndex = AcqProp.SampleRateProp.Default;
         return int.TryParse(samplingRates[samplingRateDefaultValueIndex], out var samplingRate) ? samplingRate : 0;
     }
 
-    public string getDefaultExternalTrigger()
+    public string GetDefaultExternalTrigger()
     {
         string[] externalTriggers = AcqProp.ExternalTriggerProp.Values;
         int externalTriggerDefaultValueIndex = AcqProp.ExternalTriggerProp.DefaultIndex;
         return externalTriggers[externalTriggerDefaultValueIndex];
     }
 
-    public string getDefaultOperationMode()
+    public int GetDefaultSampleRateDivider()
+    {
+        var sampleRateDividerProp = AcqProp.SampleRateDividerProp;
+        if (sampleRateDividerProp is null)
+        {
+            return 0;
+        }
+        return sampleRateDividerProp.ProposedValues[sampleRateDividerProp.Default];
+    }
+
+    public string GetDefaultOperationMode()
     {
         string[] operationModes = AcqProp.OperationModeProp.Modes;
         int operationModeDefaultValueIndex = AcqProp.OperationModeProp.DefaultIndex;
         return operationModes[operationModeDefaultValueIndex];
     }
 
-    public string getDefaultExternalClock()
+    public string GetDefaultExternalClock()
     {
         string[] externalClocks = AcqProp.ExternalClockProp.Values;
         int externalClockDefaultValueIndex = AcqProp.ExternalClockProp.DefaultIndex;
@@ -98,16 +106,10 @@ public sealed class BoardPropertyModel
         while (iterator.MoveNext())
         {
             var channelNav = iterator.Current;
-            if (channelNav is null || channelNav.NodeType != XPathNodeType.Element)
-            {
-                continue;
-            }
+            if (channelNav is null || channelNav.NodeType != XPathNodeType.Element) continue;
 
             var allModes = GetChannelModes(channelNav);
-            if (allModes.Count == 0)
-            { 
-                continue;
-            }
+            if (allModes.Count == 0) continue;
 
             var (ok, defaultMode) = TryGetDefaultMode(channelNav);
             if (!ok) continue;
@@ -167,6 +169,7 @@ public sealed class BoardPropertyModel
             OperationModeProp = opmode,
             ExternalTriggerProp = exttrig,
             ExternalClockProp = extclk,
+            SampleRateDividerProp = GetSampleRateDividerProp()
         };
     }
 
@@ -184,6 +187,26 @@ public sealed class BoardPropertyModel
             .Select(v => v!)];
 
         return (DefaultIndex, Modes);
+    }
+
+    private SampleRateDividerProp? GetSampleRateDividerProp()
+    {
+        var sampleRateDividerNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp/SampleRateDivider");
+        if (null == sampleRateDividerNav)
+        {
+            return null;
+        }
+        return new SampleRateDividerProp
+        {
+            ProgMin = int.TryParse(sampleRateDividerNav.GetAttribute("ProgMin", ""), out var progMin) ? progMin : 0,
+            ProgMax = int.TryParse(sampleRateDividerNav.GetAttribute("ProgMax", ""), out var progMax) ? progMax : 0,
+            Default = int.TryParse(sampleRateDividerNav.GetAttribute("Default", ""), out var def) ? def : 0,
+            ProposedValues = [.. sampleRateDividerNav
+                .SelectChildren(XPathNodeType.Element)
+                .Cast<XPathNavigator>()
+                .Select(v => int.TryParse(v.Value?.Trim(), out var val) ? val : 0)
+                .Where(v => v != 0)]
+        };
     }
 
     public SampleRateProp GetSampleRateProp()

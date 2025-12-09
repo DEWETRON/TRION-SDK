@@ -19,13 +19,13 @@ namespace TRION_SDK_UI.Models
             Counter = 3
         }
 
-        public List<ChannelMode> ModeList { get; set; } = [];
-        public int BoardID { get; set; }
-        public string? BoardName { get; set; }
-        public string? Name { get; set; }
-        public ChannelType Type { get; set; }
+        public required List<ChannelMode> ModeList { get; set; } = [];
+        public required int BoardID { get; set; }
+        public required string BoardName { get; set; }
+        public required string Name { get; set; }
+        public required ChannelType Type { get; set; }
         private string? _range;
-        public string? Range
+        public required string? Range
         {
             get => _range;
             set
@@ -37,7 +37,7 @@ namespace TRION_SDK_UI.Models
         }
 
         private ChannelMode _mode = null!;
-        public ChannelMode Mode
+        public required ChannelMode Mode
         {
             get => _mode;
             set

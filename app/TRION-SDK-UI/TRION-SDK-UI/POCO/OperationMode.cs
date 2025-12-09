@@ -1,8 +1,8 @@
 ﻿namespace TRION_SDK_UI.POCO
 {
-    public class OperationMode
+    public record class OperationMode
     {
-        public int DefaultIndex { get; set; }
-        public required string[] Modes { get; set; } 
+        public int DefaultIndex { get; init; }
+        public required string[] Modes { get; init; } 
     }
 }

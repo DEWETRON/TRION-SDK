@@ -1,11 +1,11 @@
 ﻿namespace TRION_SDK_UI.POCO
 {
-    public class AcqProp
+    public record class AcqProp
     {
-        public required SampleRateProp SampleRateProp { get; set; }
-        public required OperationMode OperationModeProp { get; set; }
-        public required ExternalTrigger ExternalTriggerProp { get; set; }
-        public required ExternalClockProp ExternalClockProp { get; set; }
-
+        public required SampleRateProp SampleRateProp { get; init; }
+        public required OperationMode OperationModeProp { get; init; }
+        public required ExternalTrigger ExternalTriggerProp { get; init; }
+        public required ExternalClockProp ExternalClockProp { get; init; }
+        public SampleRateDividerProp? SampleRateDividerProp { get; init; }
     }
 }

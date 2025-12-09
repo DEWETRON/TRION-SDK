@@ -1,14 +1,14 @@
 ﻿namespace TRION_SDK_UI.POCO
 {
-    public class SampleRateProp
+    public record class SampleRateProp
     {
-        public string? Unit { get; set; }
-        public string? Count { get; set; }
-        public int Default { get; set; }
-        public bool Programmable { get; set; }
-        public int ProgMax { get; set; }
-        public int ProgMin { get; set; }
-        public string? ProgRes { get; set; }
-        public string[]? AvailableRates { get; set; }
+        public string? Unit { get; init; }
+        public string? Count { get; init; }
+        public int Default { get; init; }
+        public bool Programmable { get; init; }
+        public int ProgMax { get; init; }
+        public int ProgMin { get; init; }
+        public string? ProgRes { get; init; }
+        public string[]? AvailableRates { get; init; }
     }
 }

@@ -1,25 +1,25 @@
 ﻿using System.Diagnostics;
 using Trion;
-using TRION_SDK_UI.POCO;
 using TrionApiUtils;
 
 namespace TRION_SDK_UI.Models
 {
     public class Board()
     {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public BoardPropertyModel? BoardProperties { get; init; }
-        public List<Channel> Channels { get; set; } = [];
+        public required int Id { get; set; }
+        public required string Name { get; set; }
+        public required BoardPropertyParser? BoardProperties { get; init; }
+        public required List<Channel> Channels { get; set; } = [];
         public ScanDescriptorDecoder? ScanDescriptor { get; set; }
         public string ScanDescriptorXml { get; set; } = string.Empty;
-        public int BufferBlockSize { get; set; }
-        public int SamplingRate { get; set; }
-        public int BufferBlockCount { get; set; }
-        public string OperationMode { get; set; }
-        public string ExternalTrigger { get; set; }
-        public string ExternalClock { get; set; }
+        private int BufferBlockSize { get; set; }
+        public required int SamplingRate { get; set; }
+        public required int BufferBlockCount { get; set; }
+        public required string OperationMode { get; set; }
+        public required string ExternalTrigger { get; set; }
+        public required string ExternalClock { get; set; }
         public bool IsAcquiring { get; set; }
+        public int SampleRateDivider { get; set; }
         public void RefreshScanDescriptor()
         {
             (var error, ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}", "ScanDescriptor_V3");

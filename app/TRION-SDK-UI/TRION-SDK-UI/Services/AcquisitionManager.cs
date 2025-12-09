@@ -214,9 +214,6 @@ public class AcquisitionManager(Enclosure enclosure)
         }
         var scanSize = (int)board.ScanDescriptor.ScanSizeBytes;
 
-
-        var polling_interval = (int)(board.BufferBlockSize / (double)board.SamplingRate * 1000);
-
         TrionError error;
         (error, var adcDelay) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BOARD_ADC_DELAY);
         Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board.Id}");
@@ -231,19 +228,13 @@ public class AcquisitionManager(Enclosure enclosure)
 
         while (!token.IsCancellationRequested)
         {
-            (error, availableSamples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+            (error, availableSamples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {availableSamples}");
-
-            if (availableSamples <= 0)
-            {
-                await Task.Delay(polling_interval, token);
-                continue;
-            }
 
             availableSamples -= adcDelay;
             if (availableSamples <= 0)
             {
-                await Task.Delay(polling_interval, token);
+                await Task.Delay(100, token);
                 continue;
             }
 
