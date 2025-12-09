@@ -36,6 +36,10 @@ public sealed class BoardPropertyParser
 
     public int GetDefaultSamplingRate()
     {
+        if (null == AcqProp.SampleRateProp.AvailableRates)
+        {
+            return 0;
+        }
         string[] samplingRates = AcqProp.SampleRateProp.AvailableRates;
         int samplingRateDefaultValueIndex = AcqProp.SampleRateProp.Default;
         return int.TryParse(samplingRates[samplingRateDefaultValueIndex], out var samplingRate) ? samplingRate : 0;
@@ -153,40 +157,43 @@ public sealed class BoardPropertyParser
         return int.TryParse(idStr, out var id) ? id : -1;
     }
 
-    public AcqProp GetAcqProp()
-    {
-        var acqPropNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp");
-        if (null == acqPropNav) throw new Exception("Acquisition Properties not found");
-        (int defaultIndex, string[] modes) = GetAcqProperty("OperationMode");
-        var opmode = new OperationMode { DefaultIndex = defaultIndex, Modes = modes };
-        (defaultIndex, modes) = GetAcqProperty("ExtTrigger");
-        var exttrig = new ExternalTrigger { DefaultIndex = defaultIndex, Values = modes };
-        (defaultIndex, modes) = GetAcqProperty("ExtClk");
-        var extclk = new ExternalClockProp { DefaultIndex = defaultIndex, Values = modes };
-        return new AcqProp
-        {
-            SampleRateProp = GetSampleRateProp(),
-            OperationModeProp = opmode,
-            ExternalTriggerProp = exttrig,
-            ExternalClockProp = extclk,
-            SampleRateDividerProp = GetSampleRateDividerProp()
-        };
-    }
-
-
-    private (int, string[]) GetAcqProperty(string propName)
+    private (int, string[], bool) GetAcqProperty(string propName)
     {
         var nav = _navigator.SelectSingleNode($"/Properties/AcquisitionProperties/AcqProp/{propName}");
+        if (nav is null)
+        {
+            return (0, [], false); // isPresent = false
+        }
 
-        var DefaultIndex = int.TryParse(nav.GetAttribute("Default", ""), out var def) ? def : 0;
-        string[] Modes = [.. nav
+        var defaultIndex = int.TryParse(nav.GetAttribute("Default", ""), out var def) ? def : 0;
+        string[] modes = [.. nav
             .SelectChildren(XPathNodeType.Element)
             .Cast<XPathNavigator>()
             .Select(v => v.Value?.Trim())
             .Where(v => !string.IsNullOrEmpty(v))
             .Select(v => v!)];
 
-        return (DefaultIndex, Modes);
+        return (defaultIndex, modes, true); // isPresent = true
+    }
+
+    public AcqProp GetAcqProp()
+    {
+        var acqPropNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp");
+        if (acqPropNav is null)
+            throw new InvalidOperationException("Acquisition Properties not found");
+
+        var (opIdx, opModes, opPresent) = GetAcqProperty("OperationMode");
+        var (trigIdx, trigValues, trigPresent) = GetAcqProperty("ExtTrigger");
+        var (clkIdx, clkValues, clkPresent) = GetAcqProperty("ExtClk");
+
+        return new AcqProp
+        {
+            SampleRateProp = GetSampleRateProp(),
+            OperationModeProp = new OperationMode { IsPresent = opPresent, DefaultIndex = opIdx, Modes = opModes },
+            ExternalTriggerProp = new ExternalTrigger { IsPresent = trigPresent, DefaultIndex = trigIdx, Values = trigValues },
+            ExternalClockProp = new ExternalClockProp { IsPresent = clkPresent, DefaultIndex = clkIdx, Values = clkValues },
+            SampleRateDividerProp = GetSampleRateDividerProp()
+        };
     }
 
     private SampleRateDividerProp? GetSampleRateDividerProp()
@@ -212,12 +219,14 @@ public sealed class BoardPropertyParser
     public SampleRateProp GetSampleRateProp()
     {
         var sampleRateNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp/SampleRate");
-
-        if (sampleRateNav == null)
-            return new SampleRateProp();
+        if (sampleRateNav is null)
+        {
+            return new SampleRateProp { IsPresent = false };
+        }
 
         return new SampleRateProp
         {
+            IsPresent = true,
             Unit = sampleRateNav.GetAttribute("Unit", ""),
             Count = sampleRateNav.GetAttribute("Count", ""),
             Default = int.TryParse(sampleRateNav.GetAttribute("Default", ""), out var def) ? def : 0,

@@ -1,8 +1,8 @@
-﻿namespace TRION_SDK_UI.POCO
+﻿namespace TRION_SDK_UI.POCO;
+
+public record class ExternalClockProp
 {
-    public record class ExternalClockProp
-    {
-        public required int DefaultIndex { get; set; }
-        public required string[] Values { get; set; }
-    }
+    public bool IsPresent { get; init; } = true;
+    public int DefaultIndex { get; init; }
+    public string[] Values { get; init; } = [];
 }

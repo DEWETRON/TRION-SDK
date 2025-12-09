@@ -1,8 +1,8 @@
-﻿namespace TRION_SDK_UI.POCO
+﻿namespace TRION_SDK_UI.POCO;
+
+public record class ExternalTrigger
 {
-    public record class ExternalTrigger
-    {
-        public required int DefaultIndex { get; init; }
-        public required string[] Values { get; init; }
-    }
+    public bool IsPresent { get; init; } = true;
+    public required int DefaultIndex { get; init; }
+    public required string[] Values { get; init; } = [];
 }

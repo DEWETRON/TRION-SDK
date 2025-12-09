@@ -48,14 +48,23 @@ public sealed class BoardDetailViewModel : BaseViewModel
 
     public BoardDetailViewModel(Board board)
     {
-        Board = board;
+        Board = board ?? throw new ArgumentNullException(nameof(board));
 
-        // Basic operation modes (tweak if your hardware supports more)
-        OperationModes = new ObservableCollection<string>(board.BoardProperties.AcqProp.OperationModeProp.Modes);
-        SelectedOperationMode = board.OperationMode;
+        var acqProp = board.BoardProperties?.AcqProp;
 
-        SampleRates = new ObservableCollection<string>(board.BoardProperties.AcqProp.SampleRateProp.AvailableRates);
-        SelectedSampleRate = board.SamplingRate.ToString();
+        // Only populate if present
+        if (acqProp?.OperationModeProp is { IsPresent: true, Modes.Length: > 0 } opMode)
+        {
+            foreach (var mode in opMode.Modes)
+                OperationModes.Add(mode);
+        }
+
+        if (acqProp?.SampleRateProp is { IsPresent: true, AvailableRates.Length: > 0 } sampleRate)
+        {
+            foreach (var rate in sampleRate.AvailableRates)
+                SampleRates.Add(rate);
+        }
+
         ExternalTrigger = board.ExternalTrigger;
         ExternalClock = board.ExternalClock;
 
