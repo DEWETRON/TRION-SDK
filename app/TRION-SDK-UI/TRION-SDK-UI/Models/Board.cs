@@ -80,7 +80,6 @@ namespace TRION_SDK_UI.Models
             error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, BufferBlockCount);
             Utils.CheckErrorCode(error, $"Failed to set buffer block count for board {Id}");
 
-            // Use the actual SamplingRate, not hardcoded "2000"!
             error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", SamplingRate.ToString());
             Utils.CheckErrorCode(error, $"Failed to set sampling rate for board {Id}");
 

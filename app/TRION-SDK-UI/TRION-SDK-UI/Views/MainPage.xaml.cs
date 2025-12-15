@@ -25,7 +25,6 @@ namespace TRION_SDK_UI
         private const double CursorLabelOffsetX = 14;
         private const double CursorLabelOffsetY = 14;
 
-        // Sliding view width used by the DataLogger and initial X-axis limits
         private const double ViewWidthSeconds = 22.0;
 
         void OnPointerEntered(object sender, PointerEventArgs e)
@@ -256,7 +255,7 @@ namespace TRION_SDK_UI
         private void VmOnAcquisitionStarted(object? sender, IReadOnlyList<Channel> channels)
         {
             if (Application.Current is null) return;
-
+            
             var keys = channels.Select(ch => $"{ch.BoardID}/{ch.Name}").ToHashSet();
             MainThread.BeginInvokeOnMainThread(() =>
             {

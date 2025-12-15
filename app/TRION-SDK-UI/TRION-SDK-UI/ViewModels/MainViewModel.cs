@@ -25,6 +25,23 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand? OpenChannelWindowCommand { get; private set; }
     public ICommand? OpenBoardWindowCommand { get; private set; }
 
+    private bool _isAcquiring;
+    public bool IsAcquiring
+    {
+        get => _isAcquiring;
+        set
+        {
+            if (_isAcquiring != value)
+            {
+                _isAcquiring = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsNotAcquiring));
+            }
+        }
+    }
+
+    public bool IsNotAcquiring => !IsAcquiring;
+
     private readonly AcquisitionManager? _acquisitionManager;
 
     private bool _isScrollingLocked = true;
@@ -61,6 +78,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     public MainViewModel()
     {
+        IsAcquiring = false;
         Debug.WriteLine("Started");
         LogMessages.Add("App started.");
 
@@ -150,6 +168,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private async Task StartAcquisition()
     {
+        IsAcquiring = true;
         Debug.WriteLine("Starting acquisition...");
         LogMessages.Add("Starting acquisition...");
 
@@ -203,9 +222,12 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private async Task StopAcquisition()
     {
+        if (!IsAcquiring) return;
         LogMessages.Add("Stopping acquisition...");
         StopUiDrainTimer();
+        IsAcquiring = false;
         await _acquisitionManager!.StopAcquisitionAsync();
+        LogMessages.Add("Acquisition stopped.");
     }
 
     private void LockScrolling()

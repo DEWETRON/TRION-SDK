@@ -30,8 +30,12 @@
                 Margin="0,0,0,5">
             <HorizontalStackLayout Spacing="5">
                 <Button Text="Lock Scrolling" Command="{Binding LockScrollingCommand}" />
-                <Button Text="Start Acquisition" Command="{Binding StartAcquisitionCommand}" />
-                <Button Text="Stop Acquisition" Command="{Binding StopAcquisitionCommand}" />
+                <Button Text="Start Acquisition" 
+                        Command="{Binding StartAcquisitionCommand}"
+                        IsEnabled="{Binding IsNotAcquiring}" />
+                <Button Text="Stop Acquisition" 
+                        Command="{Binding StopAcquisitionCommand}"
+                        IsEnabled="{Binding IsAcquiring}"/>
                 <Button Text="Toggle Theme" Command="{Binding ToggleThemeCommand}" />
             </HorizontalStackLayout>
         </Border>
