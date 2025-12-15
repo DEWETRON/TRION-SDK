@@ -25,7 +25,7 @@ namespace TRION_SDK_UI
         private const double CursorLabelOffsetX = 14;
         private const double CursorLabelOffsetY = 14;
 
-        private const double ViewWidthSeconds = 22.0;
+        private const int ViewWidthSeconds = 22;
 
         void OnPointerEntered(object sender, PointerEventArgs e)
         {
@@ -176,7 +176,6 @@ namespace TRION_SDK_UI
             MauiPlot1.Plot.XLabel("Elapsed Seconds");
             MauiPlot1.Plot.YLabel("Value");
             MauiPlot1.Plot.Axes.Hairline(true);
-            MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
             _crosshair = MauiPlot1.Plot.Add.Crosshair(0, 0);
             _crosshair.IsVisible = false;
@@ -261,7 +260,6 @@ namespace TRION_SDK_UI
             {
                 _loggers.Clear();
                 MauiPlot1.Plot.Clear();
-                MauiPlot1.Plot.Axes.ContinuouslyAutoscale = false;
 
                 foreach (var key in keys)
                     _ = GetOrCreateLogger(key);
@@ -275,7 +273,9 @@ namespace TRION_SDK_UI
                 PlotThemeUtil.ApplyTheme(MauiPlot1.Plot, Application.Current.RequestedTheme, _crosshair, _lockLine);
 
                 if (_isScrollLocked)
+                {
                     UpdateValuesAtLockLine();
+                }
 
                 MauiPlot1.Refresh();
             });
@@ -296,12 +296,16 @@ namespace TRION_SDK_UI
             _crosshair.IsVisible = !_isScrollLocked && CursorLabel.IsVisible;
 
             if (_isScrollLocked)
+            {
                 _lockLine.X = _hasCursor ? _lastCursorCoordinates.X : _crosshair.X;
+            }
 
             MauiPlot1.Refresh();
 
             if (_isScrollLocked)
+            {
                 UpdateValuesAtLockLine();
+            }
         }
 
         private void UpdateValuesAtLockLine()
@@ -317,21 +321,23 @@ namespace TRION_SDK_UI
 
             foreach (var logger in _loggers.Values)
             {
-                if (logger.Data.Coordinates.Count == 0)
-                    continue;
+                if (0 == logger.Data.Coordinates.Count) continue;
 
                 var dp = logger.GetNearestX(queryCoordinates, lastRender.DataRect, maxDistance: 1_000_000);
                 if (!dp.IsReal)
+                {
                     dp = logger.GetNearest(queryCoordinates, lastRender.DataRect, maxDistance: 1_000_000);
+                }
 
                 if (!dp.IsReal)
+                {
                     continue;
+                }
 
                 lines.Add($"{logger.LegendText}: {dp.Y:F3}");
             }
 
-            if (lines.Count == 0)
-                return;
+            if (0 == lines.Count) return;
 
             CursorLabelText.Text = string.Join("\n", lines) + $"\nX: {x:F3}";
         }
