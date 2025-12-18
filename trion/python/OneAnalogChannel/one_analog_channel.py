@@ -21,6 +21,10 @@ BLOCK_COUNT = 10
 #RESOLUTION_AI = 16 # bit
 RESOLUTION_AI = 24 # bit
 
+USE_TRIONET_API = False          # Set to True when using TrioNet or NexDAQ devices
+TRIONET_LOCAL_IP = "10.0.0.1"    # When using TRIONET, specify the IP of the computer interface
+TRIONET_NET_MASK = "255.255.0.0" # When using TRIONET, specify the netmask of the computer interface
+
 def main(argv):
     """
     Main function
@@ -29,10 +33,14 @@ def main(argv):
     nNoOfBoards = 0
 
     # Load pxi_api.dll
-    if not DeWePxiLoad():
-        print("trion api dll could not be found. Exiting...")
+    backend = "TRIONET" if USE_TRIONET_API else "TRION"
+    if not DeWePxiLoad(lib = backend):
+        print("Trion API DLL could not be found. Exiting...")
         sys.exit(-1)
 
+    if USE_TRIONET_API:
+        nErrorCode = DeWeSetParamStruct_str("trionetapi/config", "Network/IPV4/LocalIP", TRIONET_LOCAL_IP)
+        nErrorCode = DeWeSetParamStruct_str("trionetapi/config", "Network/IPV4/NetMask", TRIONET_NET_MASK)
 
     # Initialize driver and retrieve the number of TRION boards
     # nNoOfBoards is a negative number if system is in DEMO mode!

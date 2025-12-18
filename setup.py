@@ -1,5 +1,5 @@
 """
-Copyright DEWETRON GmbH 2024
+Copyright DEWETRON GmbH 2025
 
 TRION SDK - Setup Tools Definition
 """
@@ -7,7 +7,7 @@ import setuptools
 
 setuptools.setup(
     name="trion_sdk",
-    version="7.1.0",
+    version="7.5.0",
     author="Matthias Straka",
     author_email="matthias.straka@dewetron.com",
     description="Python module to access the Dewetron TRION API",
@@ -27,10 +27,11 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Software Development :: Libraries",
         "Topic :: Scientific/Engineering",
         "Operating System :: Microsoft :: Windows",
@@ -39,5 +40,5 @@ setuptools.setup(
     platforms=["Windows", "Linux"],
     packages=["trion_sdk"],
     package_dir={"trion_sdk": "trion_api/python"},
-    python_requires=">=3.9",
+    python_requires=">=3.10",
 )
