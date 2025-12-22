@@ -1,4 +1,5 @@
 ﻿using LiveChartsCore.SkiaSharpView.Maui;
+using ScottPlot.Maui;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace TRION_SDK_UI.WinUI
@@ -12,7 +13,8 @@ namespace TRION_SDK_UI.WinUI
             builder
                 .UseSharedMauiApp()
                 .UseLiveCharts()
-                .UseSkiaSharp();
+                .UseSkiaSharp()
+                .UseScottPlot();
 
             return builder.Build();
         }

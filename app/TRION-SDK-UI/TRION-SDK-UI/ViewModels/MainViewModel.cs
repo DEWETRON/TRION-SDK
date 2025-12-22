@@ -1,128 +1,67 @@
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using Trion;
 using TRION_SDK_UI.Models;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
+using System.ComponentModel;
+using TRION_SDK_UI.Services;
+using TRION_SDK_UI.POCO;
 
+namespace TRION_SDK_UI.ViewModels;
 public class MainViewModel : BaseViewModel, IDisposable
 {
-    public ChartRecorder Recorder { get; } = new();
-
-    public ISeries[] MeasurementSeries { get; set; } = [];
-
-    public ObservableCollection<double> ChartWindowData => Recorder.Window;
-    public int WindowSize
-    {
-        get => Recorder.WindowSize;
-        set
-        {
-            if (Recorder.WindowSize != value)
-            {
-                Recorder.WindowSize = value;
-                OnPropertyChanged(nameof(WindowSize));
-                OnPropertyChanged(nameof(MaxScrollIndex));
-            }
-        }
-    }
-    public int ScrollIndex
-    {
-        get => Recorder.ScrollIndex;
-        set
-        {
-            if (Recorder.ScrollIndex != value)
-            {
-                Recorder.ScrollIndex = value;
-                OnPropertyChanged(nameof(ScrollIndex));
-            }
-        }
-    }
-    public int MaxScrollIndex => Recorder.MaxScrollIndex;
-
+    public ObservableCollection<DigitalMeter> DigitalMeters { get; } = [];
     public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
 
+    public ICommand? StartAcquisitionCommand { get; private set; }
+    public ICommand? StopAcquisitionCommand { get; private set; }
+    public ICommand? LockScrollingCommand { get; private set; }
+    public ICommand? ToggleThemeCommand { get; private set; }
+    public ICommand? CopyChannelPathCommand { get; private set; }
+    public ICommand? SelectOnlyChannelCommand { get; private set; }
+    public ICommand? SelectAllOnBoardCommand { get; private set; }
+    public ICommand? DeselectAllOnBoardCommand { get; private set; }
+    public ICommand? OpenChannelWindowCommand { get; private set; }
+    public ICommand? OpenBoardWindowCommand { get; private set; }
+
+    private readonly AcquisitionManager? _acquisitionManager;
+
     private bool _isScrollingLocked = true;
-
-    public Enclosure MyEnc { get; } = new Enclosure
+    private bool _followLatest = true;
+    public bool FollowLatest
     {
-        Name = "MyEnc",
-        Boards = []
-    };
-
-    private CancellationTokenSource? _cts;
-    private Task? _acquisitionTask;
-    private double _yAxisMin = -10;
-    public double YAxisMin
-    {
-        get => _yAxisMin;
-        set
-        {
-            if (_yAxisMin != value)
-            {
-                _yAxisMin = value;
-                UpdateYAxes();
-                OnPropertyChanged();
-            }
-        }
-    }
-    private void StartAcquisition()
-    {
-        LogMessages.Add("Starting acquisition...");
+        get => _followLatest;
+        private set { if (_followLatest != value) { _followLatest = value; OnPropertyChanged(); } }
     }
 
-    private void StopAcquisition()
-    {
-        LogMessages.Add("Stopping acquisition...");
-    }
-    private void LockScrolling()
-    {
-        _isScrollingLocked = !_isScrollingLocked;
-        LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
+    private const int MaxSelectableChannels = 8;
+    private bool _suppressSelectionGuard = false;
 
-        if (_isScrollingLocked)
-        {
-            ScrollIndex = MaxScrollIndex;
-        }
+    public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
+
+    public event EventHandler<SamplesBatchAppendedEventArgs>? SamplesBatchAppended;
+
+    public sealed class SamplesBatchAppendedEventArgs(IReadOnlyDictionary<string, Sample[]> batches) : EventArgs
+    {
+        public IReadOnlyDictionary<string, Sample[]> Batches { get; } = batches;
     }
 
-    private double _yAxisMax = 10;
-    public double YAxisMax
+    public void Dispose()
     {
-        get => _yAxisMax;
-        set
-        {
-            if (_yAxisMax != value)
-            {
-                _yAxisMax = value;
-                UpdateYAxes();
-                OnPropertyChanged();
-            }
-        }
+        GC.SuppressFinalize(this);
+        TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
+        TrionApi.Uninitialize();
     }
 
-    public Axis[]? YAxes { get; set; }
-    private void UpdateYAxes()
-    {
-        YAxes = [
-            new Axis
-            {
-                MinLimit = YAxisMin,
-                MaxLimit = YAxisMax,
-                Name = "Voltage"
-            }
-        ];
-        OnPropertyChanged(nameof(YAxes));
-    }
+    public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
 
-    public ICommand ChannelSelectedCommand { get; private set; }
-    public ICommand StartAcquisitionCommand { get; private set; }
-    public ICommand StopAcquisitionCommand { get; private set; }
-    public ICommand LockScrollingCommand { get; private set; }
+    private readonly Dictionary<string, Channel> _channelByKey = [];
+    private readonly Dictionary<string, DigitalMeter> _meterByKey = [];
+
     public MainViewModel()
     {
+        Debug.WriteLine("Started");
         LogMessages.Add("App started.");
 
         var numberOfBoards = TrionApi.Initialize();
@@ -137,117 +76,261 @@ public class MainViewModel : BaseViewModel, IDisposable
         else
         {
             LogMessages.Add("No Trion Boards found.");
+            _ = ShowAlertAsync("No TRION boards", "No TRION boards were detected. Configure a system and try again.");
+            return;
         }
 
         numberOfBoards = Math.Abs(numberOfBoards);
-
         MyEnc.Init(numberOfBoards);
         OnPropertyChanged(nameof(MyEnc));
 
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
-            foreach (var channel in board.Channels)
+            foreach (var channel in board.Channels.Where(c => c.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital))
             {
-                if (channel.Name != null)
-                {
-                    Channels.Add(channel);
-                }
+                Channels.Add(channel);
+                channel.PropertyChanged += OnChannelPropertyChanged;
+            }
+        }
+
+        _acquisitionManager = new AcquisitionManager(MyEnc);
+        OnPropertyChanged(nameof(Channels));
+
+        StartAcquisitionCommand      = new Command(async () => await StartAcquisition());
+        StopAcquisitionCommand       = new Command(async () => await StopAcquisition());
+        LockScrollingCommand         = new Command(LockScrolling);
+        ToggleThemeCommand           = new Command(ToggleTheme);
+        CopyChannelPathCommand       = new Command<Channel>(async ch => await CopyChannelPathAsync(ch));
+        SelectOnlyChannelCommand     = new Command<Channel>(SelectOnlyChannel);
+        SelectAllOnBoardCommand      = new Command<Channel>(SelectAllOnBoard);
+        DeselectAllOnBoardCommand    = new Command<Channel>(DeselectAllOnBoard);
+        OpenChannelWindowCommand     = new Command<Channel>(OpenChannelWindow);
+        OpenBoardWindowCommand       = new Command<Board>(OpenBoardWindow);
+    }
+
+    private void OpenChannelWindow(Channel? ch)
+    {
+        if (ch is null) return;
+
+        var window = new ChannelDetailWindow(ch);
+        Application.Current?.OpenWindow(window);
+
+        LogMessages.Add($"Opened window for {ch.BoardID}/{ch.Name} ({window.Width}x{window.Height})");
+    }
+
+    private void OpenBoardWindow(Board? board)
+    {
+        if (board is null) return;
+
+        var window = new BoardDetailWindow(board);
+        Application.Current?.OpenWindow(window);
+
+        LogMessages.Add($"Opened board window for {board.Name} (ID: {board.Id})");
+    }
+
+    private void OnChannelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (_suppressSelectionGuard) return;
+        if (sender is not Channel ch) return;
+        if (e.PropertyName != nameof(Channel.IsSelected)) return;
+
+        if (ch.IsSelected)
+        {
+            int selected = Channels.Count(c => c.IsSelected);
+            if (selected > MaxSelectableChannels)
+            {
+                _suppressSelectionGuard = true;
+                ch.IsSelected = false;
+                _suppressSelectionGuard = false;
+                LogMessages.Add($"You can select up to {MaxSelectableChannels} channels.");
+            }
+        }
+    }
+
+    private async Task StartAcquisition()
+    {
+        Debug.WriteLine("Starting acquisition...");
+        LogMessages.Add("Starting acquisition...");
+
+        var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
+
+        if (selectedChannels.Count > MaxSelectableChannels)
+        {
+            foreach (var extra in selectedChannels.Skip(MaxSelectableChannels))
+                extra.IsSelected = false;
+
+            selectedChannels = [.. selectedChannels.Take(MaxSelectableChannels)];
+            LogMessages.Add($"Selection limited to {MaxSelectableChannels} channels.");
+        }
+
+        if (selectedChannels.Count == 0)
+        {
+            LogMessages.Add("No channels selected. Please select at least one channel.");
+            await ShowAlertAsync("No channels selected", "Please select at least one channel and try again.");
+            return;
+        }
+
+        PrepareUIForAcquisition(selectedChannels);
+        AcquisitionStarting?.Invoke(this, selectedChannels);
+
+        await _acquisitionManager!.StartAcquisitionAsync(selectedChannels);
+        StartUiDrainTimer();
+    }
+
+    private void PrepareUIForAcquisition(List<Channel> selectedChannels)
+    {
+        DigitalMeters.Clear();
+        _channelByKey.Clear();
+        _meterByKey.Clear();
+
+        foreach (var channel in selectedChannels)
+        {
+            var key = $"{channel.BoardID}/{channel.Name}";
+            _channelByKey[key] = channel;
+
+            var meter = new DigitalMeter
+            {
+                Label = key,
+                Unit = channel.Unit
+            };
+            _meterByKey[key] = meter;
+            DigitalMeters.Add(meter);
+        }
+
+        OnPropertyChanged(nameof(DigitalMeters));
+    }
+
+    private async Task StopAcquisition()
+    {
+        LogMessages.Add("Stopping acquisition...");
+        StopUiDrainTimer();
+        await _acquisitionManager!.StopAcquisitionAsync();
+    }
+
+    private void LockScrolling()
+    {
+        _isScrollingLocked = !_isScrollingLocked;
+        FollowLatest = _isScrollingLocked;
+        LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
+    }
+
+    private void ToggleTheme()
+    {
+        if (Application.Current is not null)
+        {
+            Application.Current.UserAppTheme = Application.Current.UserAppTheme == AppTheme.Light ? AppTheme.Dark : AppTheme.Light;
+            LogMessages.Add($"Theme changed to {Application.Current.UserAppTheme}.");
+        }
+    }
+
+    private IDispatcherTimer? _uiDrainTimer;
+    private EventHandler? _drainTickHandler;
+
+    private void StartUiDrainTimer()
+    {
+        StopUiDrainTimer();
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null)
+        {
+            return;
+        }
+
+        _uiDrainTimer = dispatcher.CreateTimer();
+        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33.3); // ~30 Hz (tune)
+        _uiDrainTimer.IsRepeating = true;
+
+        _drainTickHandler = (_, _) => DrainAndPublish();
+        _uiDrainTimer.Tick += _drainTickHandler;
+        _uiDrainTimer.Start();
+    }
+
+    private void StopUiDrainTimer()
+    {
+        if (_uiDrainTimer is null)
+        {
+            return;
+        }
+        if (_drainTickHandler is not null)
+        {
+            _uiDrainTimer.Tick -= _drainTickHandler;
+        }
+
+        _uiDrainTimer.Stop();
+        _uiDrainTimer = null;
+        _drainTickHandler = null;
+    }
+
+    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(33.3); // 30 Hz
+    private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
+
+    private void DrainAndPublish()
+    {
+        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 1000);
+        if (0 == batches.Count)
+        {
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+        bool updateMeters = (now - _lastMeterUpdateUtc) >= _meterUpdatePeriod;
+        if (updateMeters) _lastMeterUpdateUtc = now;
+
+        foreach (var (channelKey, samples) in batches)
+        {
+            if (!updateMeters) continue;
+
+            var latestValue = samples.Length > 0 ? samples[^1].Value : 0;
+           
+            if (_meterByKey.TryGetValue(channelKey, out var meter))
+            {
+                meter.AddSample(latestValue);
+            }
+        }
+
+        SamplesBatchAppended?.Invoke(this, new SamplesBatchAppendedEventArgs(batches));
+    }
+    private async Task CopyChannelPathAsync(Channel? ch)
+    {
+        if (ch is null) return;
+        string channelPath = $"BoardID{ch.BoardID}/{ch.Name}";
+        await Clipboard.SetTextAsync(channelPath);
+        LogMessages.Add($"Copied: {channelPath}");
+    }
+    private void SelectOnlyChannel(Channel? ch)
+    {
+        if (ch is null) return;
+        foreach (var c in Channels) c.IsSelected = false;
+        ch.IsSelected = true;
+        OnPropertyChanged(nameof(Channels));
+        LogMessages.Add($"Selected only {ch.BoardID}/{ch.Name}");
+    }
+    private void SelectAllOnBoard(Channel? ch)
+    {
+        if (ch is null) return;
+
+        int selected = Channels.Count(x => x.IsSelected);
+        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID))
+        {
+            if (!c.IsSelected)
+            {
+                if (selected >= MaxSelectableChannels) break;
+                c.IsSelected = true;
+                selected++;
             }
         }
 
         OnPropertyChanged(nameof(Channels));
-        ChannelSelectedCommand = new Command<Channel>(OnChannelSelected);
-        StartAcquisitionCommand = new Command(StartAcquisition);
-        StopAcquisitionCommand = new Command(StopAcquisition);
-        LockScrollingCommand = new Command(LockScrolling);
-        UpdateYAxes();
+        if (selected >= MaxSelectableChannels)
+            LogMessages.Add($"Selection limited to {MaxSelectableChannels} channels.");
+        else
+            LogMessages.Add($"Selected all channels on Board {ch.BoardID}");
     }
-
-    public void Dispose()
+    private void DeselectAllOnBoard(Channel? ch)
     {
-        TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
-
-        // Call your uninitialize function here
-        TrionApi.Uninitialize();
-    }
-
-    private void OnChannelSelected(Channel selectedChannel)
-    {
-        _cts?.Cancel();
-        _acquisitionTask?.Wait();
-        Recorder.Data.Clear();
-        Recorder.Window.Clear();
-
-        MeasurementSeries = [
-            new LineSeries<double>
-            {
-                Values = ChartWindowData,
-                Name = $"{selectedChannel.Name}",
-                AnimationsSpeed = TimeSpan.Zero,
-                GeometrySize = 0
-            }];
-        OnPropertyChanged(nameof(MeasurementSeries));
-
-        _cts = new CancellationTokenSource();
-        _acquisitionTask = Task.Run(() => AcquireDataLoop(selectedChannel), _cts.Token);
-    }
-
-    private void AcquireDataLoop(Channel selectedChannel)
-    {
-        var board_id = selectedChannel.BoardID;
-        var channel_name = selectedChannel.Name;
-
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/AIAll", "Used", "False");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Used", "True");
-        TrionApi.DeWeSetParamStruct($"BoardID{board_id}/{channel_name}", "Range", "10 V");
-
-        MyEnc.Boards[board_id].SetAcquisitionProperties(sampleRate: "2000", buffer_block_size: 200, buffer_block_count: 50);
-        MyEnc.Boards[board_id].UpdateBoard();
-
-        var (adcDelayError, adc_delay) = TrionApi.DeWeGetParam_i32(board_id, Trion.TrionCommand.BOARD_ADC_DELAY);
-        TrionApi.DeWeSetParam_i32(board_id, TrionCommand.START_ACQUISITION, 0);
-        CircularBuffer buffer = new(board_id);
-
-        while (_cts != null && !_cts.IsCancellationRequested)
-        {
-            var (available_samples_error, available_samples) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
-            available_samples -= adc_delay;
-            if (available_samples <= 0)
-            {
-                Thread.Sleep(10);
-                continue;
-            }
-            var (read_pos_error, read_pos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
-            read_pos += adc_delay * sizeof(uint);
-            List<double> tempValues = [.. new double[available_samples]];
-            for (int i = 0; i < available_samples; ++i)
-            {
-                if (read_pos >= buffer.EndPosition)
-                {
-                    read_pos -= buffer.Size;
-                }
-
-                float value = Marshal.ReadInt32((IntPtr)read_pos);
-                value = (float)((float)value / 0x7FFFFF00 * 10.0);
-                tempValues[i] = value;
-
-                read_pos += sizeof(uint);
-            }
-            TrionApi.DeWeSetParam_i32(board_id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, available_samples);
-
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                Recorder.AddSamples(tempValues);
-
-                if (_isScrollingLocked)
-                {
-                    Recorder.AutoScroll();
-                    OnPropertyChanged(nameof(ScrollIndex));
-                }
-                OnPropertyChanged(nameof(MaxScrollIndex));
-            });
-        }
-        TrionApi.DeWeSetParam_i32(board_id, TrionCommand.STOP_ACQUISITION, 0);
+        if (ch is null) return;
+        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID)) c.IsSelected = false;
+        OnPropertyChanged(nameof(Channels));
+        LogMessages.Add($"Deselected all channels on Board {ch.BoardID}");
     }
 }

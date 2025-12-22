@@ -1,87 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Trion;
+using TRION_SDK_UI.POCO;
 using TrionApiUtils;
 
 namespace TRION_SDK_UI.Models
 {
-    public enum BoardType
-    {
-        Unknown = 0,
-        Analog = 1,
-        Digital = 2,
-        Counter = 3
-    }
-    public class Board(BoardPropertyModel BoardProperties)
+    public class Board()
     {
         public int Id { get; set; }
-
         public string? Name { get; set; }
-        public bool IsActive { get; set; }
-        public BoardPropertyModel BoardProperties { get; set; } = BoardProperties;
+        public BoardPropertyModel? BoardProperties { get; init; }
         public List<Channel> Channels { get; set; } = [];
-        public uint ScanSizeBytes { get; set; }
-        public ScanDescriptorDecoder? ScanDescriptorDecoder { get; set; }
+        public ScanDescriptorDecoder? ScanDescriptor { get; set; }
         public string ScanDescriptorXml { get; set; } = string.Empty;
-
-        public void ReadScanDescriptor(string scanDescriptorXml)
+        public int BufferBlockSize { get; set; }
+        public int SamplingRate { get; set; }
+        public int BufferBlockCount { get; set; }
+        public string OperationMode { get; set; }
+        public string ExternalTrigger { get; set; }
+        public string ExternalClock { get; set; }
+        public bool IsAcquiring { get; set; }
+        public void RefreshScanDescriptor()
         {
-            if (string.IsNullOrWhiteSpace(scanDescriptorXml))
+            (var error, ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}", "ScanDescriptor_V3");
+            Utils.CheckErrorCode(error, $"Failed to get scan descriptor {Id}");
+
+            ScanDescriptor = new ScanDescriptorDecoder(ScanDescriptorXml);
+        }
+
+        public void ActivateChannels(IEnumerable<Channel> selectedChannels)
+        {
+            DeactivateAllChannels(Id);
+
+            foreach (var channel in selectedChannels)
             {
-                System.Diagnostics.Debug.WriteLine($"Return Early");
-                return;
+                channel.Activate();
             }
-            System.Diagnostics.Debug.WriteLine($"BoardID {Id}");
-
-            ScanDescriptorDecoder = new ScanDescriptorDecoder(scanDescriptorXml);
-            Channels = [.. ScanDescriptorDecoder.Channels
-                .Select(c => new Channel
-                {
-                    BoardID = Id,
-                    Name = c.Name ?? string.Empty,
-                    ChannelType = c.Type,
-                    Index = c.Index,
-                    SampleSize = c.SampleSize,
-                    SampleOffset = c.SampleOffset
-                })];
-            ScanSizeBytes = ScanDescriptorDecoder.ScanSizeBytes;
         }
 
-        public void SetBoardProperties()
+        private static void DeactivateAllChannels(int boardId)
         {
-            Id = BoardProperties.GetBoardID();
-            Name = BoardProperties.GetBoardName();
-            IsActive = true;
+            Utils.CheckErrorCode(
+                TrionApi.DeWeSetParamStruct($"BoardID{boardId}/AIAll", "Used", "False"),
+                $"Failed to deactivate all analog channels on board {boardId}");
         }
-
-        public void SetAcquisitionProperties(string operationMode = "Slave",
-                                             string externalTrigger = "False",
-                                             string externalClock = "False",
-                                             string sampleRate = "2000",
-                                             int buffer_block_size = 200,
-                                             int buffer_block_count = 50)
+        public void SetOperationMode(bool update)
         {
-            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "OperationMode", operationMode);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", externalTrigger);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", externalClock);
-            error |= TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", sampleRate);
-
-            error |= TrionApi.DeWeSetParam_i32(Id, Trion.TrionCommand.BUFFER_BLOCK_SIZE, buffer_block_size);
-            error |= TrionApi.DeWeSetParam_i32(Id, Trion.TrionCommand.BUFFER_BLOCK_COUNT, buffer_block_count);
-
-            Utils.CheckErrorCode(error, $"Failed to set acquisition properties for board {Id}");
+            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "OperationMode", OperationMode);
+            Utils.CheckErrorCode(error, $"Failed to set operation mode for board {Id}");
+            if (update) Update();
         }
 
-        public void ResetBoard()
+        public void SetExternalTrigger(bool update)
+        {
+            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", ExternalTrigger);
+            Utils.CheckErrorCode(error, $"Failed to set external trigger for board {Id}");
+            if (update) Update();
+        }
+
+        public void SetExternalClock(bool update)
+        {
+            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", ExternalClock);
+            Utils.CheckErrorCode(error, $"Failed to set external clock for board {Id}");
+            if (update) Update();
+        }
+
+        public void UpdateBuffer(bool update)
+        {
+            BufferBlockSize = (int)(SamplingRate * 0.1);
+            var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, BufferBlockSize);
+            Utils.CheckErrorCode(error, $"Failed to set buffer block size for board {Id}");
+
+            error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, BufferBlockCount);
+            Utils.CheckErrorCode(error, $"Failed to set buffer block count for board {Id}");
+
+            error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "SampleRate", "2000");
+            Utils.CheckErrorCode(error, $"Failed to set sampling rate for board {Id}");
+
+            if (update) Update();
+        }
+
+        // TODO: make more robust
+        public void UpdateAcquisitionProperties()
+        {
+            Debug.WriteLine($"Setting sampling rate to {SamplingRate} Hz on board {Id}");
+            SetOperationMode(false);
+            SetExternalClock(false);
+            SetExternalTrigger(false);
+            UpdateBuffer(false);
+
+            Update();
+        }
+
+        public void Reset()
         {
             var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.RESET_BOARD, 0);
             Utils.CheckErrorCode(error, $"Failed to reset board {Id}");
         }
 
-        public void UpdateBoard()
+        public void Update()
         {
             var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.UPDATE_PARAM_ALL, 0);
             Utils.CheckErrorCode(error, $"Failed to update board {Id}");

@@ -1,33 +1,38 @@
 using System.Collections.ObjectModel;
 using Trion;
-using TRION_SDK_UI.Models;
+using TrionApiUtils;
 
-
-public class Enclosure
+namespace TRION_SDK_UI.Models;
+    public class Enclosure
 {
     public string? Name { get; set; }
+
     public ObservableCollection<Board> Boards { get; set; } = [];
+
     public void AddBoard(int boardId)
     {
         var error = TrionApi.DeWeSetParam_i32(boardId, TrionCommand.OPEN_BOARD, 0);
-        if (error != TrionError.NONE)
-        {
-            System.Diagnostics.Debug.WriteLine($"TRION_API: OpenBoard failed for board {boardId}");
-            return;
-        }
+        Utils.CheckErrorCode(error, "Failed to open board");
 
         var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
         var boardPropertiesModel = new BoardPropertyModel(boardPropertiesXml);
 
-        var newBoard = new Board(boardPropertiesModel);
-
-        string scanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor").value;
-        newBoard.SetBoardProperties();
-        newBoard.ReadScanDescriptor(scanDescriptorXml);
+        var newBoard = new Board
+        {
+            Id = boardId,
+            Name = boardPropertiesModel.BoardName,
+            BoardProperties = boardPropertiesModel,
+            Channels = boardPropertiesModel.GetChannels(),
+            ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value,
+            SamplingRate = boardPropertiesModel.getDefaultSamplingRate(),
+            ExternalTrigger = boardPropertiesModel.getDefaultExternalTrigger(),
+            ExternalClock = boardPropertiesModel.getDefaultExternalClock(),
+            OperationMode = boardPropertiesModel.getDefaultOperationMode(),
+            BufferBlockCount = 50
+        };
 
         Boards.Add(newBoard);
     }
-
     public void Init(int numberOfBoards)
     {
         Name = TrionApi.DeWeGetParamXML_String("BoardID0/boardproperties/SystemInfo/EnclosureInfo", "Name").value;
