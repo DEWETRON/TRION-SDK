@@ -2,7 +2,6 @@
 using ScottPlot.Plottables;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using TRION_SDK_UI.Models;
 using TRION_SDK_UI.POCO;
 using TRION_SDK_UI.ViewModels;

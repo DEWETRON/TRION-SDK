@@ -13,7 +13,6 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ObservableCollection<DigitalMeter> DigitalMeters { get; } = [];
     public ObservableCollection<Channel> Channels { get; } = [];
     public ObservableCollection<string> LogMessages { get; } = [];
-
     public ICommand? StartAcquisitionCommand { get; private set; }
     public ICommand? StopAcquisitionCommand { get; private set; }
     public ICommand? LockScrollingCommand { get; private set; }
@@ -289,7 +288,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void DrainAndPublish()
     {
         var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 10000);
-        if (batches.Count == 0)
+        if (0 == batches.Count)
         {
             return;
         }

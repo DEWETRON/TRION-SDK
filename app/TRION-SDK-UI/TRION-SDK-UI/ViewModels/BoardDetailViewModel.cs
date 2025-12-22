@@ -12,8 +12,6 @@ public sealed class BoardDetailViewModel : BaseViewModel
     public ObservableCollection<string> OperationModes { get; } = [];
     public ObservableCollection<string> ExternalTriggerValues { get; } = [];
     public ObservableCollection<string> ExternalClockValues { get; } = [];
-
-    // Sample Rate - supports free entry within range + proposed values
     public ObservableCollection<int> ProposedSampleRates { get; } = [];
     public bool HasProposedSampleRates => ProposedSampleRates.Count > 0;
     public bool IsSampleRateProgrammable { get; }

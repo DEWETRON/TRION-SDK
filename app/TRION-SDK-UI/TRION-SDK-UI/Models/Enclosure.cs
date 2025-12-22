@@ -17,10 +17,10 @@ namespace TRION_SDK_UI.Models;
         var newBoard = new Board
         {
             Id = boardId,
-            Name = boardPropertiesModel.BoardName,
             BoardProperties = boardPropertiesModel,
-            Channels = boardPropertiesModel.GetChannels(),
             ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value,
+            Name = boardPropertiesModel.GetBoardName(),
+            Channels = boardPropertiesModel.GetChannels(),
             SamplingRate = boardPropertiesModel.GetDefaultSamplingRate(),
             ExternalTrigger = boardPropertiesModel.GetDefaultExternalTrigger(),
             ExternalClock = boardPropertiesModel.GetDefaultExternalClock(),

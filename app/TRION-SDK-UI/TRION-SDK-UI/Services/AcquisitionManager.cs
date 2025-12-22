@@ -213,8 +213,7 @@ public class AcquisitionManager(Enclosure enclosure)
         }
         var scanSize = (int)board.ScanDescriptor.ScanSizeBytes;
 
-        TrionError error;
-        (error, var adcDelay) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BOARD_ADC_DELAY);
+        (var error, var adcDelay) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BOARD_ADC_DELAY);
         Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board.Id}");
 
         error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.START_ACQUISITION, 0);
@@ -298,7 +297,6 @@ public class AcquisitionManager(Enclosure enclosure)
         }
 
         TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
-        //Utils.CheckErrorCode(TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.STOP_ACQUISITION, 0), $"Failed to stop acquisition {board.Id}");
     }
 
     private unsafe static double ReadAnalogSample(nint samplePos, int sampleSize, double scale)

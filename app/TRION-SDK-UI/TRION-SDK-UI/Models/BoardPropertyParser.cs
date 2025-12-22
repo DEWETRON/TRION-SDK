@@ -143,7 +143,7 @@ public sealed class BoardPropertyParser
         return channels;
     }
 
-    private string GetBoardName()
+    public string GetBoardName()
     {
         var boardNameNode = _navigator.SelectSingleNode("/Properties/BoardInfo/BoardName");
         return boardNameNode?.Value ?? string.Empty;
