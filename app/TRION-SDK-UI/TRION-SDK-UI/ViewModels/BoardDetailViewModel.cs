@@ -9,6 +9,8 @@ public sealed class BoardDetailViewModel : BaseViewModel
     public Board Board { get; }
     public string Title => $"Board {Board.Id} - {Board.Name}";
 
+    public ObservableCollection<string> ResolutionAIValues { get; } = [];
+
     public ObservableCollection<string> OperationModes { get; } = [];
     public ObservableCollection<string> ExternalTriggerValues { get; } = [];
     public ObservableCollection<string> ExternalClockValues { get; } = [];
@@ -41,8 +43,6 @@ public sealed class BoardDetailViewModel : BaseViewModel
         set { if (_sampleRateError != value) { _sampleRateError = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSampleRateError)); } }
     }
     public bool HasSampleRateError => !string.IsNullOrEmpty(SampleRateError);
-
-    // Sample Rate Divider - supports free entry within range + proposed values
     public ObservableCollection<int> ProposedDividerValues { get; } = [];
     public bool HasProposedDividerValues => ProposedDividerValues.Count > 0;
     public bool HasSampleRateDivider { get; }
@@ -94,7 +94,14 @@ public sealed class BoardDetailViewModel : BaseViewModel
         set { if (_externalClock != value) { _externalClock = value; OnPropertyChanged(); } }
     }
 
-    public ICommand ApplyCommand { get; }
+    private string? _resolutionAI;
+    public string? ResolutionAI
+    {
+        get => _resolutionAI;
+        set { if (_resolutionAI != value) { _resolutionAI = value; OnPropertyChanged(); } }
+    }
+
+    public ICommand ApplyCommand { get; }   
     public ICommand SelectProposedSampleRateCommand { get; }
     public ICommand SelectProposedDividerCommand { get; }
     public event EventHandler? CloseRequested;
@@ -152,6 +159,13 @@ public sealed class BoardDetailViewModel : BaseViewModel
                 ExternalClockValues.Add(val);
         }
         ExternalClock = board.ExternalClock;
+
+        if (acqProp?.ResolutionAIProp is { IsPresent: true })
+        {
+            foreach (var val in acqProp.ResolutionAIProp.Values)
+                ResolutionAIValues.Add(val);
+        }
+        ResolutionAI = board.ResolutionAI;
 
         ApplyCommand = new Command(async () => await ApplyAsync(), () => !HasSampleRateError && !HasDividerError);
         SelectProposedSampleRateCommand = new Command<int>(rate => SampleRateText = rate.ToString());
@@ -218,6 +232,7 @@ public sealed class BoardDetailViewModel : BaseViewModel
             Board.SamplingRate = int.TryParse(SampleRateText, out var rate) ? rate : Board.SamplingRate;
             Board.ExternalTrigger = ExternalTrigger ?? Board.ExternalTrigger;
             Board.ExternalClock = ExternalClock ?? Board.ExternalClock;
+            Board.ResolutionAI = ResolutionAI ?? Board.ResolutionAI; 
 
             if (HasSampleRateDivider && int.TryParse(DividerText, out var divider))
                 Board.SampleRateDivider = divider;

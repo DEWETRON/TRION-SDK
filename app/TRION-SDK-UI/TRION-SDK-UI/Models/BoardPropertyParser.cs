@@ -62,6 +62,24 @@ public sealed class BoardPropertyParser
         return sampleRateDividerProp.ProposedValues[sampleRateDividerProp.Default];
     }
 
+    public string GetDefaultResolutionAI()
+    {
+        if (AcqProp.ResolutionAIProp is null || AcqProp.ResolutionAIProp.Values is null)
+        {
+            return string.Empty; // or "24" as a safe fallback?
+        }
+        string[] resolutions = AcqProp.ResolutionAIProp.Values;
+        int resolutionAIDefaultValueIndex = AcqProp.ResolutionAIProp.DefaultIndex;
+        
+        // Return the string directly
+        if (resolutionAIDefaultValueIndex >= 0 && resolutionAIDefaultValueIndex < resolutions.Length)
+        {
+            return resolutions[resolutionAIDefaultValueIndex];
+        }
+        
+        return string.Empty;
+    }
+
     public string GetDefaultOperationMode()
     {
         string[] operationModes = AcqProp.OperationModeProp.Modes;
@@ -182,6 +200,7 @@ public sealed class BoardPropertyParser
         var (opIdx, opModes, opPresent) = GetAcqProperty("OperationMode");
         var (trigIdx, trigValues, trigPresent) = GetAcqProperty("ExtTrigger");
         var (clkIdx, clkValues, clkPresent) = GetAcqProperty("ExtClk");
+        var (resolutionAIIdx, resolutionAIValues, resolutionAIPresent) = GetAcqProperty("ResolutionAI");
 
         return new AcqProp
         {
@@ -189,7 +208,8 @@ public sealed class BoardPropertyParser
             OperationModeProp = new OperationMode { IsPresent = opPresent, DefaultIndex = opIdx, Modes = opModes },
             ExternalTriggerProp = new ExternalTrigger { IsPresent = trigPresent, DefaultIndex = trigIdx, Values = trigValues },
             ExternalClockProp = new ExternalClockProp { IsPresent = clkPresent, DefaultIndex = clkIdx, Values = clkValues },
-            SampleRateDividerProp = GetSampleRateDividerProp()
+            SampleRateDividerProp = GetSampleRateDividerProp(),
+            ResolutionAIProp = new ResolutionAIProp { IsPresent = resolutionAIPresent, DefaultIndex = resolutionAIIdx, Values = resolutionAIValues }
         };
     }
 

@@ -26,7 +26,8 @@ namespace TRION_SDK_UI.Models;
             ExternalClock = boardPropertiesModel.GetDefaultExternalClock(),
             OperationMode = boardPropertiesModel.GetDefaultOperationMode(),
             BufferBlockCount = 50,
-            SampleRateDivider = boardPropertiesModel.GetDefaultSampleRateDivider()
+            SampleRateDivider = boardPropertiesModel.GetDefaultSampleRateDivider(),
+            ResolutionAI = boardPropertiesModel.GetDefaultResolutionAI()
         };
 
         Boards.Add(newBoard);

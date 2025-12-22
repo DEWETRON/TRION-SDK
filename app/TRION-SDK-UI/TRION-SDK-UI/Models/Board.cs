@@ -20,6 +20,7 @@ namespace TRION_SDK_UI.Models
         public required string ExternalClock { get; set; }
         public bool IsAcquiring { get; set; }
         public int SampleRateDivider { get; set; }
+        public string? ResolutionAI { get; set; }
         public void RefreshScanDescriptor()
         {
             (var error, ScanDescriptorXml) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}", "ScanDescriptor_V3");
@@ -86,13 +87,26 @@ namespace TRION_SDK_UI.Models
             if (update) Update();
         }
 
-        // TODO: make more robust
+        public void SetResolutionAI(bool update)
+        {
+            if (string.IsNullOrEmpty(ResolutionAI)) return;
+
+            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ResolutionAI", ResolutionAI);
+            if (error > 0) 
+            {
+                Debug.WriteLine($"Failed to set ResolutionAI to {ResolutionAI} on board {Id}. Error: {error}");
+            }
+
+            if (update) Update();
+        }
+
         public void UpdateAcquisitionProperties()
         {
             Debug.WriteLine($"Setting sampling rate to {SamplingRate} Hz on board {Id}");
             SetOperationMode(false);
             SetExternalClock(false);
             SetExternalTrigger(false);
+            SetResolutionAI(false);
             UpdateBuffer(false);
 
             Update();

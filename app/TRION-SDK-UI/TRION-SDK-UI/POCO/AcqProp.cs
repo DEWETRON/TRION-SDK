@@ -7,5 +7,6 @@
         public required ExternalTrigger ExternalTriggerProp { get; init; }
         public required ExternalClockProp ExternalClockProp { get; init; }
         public SampleRateDividerProp? SampleRateDividerProp { get; init; }
-    }
+        public ResolutionAIProp? ResolutionAIProp { get; init; }
+}
 }

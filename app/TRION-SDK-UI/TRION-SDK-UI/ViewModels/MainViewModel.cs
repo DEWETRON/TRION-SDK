@@ -72,7 +72,6 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
 
-    private readonly Dictionary<string, Channel> _channelByKey = [];
     private readonly Dictionary<string, DigitalMeter> _meterByKey = [];
 
     public MainViewModel()
@@ -199,13 +198,11 @@ public class MainViewModel : BaseViewModel, IDisposable
     private void PrepareUIForAcquisition(List<Channel> selectedChannels)
     {
         DigitalMeters.Clear();
-        _channelByKey.Clear();
         _meterByKey.Clear();
 
         foreach (var channel in selectedChannels)
         {
             var key = $"{channel.BoardID}/{channel.Name}";
-            _channelByKey[key] = channel;
 
             var meter = new DigitalMeter
             {
