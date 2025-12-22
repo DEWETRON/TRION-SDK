@@ -66,12 +66,11 @@ public sealed class BoardPropertyParser
     {
         if (AcqProp.ResolutionAIProp is null || AcqProp.ResolutionAIProp.Values is null)
         {
-            return string.Empty; // or "24" as a safe fallback?
+            return string.Empty;
         }
         string[] resolutions = AcqProp.ResolutionAIProp.Values;
         int resolutionAIDefaultValueIndex = AcqProp.ResolutionAIProp.DefaultIndex;
         
-        // Return the string directly
         if (resolutionAIDefaultValueIndex >= 0 && resolutionAIDefaultValueIndex < resolutions.Length)
         {
             return resolutions[resolutionAIDefaultValueIndex];

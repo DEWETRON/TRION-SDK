@@ -10,12 +10,6 @@ public partial class BoardDetailPage : ContentPage
         InitializeComponent();
 
         var vm = new BoardDetailViewModel(board);
-        vm.CloseRequested += (_, __) =>
-        {
-            var window = this.Window;
-            if (window is not null)
-                Application.Current?.CloseWindow(window);
-        };
         BindingContext = vm;
     }
 }

@@ -64,6 +64,7 @@ namespace TRION_SDK_UI.Models
             var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", ExternalClock);
             Utils.CheckErrorCode(error, $"Failed to set external clock for board {Id}");
             if (update) Update();
+
         }
 
         public void UpdateBuffer(bool update)
@@ -102,6 +103,10 @@ namespace TRION_SDK_UI.Models
 
         public void UpdateAcquisitionProperties()
         {
+            var (error2, value) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}/AcqProp", "SampleRate");
+            Utils.CheckErrorCode(error2, $"Failed to get sample rate for board {Id}");
+            SamplingRate = int.Parse(value);
+
             Debug.WriteLine($"Setting sampling rate to {SamplingRate} Hz on board {Id}");
             SetOperationMode(false);
             SetExternalClock(false);

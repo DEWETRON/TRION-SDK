@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using TRION_SDK_UI.Models;
+using TrionApiUtils;
 
 namespace TRION_SDK_UI.ViewModels;
 
@@ -10,16 +11,25 @@ public sealed class BoardDetailViewModel : BaseViewModel
     public string Title => $"Board {Board.Id} - {Board.Name}";
 
     public ObservableCollection<string> ResolutionAIValues { get; } = [];
-
     public ObservableCollection<string> OperationModes { get; } = [];
     public ObservableCollection<string> ExternalTriggerValues { get; } = [];
     public ObservableCollection<string> ExternalClockValues { get; } = [];
     public ObservableCollection<int> ProposedSampleRates { get; } = [];
+    public ObservableCollection<int> ProposedDividerValues { get; } = [];
+
     public bool HasProposedSampleRates => ProposedSampleRates.Count > 0;
     public bool IsSampleRateProgrammable { get; }
     public int SampleRateMin { get; }
     public int SampleRateMax { get; }
     public string SampleRateRangeHint => IsSampleRateProgrammable ? $"Range: {SampleRateMin} - {SampleRateMax} Hz" : string.Empty;
+
+    public bool HasProposedDividerValues => ProposedDividerValues.Count > 0;
+    public bool HasSampleRateDivider { get; }
+    public int DividerMin { get; }
+    public int DividerMax { get; }
+    public string DividerRangeHint => HasSampleRateDivider ? $"Range: {DividerMin} - {DividerMax}" : string.Empty;
+
+    private bool _suppressSync;
 
     private string _sampleRateText = string.Empty;
     public string SampleRateText
@@ -27,11 +37,21 @@ public sealed class BoardDetailViewModel : BaseViewModel
         get => _sampleRateText;
         set
         {
-            if (_sampleRateText != value)
+            if (_sampleRateText == value) return;
+            _sampleRateText = value;
+            OnPropertyChanged();
+            ValidateSampleRate();
+
+            if (!HasSampleRateError)
             {
-                _sampleRateText = value;
-                OnPropertyChanged();
-                ValidateSampleRate();
+                CommitPropertyChange(() =>
+                {
+                    if (int.TryParse(value, out var rate))
+                    {
+                        Board.SamplingRate = rate;
+                        Board.UpdateBuffer(true);
+                    }
+                });
             }
         }
     }
@@ -41,14 +61,8 @@ public sealed class BoardDetailViewModel : BaseViewModel
     {
         get => _sampleRateError;
         set { if (_sampleRateError != value) { _sampleRateError = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSampleRateError)); } }
-    }
+    }   
     public bool HasSampleRateError => !string.IsNullOrEmpty(SampleRateError);
-    public ObservableCollection<int> ProposedDividerValues { get; } = [];
-    public bool HasProposedDividerValues => ProposedDividerValues.Count > 0;
-    public bool HasSampleRateDivider { get; }
-    public int DividerMin { get; }
-    public int DividerMax { get; }
-    public string DividerRangeHint => HasSampleRateDivider ? $"Range: {DividerMin} - {DividerMax}" : string.Empty;
 
     private string _dividerText = string.Empty;
     public string DividerText
@@ -56,11 +70,21 @@ public sealed class BoardDetailViewModel : BaseViewModel
         get => _dividerText;
         set
         {
-            if (_dividerText != value)
+            if (_dividerText == value) return;
+            _dividerText = value;
+            OnPropertyChanged();
+            ValidateDivider();
+
+            if (!HasDividerError)
             {
-                _dividerText = value;
-                OnPropertyChanged();
-                ValidateDivider();
+                CommitPropertyChange(() =>
+                {
+                    if (int.TryParse(value, out var div))
+                    {
+                        Board.SampleRateDivider = div;
+                        Board.UpdateBuffer(true);
+                    }
+                });
             }
         }
     }
@@ -77,33 +101,95 @@ public sealed class BoardDetailViewModel : BaseViewModel
     public string? SelectedOperationMode
     {
         get => _selectedOperationMode;
-        set { if (_selectedOperationMode != value) { _selectedOperationMode = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_selectedOperationMode == value) return;
+            _selectedOperationMode = value;
+            OnPropertyChanged();
+
+            if (value != null)
+            {
+                CommitPropertyChange(() =>
+                {
+                    Board.OperationMode = value;
+                    Board.SetOperationMode(true);
+                });
+            }
+        }
     }
 
     private string? _externalTrigger;
     public string? ExternalTrigger
     {
         get => _externalTrigger;
-        set { if (_externalTrigger != value) { _externalTrigger = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_externalTrigger == value) return;
+            _externalTrigger = value;
+            OnPropertyChanged();
+
+            if (value != null)
+            {
+                CommitPropertyChange(() =>
+                {
+                    Board.ExternalTrigger = value;
+                    Board.SetExternalTrigger(true);
+                });
+            }
+        }
     }
 
     private string? _externalClock;
     public string? ExternalClock
     {
         get => _externalClock;
-        set { if (_externalClock != value) { _externalClock = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_externalClock == value) return;
+            _externalClock = value;
+            OnPropertyChanged();
+
+            if (value != null)
+            {
+                CommitPropertyChange(() =>
+                {
+                    Board.ExternalClock = value;
+                    Board.SetExternalClock(true);
+                });
+            }
+        }
     }
 
     private string? _resolutionAI;
     public string? ResolutionAI
     {
         get => _resolutionAI;
-        set { if (_resolutionAI != value) { _resolutionAI = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_resolutionAI == value) return;
+            _resolutionAI = value;
+            OnPropertyChanged();
+
+            if (value != null)
+            {
+                CommitPropertyChange(() =>
+                {
+                    Board.ResolutionAI = value;
+                    Board.SetResolutionAI(true);
+                });
+            }
+            var (error, currentValue) = TrionApi.DeWeGetParamStruct_String($"BoardID{Board.Id}/AcqProp", "ResolutionAI");
+            Utils.CheckErrorCode(error, $"Failed to get ResolutionAI for board {Board.Id}");
+            if (currentValue != value)
+            {
+                _ = ShowAlertAsync("ResolutionAI Error", "ResolutionAI not set correctly.", string.Empty);
+            }
+        }
     }
 
-    public ICommand ApplyCommand { get; }   
     public ICommand SelectProposedSampleRateCommand { get; }
     public ICommand SelectProposedDividerCommand { get; }
+    public ICommand CloseCommand { get; }
     public event EventHandler? CloseRequested;
 
     public BoardDetailViewModel(Board board)
@@ -117,7 +203,6 @@ public sealed class BoardDetailViewModel : BaseViewModel
             foreach (var mode in opMode.Modes)
                 OperationModes.Add(mode);
         }
-        SelectedOperationMode = board.OperationMode;
 
         var sampleRateProp = acqProp?.SampleRateProp;
         if (sampleRateProp is { IsPresent: true })
@@ -132,7 +217,6 @@ public sealed class BoardDetailViewModel : BaseViewModel
                     ProposedSampleRates.Add(rateValue);
             }
         }
-        SampleRateText = board.SamplingRate.ToString();
 
         var dividerProp = acqProp?.SampleRateDividerProp;
         HasSampleRateDivider = dividerProp is not null;
@@ -144,32 +228,77 @@ public sealed class BoardDetailViewModel : BaseViewModel
             foreach (var val in dividerProp.ProposedValues)
                 ProposedDividerValues.Add(val);
         }
-        DividerText = board.SampleRateDivider.ToString();
 
         if (acqProp?.ExternalTriggerProp is { IsPresent: true })
         {
             foreach (var val in acqProp.ExternalTriggerProp.Values)
                 ExternalTriggerValues.Add(val);
         }
-        ExternalTrigger = board.ExternalTrigger;
 
         if (acqProp?.ExternalClockProp is { IsPresent: true })
         {
             foreach (var val in acqProp.ExternalClockProp.Values)
                 ExternalClockValues.Add(val);
         }
-        ExternalClock = board.ExternalClock;
 
         if (acqProp?.ResolutionAIProp is { IsPresent: true })
         {
             foreach (var val in acqProp.ResolutionAIProp.Values)
                 ResolutionAIValues.Add(val);
         }
-        ResolutionAI = board.ResolutionAI;
 
-        ApplyCommand = new Command(async () => await ApplyAsync(), () => !HasSampleRateError && !HasDividerError);
         SelectProposedSampleRateCommand = new Command<int>(rate => SampleRateText = rate.ToString());
         SelectProposedDividerCommand = new Command<int>(val => DividerText = val.ToString());
+        CloseCommand = new Command(() => CloseRequested?.Invoke(this, EventArgs.Empty));
+
+        RefreshBoardState();
+    }
+
+    private void CommitPropertyChange(Action hardwareUpdateAction)
+    {
+        if (_suppressSync) return;
+
+        _ = CommitPropertyChangeInternal(hardwareUpdateAction);
+    }
+
+    private async Task CommitPropertyChangeInternal(Action hardwareUpdateAction)
+    {
+        if (Board.IsAcquiring)
+        {
+            RefreshBoardState();
+            await ShowAlertAsync("Action Failed", "Cannot change settings while acquisition is running.");
+            return;
+        }
+
+        try
+        {
+            await Task.Run(hardwareUpdateAction);
+
+            RefreshBoardState();
+        }
+        catch (Exception ex)
+        {
+            await ShowAlertAsync("Update Failed", ex.Message);
+            RefreshBoardState();
+        }
+    }
+
+    private void RefreshBoardState()
+    {
+        _suppressSync = true;
+        try
+        {
+            SelectedOperationMode = Board.OperationMode;
+            SampleRateText = Board.SamplingRate.ToString();
+            DividerText = Board.SampleRateDivider.ToString();
+            ExternalTrigger = Board.ExternalTrigger;
+            ExternalClock = Board.ExternalClock;
+            ResolutionAI = Board.ResolutionAI;
+        }
+        finally
+        {
+            _suppressSync = false;
+        }
     }
 
     private void ValidateSampleRate()
@@ -210,39 +339,5 @@ public sealed class BoardDetailViewModel : BaseViewModel
         }
 
         DividerError = null;
-    }
-
-    private async Task ApplyAsync()
-    {
-        if (Board.IsAcquiring)
-        {
-            await ShowAlertAsync("Apply Failed", "Cannot apply settings while acquisition is running.");
-            return;
-        }
-
-        if (HasSampleRateError || HasDividerError)
-        {
-            await ShowAlertAsync("Validation Error", "Please fix validation errors before applying.");
-            return;
-        }
-
-        try
-        {
-            Board.OperationMode = SelectedOperationMode ?? Board.OperationMode;
-            Board.SamplingRate = int.TryParse(SampleRateText, out var rate) ? rate : Board.SamplingRate;
-            Board.ExternalTrigger = ExternalTrigger ?? Board.ExternalTrigger;
-            Board.ExternalClock = ExternalClock ?? Board.ExternalClock;
-            Board.ResolutionAI = ResolutionAI ?? Board.ResolutionAI; 
-
-            if (HasSampleRateDivider && int.TryParse(DividerText, out var divider))
-                Board.SampleRateDivider = divider;
-
-            Board.UpdateAcquisitionProperties();
-            CloseRequested?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            await ShowAlertAsync("Apply Failed", ex.Message);
-        }
     }
 }
