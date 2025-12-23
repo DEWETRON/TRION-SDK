@@ -166,10 +166,6 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private async Task StartAcquisition()
     {
-        IsAcquiring = true;
-        Debug.WriteLine("Starting acquisition...");
-        LogMessages.Add("Starting acquisition...");
-
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
 
         if (selectedChannels.Count > MaxSelectableChannels)
@@ -190,6 +186,10 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         PrepareUIForAcquisition(selectedChannels);
         AcquisitionStarting?.Invoke(this, selectedChannels);
+
+        IsAcquiring = true;
+        Debug.WriteLine("Starting acquisition...");
+        LogMessages.Add("Starting acquisition...");
 
         await _acquisitionManager!.StartAcquisitionAsync(selectedChannels);
         StartUiDrainTimer();
