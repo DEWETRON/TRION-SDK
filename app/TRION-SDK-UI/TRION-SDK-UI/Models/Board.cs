@@ -71,7 +71,7 @@ namespace TRION_SDK_UI.Models
         {
             const int MinBlockSize = 64;
             const int MaxBlockSize = 4096;
-            const double TargetBlockDurationSeconds = 0.1; // 10ms target
+            const double TargetBlockDurationSeconds = 0.1; // 100ms target
 
             int calculatedBlockSize = (int)(SamplingRate * TargetBlockDurationSeconds);
             BufferBlockSize = Math.Clamp(calculatedBlockSize, MinBlockSize, MaxBlockSize);

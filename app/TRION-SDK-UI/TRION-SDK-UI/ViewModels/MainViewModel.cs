@@ -6,6 +6,7 @@ using TRION_SDK_UI.Models;
 using System.ComponentModel;
 using TRION_SDK_UI.Services;
 using TRION_SDK_UI.POCO;
+using TrionApiUtils;
 
 namespace TRION_SDK_UI.ViewModels;
 public class MainViewModel : BaseViewModel, IDisposable
@@ -23,6 +24,9 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand? DeselectAllOnBoardCommand { get; private set; }
     public ICommand? OpenChannelWindowCommand { get; private set; }
     public ICommand? OpenBoardWindowCommand { get; private set; }
+
+    private static string ip_address = "10.0.0.100";
+    private static string mask = "255.255.0.0";
 
     private bool _isAcquiring;
     public bool IsAcquiring
@@ -79,6 +83,13 @@ public class MainViewModel : BaseViewModel, IDisposable
         IsAcquiring = false;
         Debug.WriteLine("Started");
         LogMessages.Add("App started.");
+        API.DeWeConfigure(API.Backend.TRIONET);
+
+        var error = TrionApi.DeWeSetParamStruct("trionetapi/config", "Network/IPV4/LocalIP", ip_address);
+        Utils.CheckErrorCode(error, "Failed to set local IP address");
+        
+        error = TrionApi.DeWeSetParamStruct("trionetapi/config", "Network/IPV4/NetMask", mask);
+        Utils.CheckErrorCode(error, "Failed to set subnet mask");
 
         var numberOfBoards = TrionApi.Initialize();
         if (numberOfBoards < 0)
