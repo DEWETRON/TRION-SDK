@@ -103,6 +103,7 @@ namespace TRION_SDK_UI.Models
 
         public void UpdateAcquisitionProperties()
         {
+            UpdateBuffer(false);
             var (error2, value) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}/AcqProp", "SampleRate");
             Utils.CheckErrorCode(error2, $"Failed to get sample rate for board {Id}");
             SamplingRate = int.Parse(value);

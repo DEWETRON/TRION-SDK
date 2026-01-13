@@ -104,13 +104,12 @@ public class AcquisitionManager(Enclosure enclosure)
 
         var selectedBoardIds = selectedChannels.Select(c => c.BoardID).Distinct();
         var selectedBoards = _enclosure.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
-
+        
         foreach (var board in selectedBoards)
         {
             board.Reset();
             board.UpdateAcquisitionProperties();
             board.ActivateChannels(selectedChannels.Where(c => c.BoardID == board.Id));
-            board.Update();
             board.RefreshScanDescriptor();
             board.IsAcquiring = true;
         }
@@ -281,8 +280,6 @@ public class AcquisitionManager(Enclosure enclosure)
                 readPos += scanSize;
             }
 
-            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
-
             for (int i = 0; i < availableSamples; i++)
             {
                 double elapsedSeconds = (sampleIndex + i) * samplePeriod;
@@ -294,9 +291,8 @@ public class AcquisitionManager(Enclosure enclosure)
                 }
             }
             sampleIndex += availableSamples;
+            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
         }
-
-        TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
     }
 
     private unsafe static double ReadAnalogSample(nint samplePos, int sampleSize, double scale)
