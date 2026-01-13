@@ -69,14 +69,15 @@ namespace TRION_SDK_UI.Models
 
         public void UpdateBuffer(bool update)
         {
-            const int MinBlockSize = 64;
-            const int MaxBlockSize = 4096;
-            const double TargetBlockDurationSeconds = 0.1; // 100ms target
+            //const int MinBlockSize = 64;
+            //const int MaxBlockSize = 4096;
+            const double PollingIntervall = 0.1; // 100ms target
 
-            int calculatedBlockSize = (int)(SamplingRate * TargetBlockDurationSeconds);
-            BufferBlockSize = Math.Clamp(calculatedBlockSize, MinBlockSize, MaxBlockSize);
+            int BufferBlockSize = (int)(SamplingRate * PollingIntervall);
+            // BufferBlockSize = Math.Clamp(calculatedBlockSize, MinBlockSize, MaxBlockSize);
+            var test = Math.Max(1, BufferBlockSize);
 
-            var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, BufferBlockSize);
+            var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, test);
             Utils.CheckErrorCode(error, $"Failed to set buffer block size for board {Id}");
 
             error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_COUNT, BufferBlockCount);
@@ -104,9 +105,9 @@ namespace TRION_SDK_UI.Models
         public void UpdateAcquisitionProperties()
         {
             UpdateBuffer(false);
-            var (error2, value) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}/AcqProp", "SampleRate");
-            Utils.CheckErrorCode(error2, $"Failed to get sample rate for board {Id}");
-            SamplingRate = int.Parse(value);
+            //var (error2, value) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}/AcqProp", "SampleRate");
+            //Utils.CheckErrorCode(error2, $"Failed to get sample rate for board {Id}");
+            //SamplingRate = int.Parse(value);
 
             Debug.WriteLine($"Setting sampling rate to {SamplingRate} Hz on board {Id}");
             SetOperationMode(false);

@@ -24,7 +24,7 @@ namespace TRION_SDK_UI
         private const double CursorLabelOffsetX = 14;
         private const double CursorLabelOffsetY = 14;
 
-        private const int ViewWidthSeconds = 22;
+        private const double ViewWidthSeconds = 2.2;
 
         void OnPointerEntered(object sender, PointerEventArgs e)
         {

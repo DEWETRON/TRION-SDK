@@ -162,6 +162,7 @@ public class AcquisitionManager(Enclosure enclosure)
     
     public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 1000)
     {
+        Debug.WriteLine($"Draining samples with count = {_sampleQueues.Count}");
         var result = new Dictionary<string, Sample[]>(_sampleQueues.Count);
 
         foreach (var (key, q) in _sampleQueues)
