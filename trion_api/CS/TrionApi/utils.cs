@@ -22,7 +22,6 @@
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 System.Diagnostics.Debug.WriteLine($"TRION API Error: {user_message} {error_code}");
-                Environment.Exit((int)error_code);
                 Console.ResetColor();
                 TrionApi.CloseBoards();
                 TrionApi.Uninitialize();

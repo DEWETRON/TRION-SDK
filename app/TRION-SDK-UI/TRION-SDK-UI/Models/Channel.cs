@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Trion;
 using TRION_SDK_UI.POCO;
 using TrionApiUtils;
 
@@ -83,40 +84,53 @@ namespace TRION_SDK_UI.Models
                     ActivateDigitalChannel();
                     break;
                 case ChannelType.Counter:
+                    ActivateCounterChannel();
+                    break;
                 case ChannelType.Unknown:
                 default:
                     throw new NotSupportedException($"Channel type {Type} is not implemented.");
             }
         }
 
+        private void ActivateCounterChannel()
+        {
+            var target = $"BoardID{BoardID}/{Name}";
+            TrionError error;
+            error = TrionApi.DeWeSetParamStruct(target, "Used", "True");
+            Utils.CheckErrorCode(error, $"Failed to activate channel {Name} on board {BoardID}");
+
+            error = TrionApi.DeWeSetParamStruct(target, "Source_A", "Acq_Clk");
+            Utils.CheckErrorCode(error, $"Failed to set Source_A for channel {Name} on board {BoardID}");
+
+            error = TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name);
+            Utils.CheckErrorCode(error, $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
+        }
+
         private void ActivateAnalogChannel()
         {
             string target = $"BoardID{BoardID}/{Name}";
+            TrionError error;
 
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct(target, "Used", "True"),
-                $"Failed to activate channel {Name} on board {BoardID}");
+            error = TrionApi.DeWeSetParamStruct(target, "Used", "True");
+            Utils.CheckErrorCode(error, $"Failed to activate channel {Name} on board {BoardID}");
 
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name),
-                $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
+            error = TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name);
+            Utils.CheckErrorCode(error, $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
 
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct(target, "Range", $"{_range} {_unit}"),
-                $"Failed to set range for channel {Name} on board {BoardID}");
+            error = TrionApi.DeWeSetParamStruct(target, "Range", $"{_range} {_unit}");
+            Utils.CheckErrorCode(error, $"Failed to set range for channel {Name} on board {BoardID}");
         }
 
         private void ActivateDigitalChannel()
         {
             string target = $"BoardID{BoardID}/{Name}";
+            TrionError error;
 
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct(target, "Used", "True"),
-                $"Failed to activate channel {Name} on board {BoardID}");
+            error = TrionApi.DeWeSetParamStruct(target, "Used", "True");
+            Utils.CheckErrorCode(error, $"Failed to activate channel {Name} on board {BoardID}");
 
-            Utils.CheckErrorCode(
-                TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name),
-                $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
+            error = TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name);
+            Utils.CheckErrorCode(error, $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
         }
     }
 }

@@ -114,7 +114,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
-            foreach (var channel in board.Channels.Where(c => c.Type is Channel.ChannelType.Analog or Channel.ChannelType.Digital))
+            foreach (var channel in board.Channels.Where(c => c.Type is Channel.ChannelType.Analog or 
+                                                                        Channel.ChannelType.Digital or 
+                                                                        Channel.ChannelType.Counter))
             {
                 Channels.Add(channel);
                 channel.PropertyChanged += OnChannelPropertyChanged;
