@@ -96,14 +96,15 @@ namespace TRION_SDK_UI.Models
         {
             var target = $"BoardID{BoardID}/{Name}";
             TrionError error;
+
             error = TrionApi.DeWeSetParamStruct(target, "Used", "True");
             Utils.CheckErrorCode(error, $"Failed to activate channel {Name} on board {BoardID}");
 
-            error = TrionApi.DeWeSetParamStruct(target, "Source_A", "Acq_Clk");
-            Utils.CheckErrorCode(error, $"Failed to set Source_A for channel {Name} on board {BoardID}");
-
             error = TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name);
             Utils.CheckErrorCode(error, $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
+
+            error = TrionApi.DeWeSetParamStruct(target, "Source_A", "Acq_Clk");
+            Utils.CheckErrorCode(error, $"Failed to set Source_A for channel {Name} on board {BoardID}");
         }
 
         private void ActivateAnalogChannel()
