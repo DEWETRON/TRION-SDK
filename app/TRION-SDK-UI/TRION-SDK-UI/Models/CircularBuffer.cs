@@ -1,13 +1,32 @@
 ﻿using Trion;
+using TrionApiUtils;
 
-namespace TRION_SDK_UI.Models
+namespace TRION_SDK_UI.Models;
+
+internal class CircularBuffer
 {
-    internal class CircularBuffer(int board_id)
-    {
-        public long EndPosition { get; set; } =
-            TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_END_POINTER).value;
+    public long EndPosition { get; }
+    public int Size { get; }
 
-        public int Size { get; set; } =
-            TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_TOTAL_MEM_SIZE).value;
+    public CircularBuffer(int board_id)
+    {
+        var (err, endPos) = TrionApi.DeWeGetParam_i64(board_id, TrionCommand.BUFFER_0_END_POINTER);
+        Utils.CheckErrorCode(err, "Failed to get buffer end pointer");
+        EndPosition = endPos;
+
+        (err, var size) = TrionApi.DeWeGetParam_i32(board_id, TrionCommand.BUFFER_0_TOTAL_MEM_SIZE);
+        Utils.CheckErrorCode(err, "Failed to get buffer total mem size");
+        Size = size;
+    }
+
+    /// <summary>
+    /// Checks if the read pointer has reached the end of the buffer and wraps it back to the start if necessary.
+    /// </summary>
+    public void CheckWrapAround(ref long readPos)
+    {
+        if (readPos >= EndPosition)
+        {
+            readPos -= Size;
+        }
     }
 }
