@@ -166,7 +166,7 @@ public class AcquisitionManager(Enclosure enclosure)
         _runningBoards.Clear();
     }
     
-    public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 1000)
+    public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 100_000)
     {
         var result = new Dictionary<string, Sample[]>(_sampleQueues.Count);
 
@@ -174,11 +174,16 @@ public class AcquisitionManager(Enclosure enclosure)
         {
             if (q.IsEmpty) continue;
 
-            var rented = ArrayPool<Sample>.Shared.Rent(maxPerChannel);
+            // Determine how many items to read: existing backlog or limit, whichever is smaller
+            int count = Math.Min(q.Count, maxPerChannel);
+            
+            if (count == 0) continue;
+
+            var rented = ArrayPool<Sample>.Shared.Rent(count);
             int n = 0;
             try
             {
-                while (n < maxPerChannel && q.TryDequeue(out var sample))
+                while (n < count && q.TryDequeue(out var sample))
                 {
                     rented[n++] = sample;
                 }
@@ -228,7 +233,6 @@ public class AcquisitionManager(Enclosure enclosure)
 
         CircularBuffer buffer = new(board.Id);
         long sampleIndex = 0;
-        double samplePeriod = 1.0 / board.SamplingRate;
 
         while (!token.IsCancellationRequested)
         {
@@ -254,12 +258,14 @@ public class AcquisitionManager(Enclosure enclosure)
 
             for (int i = 0; i < availableSamples; ++i)
             {
-                ProcessScan(ref readPos, buffer, offsets, sampleSizes, sampleLists, scanSize);
+                buffer.CheckWrapAround(ref readPos);
+                ProcessScan(ref readPos, offsets, sampleSizes, sampleLists);
+                readPos += scanSize;
             }
 
             for (int i = 0; i < availableSamples; i++)
             {
-                double elapsedSeconds = (sampleIndex + i) * samplePeriod;
+                double elapsedSeconds = (double)(sampleIndex + i) / board.SamplingRate;
                 for (int c = 0; c < channelKeys.Length; ++c)
                 {
                     var key = channelKeys[c];
@@ -272,17 +278,14 @@ public class AcquisitionManager(Enclosure enclosure)
         }
     }
 
+   
+
     private void ProcessScan(
         ref long readPos,
-        CircularBuffer buffer,
         int[] offsets,
         int[] sampleSizes,
-        List<double>[] sampleLists,
-        int scanSize)
+        List<double>[] sampleLists)
     {
-        if (readPos >= buffer.EndPosition)
-            readPos -= buffer.Size;
-
         for (int c = 0; c < _selectedChannels.Count; ++c)
         {
             var channel = _selectedChannels[c];
@@ -292,8 +295,6 @@ public class AcquisitionManager(Enclosure enclosure)
             double value = ReadChannelValue(channel, samplePos, sampleSize);
             sampleLists[c].Add(value);
         }
-
-        readPos += scanSize;
     }
 
     private static double ReadChannelValue(Channel channel, nint samplePos, int sampleSize)
