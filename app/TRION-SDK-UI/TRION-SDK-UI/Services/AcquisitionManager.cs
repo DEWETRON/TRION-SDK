@@ -240,17 +240,14 @@ public class AcquisitionManager(Enclosure enclosure)
             (error, var rawAvailable) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
             Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}");
 
-            // Ensure we have enough data to cover the delay window
             if (rawAvailable <= adcDelay)
             {
-                await Task.Delay(1, token); // Short sleep to yield
+                await Task.Delay(1, token);
                 continue;
             }
 
             int processableSamples = rawAvailable - adcDelay;
 
-            // --- POINTER SETUP ---
-            // localReadPos is our trusted stat. It points to the next sample to read.
             long basePtr = hwReadPos;
             long analogPtr = hwReadPos + ((long)adcDelay * scanSize);
             
@@ -258,10 +255,8 @@ public class AcquisitionManager(Enclosure enclosure)
             for (int c = 0; c < selectedChannels.Count; ++c)
                 sampleLists[c] = new List<double>(processableSamples);
 
-            // --- PROCESSING ---
             for (int i = 0; i < processableSamples; ++i)
             {
-                // Verify wrapping for every sample step is safest
                 buffer.CheckWrapAround(ref basePtr);
                 buffer.CheckWrapAround(ref analogPtr);
 
@@ -271,19 +266,10 @@ public class AcquisitionManager(Enclosure enclosure)
                 analogPtr += scanSize;
             }
 
-            // --- COMMIT ---
-            // Advance our local pointer by the amount we processed.
-            // We assume basePtr has moved forward correctly (with wraps).
-            // Actually, simply adding processed size is safer for logic tracking:
-            // But basePtr has been wrapped inside the loop, so it effectively points to the next location.
-            // HOWEVER, basePtr might have wrapped *multiple times*? No, size is huge.
-            // Just trust the result of the loop.
             hwReadPos = basePtr;
             
-            // Final wrap check for safely storing state
-            if (hwReadPos >= buffer.EndPosition) hwReadPos -= buffer.Size;
+            buffer.CheckWrapAround(ref hwReadPos);
 
-            // --- ENQUEUE ---
             for (int i = 0; i < processableSamples; ++i)
             {
                 double elapsedSeconds = (double)(sampleIndex + i) / board.SamplingRate;
@@ -294,8 +280,6 @@ public class AcquisitionManager(Enclosure enclosure)
             }
             sampleIndex += processableSamples;
 
-            // --- FREE ---
-            // Tell driver we consumed these samples so it can reuse space.
             TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processableSamples);
         }
     }
