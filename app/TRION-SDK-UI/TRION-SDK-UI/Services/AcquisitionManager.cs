@@ -237,18 +237,8 @@ public class AcquisitionManager(Enclosure enclosure)
 
         while (!token.IsCancellationRequested)
         {
-            // --- POLLING STRATEGY ---
-            // Instead of WAIT, we poll AVAILANCE. Wait functions can be flaky in interop.
-            // We use Task.Delay to throttle cpu usage.
             (error, var rawAvailable) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
-            
-            // Check errors but don't crash loop
-            if (error != 0) 
-            {
-                Debug.WriteLine($"Error getting avail samples: {error}");
-                await Task.Delay(10, token);
-                continue; 
-            }
+            Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}");
 
             // Ensure we have enough data to cover the delay window
             if (rawAvailable <= adcDelay)
@@ -264,10 +254,6 @@ public class AcquisitionManager(Enclosure enclosure)
             long basePtr = hwReadPos;
             long analogPtr = hwReadPos + ((long)adcDelay * scanSize);
             
-            // Fix: Check wrap immediately for the Offset pointer
-            buffer.CheckWrapAround(ref basePtr);
-            buffer.CheckWrapAround(ref analogPtr);
-
             var sampleLists = new List<double>[selectedChannels.Count];
             for (int c = 0; c < selectedChannels.Count; ++c)
                 sampleLists[c] = new List<double>(processableSamples);
