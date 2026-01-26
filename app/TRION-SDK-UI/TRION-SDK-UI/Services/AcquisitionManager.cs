@@ -43,7 +43,6 @@ public class AcquisitionManager(Enclosure enclosure)
         var scanDescriptor = board.ScanDescriptor;
         if (scanDescriptor is null) return;
 
-        // Ensure we iterate the requested channels and find their matching descriptor info
         var channels = boardGroup.ToList();
         var channelInfos = channels
             .Select(ch => scanDescriptor.Channels.FirstOrDefault(c => c.Name == ch.Name))
@@ -80,7 +79,8 @@ public class AcquisitionManager(Enclosure enclosure)
 
         _runningBoards[ctx.Board.Id] = ctx;
 
-        var task = Task.Run(() => AcquireDataLoop(ctx, cts.Token), cts.Token);
+        var worker = new AcquisitionWorker(ctx, _sampleQueues);
+        var task = Task.Run(() => worker.RunAsync(cts.Token), cts.Token);
 
         _acquisitionTasks.Add(task);
     }
@@ -89,8 +89,7 @@ public class AcquisitionManager(Enclosure enclosure)
     {
         if (IsRunning) await StopAcquisitionAsync();
 
-        _selectedChannels = channels.ToList();
-
+        _selectedChannels = [.. channels];
         _acquisitionTasks.Clear();
         _ctsList.Clear();
         _sampleQueues.Clear();
@@ -98,7 +97,7 @@ public class AcquisitionManager(Enclosure enclosure)
 
         var selectedBoardIds = _selectedChannels.Select(c => c.BoardID).Distinct();
         var selectedBoards = _enclosure.Boards.Where(b => selectedBoardIds.Contains(b.Id)).ToList();
-        
+
         foreach (var board in selectedBoards)
         {
             board.Reset();
@@ -114,7 +113,7 @@ public class AcquisitionManager(Enclosure enclosure)
         foreach (var boardGroup in channelsByBoard)
         {
             PrepareBoardRunContext(boardGroup);
-            
+
             if (_runningBoards.TryGetValue(boardGroup.Key, out var ctx))
             {
                 StartBoardAcquisition(ctx);
@@ -122,6 +121,41 @@ public class AcquisitionManager(Enclosure enclosure)
         }
 
         IsRunning = true;
+    }
+    public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 100_00000)
+    {
+        var result = new Dictionary<string, Sample[]>(_sampleQueues.Count);
+
+        foreach (var (key, q) in _sampleQueues)
+        {
+            if (q.IsEmpty) continue;
+
+            var count = Math.Min(q.Count, maxPerChannel);
+
+            if (count == 0) continue;
+
+            var rented = ArrayPool<Sample>.Shared.Rent(count);
+            var n = 0;
+            try
+            {
+                while (n < count && q.TryDequeue(out var sample))
+                {
+                    rented[n++] = sample;
+                }
+
+                if (n <= 0) continue;
+
+                var arr = GC.AllocateUninitializedArray<Sample>(n);
+                Array.Copy(rented, arr, n);
+                result[key] = arr;
+            }
+            finally
+            {
+                ArrayPool<Sample>.Shared.Return(rented, clearArray: false);
+            }
+        }
+
+        return result;
     }
 
     public async Task StopAcquisitionAsync()
@@ -150,7 +184,7 @@ public class AcquisitionManager(Enclosure enclosure)
         {
             var error = TrionApi.DeWeSetParam_i32(boardId, TrionCommand.STOP_ACQUISITION, 0);
             Utils.CheckErrorCode(error, $"Failed to stop acquisition on board {boardId}");
-            
+
             if (_runningBoards.TryGetValue(boardId, out var ctx))
             {
                 ctx.Board.IsAcquiring = false;
@@ -161,231 +195,200 @@ public class AcquisitionManager(Enclosure enclosure)
         _ctsList.Clear();
         _runningBoards.Clear();
     }
-    
-    public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 100_00000)
+
+    private sealed class AcquisitionWorker(
+        BoardRunContext context,
+        ConcurrentDictionary<string, ConcurrentQueue<Sample>> sampleQueues)
     {
-        var result = new Dictionary<string, Sample[]>(_sampleQueues.Count);
+        private readonly Board _board = context.Board;
+        private readonly List<Channel> _channels = context.Channels;
+        private readonly int[] _offsets = context.Offsets;
+        private readonly int[] _sampleSizes = context.SampleSizes;
+        private readonly string[] _channelKeys = context.ChannelKeys;
+        private readonly List<double>[] _channelBuffers = [.. context.Channels.Select(_ => new List<double>())];
 
-        foreach (var (key, q) in _sampleQueues)
+        public async Task RunAsync(CancellationToken token)
         {
-            if (q.IsEmpty) continue;
-
-            var count = Math.Min(q.Count, maxPerChannel);
-            
-            if (count == 0) continue;
-
-            var rented = ArrayPool<Sample>.Shared.Rent(count);
-            var n = 0;
-            try
+            if (_board.ScanDescriptor is null)
             {
-                while (n < count && q.TryDequeue(out var sample))
-                {
-                    rented[n++] = sample;
-                }
-
-                if (n <= 0) continue;
-
-                var arr = GC.AllocateUninitializedArray<Sample>(n);
-                Array.Copy(rented, arr, n);
-                result[key] = arr;
+                Debug.WriteLine($"ScanDescriptor is null for board {_board.Id}. Acquisition loop will exit.");
+                return;
             }
-            finally
-            {
-                ArrayPool<Sample>.Shared.Return(rented, clearArray: false);
-            }
-        }
+            var scanSize = (int)_board.ScanDescriptor.ScanSizeBytes;
 
-        return result;
-    }
-    private static uint ReadDiscreteSample(nint samplePos)
-    {
-        int raw = Marshal.ReadByte(samplePos);
-        return (uint)(raw & 0x1);
-    }
+            (var error, var adcDelay) = TrionApi.DeWeGetParam_i32(_board.Id, TrionCommand.BOARD_ADC_DELAY);
+            Utils.CheckErrorCode(error, $"Failed to get ADC Delay {_board.Id}");
 
-    private async Task AcquireDataLoop(
-        BoardRunContext ctx,
-        CancellationToken token)
-    {
-        var board = ctx.Board;
-        var offsets = ctx.Offsets;
-        var sampleSizes = ctx.SampleSizes;
-        var channelKeys = ctx.ChannelKeys;
-        var selectedChannels = ctx.Channels;
+            error = TrionApi.DeWeSetParam_i32(_board.Id, TrionCommand.START_ACQUISITION, 0);
+            Utils.CheckErrorCode(error, $"Failed start acquisition {_board.Id}");
 
-        if (board.ScanDescriptor is null)
-        {
-            Debug.WriteLine($"ScanDescriptor is null for board {board.Id}. Acquisition loop will exit.");
-            return;
-        }
-        var scanSize = (int)board.ScanDescriptor.ScanSizeBytes;
+            CircularBuffer buffer = new(_board.Id);
+            long sampleIndex = 0;
 
-        (var error, var adcDelay) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BOARD_ADC_DELAY);
-        Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board.Id}");
+            (error, var hwReadPos) = TrionApi.DeWeGetParam_i64(_board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+            Utils.CheckErrorCode(error, $"Failed to get initial sample position {_board.Id}");
 
-        error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.START_ACQUISITION, 0);
-        Utils.CheckErrorCode(error, $"Failed start acquisition {board.Id}");
-
-        CircularBuffer buffer = new(board.Id);
-        long sampleIndex = 0;
-
-        (error, var hwReadPos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
-        Utils.CheckErrorCode(error, $"Failed to get initial sample position {board.Id}");
-        
-        buffer.CheckWrapAround(ref hwReadPos);
-
-        while (!token.IsCancellationRequested)
-        {
-            (error, var rawAvailable) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
-            Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}");
-
-            if (rawAvailable <= adcDelay)
-            {
-                await Task.Delay(1, token);
-                continue;
-            }
-
-            var processableSamples = rawAvailable - adcDelay;
-            var basePtr = hwReadPos;
-            var analogPtr = hwReadPos + ((long)adcDelay * scanSize);
-            
-            var sampleLists = new List<double>[selectedChannels.Count];
-            for (int c = 0; c < selectedChannels.Count; ++c)
-            {
-                sampleLists[c] = new List<double>(processableSamples);
-            }
-
-            for (int i = 0; i < processableSamples; ++i)
-            {
-                buffer.CheckWrapAround(ref basePtr);
-                buffer.CheckWrapAround(ref analogPtr);
-
-                ProcessScan(ref basePtr, ref analogPtr, offsets, sampleSizes, sampleLists);
-
-                basePtr += scanSize;
-                analogPtr += scanSize;
-            }
-
-            hwReadPos = basePtr;
             buffer.CheckWrapAround(ref hwReadPos);
 
-            for (int i = 0; i < processableSamples; ++i)
+            while (!token.IsCancellationRequested)
             {
-                var elapsedSeconds = (double)(sampleIndex + i) / board.SamplingRate;
-                for (int c = 0; c < channelKeys.Length; ++c)
+                (error, var rawAvailable) = TrionApi.DeWeGetParam_i32(_board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+                Utils.CheckErrorCode(error, $"Failed to get available samples {_board.Id}");
+
+                if (rawAvailable <= adcDelay)
                 {
-                    _sampleQueues[channelKeys[c]].Enqueue(new Sample(sampleLists[c][i], elapsedSeconds));
+                    await Task.Delay(1, token);
+                    continue;
                 }
+
+                var processableSamples = rawAvailable - adcDelay;
+                var basePtr = hwReadPos;
+                var analogPtr = hwReadPos + ((long)adcDelay * scanSize);
+
+                for (int c = 0; c < _channelBuffers.Length; ++c)
+                {
+                    var list = _channelBuffers[c];
+                    list.Clear();
+                    if (list.Capacity < processableSamples) 
+                    {
+                        list.Capacity = processableSamples;
+                    }
+                }
+
+                for (int i = 0; i < processableSamples; ++i)
+                {
+                    buffer.CheckWrapAround(ref basePtr);
+                    buffer.CheckWrapAround(ref analogPtr);
+
+                    ProcessScan(basePtr, analogPtr);
+
+                    basePtr += scanSize;
+                    analogPtr += scanSize;
+                }
+
+                hwReadPos = basePtr;
+                buffer.CheckWrapAround(ref hwReadPos);
+
+                for (int i = 0; i < processableSamples; ++i)
+                {
+                    var elapsedSeconds = (double)(sampleIndex + i) / _board.SamplingRate;
+                    for (int c = 0; c < _channelKeys.Length; ++c)
+                    {
+                        sampleQueues[_channelKeys[c]].Enqueue(new Sample(_channelBuffers[c][i], elapsedSeconds));
+                    }
+                }
+                sampleIndex += processableSamples;
+
+                TrionApi.DeWeSetParam_i32(_board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processableSamples);
             }
-            sampleIndex += processableSamples;
-
-            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processableSamples);
         }
-    }
 
-    private void ProcessScan(
-        ref long readPos,
-        ref long analogPos,
-        int[] offsets,
-        int[] sampleSizes,
-        List<double>[] sampleLists)
-    {
-        for (int c = 0; c < _selectedChannels.Count; ++c)
+        private void ProcessScan(long readPos, long analogPos)
         {
-            var channel = _selectedChannels[c];
-            var samplePos = (nint)(readPos + offsets[c]);
-            var analogSamplePos = (nint)(analogPos + offsets[c]);
-            var sampleSize = sampleSizes[c];
-
-            var value = ReadChannelValue(channel, samplePos, analogSamplePos, sampleSize);
-            sampleLists[c].Add(value);
-        }
-    }
-
-    private static double ReadChannelValue(Channel channel, nint samplePos, nint analogPos, int sampleSize)
-    {
-        if (channel.Type == Channel.ChannelType.Digital)
-        {
-            return ReadDiscreteSample(samplePos);
-        }
-        else if (channel.Type == Channel.ChannelType.Analog)
-        {
-            double range = 1.0; // Default scale value
-            if (double.TryParse(channel.Range, out var parsedRange))
+            for (int c = 0; c < _channels.Count; ++c)
             {
-                range = parsedRange;
+                var channel = _channels[c];
+                var samplePos = (nint)(readPos + _offsets[c]);
+                var analogSamplePos = (nint)(analogPos + _offsets[c]);
+                var sampleSize = _sampleSizes[c];
+
+                var value = ReadChannelValue(channel, samplePos, analogSamplePos, sampleSize);
+                
+                _channelBuffers[c].Add(value);
             }
-            return ReadAnalogSample(analogPos, sampleSize, range);
         }
-        else if (channel.Type == Channel.ChannelType.Counter)
-        {
-            return ReadCounterSample(samplePos, sampleSize);
-        }
-        else
-        {
-            throw new NotSupportedException($"Unsupported channel type: {channel.Type}");
-        }
-    }
 
-    private unsafe static double ReadCounterSample(nint samplePos, int sampleSize)
-    {
-        if (sampleSize == 32)
+        private static double ReadChannelValue(Channel channel, nint samplePos, nint analogPos, int sampleSize)
         {
-            return (double)System.Runtime.CompilerServices.Unsafe.ReadUnaligned<uint>((byte*)samplePos);
-        }
-        else if (sampleSize == 24)
-        {
-            var ptr = (byte*)samplePos;
-            var val = (uint)(ptr[0] | (ptr[1] << 8) | (ptr[2] << 16));
-            return (double)val;
-        }
-        else
-        {
-            throw new NotSupportedException($"Unsupported counter sample size: {sampleSize}");
-        }
-    }
-    private unsafe static double ReadAnalogSample(nint samplePos, int sampleSize, double scale)
-    {
-        int raw;
-        switch (sampleSize)
-        {
-            case 16:
+            if (channel.Type == Channel.ChannelType.Digital)
+            {
+                return ReadDiscreteSample(samplePos);
+            }
+            else if (channel.Type == Channel.ChannelType.Analog)
+            {
+                double range = 1.0; 
+                if (double.TryParse(channel.Range, out var parsedRange))
                 {
-                    var test = (byte *)samplePos;
-                    var b0 = test[0];
-                    var b1 = test[1];
-                    raw = b0 | (b1 << 8);
-                    if ((raw & 0x8000) != 0)
+                    range = parsedRange;
+                }
+                return ReadAnalogSample(analogPos, sampleSize, range);
+            }
+            else if (channel.Type == Channel.ChannelType.Counter)
+            {
+                return ReadCounterSample(samplePos, sampleSize);
+            }
+            else
+            {
+                throw new NotSupportedException($"Unsupported channel type: {channel.Type}");
+            }
+        }
+
+        private static uint ReadDiscreteSample(nint samplePos)
+        {
+            int raw = Marshal.ReadByte(samplePos);
+            return (uint)(raw & 0x1);
+        }
+
+        private unsafe static double ReadCounterSample(nint samplePos, int sampleSize)
+        {
+            if (sampleSize == 32)
+            {
+                return (double)System.Runtime.CompilerServices.Unsafe.ReadUnaligned<uint>((byte*)samplePos);
+            }
+            else if (sampleSize == 24)
+            {
+                var ptr = (byte*)samplePos;
+                var val = (uint)(ptr[0] | (ptr[1] << 8) | (ptr[2] << 16));
+                return (double)val;
+            }
+            else
+            {
+                throw new NotSupportedException($"Unsupported counter sample size: {sampleSize}");
+            }
+        }
+
+        private unsafe static double ReadAnalogSample(nint samplePos, int sampleSize, double scale)
+        {
+            int raw;
+            switch (sampleSize)
+            {
+                case 16:
                     {
-                        raw |= unchecked((int)0xFFFF0000);
+                        var test = (byte*)samplePos;
+                        var b0 = test[0];
+                        var b1 = test[1];
+                        raw = b0 | (b1 << 8);
+                        if ((raw & 0x8000) != 0)
+                        {
+                            raw |= unchecked((int)0xFFFF0000);
+                        }
+                        break;
                     }
-                    break;
-                }
-            case 24:
-                {
-                    var test = (byte *)samplePos;
-                    var b0 = test[0];
-                    var b1 = test[1];
-                    var b2 = test[2];
-                    raw = b0 | (b1 << 8) | (b2 << 16);
-                    if ((raw & 0x800000) != 0)
+                case 24:
                     {
-                        raw |= unchecked((int)0xFF000000);
+                        var test = (byte*)samplePos;
+                        var b0 = test[0];
+                        var b1 = test[1];
+                        var b2 = test[2];
+                        raw = b0 | (b1 << 8) | (b2 << 16);
+                        if ((raw & 0x800000) != 0)
+                        {
+                            raw |= unchecked((int)0xFF000000);
+                        }
+                        break;
                     }
-                    break;
-                }
-            case 32:
-                {
-                    raw = System.Runtime.CompilerServices.Unsafe.ReadUnaligned<int>((byte*)samplePos);
-                    break;
-                }
-            default:
-                throw new NotSupportedException($"Unsupported sample size: {sampleSize}");
+                case 32:
+                    {
+                        raw = System.Runtime.CompilerServices.Unsafe.ReadUnaligned<int>((byte*)samplePos);
+                        break;
+                    }
+                default:
+                    throw new NotSupportedException($"Unsupported sample size: {sampleSize}");
+            }
+
+            int signBit = 1 << (sampleSize - 1);
+            var value = (double)raw / (double)(signBit - 1) * scale;
+            return value;
         }
-
-        int signBit = 1 << (sampleSize - 1);
-        var value = (double)raw / (double)(signBit - 1) * scale;
-        return value;
     }
-
 }
