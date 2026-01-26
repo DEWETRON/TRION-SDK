@@ -170,13 +170,12 @@ public class AcquisitionManager(Enclosure enclosure)
         {
             if (q.IsEmpty) continue;
 
-            // Determine how many items to read: existing backlog or limit, whichever is smaller
-            int count = Math.Min(q.Count, maxPerChannel);
+            var count = Math.Min(q.Count, maxPerChannel);
             
             if (count == 0) continue;
 
             var rented = ArrayPool<Sample>.Shared.Rent(count);
-            int n = 0;
+            var n = 0;
             try
             {
                 while (n < count && q.TryDequeue(out var sample))
@@ -246,33 +245,33 @@ public class AcquisitionManager(Enclosure enclosure)
                 continue;
             }
 
-            int processableSamples = rawAvailable - adcDelay;
-
-            long basePtr = hwReadPos;
-            long analogPtr = hwReadPos + ((long)adcDelay * scanSize);
+            var processableSamples = rawAvailable - adcDelay;
+            var basePtr = hwReadPos;
+            var analogPtr = hwReadPos + ((long)adcDelay * scanSize);
             
             var sampleLists = new List<double>[selectedChannels.Count];
             for (int c = 0; c < selectedChannels.Count; ++c)
+            {
                 sampleLists[c] = new List<double>(processableSamples);
+            }
 
             for (int i = 0; i < processableSamples; ++i)
             {
                 buffer.CheckWrapAround(ref basePtr);
                 buffer.CheckWrapAround(ref analogPtr);
 
-                ProcessScan(ref basePtr, offsets, sampleSizes, sampleLists);
+                ProcessScan(ref basePtr, ref analogPtr, offsets, sampleSizes, sampleLists);
 
                 basePtr += scanSize;
                 analogPtr += scanSize;
             }
 
             hwReadPos = basePtr;
-            
             buffer.CheckWrapAround(ref hwReadPos);
 
             for (int i = 0; i < processableSamples; ++i)
             {
-                double elapsedSeconds = (double)(sampleIndex + i) / board.SamplingRate;
+                var elapsedSeconds = (double)(sampleIndex + i) / board.SamplingRate;
                 for (int c = 0; c < channelKeys.Length; ++c)
                 {
                     _sampleQueues[channelKeys[c]].Enqueue(new Sample(sampleLists[c][i], elapsedSeconds));
@@ -286,6 +285,7 @@ public class AcquisitionManager(Enclosure enclosure)
 
     private void ProcessScan(
         ref long readPos,
+        ref long analogPos,
         int[] offsets,
         int[] sampleSizes,
         List<double>[] sampleLists)
@@ -293,15 +293,16 @@ public class AcquisitionManager(Enclosure enclosure)
         for (int c = 0; c < _selectedChannels.Count; ++c)
         {
             var channel = _selectedChannels[c];
-            nint samplePos = (nint)(readPos + offsets[c]);
-            int sampleSize = sampleSizes[c];
+            var samplePos = (nint)(readPos + offsets[c]);
+            var analogSamplePos = (nint)(analogPos + offsets[c]);
+            var sampleSize = sampleSizes[c];
 
-            double value = ReadChannelValue(channel, samplePos, sampleSize);
+            var value = ReadChannelValue(channel, samplePos, analogSamplePos, sampleSize);
             sampleLists[c].Add(value);
         }
     }
 
-    private static double ReadChannelValue(Channel channel, nint samplePos, int sampleSize)
+    private static double ReadChannelValue(Channel channel, nint samplePos, nint analogPos, int sampleSize)
     {
         if (channel.Type == Channel.ChannelType.Digital)
         {
@@ -309,12 +310,12 @@ public class AcquisitionManager(Enclosure enclosure)
         }
         else if (channel.Type == Channel.ChannelType.Analog)
         {
-            double range = 1; // Default scale value
+            double range = 1.0; // Default scale value
             if (double.TryParse(channel.Range, out var parsedRange))
             {
                 range = parsedRange;
             }
-            return ReadAnalogSample(samplePos, sampleSize, range);
+            return ReadAnalogSample(analogPos, sampleSize, range);
         }
         else if (channel.Type == Channel.ChannelType.Counter)
         {
@@ -334,8 +335,8 @@ public class AcquisitionManager(Enclosure enclosure)
         }
         else if (sampleSize == 24)
         {
-            byte* ptr = (byte*)samplePos;
-            uint val = (uint)(ptr[0] | (ptr[1] << 8) | (ptr[2] << 16));
+            var ptr = (byte*)samplePos;
+            var val = (uint)(ptr[0] | (ptr[1] << 8) | (ptr[2] << 16));
             return (double)val;
         }
         else
@@ -350,9 +351,9 @@ public class AcquisitionManager(Enclosure enclosure)
         {
             case 16:
                 {
-                    byte *test = (byte *)samplePos;
-                    byte b0 = test[0];
-                    byte b1 = test[1];
+                    var test = (byte *)samplePos;
+                    var b0 = test[0];
+                    var b1 = test[1];
                     raw = b0 | (b1 << 8);
                     if ((raw & 0x8000) != 0)
                     {
@@ -362,10 +363,10 @@ public class AcquisitionManager(Enclosure enclosure)
                 }
             case 24:
                 {
-                    byte *test = (byte *)samplePos;
-                    byte b0 = test[0];
-                    byte b1 = test[1];
-                    byte b2 = test[2];
+                    var test = (byte *)samplePos;
+                    var b0 = test[0];
+                    var b1 = test[1];
+                    var b2 = test[2];
                     raw = b0 | (b1 << 8) | (b2 << 16);
                     if ((raw & 0x800000) != 0)
                     {
@@ -383,7 +384,7 @@ public class AcquisitionManager(Enclosure enclosure)
         }
 
         int signBit = 1 << (sampleSize - 1);
-        double value = (double)raw / (double)(signBit - 1) * scale;
+        var value = (double)raw / (double)(signBit - 1) * scale;
         return value;
     }
 
