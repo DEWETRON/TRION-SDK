@@ -45,6 +45,26 @@ namespace TRION_SDK_UI.Models
             {
                 if (ReferenceEquals(_mode, value)) return;
                 _mode = value;
+                
+                // Automatically update Unit and Range when Mode changes to ensure consistency
+                if (_mode != null)
+                {
+                    if (_mode.Unit != null)
+                    {
+                        Unit = _mode.Unit;
+                    }
+
+                    // Reset range to default if available, otherwise first valid range
+                    if (!string.IsNullOrEmpty(_mode.DefaultValue))
+                    {
+                        Range = _mode.DefaultValue;
+                    }
+                    else if (_mode.Ranges.Count > 0)
+                    {
+                        Range = _mode.Ranges[0];
+                    }
+                }
+
                 OnPropertyChanged();
             }
         }
@@ -66,7 +86,7 @@ namespace TRION_SDK_UI.Models
         {
             get => _unit;
             set
-        {
+            {
                 if (value == _unit) return;
                 _unit = value;
                 OnPropertyChanged();
@@ -118,8 +138,13 @@ namespace TRION_SDK_UI.Models
             error = TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name);
             Utils.CheckErrorCode(error, $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
 
-            error = TrionApi.DeWeSetParamStruct(target, "Range", $"{_range} {_unit}");
-            Utils.CheckErrorCode(error, $"Failed to set range for channel {Name} on board {BoardID}");
+            // Ensure we don't send a null Range. If Range is missing, the board may reject the command 
+            // or stay in an undefined state.
+            if (!string.IsNullOrEmpty(_range))
+            {
+                error = TrionApi.DeWeSetParamStruct(target, "Range", $"{_range} {_unit}");
+                Utils.CheckErrorCode(error, $"Failed to set range for channel {Name} on board {BoardID}");
+            }
         }
 
         private void ActivateDigitalChannel()

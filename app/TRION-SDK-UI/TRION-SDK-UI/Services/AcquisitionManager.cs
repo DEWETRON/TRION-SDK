@@ -236,34 +236,41 @@ public class AcquisitionManager(Enclosure enclosure)
 
         while (!token.IsCancellationRequested)
         {
-            int availableSamples;
-            (error, availableSamples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
-            Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {availableSamples}");
+            int rawAvailable;
+            (error, rawAvailable) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
+            Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {rawAvailable}");
 
-            availableSamples -= adcDelay;
-            if (availableSamples <= 0)
+            if (rawAvailable <= adcDelay)
             {
                 await Task.Delay(1, token);
                 continue;
             }
 
-            (error, var readPos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+            int processableSamples = rawAvailable - adcDelay;
+
+            (error, var writePos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
             Utils.CheckErrorCode(error, $"Failed to get actual sample position {board.Id}");
 
-            readPos += adcDelay * scanSize;
+            // CALCULATE CORRECT READ POINTER:
+            // Start reading from the beginning of the available block
+            long readPos = writePos - ((long)rawAvailable * scanSize);
+
+            // FIX: Use AlignReadPointer to check against Buffer Start Address, 
+            // instead of checking (readPos < 0).
+            buffer.AlignReadPointer(ref readPos);
 
             var sampleLists = new List<double>[selectedChannels.Count];
             for (int c = 0; c < selectedChannels.Count; ++c)
-                sampleLists[c] = new List<double>(availableSamples);
+                sampleLists[c] = new List<double>(processableSamples);
 
-            for (int i = 0; i < availableSamples; ++i)
+            for (int i = 0; i < processableSamples; ++i)
             {
                 buffer.CheckWrapAround(ref readPos);
                 ProcessScan(ref readPos, offsets, sampleSizes, sampleLists);
                 readPos += scanSize;
             }
 
-            for (int i = 0; i < availableSamples; i++)
+            for (int i = 0; i < processableSamples; i++)
             {
                 double elapsedSeconds = (double)(sampleIndex + i) / board.SamplingRate;
                 for (int c = 0; c < channelKeys.Length; ++c)
@@ -273,8 +280,9 @@ public class AcquisitionManager(Enclosure enclosure)
                     q.Enqueue(new Sample(sampleLists[c][i], elapsedSeconds));
                 }
             }
-            sampleIndex += availableSamples;
-            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
+            sampleIndex += processableSamples;
+            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processableSamples);
+            Utils.CheckErrorCode(error, $"Failed to free samples {board.Id}");
         }
     }
 
