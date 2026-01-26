@@ -34,22 +34,4 @@ internal class CircularBuffer
             readPos -= Size;
         }
     }
-
-    /// <summary>
-    /// Aligns the read pointer to be within the valid buffer range [StartPosition, EndPosition).
-    /// Used when calculating positions backwards from the write pointer.
-    /// </summary>
-    public void AlignReadPointer(ref long readPos)
-    {
-        // Wrap up if we underflowed below start
-        while (readPos < StartPosition)
-        {
-            readPos += Size;
-        }
-        // Wrap down if we overflowed above end (safety)
-        while (readPos >= EndPosition)
-        {
-            readPos -= Size;
-        }
-    }
 }

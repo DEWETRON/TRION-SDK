@@ -25,8 +25,8 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand? OpenChannelWindowCommand { get; private set; }
     public ICommand? OpenBoardWindowCommand { get; private set; }
 
-    private static string ip_address = "10.0.0.100";
-    private static string mask = "255.255.0.0";
+    private static readonly string ip_address = "10.0.0.100";
+    private static readonly string mask = "255.255.0.0";
 
     private bool _isAcquiring;
     public bool IsAcquiring

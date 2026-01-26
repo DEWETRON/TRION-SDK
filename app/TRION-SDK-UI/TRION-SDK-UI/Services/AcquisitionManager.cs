@@ -108,9 +108,9 @@ public class AcquisitionManager(Enclosure enclosure)
             board.Reset();
             board.UpdateAcquisitionProperties();
             board.ActivateChannels(_selectedChannels.Where(c => c.BoardID == board.Id));
+            board.Update();
             board.RefreshScanDescriptor();
             board.IsAcquiring = true;
-            board.Update();
         }
 
         var channelsByBoard = _selectedChannels.GroupBy(c => c.BoardID);
@@ -227,6 +227,7 @@ public class AcquisitionManager(Enclosure enclosure)
 
         (var error, var adcDelay) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BOARD_ADC_DELAY);
         Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board.Id}");
+        Debug.WriteLine($"ADC Delay is {adcDelay}");
 
         error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.START_ACQUISITION, 0);
         Utils.CheckErrorCode(error, $"Failed start acquisition {board.Id}");
@@ -236,41 +237,33 @@ public class AcquisitionManager(Enclosure enclosure)
 
         while (!token.IsCancellationRequested)
         {
-            int rawAvailable;
-            (error, rawAvailable) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
-            Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {rawAvailable}");
+            (error, var availableSamples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
+            Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {availableSamples}");
 
-            if (rawAvailable <= adcDelay)
+            availableSamples -= adcDelay;
+            if (availableSamples <= 0)
             {
                 await Task.Delay(1, token);
                 continue;
             }
 
-            int processableSamples = rawAvailable - adcDelay;
-
-            (error, var writePos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+            (error, var readPos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
             Utils.CheckErrorCode(error, $"Failed to get actual sample position {board.Id}");
 
-            // CALCULATE CORRECT READ POINTER:
-            // Start reading from the beginning of the available block
-            long readPos = writePos - ((long)rawAvailable * scanSize);
-
-            // FIX: Use AlignReadPointer to check against Buffer Start Address, 
-            // instead of checking (readPos < 0).
-            buffer.AlignReadPointer(ref readPos);
+            readPos += adcDelay * scanSize;
 
             var sampleLists = new List<double>[selectedChannels.Count];
             for (int c = 0; c < selectedChannels.Count; ++c)
-                sampleLists[c] = new List<double>(processableSamples);
+                sampleLists[c] = new List<double>(availableSamples);
 
-            for (int i = 0; i < processableSamples; ++i)
+            for (int i = 0; i < availableSamples; ++i)
             {
                 buffer.CheckWrapAround(ref readPos);
                 ProcessScan(ref readPos, offsets, sampleSizes, sampleLists);
                 readPos += scanSize;
             }
 
-            for (int i = 0; i < processableSamples; i++)
+            for (int i = 0; i < availableSamples; ++i)
             {
                 double elapsedSeconds = (double)(sampleIndex + i) / board.SamplingRate;
                 for (int c = 0; c < channelKeys.Length; ++c)
@@ -280,13 +273,10 @@ public class AcquisitionManager(Enclosure enclosure)
                     q.Enqueue(new Sample(sampleLists[c][i], elapsedSeconds));
                 }
             }
-            sampleIndex += processableSamples;
-            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processableSamples);
-            Utils.CheckErrorCode(error, $"Failed to free samples {board.Id}");
+            sampleIndex += availableSamples;
+            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
         }
     }
-
-   
 
     private void ProcessScan(
         ref long readPos,
