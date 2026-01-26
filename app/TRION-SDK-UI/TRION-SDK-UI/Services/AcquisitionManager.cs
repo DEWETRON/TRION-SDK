@@ -41,14 +41,10 @@ public class AcquisitionManager(Enclosure enclosure)
         }
 
         var scanDescriptor = board.ScanDescriptor;
-        if (scanDescriptor is null)
-        {
-            Debug.WriteLine($"Skipping board {board.Id}: ScanDescriptor is null.");
-            return;
-        }
+        if (scanDescriptor is null) return;
 
+        // Ensure we iterate the requested channels and find their matching descriptor info
         var channels = boardGroup.ToList();
-
         var channelInfos = channels
             .Select(ch => scanDescriptor.Channels.FirstOrDefault(c => c.Name == ch.Name))
             .ToArray();
@@ -166,7 +162,7 @@ public class AcquisitionManager(Enclosure enclosure)
         _runningBoards.Clear();
     }
     
-    public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 100_000)
+    public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 100_00000)
     {
         var result = new Dictionary<string, Sample[]>(_sampleQueues.Count);
 
@@ -227,7 +223,6 @@ public class AcquisitionManager(Enclosure enclosure)
 
         (var error, var adcDelay) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BOARD_ADC_DELAY);
         Utils.CheckErrorCode(error, $"Failed to get ADC Delay {board.Id}");
-        Debug.WriteLine($"ADC Delay is {adcDelay}");
 
         error = TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.START_ACQUISITION, 0);
         Utils.CheckErrorCode(error, $"Failed start acquisition {board.Id}");
@@ -235,46 +230,87 @@ public class AcquisitionManager(Enclosure enclosure)
         CircularBuffer buffer = new(board.Id);
         long sampleIndex = 0;
 
+        (error, var hwReadPos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
+        Utils.CheckErrorCode(error, $"Failed to get initial sample position {board.Id}");
+        
+        buffer.CheckWrapAround(ref hwReadPos);
+
         while (!token.IsCancellationRequested)
         {
-            (error, var availableSamples) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_WAIT_AVAIL_NO_SAMPLE);
-            Utils.CheckErrorCode(error, $"Failed to get available samples {board.Id}, {availableSamples}");
-
-            availableSamples -= adcDelay;
-            if (availableSamples <= 0)
+            // --- POLLING STRATEGY ---
+            // Instead of WAIT, we poll AVAILANCE. Wait functions can be flaky in interop.
+            // We use Task.Delay to throttle cpu usage.
+            (error, var rawAvailable) = TrionApi.DeWeGetParam_i32(board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+            
+            // Check errors but don't crash loop
+            if (error != 0) 
             {
-                await Task.Delay(1, token);
+                Debug.WriteLine($"Error getting avail samples: {error}");
+                await Task.Delay(10, token);
+                continue; 
+            }
+
+            // Ensure we have enough data to cover the delay window
+            if (rawAvailable <= adcDelay)
+            {
+                await Task.Delay(1, token); // Short sleep to yield
                 continue;
             }
 
-            (error, var readPos) = TrionApi.DeWeGetParam_i64(board.Id, TrionCommand.BUFFER_0_ACT_SAMPLE_POS);
-            Utils.CheckErrorCode(error, $"Failed to get actual sample position {board.Id}");
+            int processableSamples = rawAvailable - adcDelay;
 
-            readPos += adcDelay * scanSize;
+            // --- POINTER SETUP ---
+            // localReadPos is our trusted stat. It points to the next sample to read.
+            long basePtr = hwReadPos;
+            long analogPtr = hwReadPos + ((long)adcDelay * scanSize);
+            
+            // Fix: Check wrap immediately for the Offset pointer
+            buffer.CheckWrapAround(ref basePtr);
+            buffer.CheckWrapAround(ref analogPtr);
 
             var sampleLists = new List<double>[selectedChannels.Count];
             for (int c = 0; c < selectedChannels.Count; ++c)
-                sampleLists[c] = new List<double>(availableSamples);
+                sampleLists[c] = new List<double>(processableSamples);
 
-            for (int i = 0; i < availableSamples; ++i)
+            // --- PROCESSING ---
+            for (int i = 0; i < processableSamples; ++i)
             {
-                buffer.CheckWrapAround(ref readPos);
-                ProcessScan(ref readPos, offsets, sampleSizes, sampleLists);
-                readPos += scanSize;
+                // Verify wrapping for every sample step is safest
+                buffer.CheckWrapAround(ref basePtr);
+                buffer.CheckWrapAround(ref analogPtr);
+
+                ProcessScan(ref basePtr, offsets, sampleSizes, sampleLists);
+
+                basePtr += scanSize;
+                analogPtr += scanSize;
             }
 
-            for (int i = 0; i < availableSamples; ++i)
+            // --- COMMIT ---
+            // Advance our local pointer by the amount we processed.
+            // We assume basePtr has moved forward correctly (with wraps).
+            // Actually, simply adding processed size is safer for logic tracking:
+            // But basePtr has been wrapped inside the loop, so it effectively points to the next location.
+            // HOWEVER, basePtr might have wrapped *multiple times*? No, size is huge.
+            // Just trust the result of the loop.
+            hwReadPos = basePtr;
+            
+            // Final wrap check for safely storing state
+            if (hwReadPos >= buffer.EndPosition) hwReadPos -= buffer.Size;
+
+            // --- ENQUEUE ---
+            for (int i = 0; i < processableSamples; ++i)
             {
                 double elapsedSeconds = (double)(sampleIndex + i) / board.SamplingRate;
                 for (int c = 0; c < channelKeys.Length; ++c)
                 {
-                    var key = channelKeys[c];
-                    var q = _sampleQueues[key];
-                    q.Enqueue(new Sample(sampleLists[c][i], elapsedSeconds));
+                    _sampleQueues[channelKeys[c]].Enqueue(new Sample(sampleLists[c][i], elapsedSeconds));
                 }
             }
-            sampleIndex += availableSamples;
-            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, availableSamples);
+            sampleIndex += processableSamples;
+
+            // --- FREE ---
+            // Tell driver we consumed these samples so it can reuse space.
+            TrionApi.DeWeSetParam_i32(board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processableSamples);
         }
     }
 

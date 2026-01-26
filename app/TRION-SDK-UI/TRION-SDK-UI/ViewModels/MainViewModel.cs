@@ -297,7 +297,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private void DrainAndPublish()
     {
-        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 10000);
+        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 10000000);
         if (0 == batches.Count)
         {
             return;
