@@ -1,15 +1,14 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Trion;
 using TRION_SDK_UI.POCO;
-using TrionApiUtils;
 
 namespace TRION_SDK_UI.Models
 {
-    public class Channel : INotifyPropertyChanged
+    // 1. Mark class as abstract
+    public abstract class Channel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string? name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         public enum ChannelType
@@ -24,9 +23,14 @@ namespace TRION_SDK_UI.Models
         public required int BoardID { get; set; }
         public required string BoardName { get; set; }
         public required string Name { get; set; }
-        public required ChannelType Type { get; set; }
+        
+        // Allowed to be set by subclasses
+        public ChannelType Type { get; protected set; }
+
         private string? _range;
-        public required string? Range
+        
+        // Kept in base for now to ensure UI bindings and AcquisitionManager don't break
+        public string? Range
         {
             get => _range;
             set
@@ -45,28 +49,23 @@ namespace TRION_SDK_UI.Models
             {
                 if (ReferenceEquals(_mode, value)) return;
                 _mode = value;
-                
-                // Automatically update Unit and Range when Mode changes to ensure consistency
-                if (_mode != null)
-                {
-                    if (_mode.Unit != null)
-                    {
-                        Unit = _mode.Unit;
-                    }
-
-                    // Reset range to default if available, otherwise first valid range
-                    if (!string.IsNullOrEmpty(_mode.DefaultValue))
-                    {
-                        Range = _mode.DefaultValue;
-                    }
-                    else if (_mode.Ranges.Count > 0)
-                    {
-                        Range = _mode.Ranges[0];
-                    }
-                }
-
+                OnModeChanged(); 
                 OnPropertyChanged();
             }
+        }
+
+        // Shared logic for Mode changes
+        protected virtual void OnModeChanged()
+        {
+            if (_mode == null) return;
+            
+            if (_mode.Unit != null)
+                Unit = _mode.Unit;
+
+            if (!string.IsNullOrEmpty(_mode.DefaultValue))
+                Range = _mode.DefaultValue;
+            else if (_mode.Ranges.Count > 0)
+                Range = _mode.Ranges[0];
         }
 
         private bool _isSelected;
@@ -93,70 +92,10 @@ namespace TRION_SDK_UI.Models
             }
         }
 
-        public void Activate()
-        {
-            switch (Type)
-            {
-                case ChannelType.Analog:
-                    ActivateAnalogChannel();
-                    break;
-                case ChannelType.Digital:
-                    ActivateDigitalChannel();
-                    break;
-                case ChannelType.Counter:
-                    ActivateCounterChannel();
-                    break;
-                case ChannelType.Unknown:
-                default:
-                    throw new NotSupportedException($"Channel type {Type} is not implemented.");
-            }
-        }
+        // 2. Abstract method forces subclasses to implement their specific logic
+        public abstract void Activate();
 
-        private void ActivateCounterChannel()
-        {
-            var target = $"BoardID{BoardID}/{Name}";
-            TrionError error;
-
-            error = TrionApi.DeWeSetParamStruct(target, "Used", "True");
-            Utils.CheckErrorCode(error, $"Failed to activate channel {Name} on board {BoardID}");
-
-            error = TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name);
-            Utils.CheckErrorCode(error, $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
-
-            error = TrionApi.DeWeSetParamStruct(target, "Source_A", "Acq_Clk");
-            Utils.CheckErrorCode(error, $"Failed to set Source_A for channel {Name} on board {BoardID}");
-        }
-
-        private void ActivateAnalogChannel()
-        {
-            string target = $"BoardID{BoardID}/{Name}";
-            TrionError error;
-
-            error = TrionApi.DeWeSetParamStruct(target, "Used", "True");
-            Utils.CheckErrorCode(error, $"Failed to activate channel {Name} on board {BoardID}");
-
-            error = TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name);
-            Utils.CheckErrorCode(error, $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
-
-            // Ensure we don't send a null Range. If Range is missing, the board may reject the command 
-            // or stay in an undefined state.
-            if (!string.IsNullOrEmpty(_range))
-            {
-                error = TrionApi.DeWeSetParamStruct(target, "Range", $"{_range} {_unit}");
-                Utils.CheckErrorCode(error, $"Failed to set range for channel {Name} on board {BoardID}");
-            }
-        }
-
-        private void ActivateDigitalChannel()
-        {
-            string target = $"BoardID{BoardID}/{Name}";
-            TrionError error;
-
-            error = TrionApi.DeWeSetParamStruct(target, "Used", "True");
-            Utils.CheckErrorCode(error, $"Failed to activate channel {Name} on board {BoardID}");
-
-            error = TrionApi.DeWeSetParamStruct(target, "Mode", _mode.Name);
-            Utils.CheckErrorCode(error, $"Failed to set mode {_mode.Name} for channel {Name} on board {BoardID}");
-        }
+        // Helper for subclasses
+        protected string GetTargetName() => $"BoardID{BoardID}/{Name}";
     }
 }

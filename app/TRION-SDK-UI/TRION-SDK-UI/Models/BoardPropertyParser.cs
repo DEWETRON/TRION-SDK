@@ -144,19 +144,49 @@ public sealed class BoardPropertyParser
 
             if (ChannelType.Unknown == GetChannelType(channelNav.Name)) continue;
 
-            channels.Add(new Channel
+            if (ChannelType.Analog == GetChannelType(channelNav.Name))
             {
-                BoardID = GetBoardID(),
-                BoardName = GetBoardName(),
-                Name = channelNav.Name,
-                Type = GetChannelType(channelNav.Name),
-                ModeList = allModes,
-                Mode = defaultMode,
-                Unit = defaultMode.Unit ?? string.Empty,
-                Range = defaultRange
-            });
-        }
+                channels.Add(new AnalogChannel
+                {
+                    BoardID = GetBoardID(),
+                    BoardName = GetBoardName(),
+                    Name = channelNav.Name,
+                    ModeList = allModes,
+                    Mode = defaultMode,
+                    Unit = defaultMode.Unit ?? string.Empty,
+                    Range = defaultRange
+                });
+            }
+            else if (ChannelType.Digital == GetChannelType(channelNav.Name))
+            {
+                channels.Add(new DigitalChannel
+                {
+                    BoardID = GetBoardID(),
+                    BoardName = GetBoardName(),
+                    Name = channelNav.Name,
+                    ModeList = allModes,
+                    Mode = defaultMode,
+                    Unit = defaultMode.Unit ?? string.Empty,
+                    Range = defaultRange
+                });
+            }
+            else if (ChannelType.Counter == GetChannelType(channelNav.Name))
+            {
+                channels.Add(new CounterChannel
+                {
+                    BoardID = GetBoardID(),
+                    BoardName = GetBoardName(),
+                    Name = channelNav.Name,
+                    ModeList = allModes,
+                    Mode = defaultMode,
+                    Unit = defaultMode.Unit ?? string.Empty,
+                    Range = defaultRange
+                });
+            } else {
+                continue;
 
+            }
+        }
         return channels;
     }
 
@@ -179,7 +209,7 @@ public sealed class BoardPropertyParser
         var nav = _navigator.SelectSingleNode($"/Properties/AcquisitionProperties/AcqProp/{propName}");
         if (nav is null)
         {
-            return (0, [], false); // isPresent = false
+            return (0, [], false); 
         }
 
         var defaultIndex = int.TryParse(nav.GetAttribute("Default", ""), out var def) ? def : 0;
@@ -190,7 +220,7 @@ public sealed class BoardPropertyParser
             .Where(v => !string.IsNullOrEmpty(v))
             .Select(v => v!)];
 
-        return (defaultIndex, modes, true); // isPresent = true
+        return (defaultIndex, modes, true);
     }
 
     public AcqProp GetAcqProp()

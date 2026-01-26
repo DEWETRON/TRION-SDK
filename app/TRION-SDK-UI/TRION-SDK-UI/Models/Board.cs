@@ -45,15 +45,8 @@ namespace TRION_SDK_UI.Models
 
         private static void DeactivateAllChannels(int boardId)
         {
-            TrionError error;
-            //error = TrionApi.DeWeSetParamStruct($"BoardID{boardId}/DIAll", "Used", "False");
-            //Utils.CheckErrorCode(error, $"Failed to deactivate all digital channels on board {boardId}");
-
-            error = TrionApi.DeWeSetParamStruct($"BoardID{boardId}/AIAll", "Used", "False");
+            var error = TrionApi.DeWeSetParamStruct($"BoardID{boardId}/AIAll", "Used", "False");
             Utils.CheckErrorCode(error, $"Failed to deactivate all analog channels on board {boardId}");
-
-            //error = TrionApi.DeWeSetParamStruct($"BoardID{boardId}/CIAll", "Used", "False");
-            //Utils.CheckErrorCode(error, $"Failed to deactivate all counter channels on board {boardId}");
         }
 
         public void SetOperationMode(bool update)
@@ -79,12 +72,9 @@ namespace TRION_SDK_UI.Models
 
         public void UpdateBuffer(bool update)
         {
-            //const int MinBlockSize = 64;
-            //const int MaxBlockSize = 4096;
             const double PollingInterval = 0.1; // 100ms target
 
             int BufferBlockSize = (int)(SamplingRate * PollingInterval);
-            // BufferBlockSize = Math.Clamp(calculatedBlockSize, MinBlockSize, MaxBlockSize);
             var test = Math.Max(1, BufferBlockSize);
 
             var error = TrionApi.DeWeSetParam_i32(Id, TrionCommand.BUFFER_BLOCK_SIZE, test);
@@ -115,10 +105,6 @@ namespace TRION_SDK_UI.Models
         public void UpdateAcquisitionProperties()
         {
             UpdateBuffer(false);
-            //var (error2, value) = TrionApi.DeWeGetParamStruct_String($"BoardID{Id}/AcqProp", "SampleRate");
-            //Utils.CheckErrorCode(error2, $"Failed to get sample rate for board {Id}");
-            //SamplingRate = int.Parse(value);
-
             Debug.WriteLine($"Setting sampling rate to {SamplingRate} Hz on board {Id}");
             SetOperationMode(false);
             SetExternalClock(false);

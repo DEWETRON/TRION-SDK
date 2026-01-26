@@ -19,14 +19,9 @@ internal class CircularBuffer
         Utils.CheckErrorCode(err, "Failed to get buffer total mem size");
         Size = size;
 
-        // Calculate the starting memory address of the buffer
         StartPosition = EndPosition - Size;
     }
 
-    /// <summary>
-    /// Checks if the read pointer has reached the end of the buffer and wraps it back to the start if necessary.
-    /// Used during forward iteration.
-    /// </summary>
     public void CheckWrapAround(ref long readPos)
     {
         if (readPos >= EndPosition)
