@@ -14,7 +14,6 @@ namespace TRION_SDK_UI.Models;
 
         var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
         var boardPropertiesModel = new BoardPropertyParser(boardPropertiesXml);
-        //Debug.WriteLine($"Board {boardId} Properties XML: {boardPropertiesXml}");
 
         var newBoard = boardPropertiesModel.CreateBoard(boardId, boardPropertiesXml, 50);
         Boards.Add(newBoard);
