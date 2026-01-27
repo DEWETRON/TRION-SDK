@@ -268,7 +268,7 @@ public class MainViewModel : BaseViewModel, IDisposable
         }
 
         _uiDrainTimer = dispatcher.CreateTimer();
-        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33.3); // ~30 Hz (tune)
+        _uiDrainTimer.Interval = TimeSpan.FromMilliseconds(33.3); // ~30 Hz
         _uiDrainTimer.IsRepeating = true;
 
         _drainTickHandler = (_, _) => DrainAndPublish();
@@ -297,7 +297,7 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     private void DrainAndPublish()
     {
-        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 10000000);
+        var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 10_000);
         if (0 == batches.Count)
         {
             return;
@@ -314,7 +314,7 @@ public class MainViewModel : BaseViewModel, IDisposable
                 var latestValue = samples[^1].Value;
                 if (_meterByKey.TryGetValue(channelKey, out var meter))
                 {
-                    meter.AddSample(latestValue);
+                    meter.Value = latestValue;
                 }
             }
         }

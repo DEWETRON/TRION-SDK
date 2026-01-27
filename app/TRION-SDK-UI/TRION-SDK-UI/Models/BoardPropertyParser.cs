@@ -104,6 +104,16 @@ public sealed class BoardPropertyParser
 
     }
 
+    private static string GetDefaultRange(ChannelMode mode)
+    {
+        if (int.TryParse(mode.DefaultValue, out var idx))
+        {
+            if (idx >= 0 && idx < mode.Ranges.Count) return mode.Ranges[idx];
+        }
+        return mode.Ranges.FirstOrDefault() ?? string.Empty;
+    }
+
+
     public string GetBoardName() => GetBoardInfoValue("BoardName");
 
     public List<Channel> GetChannels(int boardId = -1, string boardName = "")
@@ -239,14 +249,6 @@ public sealed class BoardPropertyParser
         return modes;
     }
 
-    private static string GetDefaultRange(ChannelMode mode)
-    {
-        if (int.TryParse(mode.DefaultValue, out var idx))
-        {
-            if (idx >= 0 && idx < mode.Ranges.Count) return mode.Ranges[idx];
-        }
-        return mode.Ranges.FirstOrDefault() ?? string.Empty;
-    }
 }
 
 file static class XmlExt

@@ -7,7 +7,7 @@ public static class PlotThemeUtil
 {
     public static void ApplyTheme(Plot plot, AppTheme theme, Crosshair? crosshair = null, VerticalLine? lockLine = null)
     {
-        IPalette palette = new ScottPlot.Palettes.Dark();
+        ScottPlot.Palettes.Dark palette = new ScottPlot.Palettes.Dark();
         // Base palette
         ScottPlot.Color background;
         ScottPlot.Color fontColor;

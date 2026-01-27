@@ -202,14 +202,12 @@ namespace TRION_SDK_UI
 
         private static (double[] ys, double[] xs) ConvertSamplesToXYArrays(ReadOnlySpan<Sample> samples)
         {
-            int n = samples.Length;
-            var ys = GC.AllocateUninitializedArray<double>(n);
-            var xs = GC.AllocateUninitializedArray<double>(n);
-            for (int i = 0; i < n; i++)
+            var ys = GC.AllocateUninitializedArray<double>(samples.Length);
+            var xs = GC.AllocateUninitializedArray<double>(samples.Length);
+            for (int i = 0; i < samples.Length; ++i)
             {
-                ref readonly var s = ref samples[i];
-                ys[i] = s.Value;
-                xs[i] = s.ElapsedSeconds;
+                ys[i] = samples[i].Value;
+                xs[i] = samples[i].ElapsedSeconds;
             }
             return (ys, xs);
         }
