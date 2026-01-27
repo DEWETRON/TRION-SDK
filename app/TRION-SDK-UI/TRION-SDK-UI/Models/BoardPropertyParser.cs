@@ -1,4 +1,3 @@
-using ScottPlot;
 using System.Xml.Linq;
 using TRION_SDK_UI.POCO;
 using static TRION_SDK_UI.Models.Channel;
@@ -47,7 +46,7 @@ public sealed class BoardPropertyParser
             OperationMode = GetDefaultStringAcqPropFromString("OperationMode"),
             BufferBlockCount = bufferBlockCount,
             SampleRateDivider = GetDefaultIntAcqPropFromString("SampleRateDivider"),
-            ResolutionAI = GetDefaultStringAcqPropFromString("ResolutionAI")
+            ResolutionAI = "Test"
         };
     }
 

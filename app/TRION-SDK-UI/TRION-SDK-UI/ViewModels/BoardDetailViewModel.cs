@@ -213,10 +213,10 @@ public sealed class BoardDetailViewModel : BaseViewModel
             ExternalClockValues.Add(clk);
         }
         
-        foreach (var res in parser.GetAvailableResolutionsAI())
+        /*foreach (var res in parser.GetAvailableResolutionsAI())
         {
             ResolutionAIValues.Add(res);
-        }
+        }*/
 
         var (srProg, srMin, srMax, srRates) = parser.GetSampleRateCapabilities();
         IsSampleRateProgrammable = srProg;
@@ -284,7 +284,7 @@ public sealed class BoardDetailViewModel : BaseViewModel
             DividerText = Board.SampleRateDivider.ToString();
             ExternalTrigger = Board.ExternalTrigger;
             ExternalClock = Board.ExternalClock;
-            ResolutionAI = Board.ResolutionAI;
+            //ResolutionAI = Board.ResolutionAI;
         }
         finally
         {
