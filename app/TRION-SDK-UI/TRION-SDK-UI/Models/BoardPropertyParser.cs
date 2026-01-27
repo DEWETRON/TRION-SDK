@@ -52,55 +52,55 @@ public sealed class BoardPropertyParser
 
     private static int GetDefaultIntValueFromElement(int defaultIndex, XElement element)
     {
-        var values = element.Elements().ToList()
+        var valueStr = element.Elements()
             .FirstOrDefault(e => e.Name.LocalName.Equals($"ID{defaultIndex}", StringComparison.OrdinalIgnoreCase))
             ?.Value;
 
-        if (int.TryParse(values, out var rate))
+        if (int.TryParse(valueStr, out var rate))
         {
             return rate;
         }
-        throw new InvalidOperationException("Invalid XML: Unable to parse default value.");
+        
+        throw new InvalidOperationException($"Invalid XML: Unable to parse integer value at ID{defaultIndex} in {element.Name}.");
     }
 
     private static string GetDefaultStringValueFromElement(int defaultIndex, XElement element)
     {
-        var value = element.Elements().ToList()
+        var value = element.Elements()
             .FirstOrDefault(e => e.Name.LocalName.Equals($"ID{defaultIndex}", StringComparison.OrdinalIgnoreCase))
             ?.Value;
+
         if (string.IsNullOrEmpty(value))
         {
-            throw new InvalidOperationException("Invalid XML: Unable to parse default value.");
+            throw new InvalidOperationException($"Invalid XML: Unable to parse string value at ID{defaultIndex} in {element.Name}.");
         }
         return value;
     }
 
     private string GetDefaultStringAcqPropFromString(string str)
     {
-        var acqProp = _AcquisitionProperties.Element("AcqProp") ?? throw new InvalidOperationException("Invalid XML: Missing AcqProp element.");
-        var element = acqProp.Element(str) ?? throw new InvalidOperationException($"Invalid XML: Missing {str} element.");
-        var defaultIndex = element.GetAttrInt("Default", -1);
+        var acqProp = _AcquisitionProperties.Element("AcqProp");
+        var element = acqProp?.Element(str);
+        
+        if (element == null) return string.Empty;
 
-        if (defaultIndex < 0)
-        {
-            return string.Empty;
-        }
+        var defaultIndex = element.GetAttrInt("Default", -1);
+        if (defaultIndex < 0) return string.Empty;
 
         return GetDefaultStringValueFromElement(defaultIndex, element);
     }
 
     private int GetDefaultIntAcqPropFromString(string str)
     {
-        var acqProp = _AcquisitionProperties.Element("AcqProp") ?? throw new InvalidOperationException("Invalid XML: Missing SampleRate element.");
-        var sampleRate = acqProp.Element(str);
-        var defaultIndex = sampleRate.GetAttrInt("Default", -1);
+        var acqProp = _AcquisitionProperties.Element("AcqProp");
+        var element = acqProp?.Element(str);
 
-        if (defaultIndex < 0 || sampleRate == null)
-        {
-            return 0;
-        }
+        if (element == null) return 0;
 
-        return GetDefaultIntValueFromElement(defaultIndex, sampleRate);
+        var defaultIndex = element.GetAttrInt("Default", -1);
+        if (defaultIndex < 0) return 0;
+
+        return GetDefaultIntValueFromElement(defaultIndex, element);
 
     }
 
