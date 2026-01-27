@@ -29,12 +29,6 @@ public sealed class BoardPropertyParser
         return ChannelType.Unknown;
     }
 
-    public List<string> GetResolutionAI()
-    {
-        var resolutions = _rootElement.Element("AcquisitionProperties")?.Element("AcqProp")?.Elements("Resolution");
-        return resolutions?.Select(e => e.Value).ToList() ?? [];
-    }
-
     public Board CreateBoard(int ID, string scanDescriptorXML, int bufferBlockCount)
     {
         var boardName = GetBoardName();

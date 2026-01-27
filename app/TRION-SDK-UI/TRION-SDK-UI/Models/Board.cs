@@ -95,7 +95,7 @@ namespace TRION_SDK_UI.Models
             SetAcqProp("OperationMode", OperationMode);
             SetAcqProp("ExtTrigger", ExternalTrigger);
             SetAcqProp("ExtClk", ExternalClock);
-            //SetAcqProp("ResolutionAI", ResolutionAI ?? "");
+            SetAcqProp("ResolutionAI", ResolutionAI ?? "");
             Update();
         }
 
