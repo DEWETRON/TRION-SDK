@@ -22,9 +22,9 @@ public sealed class BoardPropertyParser
 
     private static ChannelType GetChannelTypeFromString(string name)
     {
-        if (name.StartsWith("AI", StringComparison.OrdinalIgnoreCase))       return ChannelType.Analog;
-        if (name.StartsWith("Discret", StringComparison.OrdinalIgnoreCase))  return ChannelType.Digital;
-        if (name.StartsWith("CNT", StringComparison.OrdinalIgnoreCase))      return ChannelType.Counter;
+        if (name.StartsWith("AI", StringComparison.OrdinalIgnoreCase)) return ChannelType.Analog;
+        if (name.StartsWith("Discret", StringComparison.OrdinalIgnoreCase)) return ChannelType.Digital;
+        if (name.StartsWith("CNT", StringComparison.OrdinalIgnoreCase)) return ChannelType.Counter;
         if (name.StartsWith("BoardCNT", StringComparison.OrdinalIgnoreCase)) return ChannelType.BoardCounter;
         return ChannelType.Unknown;
     }
@@ -122,7 +122,7 @@ public sealed class BoardPropertyParser
             if (modes.Count == 0) continue;
 
             var defaultModeName = channelElem.GetAttrString("Default");
-            var currentMode = modes.FirstOrDefault(m => m.Name.Equals(defaultModeName, StringComparison.OrdinalIgnoreCase)) 
+            var currentMode = modes.FirstOrDefault(m => m.Name.Equals(defaultModeName, StringComparison.OrdinalIgnoreCase))
                               ?? modes.First();
 
             var defaultRange = GetDefaultRange(currentMode);
@@ -172,24 +172,9 @@ public sealed class BoardPropertyParser
 
     private XElement? AcqPropElem => _rootElement.Element("AcquisitionProperties")?.Element("AcqProp");
 
-    public IEnumerable<string> GetAvailableOperationModes()
+    public IEnumerable<string> GetAvailableValuesFromString(string str)
     {
-        return AcqPropElem?.Element("OperationMode")?.Elements().Select(e => e.Value) ?? [];
-    }
-
-    public IEnumerable<string> GetAvailableExternalTriggers()
-    {
-        return AcqPropElem?.Element("ExtTrigger")?.Elements().Select(e => e.Value) ?? [];
-    }
-
-    public IEnumerable<string> GetAvailableExternalClocks()
-    {
-        return AcqPropElem?.Element("ExtClk")?.Elements().Select(e => e.Value) ?? [];
-    }
-    
-    public IEnumerable<string> GetAvailableResolutionsAI()
-    {
-        return AcqPropElem?.Element("ResolutionAI")?.Elements().Select(e => e.Value) ?? [];
+        return AcqPropElem?.Element(str)?.Elements().Select(e => e.Value) ?? [];
     }
 
     public (bool IsProg, int Min, int Max, List<int> Rates) GetSampleRateCapabilities()
@@ -258,17 +243,17 @@ public sealed class BoardPropertyParser
     {
         if (int.TryParse(mode.DefaultValue, out var idx))
         {
-             if (idx >= 0 && idx < mode.Ranges.Count) return mode.Ranges[idx];
+            if (idx >= 0 && idx < mode.Ranges.Count) return mode.Ranges[idx];
         }
         return mode.Ranges.FirstOrDefault() ?? string.Empty;
     }
 }
 
-file static class XmlExt 
+file static class XmlExt
 {
-    public static string GetAttrString(this XElement? e, string name) 
+    public static string GetAttrString(this XElement? e, string name)
         => e?.Attribute(name)?.Value ?? string.Empty;
 
-    public static int GetAttrInt(this XElement? e, string name, int def = 0) 
+    public static int GetAttrInt(this XElement? e, string name, int def = 0)
         => int.TryParse(e?.Attribute(name)?.Value, out var i) ? i : def;
 }

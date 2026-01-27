@@ -198,17 +198,17 @@ public sealed class BoardDetailViewModel : BaseViewModel
         
         var parser = board.BoardProperties;
 
-        foreach (var mode in parser.GetAvailableOperationModes())
+        foreach (var mode in parser.GetAvailableValuesFromString("OperationMode"))
         {
             OperationModes.Add(mode);
         }
 
-        foreach (var trig in parser.GetAvailableExternalTriggers())
+        foreach (var trig in parser.GetAvailableValuesFromString("ExtTrigger"))
         {
             ExternalTriggerValues.Add(trig);
         }
 
-        foreach (var clk in parser.GetAvailableExternalClocks())
+        foreach (var clk in parser.GetAvailableValuesFromString("ExtClk"))
         {
             ExternalClockValues.Add(clk);
         }
