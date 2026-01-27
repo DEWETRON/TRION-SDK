@@ -32,6 +32,13 @@ namespace TRION_SDK_UI.Models
             Debug.WriteLine($"Updated ScanDescriptorXml: {ScanDescriptorXml}");
         }
 
+        public void SetAcqProp(string str, string value)
+        {
+            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", str, value);
+            Utils.CheckErrorCode(error, $"Failed to set acquisition property '{str}' for board {Id}");
+            Update();
+        }
+
         public void ActivateChannels(IEnumerable<Channel> selectedChannels)
         {
             DeactivateAllChannels(Id);
@@ -47,27 +54,6 @@ namespace TRION_SDK_UI.Models
         {
             var error = TrionApi.DeWeSetParamStruct($"BoardID{boardId}/AIAll", "Used", "False");
             Utils.CheckErrorCode(error, $"Failed to deactivate all analog channels on board {boardId}");
-        }
-
-        public void SetOperationMode(bool update)
-        {
-            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "OperationMode", OperationMode);
-            Utils.CheckErrorCode(error, $"Failed to set operation mode for board {Id}");
-            if (update) Update();
-        }
-
-        public void SetExternalTrigger(bool update)
-        {
-            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtTrigger", ExternalTrigger);
-            Utils.CheckErrorCode(error, $"Failed to set external trigger for board {Id}");
-            if (update) Update();
-        }
-
-        public void SetExternalClock(bool update)
-        {
-            var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", "ExtClk", ExternalClock);
-            Utils.CheckErrorCode(error, $"Failed to set external clock for board {Id}");
-            if (update) Update();
         }
 
         public void UpdateBuffer(bool update)
@@ -106,11 +92,10 @@ namespace TRION_SDK_UI.Models
         {
             UpdateBuffer(false);
             Debug.WriteLine($"Setting sampling rate to {SamplingRate} Hz on board {Id}");
-            SetOperationMode(false);
-            SetExternalClock(false);
-            SetExternalTrigger(false);
-            SetResolutionAI(false);
-
+            SetAcqProp("OperationMode", OperationMode);
+            SetAcqProp("ExtTrigger", ExternalTrigger);
+            SetAcqProp("ExtClk", ExternalClock);
+            //SetAcqProp("ResolutionAI", ResolutionAI ?? "");
             Update();
         }
 

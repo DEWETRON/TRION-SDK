@@ -81,8 +81,8 @@ public sealed class BoardDetailViewModel : BaseViewModel
                 {
                     if (int.TryParse(value, out var div))
                     {
+                        Board.SetAcqProp("SampleRateDivider", div.ToString());
                         Board.SampleRateDivider = div;
-                        Board.UpdateBuffer(true);
                     }
                 });
             }
@@ -111,8 +111,8 @@ public sealed class BoardDetailViewModel : BaseViewModel
             {
                 CommitPropertyChange(() =>
                 {
+                    Board.SetAcqProp("OperationMode", value);
                     Board.OperationMode = value;
-                    Board.SetOperationMode(true);
                 });
             }
         }
@@ -132,8 +132,8 @@ public sealed class BoardDetailViewModel : BaseViewModel
             {
                 CommitPropertyChange(() =>
                 {
-                    Board.ExternalTrigger = value;
-                    Board.SetExternalTrigger(true);
+                    Board.SetAcqProp("ExtTrigger", value);
+                    Board.OperationMode = value;
                 });
             }
         }
@@ -153,8 +153,8 @@ public sealed class BoardDetailViewModel : BaseViewModel
             {
                 CommitPropertyChange(() =>
                 {
+                    Board.SetAcqProp("ExtClk", value);
                     Board.ExternalClock = value;
-                    Board.SetExternalClock(true);
                 });
             }
         }
@@ -174,8 +174,8 @@ public sealed class BoardDetailViewModel : BaseViewModel
             {
                 CommitPropertyChange(() =>
                 {
+                    Board.SetAcqProp("ResolutionAI", value);
                     Board.ResolutionAI = value;
-                    Board.SetResolutionAI(true);
                 });
             }
             var (error, currentValue) = TrionApi.DeWeGetParamStruct_String($"BoardID{Board.Id}/AcqProp", "ResolutionAI");
