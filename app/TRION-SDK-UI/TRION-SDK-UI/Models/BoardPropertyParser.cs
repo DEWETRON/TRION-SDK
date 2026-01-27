@@ -22,9 +22,9 @@ public sealed class BoardPropertyParser
 
     private static ChannelType GetChannelTypeFromString(string name)
     {
-        if (name.StartsWith("AI", StringComparison.OrdinalIgnoreCase)) return ChannelType.Analog;
-        if (name.StartsWith("Discret", StringComparison.OrdinalIgnoreCase)) return ChannelType.Digital;
-        if (name.StartsWith("CNT", StringComparison.OrdinalIgnoreCase)) return ChannelType.Counter;
+        if (name.StartsWith("AI", StringComparison.OrdinalIgnoreCase))       return ChannelType.Analog;
+        if (name.StartsWith("Discret", StringComparison.OrdinalIgnoreCase))  return ChannelType.Digital;
+        if (name.StartsWith("CNT", StringComparison.OrdinalIgnoreCase))      return ChannelType.Counter;
         if (name.StartsWith("BoardCNT", StringComparison.OrdinalIgnoreCase)) return ChannelType.BoardCounter;
         return ChannelType.Unknown;
     }
