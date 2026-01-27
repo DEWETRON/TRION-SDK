@@ -195,56 +195,47 @@ public sealed class BoardDetailViewModel : BaseViewModel
     public BoardDetailViewModel(Board board)
     {
         Board = board ?? throw new ArgumentNullException(nameof(board));
+        
+        var parser = board.BoardProperties;
 
-        var acqProp = board.BoardProperties?.AcqProp;
-
-        if (acqProp?.OperationModeProp is { IsPresent: true, Modes.Length: > 0 } opMode)
+        foreach (var mode in parser.GetAvailableOperationModes())
         {
-            foreach (var mode in opMode.Modes)
-                OperationModes.Add(mode);
+            OperationModes.Add(mode);
         }
 
-        var sampleRateProp = acqProp?.SampleRateProp;
-        if (sampleRateProp is { IsPresent: true })
+        foreach (var trig in parser.GetAvailableExternalTriggers())
         {
-            IsSampleRateProgrammable = sampleRateProp.Programmable;
-            SampleRateMin = sampleRateProp.ProgMin;
-            SampleRateMax = sampleRateProp.ProgMax;
-
-            foreach (var rate in sampleRateProp.AvailableRates)
-            {
-                if (int.TryParse(rate, out var rateValue))
-                    ProposedSampleRates.Add(rateValue);
-            }
+            ExternalTriggerValues.Add(trig);
         }
 
-        var dividerProp = acqProp?.SampleRateDividerProp;
-        HasSampleRateDivider = dividerProp is not null;
-        if (dividerProp is not null)
+        foreach (var clk in parser.GetAvailableExternalClocks())
         {
-            DividerMin = dividerProp.ProgMin;
-            DividerMax = dividerProp.ProgMax;
-
-            foreach (var val in dividerProp.ProposedValues)
-                ProposedDividerValues.Add(val);
+            ExternalClockValues.Add(clk);
+        }
+        
+        foreach (var res in parser.GetAvailableResolutionsAI())
+        {
+            ResolutionAIValues.Add(res);
         }
 
-        if (acqProp?.ExternalTriggerProp is { IsPresent: true })
+        var (srProg, srMin, srMax, srRates) = parser.GetSampleRateCapabilities();
+        IsSampleRateProgrammable = srProg;
+        SampleRateMin = srMin;
+        SampleRateMax = srMax;
+        
+        foreach (var rate in srRates)
         {
-            foreach (var val in acqProp.ExternalTriggerProp.Values)
-                ExternalTriggerValues.Add(val);
+            ProposedSampleRates.Add(rate);
         }
 
-        if (acqProp?.ExternalClockProp is { IsPresent: true })
+        var (divMin, divMax, divProposed) = parser.GetDividerCapabilities();
+        HasSampleRateDivider = divMax > 0;
+        DividerMin = divMin;
+        DividerMax = divMax;
+        
+        foreach (var val in divProposed)
         {
-            foreach (var val in acqProp.ExternalClockProp.Values)
-                ExternalClockValues.Add(val);
-        }
-
-        if (acqProp?.ResolutionAIProp is { IsPresent: true })
-        {
-            foreach (var val in acqProp.ResolutionAIProp.Values)
-                ResolutionAIValues.Add(val);
+            ProposedDividerValues.Add(val);
         }
 
         SelectProposedSampleRateCommand = new Command<int>(rate => SampleRateText = rate.ToString());

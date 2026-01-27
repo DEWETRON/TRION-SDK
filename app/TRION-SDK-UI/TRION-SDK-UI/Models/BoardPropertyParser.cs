@@ -1,4 +1,5 @@
-using System.Xml.XPath;
+using ScottPlot;
+using System.Xml.Linq;
 using TRION_SDK_UI.POCO;
 using static TRION_SDK_UI.Models.Channel;
 
@@ -6,375 +7,269 @@ namespace TRION_SDK_UI.Models;
 
 public sealed class BoardPropertyParser
 {
-    private readonly XPathNavigator _navigator;
-    public string BoardName => GetBoardName();
-    public AcqProp AcqProp => GetAcqProp();
+    private readonly XDocument _xmlDocument;
+    private readonly XElement _rootElement;
+    private readonly XElement _AcquisitionProperties;
 
-    public BoardPropertyParser(string boardXml)
+    private string GetBoardInfoValue(string elementName) => _rootElement.Element("BoardInfo")?.Element(elementName)?.Value ?? string.Empty;
+
+    public BoardPropertyParser(string boardPropertiesXml)
     {
-        ArgumentNullException.ThrowIfNull(boardXml);
-
-        using var sr = new StringReader(boardXml);
-        var doc = new XPathDocument(sr);
-        _navigator = doc.CreateNavigator();
+        ArgumentNullException.ThrowIfNull(boardPropertiesXml, nameof(boardPropertiesXml));
+        _xmlDocument = XDocument.Parse(boardPropertiesXml);
+        _rootElement = _xmlDocument.Root ?? throw new InvalidOperationException("Invalid XML: Missing root element.");
+        _AcquisitionProperties = _rootElement.Element("AcquisitionProperties") ?? throw new InvalidOperationException("Invalid XML: Missing AcquisitionProperties element.");
     }
 
-    private static ChannelType GetChannelType(string name) =>
-        name.StartsWith("AI", StringComparison.OrdinalIgnoreCase) ? ChannelType.Analog :
-        name.StartsWith("Discret", StringComparison.OrdinalIgnoreCase) ? ChannelType.Digital :
-        name.StartsWith("CNT", StringComparison.OrdinalIgnoreCase) ? ChannelType.Counter :
-        ChannelType.Unknown;
-
-    private static ChannelMode CreatePlaceholderMode() => new()
+    private static ChannelType GetChannelTypeFromString(string name)
     {
-        Name = "Unknown",
-        Unit = string.Empty,
-        Ranges = [],
-        Options = [],
-        DefaultValue = string.Empty
-    };
+        if (name.StartsWith("AI", StringComparison.OrdinalIgnoreCase))       return ChannelType.Analog;
+        if (name.StartsWith("Discret", StringComparison.OrdinalIgnoreCase))  return ChannelType.Digital;
+        if (name.StartsWith("CNT", StringComparison.OrdinalIgnoreCase))      return ChannelType.Counter;
+        if (name.StartsWith("BoardCNT", StringComparison.OrdinalIgnoreCase)) return ChannelType.BoardCounter;
+        return ChannelType.Unknown;
+    }
 
-    public int GetDefaultSamplingRate()
+    public Board CreateBoard(int ID, string scanDescriptorXML, int bufferBlockCount)
     {
-        if (AcqProp.SampleRateProp.AvailableRates is null)
+        var boardName = GetBoardName();
+
+        return new Board
         {
-            return 0;
-        }
-        string[] samplingRates = AcqProp.SampleRateProp.AvailableRates;
-        int samplingRateDefaultValueIndex = AcqProp.SampleRateProp.Default;
-        return int.TryParse(samplingRates[samplingRateDefaultValueIndex], out var samplingRate) ? samplingRate : 0;
+            Id = ID,
+            BoardProperties = this,
+            ScanDescriptorXml = scanDescriptorXML,
+            Name = boardName,
+            Channels = GetChannels(ID, boardName),
+            SamplingRate = GetDefaultIntAcqPropFromString("SampleRate"),
+            ExternalTrigger = GetDefaultStringAcqPropFromString("ExtTrigger"),
+            ExternalClock = GetDefaultStringAcqPropFromString("ExtClk"),
+            OperationMode = GetDefaultStringAcqPropFromString("OperationMode"),
+            BufferBlockCount = bufferBlockCount,
+            SampleRateDivider = GetDefaultIntAcqPropFromString("SampleRateDivider"),
+            ResolutionAI = GetDefaultStringAcqPropFromString("ResolutionAI")
+        };
     }
 
-    public string GetDefaultExternalTrigger()
+    private static int GetDefaultIntValueFromElement(int defaultIndex, XElement element)
     {
-        string[] externalTriggers = AcqProp.ExternalTriggerProp.Values;
-        int externalTriggerDefaultValueIndex = AcqProp.ExternalTriggerProp.DefaultIndex;
-        return externalTriggers[externalTriggerDefaultValueIndex];
-    }
+        var values = element.Elements().ToList()
+            .FirstOrDefault(e => e.Name.LocalName.Equals($"ID{defaultIndex}", StringComparison.OrdinalIgnoreCase))
+            ?.Value;
 
-    public int GetDefaultSampleRateDivider()
-    {
-        var sampleRateDividerProp = AcqProp.SampleRateDividerProp;
-        if (sampleRateDividerProp is null)
+        if (int.TryParse(values, out var rate))
         {
-            return 0;
+            return rate;
         }
-        return sampleRateDividerProp.ProposedValues[sampleRateDividerProp.Default];
+        throw new InvalidOperationException("Invalid XML: Unable to parse default value.");
     }
 
-    public string GetDefaultResolutionAI()
+    private static string GetDefaultStringValueFromElement(int defaultIndex, XElement element)
     {
-        if (AcqProp.ResolutionAIProp is null || AcqProp.ResolutionAIProp.Values is null)
+        var value = element.Elements().ToList()
+            .FirstOrDefault(e => e.Name.LocalName.Equals($"ID{defaultIndex}", StringComparison.OrdinalIgnoreCase))
+            ?.Value;
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new InvalidOperationException("Invalid XML: Unable to parse default value.");
+        }
+        return value;
+    }
+
+    private string GetDefaultStringAcqPropFromString(string str)
+    {
+        var acqProp = _AcquisitionProperties.Element("AcqProp") ?? throw new InvalidOperationException("Invalid XML: Missing AcqProp element.");
+        var element = acqProp.Element(str) ?? throw new InvalidOperationException($"Invalid XML: Missing {str} element.");
+        var defaultIndex = element.GetAttrInt("Default", -1);
+
+        if (defaultIndex < 0)
         {
             return string.Empty;
         }
-        string[] resolutions = AcqProp.ResolutionAIProp.Values;
-        int resolutionAIDefaultValueIndex = AcqProp.ResolutionAIProp.DefaultIndex;
-        
-        if (resolutionAIDefaultValueIndex >= 0 && resolutionAIDefaultValueIndex < resolutions.Length)
-        {
-            return resolutions[resolutionAIDefaultValueIndex];
-        }
-        
-        return string.Empty;
+
+        return GetDefaultStringValueFromElement(defaultIndex, element);
     }
 
-    public string GetDefaultOperationMode()
+    private int GetDefaultIntAcqPropFromString(string str)
     {
-        string[] operationModes = AcqProp.OperationModeProp.Modes;
-        int operationModeDefaultValueIndex = AcqProp.OperationModeProp.DefaultIndex;
-        return operationModes[operationModeDefaultValueIndex];
-    }
+        var acqProp = _AcquisitionProperties.Element("AcqProp") ?? throw new InvalidOperationException("Invalid XML: Missing SampleRate element.");
+        var sampleRate = acqProp.Element(str);
+        var defaultIndex = sampleRate.GetAttrInt("Default", -1);
 
-    public string GetDefaultExternalClock()
-    {
-        string[] externalClocks = AcqProp.ExternalClockProp.Values;
-        int externalClockDefaultValueIndex = AcqProp.ExternalClockProp.DefaultIndex;
-        return externalClocks[externalClockDefaultValueIndex];
-    }
-
-    public static (bool ok, ChannelMode mode) TryGetDefaultMode(XPathNavigator channelNav)
-    {
-        if (channelNav is null || channelNav.NodeType != XPathNodeType.Element)
+        if (defaultIndex < 0 || sampleRate == null)
         {
-            return (false, CreatePlaceholderMode());
+            return 0;
         }
 
-        var modes = GetChannelModes(channelNav);
-        if (modes.Count == 0)
-        {
-            return (false, CreatePlaceholderMode());
-        }
+        return GetDefaultIntValueFromElement(defaultIndex, sampleRate);
 
-        var defaultName = channelNav.GetAttribute("Default", "");
-        if (!string.IsNullOrWhiteSpace(defaultName))
-        {
-            var found = modes.FirstOrDefault(m => string.Equals(m.Name, defaultName, StringComparison.OrdinalIgnoreCase));
-            if (found is not null)
-            {
-                return (true, found);
-            }
-        }
-
-        return (true, modes[0]);
     }
 
-    public List<Channel> GetChannels()
+    public string GetBoardName() => GetBoardInfoValue("BoardName");
+
+    public List<Channel> GetChannels(int boardId = -1, string boardName = "")
     {
-        var channels = new List<Channel>(capacity: 64);
+        var channels = new List<Channel>(128);
+        var channelProps = _rootElement.Element("ChannelProperties");
 
-        var iterator = _navigator.Select("/Properties/ChannelProperties/*");
-        while (iterator.MoveNext())
+        if (channelProps == null) return channels;
+
+        foreach (var channelElem in channelProps.Elements())
         {
-            var channelNav = iterator.Current;
-            if (channelNav is null || channelNav.NodeType != XPathNodeType.Element) continue;
+            var type = GetChannelTypeFromString(channelElem.Name.LocalName);
+            if (type == ChannelType.Unknown) continue;
 
-            var allModes = GetChannelModes(channelNav);
-            if (allModes.Count == 0) continue;
+            var modes = GetChannelModes(channelElem);
+            if (modes.Count == 0) continue;
 
-            var (ok, defaultMode) = TryGetDefaultMode(channelNav);
-            if (!ok) continue;
+            var defaultModeName = channelElem.GetAttrString("Default");
+            var currentMode = modes.FirstOrDefault(m => m.Name.Equals(defaultModeName, StringComparison.OrdinalIgnoreCase)) 
+                              ?? modes.First();
 
-            var rangeIndexStr = defaultMode.DefaultValue ?? string.Empty;
-            int idx = int.TryParse(rangeIndexStr, out var parsed) ? parsed : 0;
-            string defaultRange =
-                (idx >= 0 && idx < defaultMode.Ranges.Count)
-                ? defaultMode.Ranges[idx]
-                : (defaultMode.Ranges.FirstOrDefault() ?? string.Empty);
+            var defaultRange = GetDefaultRange(currentMode);
 
-            if (ChannelType.Unknown == GetChannelType(channelNav.Name)) continue;
-
-            if (ChannelType.Analog == GetChannelType(channelNav.Name))
+            if (ChannelType.Analog == GetChannelTypeFromString(channelElem.Name.LocalName))
             {
                 channels.Add(new AnalogChannel
                 {
-                    BoardID = GetBoardID(),
-                    BoardName = GetBoardName(),
-                    Name = channelNav.Name,
-                    ModeList = allModes,
-                    Mode = defaultMode,
-                    Unit = defaultMode.Unit ?? string.Empty,
+                    BoardID = boardId,
+                    BoardName = boardName,
+                    Name = channelElem.Name.LocalName,
+                    ModeList = modes,
+                    Mode = currentMode,
+                    Unit = currentMode.Unit ?? string.Empty,
                     Range = defaultRange
                 });
             }
-            else if (ChannelType.Digital == GetChannelType(channelNav.Name))
+            else if (ChannelType.Digital == GetChannelTypeFromString(channelElem.Name.LocalName))
             {
                 channels.Add(new DigitalChannel
                 {
-                    BoardID = GetBoardID(),
-                    BoardName = GetBoardName(),
-                    Name = channelNav.Name,
-                    ModeList = allModes,
-                    Mode = defaultMode,
-                    Unit = defaultMode.Unit ?? string.Empty,
+                    BoardID = boardId,
+                    BoardName = boardName,
+                    Name = channelElem.Name.LocalName,
+                    ModeList = modes,
+                    Mode = currentMode,
+                    Unit = currentMode.Unit ?? string.Empty,
                     Range = defaultRange
                 });
             }
-            else if (ChannelType.Counter == GetChannelType(channelNav.Name))
+            else if (ChannelType.Counter == GetChannelTypeFromString(channelElem.Name.LocalName))
             {
                 channels.Add(new CounterChannel
                 {
-                    BoardID = GetBoardID(),
-                    BoardName = GetBoardName(),
-                    Name = channelNav.Name,
-                    ModeList = allModes,
-                    Mode = defaultMode,
-                    Unit = defaultMode.Unit ?? string.Empty,
+                    BoardID = boardId,
+                    BoardName = boardName,
+                    Name = channelElem.Name.LocalName,
+                    ModeList = modes,
+                    Mode = currentMode,
+                    Unit = currentMode.Unit ?? string.Empty,
                     Range = defaultRange
                 });
-            } else {
-                continue;
-
             }
         }
         return channels;
     }
 
-    public string GetBoardName()
+    private XElement? AcqPropElem => _rootElement.Element("AcquisitionProperties")?.Element("AcqProp");
+
+    public IEnumerable<string> GetAvailableOperationModes()
     {
-        var boardNameNode = _navigator.SelectSingleNode("/Properties/BoardInfo/BoardName");
-        return boardNameNode?.Value ?? string.Empty;
+        return AcqPropElem?.Element("OperationMode")?.Elements().Select(e => e.Value) ?? [];
     }
 
-    private int GetBoardID()
+    public IEnumerable<string> GetAvailableExternalTriggers()
     {
-        var propertiesNode = _navigator.SelectSingleNode("/Properties");
-        if (propertiesNode is null) return -1;
-        var idStr = propertiesNode.GetAttribute("BoardID", "");
-        return int.TryParse(idStr, out var id) ? id : -1;
+        return AcqPropElem?.Element("ExtTrigger")?.Elements().Select(e => e.Value) ?? [];
     }
 
-    private (int, string[], bool) GetAcqProperty(string propName)
+    public IEnumerable<string> GetAvailableExternalClocks()
     {
-        var nav = _navigator.SelectSingleNode($"/Properties/AcquisitionProperties/AcqProp/{propName}");
-        if (nav is null)
-        {
-            return (0, [], false); 
-        }
-
-        var defaultIndex = int.TryParse(nav.GetAttribute("Default", ""), out var def) ? def : 0;
-        string[] modes = [.. nav
-            .SelectChildren(XPathNodeType.Element)
-            .Cast<XPathNavigator>()
-            .Select(v => v.Value?.Trim())
-            .Where(v => !string.IsNullOrEmpty(v))
-            .Select(v => v!)];
-
-        return (defaultIndex, modes, true);
+        return AcqPropElem?.Element("ExtClk")?.Elements().Select(e => e.Value) ?? [];
+    }
+    
+    public IEnumerable<string> GetAvailableResolutionsAI()
+    {
+        return AcqPropElem?.Element("ResolutionAI")?.Elements().Select(e => e.Value) ?? [];
     }
 
-    public AcqProp GetAcqProp()
+    public (bool IsProg, int Min, int Max, List<int> Rates) GetSampleRateCapabilities()
     {
-        var acqPropNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp") ?? throw new InvalidOperationException("Acquisition Properties not found");
-        var (opIdx, opModes, opPresent) = GetAcqProperty("OperationMode");
-        var (trigIdx, trigValues, trigPresent) = GetAcqProperty("ExtTrigger");
-        var (clkIdx, clkValues, clkPresent) = GetAcqProperty("ExtClk");
-        var (resolutionAIIdx, resolutionAIValues, resolutionAIPresent) = GetAcqProperty("ResolutionAI");
+        var elem = AcqPropElem?.Element("SampleRate");
+        if (elem == null) return (false, 0, 0, []);
 
-        return new AcqProp
-        {
-            SampleRateProp = GetSampleRateProp(),
-            OperationModeProp = new OperationMode { IsPresent = opPresent, DefaultIndex = opIdx, Modes = opModes },
-            ExternalTriggerProp = new ExternalTrigger { IsPresent = trigPresent, DefaultIndex = trigIdx, Values = trigValues },
-            ExternalClockProp = new ExternalClockProp { IsPresent = clkPresent, DefaultIndex = clkIdx, Values = clkValues },
-            SampleRateDividerProp = GetSampleRateDividerProp(),
-            ResolutionAIProp = new ResolutionAIProp { IsPresent = resolutionAIPresent, DefaultIndex = resolutionAIIdx, Values = resolutionAIValues }
-        };
+        var isProg = bool.TryParse(elem.Attribute("Programmable")?.Value, out var p) && p;
+        int.TryParse(elem.Attribute("ProgMin")?.Value, out var min);
+        int.TryParse(elem.Attribute("ProgMax")?.Value, out var max);
+
+        var rates = elem.Elements()
+            .Select(e => int.TryParse(e.Value, out var r) ? r : -1)
+            .Where(r => r > 0)
+            .ToList();
+
+        return (isProg, min, max, rates);
     }
 
-    private SampleRateDividerProp? GetSampleRateDividerProp()
+    public (int Min, int Max, List<int> Proposed) GetDividerCapabilities()
     {
-        var sampleRateDividerNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp/SampleRateDivider");
-        if (sampleRateDividerNav is null)
-        {
-            return null;
-        }
-        return new SampleRateDividerProp
-        {
-            ProgMin = int.TryParse(sampleRateDividerNav.GetAttribute("ProgMin", ""), out var progMin) ? progMin : 0,
-            ProgMax = int.TryParse(sampleRateDividerNav.GetAttribute("ProgMax", ""), out var progMax) ? progMax : 0,
-            Default = int.TryParse(sampleRateDividerNav.GetAttribute("Default", ""), out var def) ? def : 0,
-            ProposedValues = [.. sampleRateDividerNav
-                .SelectChildren(XPathNodeType.Element)
-                .Cast<XPathNavigator>()
-                .Select(v => int.TryParse(v.Value?.Trim(), out var val) ? val : 0)
-                .Where(v => v != 0)]
-        };
+        var elem = AcqPropElem?.Element("SampleRateDivider");
+        if (elem == null) return (0, 0, []);
+
+        int.TryParse(elem.Attribute("ProgMin")?.Value, out var min);
+        int.TryParse(elem.Attribute("ProgMax")?.Value, out var max);
+
+        var proposed = elem.Elements()
+            .Select(e => int.TryParse(e.Value, out var r) ? r : -1)
+            .Where(r => r > 0)
+            .ToList();
+
+        return (min, max, proposed);
     }
 
-    public SampleRateProp GetSampleRateProp()
-    {
-        var sampleRateNav = _navigator.SelectSingleNode("/Properties/AcquisitionProperties/AcqProp/SampleRate");
-        if (sampleRateNav is null)
-        {
-            return new SampleRateProp { IsPresent = false };
-        }
-
-        return new SampleRateProp
-        {
-            IsPresent = true,
-            Unit = sampleRateNav.GetAttribute("Unit", ""),
-            Count = sampleRateNav.GetAttribute("Count", ""),
-            Default = int.TryParse(sampleRateNav.GetAttribute("Default", ""), out var def) ? def : 0,
-            Programmable = bool.TryParse(sampleRateNav.GetAttribute("Programmable", ""), out var prog) && prog,
-            ProgMax = int.TryParse(sampleRateNav.GetAttribute("ProgMax", ""), out var progMax) ? progMax : 0,
-            ProgMin = int.TryParse(sampleRateNav.GetAttribute("ProgMin", ""), out var progMin) ? progMin : 0,
-            ProgRes = sampleRateNav.GetAttribute("ProgRes", ""),
-            AvailableRates = [.. sampleRateNav
-                .SelectChildren(XPathNodeType.Element)
-                .Cast<XPathNavigator>()
-                .Select(v => v.Value?.Trim())
-                .Where(v => !string.IsNullOrEmpty(v))
-                .Select(v => v!)]
-        };
-    }
-
-    private static List<ModeOption> GetModeOptions(XPathNavigator modeNav)
-    {
-        var list = new List<ModeOption>();
-        var iterator = modeNav.SelectChildren(XPathNodeType.Element);
-        while (iterator.MoveNext())
-        {
-            var optionNav = iterator.Current;
-            if (optionNav is null) continue;
-
-            var values = optionNav
-                .SelectChildren(XPathNodeType.Element)
-                .Cast<XPathNavigator>()
-                .Select(v => v.Value?.Trim())
-                .Where(v => !string.IsNullOrEmpty(v))
-                .Select(v => v!)
-                .ToList();
-
-            list.Add(new ModeOption
-            {
-                Name = optionNav.Name,
-                Default = double.TryParse(optionNav.GetAttribute("Default", ""), out var def) ? def : 0,
-                Unit = optionNav.GetAttribute("Unit", ""),
-                Programmable = optionNav.GetAttribute("Programmable", ""),
-                ProgMax = double.TryParse(optionNav.GetAttribute("ProgMax", ""), out var programmingMax) ? programmingMax : 0,
-                ProgMin = double.TryParse(optionNav.GetAttribute("ProgMin", ""), out var programmingMin) ? programmingMin : 0,
-                ProgRes = double.TryParse(optionNav.GetAttribute("ProgRes", ""), out var ProgrammingRes) ? ProgrammingRes : 0,
-                Values = values
-            });
-        }
-        return list;
-    }
-
-    public static List<ChannelMode> GetChannelModes(XPathNavigator channelNav)
+    private static List<ChannelMode> GetChannelModes(XElement channelElem)
     {
         var modes = new List<ChannelMode>();
-        if (channelNav is null || channelNav.NodeType != XPathNodeType.Element)
+        foreach (var modeElem in channelElem.Elements("Mode"))
         {
-            return modes;
-        }
+            var name = modeElem.GetAttrString("Mode");
+            if (string.IsNullOrWhiteSpace(name)) name = modeElem.GetAttrString("Name");
 
-        var iterator = channelNav.SelectChildren("Mode", "");
-        while (iterator.MoveNext())
-        {
-            var modeNav = iterator.Current;
-            if (modeNav is null) continue;
+            var rangeElem = modeElem.Element("Range");
+            var unit = rangeElem?.GetAttrString("Unit") ?? modeElem.GetAttrString("Unit");
+            var defaultVal = rangeElem?.GetAttrString("Default");
 
-            var rangeNav = modeNav.SelectSingleNode("Range");
-
-            var name = modeNav.GetAttribute("Mode", "");
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                name = modeNav.GetAttribute("Name", "");
-            }
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                name = modeNav.Name;
-            }
-
-            var unit = rangeNav?.GetAttribute("Unit", "");
-            if (string.IsNullOrWhiteSpace(unit))
-            {
-                unit = modeNav.GetAttribute("Unit", "");
-            }
-            unit ??= string.Empty;
-
-            var ranges = rangeNav?
-                .SelectChildren(XPathNodeType.Element)
-                .Cast<XPathNavigator>()
-                .Where(n => n.Name.StartsWith("ID", StringComparison.OrdinalIgnoreCase))
-                .Select(n => n.Value?.Trim())
-                .Where(v => !string.IsNullOrWhiteSpace(v))
-                .Select(v => v!)
+            var ranges = rangeElem?.Elements()
+                .Where(e => e.Name.LocalName.StartsWith("ID"))
+                .Select(e => e.Value.Trim())
                 .ToList() ?? [];
-
-            var defaultValue = rangeNav?.GetAttribute("Default", "") ?? string.Empty;
 
             modes.Add(new ChannelMode
             {
                 Name = name,
                 Unit = unit,
                 Ranges = ranges,
-                Options = GetModeOptions(modeNav),
-                DefaultValue = defaultValue
+                DefaultValue = defaultVal,
+                Options = []
             });
         }
-
         return modes;
     }
+
+    private static string GetDefaultRange(ChannelMode mode)
+    {
+        if (int.TryParse(mode.DefaultValue, out var idx))
+        {
+             if (idx >= 0 && idx < mode.Ranges.Count) return mode.Ranges[idx];
+        }
+        return mode.Ranges.FirstOrDefault() ?? string.Empty;
+    }
+}
+
+file static class XmlExt 
+{
+    public static string GetAttrString(this XElement? e, string name) 
+        => e?.Attribute(name)?.Value ?? string.Empty;
+
+    public static int GetAttrInt(this XElement? e, string name, int def = 0) 
+        => int.TryParse(e?.Attribute(name)?.Value, out var i) ? i : def;
 }

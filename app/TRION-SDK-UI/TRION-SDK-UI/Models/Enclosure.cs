@@ -14,24 +14,9 @@ namespace TRION_SDK_UI.Models;
 
         var boardPropertiesXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "boardproperties").value;
         var boardPropertiesModel = new BoardPropertyParser(boardPropertiesXml);
-        Debug.WriteLine($"Board {boardId} Properties XML: {boardPropertiesXml}");
+        //Debug.WriteLine($"Board {boardId} Properties XML: {boardPropertiesXml}");
 
-        var newBoard = new Board
-        {
-            Id = boardId,
-            BoardProperties = boardPropertiesModel,
-            ScanDescriptorXml = TrionApi.DeWeGetParamStruct_String($"BoardID{boardId}", "ScanDescriptor_V3").value,
-            Name = boardPropertiesModel.GetBoardName(),
-            Channels = boardPropertiesModel.GetChannels(),
-            SamplingRate = boardPropertiesModel.GetDefaultSamplingRate(),
-            ExternalTrigger = boardPropertiesModel.GetDefaultExternalTrigger(),
-            ExternalClock = boardPropertiesModel.GetDefaultExternalClock(),
-            OperationMode = boardPropertiesModel.GetDefaultOperationMode(),
-            BufferBlockCount = 50,
-            SampleRateDivider = boardPropertiesModel.GetDefaultSampleRateDivider(),
-            ResolutionAI = boardPropertiesModel.GetDefaultResolutionAI()
-        };
-
+        var newBoard = boardPropertiesModel.CreateBoard(boardId, boardPropertiesXml, 50);
         Boards.Add(newBoard);
     }
     public void Init(int numberOfBoards)

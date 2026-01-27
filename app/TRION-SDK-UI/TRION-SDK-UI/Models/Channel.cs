@@ -15,7 +15,8 @@ namespace TRION_SDK_UI.Models
             Unknown = 0,
             Analog = 1,
             Digital = 2,
-            Counter = 3
+            Counter = 3,
+            BoardCounter = 4
         }
 
         public required List<ChannelMode> ModeList { get; set; } = [];
