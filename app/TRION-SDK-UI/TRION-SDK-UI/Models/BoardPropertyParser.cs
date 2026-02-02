@@ -60,7 +60,7 @@ public sealed class BoardPropertyParser
         {
             return rate;
         }
-        
+
         throw new InvalidOperationException($"Invalid XML: Unable to parse integer value at ID{defaultIndex} in {element.Name}.");
     }
 
@@ -81,7 +81,7 @@ public sealed class BoardPropertyParser
     {
         var acqProp = _AcquisitionProperties.Element("AcqProp");
         var element = acqProp?.Element(str);
-        
+
         if (element == null) return string.Empty;
 
         var defaultIndex = element.GetAttrInt("Default", -1);
@@ -193,15 +193,18 @@ public sealed class BoardPropertyParser
         if (elem == null) return (false, 0, 0, []);
 
         var isProg = bool.TryParse(elem.Attribute("Programmable")?.Value, out var p) && p;
-        int.TryParse(elem.Attribute("ProgMin")?.Value, out var min);
-        int.TryParse(elem.Attribute("ProgMax")?.Value, out var max);
 
-        var rates = elem.Elements()
-            .Select(e => int.TryParse(e.Value, out var r) ? r : -1)
-            .Where(r => r > 0)
-            .ToList();
+        if (int.TryParse(elem.Attribute("ProgMin")?.Value, out var min) &&
+            int.TryParse(elem.Attribute("ProgMax")?.Value, out var max))
+        {
+            var rates = elem.Elements()
+                .Select(e => int.TryParse(e.Value, out var r) ? r : -1)
+                .Where(r => r > 0)
+                .ToList();
 
-        return (isProg, min, max, rates);
+            return (isProg, min, max, rates);
+        }
+        throw new InvalidOperationException("Invalid XML: Unable to parse SampleRate capabilities.");
     }
 
     public (int Min, int Max, List<int> Proposed) GetDividerCapabilities()
@@ -209,15 +212,17 @@ public sealed class BoardPropertyParser
         var elem = AcqPropElem?.Element("SampleRateDivider");
         if (elem == null) return (0, 0, []);
 
-        int.TryParse(elem.Attribute("ProgMin")?.Value, out var min);
-        int.TryParse(elem.Attribute("ProgMax")?.Value, out var max);
+        if (int.TryParse(elem.Attribute("ProgMin")?.Value, out var min) &&
+            int.TryParse(elem.Attribute("ProgMax")?.Value, out var max))
+        {
+            var proposed = elem.Elements()
+                .Select(e => int.TryParse(e.Value, out var r) ? r : -1)
+                .Where(r => r > 0)
+                    .ToList();
 
-        var proposed = elem.Elements()
-            .Select(e => int.TryParse(e.Value, out var r) ? r : -1)
-            .Where(r => r > 0)
-            .ToList();
-
-        return (min, max, proposed);
+            return (min, max, proposed);
+        }
+        throw new InvalidOperationException("Invalid XML: Unable to parse SampleRateDivider capabilities.");
     }
 
     private static List<ChannelMode> GetChannelModes(XElement channelElem)

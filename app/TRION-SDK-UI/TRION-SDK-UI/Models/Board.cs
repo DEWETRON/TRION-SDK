@@ -34,6 +34,7 @@ namespace TRION_SDK_UI.Models
 
         public void SetAcqProp(string str, string value)
         {
+            if (string.IsNullOrEmpty(value)) return;
             var error = TrionApi.DeWeSetParamStruct($"BoardID{Id}/AcqProp", str, value);
             Utils.CheckErrorCode(error, $"Failed to set acquisition property '{str}' for board {Id}");
             Update();
