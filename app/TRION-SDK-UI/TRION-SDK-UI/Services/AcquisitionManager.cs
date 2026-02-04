@@ -157,13 +157,19 @@ public class AcquisitionManager(Enclosure enclosure)
 
         foreach (var (key, q) in _sampleQueues)
         {
-            if (q.IsEmpty) continue;
+            if (q.IsEmpty)
+            {
+                continue;
+            }
 
             var count = Math.Min(q.Count, maxPerChannel);
 
-            if (count == 0) continue;
+            if (0 == count)
+            {
+                continue;
+            }
 
-            var rented = ArrayPool<Sample>.Shared.Rent(count);
+                var rented = ArrayPool<Sample>.Shared.Rent(count);
             var n = 0;
             try
             {
@@ -172,7 +178,10 @@ public class AcquisitionManager(Enclosure enclosure)
                     rented[n++] = sample;
                 }
 
-                if (n <= 0) continue;
+                if (n <= 0)
+                {
+                    continue;
+                }
 
                 var arr = GC.AllocateUninitializedArray<Sample>(n);
                 Array.Copy(rented, arr, n);

@@ -113,7 +113,6 @@ public sealed class BoardPropertyParser
         return mode.Ranges.FirstOrDefault() ?? string.Empty;
     }
 
-
     public string GetBoardName() => GetBoardInfoValue("BoardName");
 
     public List<Channel> GetChannels(int boardId = -1, string boardName = "")
