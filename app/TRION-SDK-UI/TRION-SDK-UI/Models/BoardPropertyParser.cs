@@ -82,10 +82,16 @@ public sealed class BoardPropertyParser
         var acqProp = _AcquisitionProperties.Element("AcqProp");
         var element = acqProp?.Element(str);
 
-        if (element == null) return string.Empty;
+        if (element is null)
+        {
+            return string.Empty;
+        }
 
         var defaultIndex = element.GetAttrInt("Default", -1);
-        if (defaultIndex < 0) return string.Empty;
+        if (defaultIndex < 0)
+        {
+            return string.Empty;
+        }
 
         return GetDefaultStringValueFromElement(defaultIndex, element);
     }
@@ -95,10 +101,16 @@ public sealed class BoardPropertyParser
         var acqProp = _AcquisitionProperties.Element("AcqProp");
         var element = acqProp?.Element(str);
 
-        if (element == null) return 0;
+        if (element is null)
+        {
+            return 0;
+        }
 
         var defaultIndex = element.GetAttrInt("Default", -1);
-        if (defaultIndex < 0) return 0;
+        if (defaultIndex < 0)
+        {
+            return 0;
+        }
 
         return GetDefaultIntValueFromElement(defaultIndex, element);
 
@@ -108,7 +120,10 @@ public sealed class BoardPropertyParser
     {
         if (int.TryParse(mode.DefaultValue, out var idx))
         {
-            if (idx >= 0 && idx < mode.Ranges.Count) return mode.Ranges[idx];
+            if (idx >= 0 && idx < mode.Ranges.Count)
+            {
+                return mode.Ranges[idx];
+            }
         }
         return mode.Ranges.FirstOrDefault() ?? string.Empty;
     }
@@ -120,15 +135,24 @@ public sealed class BoardPropertyParser
         var channels = new List<Channel>(128);
         var channelProps = _rootElement.Element("ChannelProperties");
 
-        if (channelProps == null) return channels;
+        if (channelProps is null)
+        {
+            return channels;
+        }
 
         foreach (var channelElem in channelProps.Elements())
         {
             var type = GetChannelTypeFromString(channelElem.Name.LocalName);
-            if (type == ChannelType.Unknown) continue;
+            if (type == ChannelType.Unknown) 
+            {
+                continue;
+            }
 
             var modes = GetChannelModes(channelElem);
-            if (modes.Count == 0) continue;
+            if (modes.Count == 0)
+            {
+                continue;
+            }
 
             var defaultModeName = channelElem.GetAttrString("Default");
             var currentMode = modes.FirstOrDefault(m => m.Name.Equals(defaultModeName, StringComparison.OrdinalIgnoreCase))
@@ -189,7 +213,10 @@ public sealed class BoardPropertyParser
     public (bool IsProg, int Min, int Max, List<int> Rates) GetSampleRateCapabilities()
     {
         var elem = AcqPropElem?.Element("SampleRate");
-        if (elem == null) return (false, 0, 0, []);
+        if (elem is null)
+        {
+            return (false, 0, 0, []);
+        }
 
         var isProg = bool.TryParse(elem.Attribute("Programmable")?.Value, out var p) && p;
 
@@ -209,7 +236,10 @@ public sealed class BoardPropertyParser
     public (int Min, int Max, List<int> Proposed) GetDividerCapabilities()
     {
         var elem = AcqPropElem?.Element("SampleRateDivider");
-        if (elem == null) return (0, 0, []);
+        if (elem is null)
+        {
+            return (0, 0, []);
+        }
 
         if (int.TryParse(elem.Attribute("ProgMin")?.Value, out var min) &&
             int.TryParse(elem.Attribute("ProgMax")?.Value, out var max))
@@ -230,7 +260,10 @@ public sealed class BoardPropertyParser
         foreach (var modeElem in channelElem.Elements("Mode"))
         {
             var name = modeElem.GetAttrString("Mode");
-            if (string.IsNullOrWhiteSpace(name)) name = modeElem.GetAttrString("Name");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = modeElem.GetAttrString("Name");
+            }
 
             var rangeElem = modeElem.Element("Range");
             var unit = rangeElem?.GetAttrString("Unit") ?? modeElem.GetAttrString("Unit");

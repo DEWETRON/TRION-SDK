@@ -11,9 +11,9 @@ namespace TRION_SDK_UI.Services;
 
 internal sealed class CircularBuffer
 {
-    public long EndPosition { get; }
-    public int Size { get; }
-    public long StartPosition { get; }
+    private long EndPosition { get; }
+    private int Size { get; }
+    private long StartPosition { get; }
 
     public CircularBuffer(int board_id)
     {
@@ -41,16 +41,11 @@ public class AcquisitionManager(Enclosure enclosure)
 {
     private readonly Enclosure _enclosure = enclosure;
     private List<Channel> _selectedChannels = [];
-
     private readonly List<Task> _acquisitionTasks = [];
-
     private readonly List<CancellationTokenSource> _ctsList = [];
-
-    public bool IsRunning = false;
-
     private readonly ConcurrentDictionary<string, ConcurrentQueue<Sample>> _sampleQueues = new();
-
     private readonly ConcurrentDictionary<int, BoardRunContext> _runningBoards = new();
+    private bool _isRunning = false;
 
     private sealed record BoardRunContext(
         Board Board,
@@ -70,7 +65,10 @@ public class AcquisitionManager(Enclosure enclosure)
         }
 
         var scanDescriptor = board.ScanDescriptor;
-        if (scanDescriptor is null) return;
+        if (scanDescriptor is null)
+        {
+            return;
+        }
 
         var channels = boardGroup.ToList();
         var channelInfos = channels
@@ -116,7 +114,10 @@ public class AcquisitionManager(Enclosure enclosure)
 
     public async Task StartAcquisitionAsync(IEnumerable<Channel> channels)
     {
-        if (IsRunning) await StopAcquisitionAsync();
+        if (_isRunning)
+        {
+            await StopAcquisitionAsync();
+        }
 
         _selectedChannels = [.. channels];
         _acquisitionTasks.Clear();
@@ -149,7 +150,7 @@ public class AcquisitionManager(Enclosure enclosure)
             }
         }
 
-        IsRunning = true;
+        _isRunning = true;
     }
     public Dictionary<string, Sample[]> DrainSamples(int maxPerChannel = 100_00000)
     {
@@ -215,7 +216,7 @@ public class AcquisitionManager(Enclosure enclosure)
         }
         finally
         {
-            IsRunning = false;
+            _isRunning = false;
         }
 
         foreach (var boardId in _runningBoards.Keys)

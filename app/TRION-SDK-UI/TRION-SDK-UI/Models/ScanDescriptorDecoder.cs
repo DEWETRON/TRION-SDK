@@ -36,10 +36,16 @@ public partial class ScanDescriptorDecoder
         while (channelNodes.MoveNext())
         {
             var channel = channelNodes.Current;
-            if (channel is null) continue;
-
+            if (channel is null)
+            {
+                continue;
+            }
+ 
             var sample = channel.SelectSingleNode("Sample");
-            if (sample is null) continue;
+            if (sample is null)
+            {
+                continue;
+            }
 
             Channels.Add(new ChannelInfo
             {
