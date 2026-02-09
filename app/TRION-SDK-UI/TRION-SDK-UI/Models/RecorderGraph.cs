@@ -5,7 +5,11 @@ using TRION_SDK_UI.POCO;
 
 namespace TRION_SDK_UI.Models
 {
-    public class RecorderGraph(MauiPlot mauiPlot, Border cursorLabel, Microsoft.Maui.Controls.Label cursorLabelText)
+    public class RecorderGraph(MauiPlot mauiPlot, 
+                               Border cursorLabel, 
+                               Microsoft.Maui.Controls.Label cursorLabelText,
+                               VerticalLine lockLine,
+                               Crosshair crossHair)
     {
         private readonly Plot _plot = mauiPlot.Plot;
         private readonly Border _cursorLabel = cursorLabel;
@@ -17,13 +21,55 @@ namespace TRION_SDK_UI.Models
         private const double _cursorLabelOffsetX = 14;
         private const double _cursorLabelOffsetY = 14;
         private const double _viewWidthSeconds = 2.2;
+        private VerticalLine _lockLine = lockLine;
+        private Crosshair _crosshair = crossHair;
+        private Coordinates _lastCursorCoordinates;
+        private bool _hasCursor;
 
-        public VerticalLine LockLine = null!;
-        public Coordinates LastCursorCoordinates;
-        public Crosshair Crosshair = null!;
         public double StartWidth { get; set; }
         public bool IsScrollLocked;
-        public bool HasCursor;
+
+        public void SetLockLineX()
+        {
+            if (IsScrollLocked)
+            {
+                _lockLine.X = _hasCursor ? _lastCursorCoordinates.X : _crosshair.X;
+            }
+        }
+
+        public void SetLockCrossVisibility()
+        {
+            _crosshair ??= _mauiPlot.Plot.Add.Crosshair(0, 0);
+            _lockLine ??= _mauiPlot.Plot.Add.VerticalLine(0);
+            if (IsScrollLocked)
+            {
+                _lockLine.IsVisible = true;
+                _crosshair.IsVisible = false;
+            }
+            else
+            {
+                _crosshair.IsVisible = true;
+                _lockLine.IsVisible = false;
+            }
+            _mauiPlot.Refresh();
+        }
+
+        public void HideLockCross()
+        {
+            _crosshair.IsVisible = false;
+            _lockLine.IsVisible = false;
+            _cursorLabel.IsVisible = false;
+            _mauiPlot.Refresh();
+        }
+
+        public void ApplyTheme()
+        {
+            if (Application.Current is null)
+            {
+                return;
+            }
+            PlotThemeUtil.ApplyTheme(_plot, Application.Current.RequestedTheme, _crosshair, _lockLine);
+        }
 
         public void StartAcquisition(HashSet<string> keys)
         {
@@ -35,13 +81,21 @@ namespace TRION_SDK_UI.Models
                 _ = GerOrCreateDataLogger(key);
             }
 
-            Crosshair = _plot.Add.Crosshair(0, 0);
-            Crosshair.IsVisible = !IsScrollLocked && _cursorLabel.IsVisible;
+            _crosshair = _plot.Add.Crosshair(0, 0);
+            _crosshair.IsVisible = !IsScrollLocked && _cursorLabel.IsVisible;
 
-            LockLine = _plot.Add.VerticalLine(0);
-            LockLine.IsVisible = IsScrollLocked && _cursorLabel.IsVisible;
+            _lockLine = _plot.Add.VerticalLine(0);
+            _lockLine.IsVisible = IsScrollLocked && _cursorLabel.IsVisible;
 
-            PlotThemeUtil.ApplyTheme(_plot, Application.Current.RequestedTheme, Crosshair, LockLine);
+            if (Application.Current is not null)
+            {
+                PlotThemeUtil.ApplyTheme(
+                    _plot,
+                    Application.Current.RequestedTheme,
+                    _crosshair,
+                    _lockLine
+                );
+            }
 
             if (IsScrollLocked)
             {
@@ -59,8 +113,8 @@ namespace TRION_SDK_UI.Models
             var cursorCoordinates = _mauiPlot.Plot.GetCoordinates(cursorPixel);
             var lastRender = _mauiPlot.Plot.LastRender;
 
-            LastCursorCoordinates = cursorCoordinates;
-            HasCursor = true;
+            _lastCursorCoordinates = cursorCoordinates;
+            _hasCursor = true;
 
             if (IsScrollLocked)
             {
@@ -75,14 +129,15 @@ namespace TRION_SDK_UI.Models
 
         public void UpdateValuesAtLockLine()
         {
-            if (!IsScrollLocked)
+
+            if (!IsScrollLocked && !_lockLine.IsVisible)
             {
                 return;
             }
 
             var lastRender = _plot.LastRender;
 
-            var x = LockLine.X;
+            var x = _lockLine.X;
             var queryCoordinates = new Coordinates(x, 0);
 
             var lines = new List<string>();
@@ -150,8 +205,8 @@ namespace TRION_SDK_UI.Models
                 return;
             }
 
-            Crosshair.X = nearestPoint.X;
-            Crosshair.Y = nearestPoint.Y;
+            _crosshair.X = nearestPoint.X;
+            _crosshair.Y = nearestPoint.Y;
 
             _cursorLabelText.Text = $"{nearestLogger.LegendText}\nX: {nearestPoint.X:F3}\nY: {nearestPoint.Y:F3}";
 
@@ -177,7 +232,7 @@ namespace TRION_SDK_UI.Models
         }
         public void RenderLine(Pixel cursorPixel, Coordinates cursorCoordinates)
         {
-            LockLine.X = cursorCoordinates.X;
+            _lockLine.X = cursorCoordinates.X;
             UpdateValuesAtLockLine();
 
             double labelX = cursorPixel.X + _cursorLabelOffsetX;
