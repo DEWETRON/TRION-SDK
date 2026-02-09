@@ -56,7 +56,10 @@ namespace TRION_SDK_UI
             panGesture.PanUpdated += OnDragHandlePanUpdated;
             DragHandle.GestureRecognizers.Add(panGesture);
 
-            if (Application.Current is null) return;
+            if (Application.Current is null)
+            {
+                return;
+            }
             _recorder.ApplyTheme();
 
             Application.Current.RequestedThemeChanged += (s, a) =>
@@ -88,7 +91,6 @@ namespace TRION_SDK_UI
 
                 _recorder.UpdateValuesAtLockLine();
                 MauiPlot1.Refresh();
-
             });
         }
 
