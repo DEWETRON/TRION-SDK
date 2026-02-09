@@ -170,9 +170,9 @@ namespace TRION_SDK_UI.Models
 
         public void RenderCrosshair(Pixel cursorPixel, Coordinates cursorCoordinates, RenderDetails lastRender)
         {
-            DataPoint nearestPoint = DataPoint.None;
+            var nearestPoint = DataPoint.None;
             DataLogger? nearestLogger = null;
-            double bestDistance = double.MaxValue;
+            var bestDistance = double.MaxValue;
 
             foreach (var logger in _loggers.Values)
             {

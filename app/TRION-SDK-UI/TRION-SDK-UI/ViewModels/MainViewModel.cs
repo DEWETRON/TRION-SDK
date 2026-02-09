@@ -24,11 +24,6 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand? DeselectAllOnBoardCommand { get; private set; }
     public ICommand? OpenChannelWindowCommand { get; private set; }
     public ICommand? OpenBoardWindowCommand { get; private set; }
-
-    private static readonly string ip_address = "10.0.0.100";
-    private static readonly string mask = "255.255.0.0";
-
-    private bool _isAcquiring;
     public bool IsAcquiring
     {
         get => _isAcquiring;
@@ -44,40 +39,33 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
 
     public bool IsNotAcquiring => !IsAcquiring;
-
-    private readonly AcquisitionManager? _acquisitionManager;
-
-    private bool _isScrollingLocked = true;
-    private bool _followLatest = true;
+    public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
+    public event EventHandler<SamplesBatchAppendedEventArgs>? SamplesBatchAppended;
     public bool FollowLatest
     {
         get => _followLatest;
         private set { if (_followLatest != value) { _followLatest = value; OnPropertyChanged(); } }
     }
+    public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
 
+    private static readonly string ip_address = "10.0.0.100";
+    private static readonly string mask = "255.255.0.0";
+    private readonly Dictionary<string, DigitalMeter> _meterByKey = [];
+    private IDispatcherTimer? _uiDrainTimer;
+    private EventHandler? _drainTickHandler;
+    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(33.3); // 30 Hz
+    private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
+    private bool _isAcquiring;
+    private readonly AcquisitionManager? _acquisitionManager;
+    private bool _isScrollingLocked = true;
+    private bool _followLatest = true;
     private const int MaxSelectableChannels = 8;
     private bool _suppressSelectionGuard = false;
-
-    public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
-
-    public event EventHandler<SamplesBatchAppendedEventArgs>? SamplesBatchAppended;
 
     public sealed class SamplesBatchAppendedEventArgs(IReadOnlyDictionary<string, Sample[]> batches) : EventArgs
     {
         public IReadOnlyDictionary<string, Sample[]> Batches { get; } = batches;
     }
-
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-        TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
-        TrionApi.Uninitialize();
-    }
-
-    public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
-
-    private readonly Dictionary<string, DigitalMeter> _meterByKey = [];
-
     public MainViewModel()
     {
         IsAcquiring = false;
@@ -137,46 +125,46 @@ public class MainViewModel : BaseViewModel, IDisposable
         OpenChannelWindowCommand     = new Command<Channel>(OpenChannelWindow);
         OpenBoardWindowCommand       = new Command<Board>(OpenBoardWindow);
     }
-
     private void OpenChannelWindow(Channel? ch)
     {
-        if (ch is null) return;
+        if (ch is null)
+        {
+            return;
+        }
 
         var window = new ChannelDetailWindow(ch);
         Application.Current?.OpenWindow(window);
 
         LogMessages.Add($"Opened window for {ch.BoardID}/{ch.Name} ({window.Width}x{window.Height})");
     }
-
     private void OpenBoardWindow(Board? board)
     {
-        if (board is null) return;
+        if (board is null)
+        {
+            return;
+        }
 
         var window = new BoardDetailWindow(board);
         Application.Current?.OpenWindow(window);
 
         LogMessages.Add($"Opened board window for {board.Name} (ID: {board.Id})");
     }
-
     private void OnChannelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (_suppressSelectionGuard) return;
-        if (sender is not Channel ch) return;
-        if (e.PropertyName != nameof(Channel.IsSelected)) return;
-
-        if (ch.IsSelected)
+        if (_suppressSelectionGuard || sender is not Channel ch || e.PropertyName != nameof(Channel.IsSelected) || !ch.IsSelected)
         {
-            int selected = Channels.Count(c => c.IsSelected);
-            if (selected > MaxSelectableChannels)
-            {
-                _suppressSelectionGuard = true;
-                ch.IsSelected = false;
-                _suppressSelectionGuard = false;
-                LogMessages.Add($"You can select up to {MaxSelectableChannels} channels.");
-            }
+            return;
+        }
+
+        var selected = Channels.Count(c => c.IsSelected);
+        if (selected > MaxSelectableChannels)
+        {
+            _suppressSelectionGuard = true;
+            ch.IsSelected = false;
+            _suppressSelectionGuard = false;
+            LogMessages.Add($"You can select up to {MaxSelectableChannels} channels.");
         }
     }
-
     private async Task StartAcquisition()
     {
         var selectedChannels = Channels.Where(c => c.IsSelected).ToList();
@@ -184,7 +172,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         if (selectedChannels.Count > MaxSelectableChannels)
         {
             foreach (var extra in selectedChannels.Skip(MaxSelectableChannels))
+            {
                 extra.IsSelected = false;
+            }
 
             selectedChannels = [.. selectedChannels.Take(MaxSelectableChannels)];
             LogMessages.Add($"Selection limited to {MaxSelectableChannels} channels.");
@@ -207,7 +197,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         await _acquisitionManager!.StartAcquisitionAsync(selectedChannels);
         StartUiDrainTimer();
     }
-
     private void PrepareUIForAcquisition(List<Channel> selectedChannels)
     {
         DigitalMeters.Clear();
@@ -228,24 +217,25 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         OnPropertyChanged(nameof(DigitalMeters));
     }
-
     private async Task StopAcquisition()
     {
-        if (!IsAcquiring) return;
+        if (!IsAcquiring)
+        {
+            return;
+        }
+
         LogMessages.Add("Stopping acquisition...");
         StopUiDrainTimer();
         IsAcquiring = false;
         await _acquisitionManager!.StopAcquisitionAsync();
         LogMessages.Add("Acquisition stopped.");
     }
-
     private void LockScrolling()
     {
         _isScrollingLocked = !_isScrollingLocked;
         FollowLatest = _isScrollingLocked;
         LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
     }
-
     private void ToggleTheme()
     {
         if (Application.Current is not null)
@@ -254,10 +244,6 @@ public class MainViewModel : BaseViewModel, IDisposable
             LogMessages.Add($"Theme changed to {Application.Current.UserAppTheme}.");
         }
     }
-
-    private IDispatcherTimer? _uiDrainTimer;
-    private EventHandler? _drainTickHandler;
-
     private void StartUiDrainTimer()
     {
         StopUiDrainTimer();
@@ -275,7 +261,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         _uiDrainTimer.Tick += _drainTickHandler;
         _uiDrainTimer.Start();
     }
-
     private void StopUiDrainTimer()
     {
         if (_uiDrainTimer is null)
@@ -291,10 +276,6 @@ public class MainViewModel : BaseViewModel, IDisposable
         _uiDrainTimer = null;
         _drainTickHandler = null;
     }
-
-    private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(33.3); // 30 Hz
-    private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
-
     private void DrainAndPublish()
     {
         var batches = _acquisitionManager!.DrainSamples(maxPerChannel: 10_000);
@@ -323,45 +304,80 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
     private async Task CopyChannelPathAsync(Channel? ch)
     {
-        if (ch is null) return;
+        if (ch is null)
+        {
+            return;
+        }
+
         string channelPath = $"BoardID{ch.BoardID}/{ch.Name}";
         await Clipboard.SetTextAsync(channelPath);
         LogMessages.Add($"Copied: {channelPath}");
     }
     private void SelectOnlyChannel(Channel? ch)
     {
-        if (ch is null) return;
-        foreach (var c in Channels) c.IsSelected = false;
+        if (ch is null)
+        {
+            return;
+        }
+
+        foreach (var c in Channels)
+        {
+            c.IsSelected = false;
+        }
+
         ch.IsSelected = true;
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Selected only {ch.BoardID}/{ch.Name}");
     }
     private void SelectAllOnBoard(Channel? ch)
     {
-        if (ch is null) return;
+        if (ch is null)
+        {
+            return;
+        }
 
         int selected = Channels.Count(x => x.IsSelected);
         foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID))
         {
-            if (!c.IsSelected)
+            if (c.IsSelected)
             {
-                if (selected >= MaxSelectableChannels) break;
-                c.IsSelected = true;
-                selected++;
+                continue;
             }
+            if (selected >= MaxSelectableChannels)
+            {
+                break;
+            }
+            c.IsSelected = true;
+            selected++;
         }
 
         OnPropertyChanged(nameof(Channels));
         if (selected >= MaxSelectableChannels)
+        {
             LogMessages.Add($"Selection limited to {MaxSelectableChannels} channels.");
+        }
         else
+        {
             LogMessages.Add($"Selected all channels on Board {ch.BoardID}");
+        }
     }
     private void DeselectAllOnBoard(Channel? ch)
     {
-        if (ch is null) return;
-        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID)) c.IsSelected = false;
+        if (ch is null)
+        {
+            return;
+        }
+        foreach (var c in Channels.Where(x => x.BoardID == ch.BoardID))
+        {
+            c.IsSelected = false;
+        }
         OnPropertyChanged(nameof(Channels));
         LogMessages.Add($"Deselected all channels on Board {ch.BoardID}");
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
+        TrionApi.Uninitialize();
     }
 }
