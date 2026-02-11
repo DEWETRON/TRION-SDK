@@ -59,6 +59,11 @@ namespace TRION_SDK_UI.Models
                 _markerB.LineStyle.Pattern = LinePattern.Dashed;
                 _markerBx = x;
             }
+            if (_markerAx.HasValue && _markerBx.HasValue)
+            {
+                var span = _plot.Add.HorizontalSpan(_markerAx.Value, _markerBx.Value);
+                span.FillStyle.Color = ScottPlot.Colors.Cyan.WithAlpha(.2);
+            }
 
             _mauiPlot.Refresh();
         }
