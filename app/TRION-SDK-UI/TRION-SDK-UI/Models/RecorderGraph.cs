@@ -137,6 +137,7 @@ namespace TRION_SDK_UI.Models
         {
             _crosshair ??= _mauiPlot.Plot.Add.Crosshair(0, 0);
             _lockLine ??= _mauiPlot.Plot.Add.VerticalLine(0);
+            _cursorLabel.IsVisible = true;
             if (IsScrollLocked)
             {
                 _lockLine.IsVisible = true;
@@ -360,6 +361,7 @@ namespace TRION_SDK_UI.Models
             var newDataLogger = _plot.Add.DataLogger();
             newDataLogger.ViewSlide(_viewWidthSeconds);
             newDataLogger.LineWidth = 2;
+            newDataLogger.LegendText = channelKey;
             newDataLogger.Color = GetColorForChannel(channelKey);
             _loggers[channelKey] = newDataLogger;
             return newDataLogger;
