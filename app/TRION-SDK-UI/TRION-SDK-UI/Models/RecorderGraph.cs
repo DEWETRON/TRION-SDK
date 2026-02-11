@@ -25,9 +25,105 @@ namespace TRION_SDK_UI.Models
         private Crosshair _crosshair = crossHair;
         private Coordinates _lastCursorCoordinates;
         private bool _hasCursor;
+        private VerticalLine? _markerA;
+        private VerticalLine? _markerB;
+        private double? _markerAx;
+        private double? _markerBx;
 
         public double StartWidth { get; set; }
         public bool IsScrollLocked;
+
+        public void PlaceRangeMarker()
+        {
+            if (!IsScrollLocked)
+            {
+                return;
+            }
+
+            double x = _lockLine.X;
+
+            if (!_markerAx.HasValue || _markerBx.HasValue)
+            {
+                ClearRangeMarkers();
+                _markerA = _plot.Add.VerticalLine(x);
+                _markerA.LineWidth = 2;
+                _markerA.LineStyle.Color = ScottPlot.Colors.Cyan;
+                _markerA.LineStyle.Pattern = LinePattern.Dashed;
+                _markerAx = x;
+            }
+            else
+            {
+                _markerB = _plot.Add.VerticalLine(x);
+                _markerB.LineWidth = 2;
+                _markerB.LineStyle.Color = ScottPlot.Colors.Cyan;
+                _markerB.LineStyle.Pattern = LinePattern.Dashed;
+                _markerBx = x;
+            }
+
+            _mauiPlot.Refresh();
+        }
+
+        public void ClearRangeMarkers()
+        {
+            if (_markerA is not null) 
+            { 
+                _plot.Remove(_markerA); _markerA = null; 
+            }
+            if (_markerB is not null) 
+            { 
+                _plot.Remove(_markerB); _markerB = null; 
+            }
+            _markerAx = null;
+            _markerBx = null;
+            _mauiPlot.Refresh();
+        }
+
+        public List<ChannelRangeStats> ComputeRangeStats()
+        {
+            var results = new List<ChannelRangeStats>();
+
+            if (!_markerAx.HasValue || !_markerBx.HasValue)
+            {
+                return results;
+            }
+
+            double xMin = Math.Min(_markerAx.Value, _markerBx.Value);
+            double xMax = Math.Max(_markerAx.Value, _markerBx.Value);
+
+            foreach (var (channelKey, logger) in _loggers)
+            {
+                var coordinates = logger.Data.Coordinates;
+                if (0 == coordinates.Count)
+                {
+                    continue;
+                }
+
+                double min = double.MaxValue;
+                double max = double.MinValue;
+                double sum = 0;
+                int count = 0;
+
+                for (int i = 0; i < coordinates.Count; ++i)
+                {
+                    var c = coordinates[i];
+                    if (c.X < xMin) continue;
+                    if (c.X > xMax) break;
+
+                    if (c.Y < min) min = c.Y;
+                    if (c.Y > max) max = c.Y;
+                    sum += c.Y;
+                    count++;
+                }
+
+                if (count > 0)
+                {
+                    results.Add(new ChannelRangeStats(channelKey, min, max, sum / count, count));
+                }
+            }
+
+            return results;
+        }
+
 
         public void SetLockLineX()
         {

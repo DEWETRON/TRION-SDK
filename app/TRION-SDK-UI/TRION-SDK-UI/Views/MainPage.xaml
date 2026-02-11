@@ -37,6 +37,12 @@
                         Command="{Binding StopAcquisitionCommand}"
                         IsEnabled="{Binding IsAcquiring}"/>
                 <Button Text="Toggle Theme" Command="{Binding ToggleThemeCommand}" />
+                <Button Text="Place Marker" Command="{Binding PlaceMarkerCommand}"
+                        IsEnabled="{Binding CalcEnabled}"/>
+                <Button Text="Clear Markers" Command="{Binding ClearMarkersCommand}"
+                        IsEnabled="{Binding CalcEnabled}"/>
+                <Button Text="Calc Stats" Command="{Binding MaxCalcCommand}" 
+                        IsEnabled="{Binding CalcEnabled}"/>
             </HorizontalStackLayout>
         </Border>
 
@@ -195,7 +201,7 @@
                                         ItemsSource="{Binding Channels}"
                                         SelectionMode="None"
                                         Margin="10,0,0,0"
-                                        HorizontalOptions="Fill">           
+                                        HorizontalOptions="Fill">
 
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
@@ -226,7 +232,7 @@
                                         <!-- Channel display; click to open new window -->
                                         <Label Text="{Binding Name}"
                                                FontSize="12"
-                                               VerticalOptions="Center">        
+                                               VerticalOptions="Center">
                                             <Label.GestureRecognizers>
                                                 <TapGestureRecognizer
                                                     NumberOfTapsRequired="1"

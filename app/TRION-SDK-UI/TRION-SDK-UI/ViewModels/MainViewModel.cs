@@ -24,6 +24,9 @@ public class MainViewModel : BaseViewModel, IDisposable
     public ICommand? DeselectAllOnBoardCommand { get; private set; }
     public ICommand? OpenChannelWindowCommand { get; private set; }
     public ICommand? OpenBoardWindowCommand { get; private set; }
+    public ICommand? MaxCalcCommand { get; private set; }
+    public ICommand? PlaceMarkerCommand { get; private set; }
+    public ICommand? ClearMarkersCommand { get; private set; }
     public bool IsAcquiring
     {
         get => _isAcquiring;
@@ -34,17 +37,32 @@ public class MainViewModel : BaseViewModel, IDisposable
                 _isAcquiring = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsNotAcquiring));
+                OnPropertyChanged(nameof(CalcEnabled));
             }
         }
     }
 
     public bool IsNotAcquiring => !IsAcquiring;
+    public bool CalcEnabled => IsAcquiring && !_followLatest;
     public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
     public event EventHandler<SamplesBatchAppendedEventArgs>? SamplesBatchAppended;
+
+    public event EventHandler? PlaceMarkerRequested;
+    public event EventHandler? ClearMarkersRequested;
+    public event EventHandler? RangeStatsRequested;
+
     public bool FollowLatest
     {
         get => _followLatest;
-        private set { if (_followLatest != value) { _followLatest = value; OnPropertyChanged(); } }
+        private set
+        {
+            if (_followLatest != value)
+            {
+                _followLatest = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CalcEnabled));
+            }
+        }
     }
     public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
 
@@ -124,6 +142,9 @@ public class MainViewModel : BaseViewModel, IDisposable
         DeselectAllOnBoardCommand    = new Command<Channel>(DeselectAllOnBoard);
         OpenChannelWindowCommand     = new Command<Channel>(OpenChannelWindow);
         OpenBoardWindowCommand       = new Command<Board>(OpenBoardWindow);
+        MaxCalcCommand               = new Command(MaxCalc);
+        PlaceMarkerCommand           = new Command(PlaceMarker);
+        ClearMarkersCommand          = new Command(ClearMarkers);
     }
     private void OpenChannelWindow(Channel? ch)
     {
@@ -149,6 +170,47 @@ public class MainViewModel : BaseViewModel, IDisposable
 
         LogMessages.Add($"Opened board window for {board.Name} (ID: {board.Id})");
     }
+
+    private void PlaceMarker()
+    {
+        if (!CalcEnabled) return;
+        PlaceMarkerRequested?.Invoke(this, EventArgs.Empty);
+        LogMessages.Add("Range marker placed.");
+    }
+
+    private void ClearMarkers()
+    {
+        ClearMarkersRequested?.Invoke(this, EventArgs.Empty);
+        LogMessages.Add("Range markers cleared.");
+    }
+
+    private void MaxCalc()
+    {
+        if (!CalcEnabled)
+        {
+            LogMessages.Add("Lock scrolling during acquisition to compute range stats.");
+            return;
+        }
+
+        RangeStatsRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void ReceiveRangeStats(List<ChannelRangeStats> stats)
+    {
+        if (stats.Count == 0)
+        {
+            LogMessages.Add("No data in selected range. Place two markers first.");
+            return;
+        }
+
+        LogMessages.Add("── Range Statistics ──");
+        foreach (var s in stats)
+        {
+            LogMessages.Add($"  {s.ChannelKey}:  Min={s.Min:F4}  Max={s.Max:F4}  Avg={s.Average:F4}  ({s.SampleCount} samples)");
+        }
+        LogMessages.Add("──────────────────────");
+    }
+
     private void OnChannelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (_suppressSelectionGuard || sender is not Channel ch || e.PropertyName != nameof(Channel.IsSelected) || !ch.IsSelected)

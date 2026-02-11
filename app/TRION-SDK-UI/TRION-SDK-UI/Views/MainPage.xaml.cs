@@ -40,6 +40,9 @@ namespace TRION_SDK_UI
             vm.SamplesBatchAppended += VmOnSamplesBatchAppended;
             vm.LogMessages.CollectionChanged += VmLogMessagesCollectionChanged;
             vm.PropertyChanged += VmOnPropertyChanged;
+            vm.PlaceMarkerRequested += VmOnPlaceMarkerRequested;
+            vm.ClearMarkersRequested += VmOnClearMarkersRequested;
+            vm.RangeStatsRequested += VmOnRangeStatsRequested;
 
             MauiPlot1.Plot.Title("Live Signals");
             MauiPlot1.Plot.XLabel("Elapsed Seconds");
@@ -70,6 +73,32 @@ namespace TRION_SDK_UI
                     MauiPlot1.Refresh();
                 });
             };
+        }
+
+        private void VmOnPlaceMarkerRequested(object? sender, EventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                _recorder.PlaceRangeMarker();
+            });
+        }
+
+        private void VmOnClearMarkersRequested(object? sender, EventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                _recorder.ClearRangeMarkers();
+            });
+        }
+
+        private void VmOnRangeStatsRequested(object? sender, EventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                var stats = _recorder.ComputeRangeStats();
+                var vm = (MainViewModel)BindingContext;
+                vm.ReceiveRangeStats(stats);
+            });
         }
 
         private void VmOnSamplesBatchAppended(object? sender, MainViewModel.SamplesBatchAppendedEventArgs e)
