@@ -29,6 +29,7 @@ namespace TRION_SDK_UI.Models
         private VerticalLine? _markerB;
         private double? _markerAx;
         private double? _markerBx;
+        private HorizontalSpan? _calculationSpan;
 
         public double StartWidth { get; set; }
         public bool IsScrollLocked;
@@ -38,6 +39,12 @@ namespace TRION_SDK_UI.Models
             if (!IsScrollLocked)
             {
                 return;
+            }
+
+            if (_calculationSpan is not null)
+            {
+                _plot.Remove(_calculationSpan);
+                _calculationSpan = null;
             }
 
             double x = _lockLine.X;
@@ -61,8 +68,9 @@ namespace TRION_SDK_UI.Models
             }
             if (_markerAx.HasValue && _markerBx.HasValue)
             {
-                var span = _plot.Add.HorizontalSpan(_markerAx.Value, _markerBx.Value);
-                span.FillStyle.Color = ScottPlot.Colors.Cyan.WithAlpha(.2);
+                _calculationSpan = _plot.Add.HorizontalSpan(_markerAx.Value, 
+                                                            _markerBx.Value, 
+                                                            ScottPlot.Colors.Cyan.WithAlpha(0.2));
             }
 
             _mauiPlot.Refresh();
@@ -72,11 +80,13 @@ namespace TRION_SDK_UI.Models
         {
             if (_markerA is not null) 
             { 
-                _plot.Remove(_markerA); _markerA = null; 
+                _plot.Remove(_markerA); 
+                _markerA = null; 
             }
             if (_markerB is not null) 
             { 
-                _plot.Remove(_markerB); _markerB = null; 
+                _plot.Remove(_markerB); 
+                _markerB = null; 
             }
             _markerAx = null;
             _markerBx = null;
