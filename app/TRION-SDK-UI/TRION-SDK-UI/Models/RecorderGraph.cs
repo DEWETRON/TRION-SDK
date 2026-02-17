@@ -14,6 +14,7 @@ namespace TRION_SDK_UI.Models
         private readonly Dictionary<string, DataLogger> _loggers = [];
         private readonly Microsoft.Maui.Controls.Label _cursorLabelText;
         private readonly ScottPlot.Palettes.Category10 _palette = new();
+        private readonly Func<bool> _isScrollLocked;
         private const double _cursorLabelOffsetX = 14;
         private const double _cursorLabelOffsetY = 14;
         private const double _viewWidthSeconds = 2.2;
@@ -31,8 +32,7 @@ namespace TRION_SDK_UI.Models
         private DragTarget _dragTarget = DragTarget.NONE;
         private bool AnyDataPresent() => _loggers.Values.Any(l => l.Data.Coordinates.Count != 0);
 
-
-        public bool IsScrollLocked;
+        public bool IsScrollLocked => _isScrollLocked();
         public bool IsDraggingMarker => _dragTarget != DragTarget.NONE;
         public Pixel LastCursorPixel { get; private set; }
 
@@ -40,7 +40,8 @@ namespace TRION_SDK_UI.Models
                              Border cursorLabel,
                              Microsoft.Maui.Controls.Label cursorLabelText,
                              VerticalLine lockLine,
-                             Crosshair crossHair)
+                             Crosshair crossHair,
+                             Func<bool> isScrollLocked)
         {
             _mauiPlot = mauiPlot;
             _plot = mauiPlot.Plot;
@@ -48,6 +49,7 @@ namespace TRION_SDK_UI.Models
             _cursorLabelText = cursorLabelText;
             _lockLine = lockLine;
             _crosshair = crossHair;
+            _isScrollLocked = isScrollLocked;
 
             SetLockCrossVisibility();
         }

@@ -84,7 +84,8 @@ namespace TRION_SDK_UI
                                           CursorLabel, 
                                           CursorLabelText,
                                           MauiPlot1.Plot.Add.VerticalLine(0),
-                                          MauiPlot1.Plot.Add.Crosshair(0, 0));
+                                          MauiPlot1.Plot.Add.Crosshair(0, 0),
+                                          () => vm.IsScrollLocked);
 
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += OnDragHandlePanUpdated;
@@ -182,7 +183,7 @@ namespace TRION_SDK_UI
 
         private void VmOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != nameof(MainViewModel.FollowLatest))
+            if (e.PropertyName != nameof(MainViewModel.IsScrollLocked))
             {
                 return;
             }
@@ -191,13 +192,9 @@ namespace TRION_SDK_UI
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 _recorder.ApplyTheme();
-                var vm = (MainViewModel)BindingContext;
-
-                _recorder.IsScrollLocked = !vm.FollowLatest;
                 _recorder.SetLockCrossVisibility();
                 _recorder.UpdateValuesAtLockLine();
                 MauiPlot1.Refresh();
-
             });
         }
         private void OnDragHandlePanUpdated(object? sender, PanUpdatedEventArgs e)
@@ -216,4 +213,4 @@ namespace TRION_SDK_UI
             }
         }
     }
-}
+}   

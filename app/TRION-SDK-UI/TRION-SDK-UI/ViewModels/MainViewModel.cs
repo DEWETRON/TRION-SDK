@@ -43,7 +43,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
 
     public bool IsNotAcquiring => !IsAcquiring;
-    public bool CalcEnabled => IsAcquiring && !_followLatest;
+    public bool CalcEnabled => IsAcquiring && IsScrollLocked;
     public event EventHandler<IReadOnlyList<Channel>>? AcquisitionStarting;
     public event EventHandler<SamplesBatchAppendedEventArgs>? SamplesBatchAppended;
 
@@ -51,19 +51,22 @@ public class MainViewModel : BaseViewModel, IDisposable
     public event EventHandler? ClearMarkersRequested;
     public event EventHandler? RangeStatsRequested;
 
-    public bool FollowLatest
+    public bool IsScrollLocked
     {
-        get => _followLatest;
+        get => _isScrollLocked;
         private set
         {
-            if (_followLatest != value)
+            if (_isScrollLocked != value)
             {
-                _followLatest = value;
+                _isScrollLocked = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CalcEnabled));
             }
         }
     }
+
+    public bool FollowLatest => !IsScrollLocked;
+
     public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
 
     private static readonly string ip_address = "10.0.0.100";
@@ -75,8 +78,7 @@ public class MainViewModel : BaseViewModel, IDisposable
     private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
     private bool _isAcquiring;
     private readonly AcquisitionManager? _acquisitionManager;
-    private bool _isScrollingLocked = true;
-    private bool _followLatest = true;
+    private bool _isScrollLocked;
     private const int MaxSelectableChannels = 8;
     private bool _suppressSelectionGuard = false;
 
@@ -294,9 +296,8 @@ public class MainViewModel : BaseViewModel, IDisposable
     }
     private void LockScrolling()
     {
-        _isScrollingLocked = !_isScrollingLocked;
-        FollowLatest = _isScrollingLocked;
-        LogMessages.Add(_isScrollingLocked ? "Scrolling locked." : "Scrolling unlocked.");
+        IsScrollLocked = !IsScrollLocked;
+        LogMessages.Add(IsScrollLocked ? "Scrolling locked." : "Scrolling unlocked.");
     }
     private void ToggleTheme()
     {
