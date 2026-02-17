@@ -30,6 +30,36 @@ namespace TRION_SDK_UI
             });
         }
 
+        void OnPointerPressed(object? sender, PointerEventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                var pos = e.GetPosition(MauiPlot1);
+                if (pos is null)
+                {
+                    return;
+                }
+
+                var pixel = new Pixel((float)pos.Value.X, (float)pos.Value.Y);
+                if (_recorder.TryBeginMarkerDrag(pixel))
+                {
+                    MauiPlot1.UserInputProcessor.IsEnabled = false;
+                }
+            });
+        }
+
+        void OnPointerReleased(object? sender, PointerEventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (_recorder.IsDraggingMarker)
+                {
+                    _recorder.EndMarkerDrag();
+                    MauiPlot1.UserInputProcessor.IsEnabled = true;
+                }
+            });
+        }
+
         public MainPage()
         {
             InitializeComponent();

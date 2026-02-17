@@ -21,6 +21,7 @@ namespace TRION_SDK_UI.Models
         private const double _cursorLabelOffsetX = 14;
         private const double _cursorLabelOffsetY = 14;
         private const double _viewWidthSeconds = 2.2;
+        private const double _markerGrabTolerancePx = 12;
         private VerticalLine _lockLine = lockLine;
         private Crosshair _crosshair = crossHair;
         private Coordinates _lastCursorCoordinates;
@@ -30,9 +31,85 @@ namespace TRION_SDK_UI.Models
         private double? _markerAx;
         private double? _markerBx;
         private HorizontalSpan? _calculationSpan;
-
+        private enum DragTarget { NONE, MARKER_A, MARKER_B }
+        private DragTarget _dragTarget = DragTarget.NONE;
+        
+        
         public double StartWidth { get; set; }
         public bool IsScrollLocked;
+        public bool IsDraggingMarker => _dragTarget != DragTarget.NONE;
+        public Pixel LastCursorPixel { get; private set; }
+
+        public bool TryBeginMarkerDrag(Pixel pixel)
+        {
+            if (!_markerAx.HasValue && !_markerBx.HasValue)
+            {
+                return false;
+            }
+
+            var lastRender = _plot.LastRender;
+            double? distanceA = null;
+            double? distanceB = null;
+
+            if (_markerAx.HasValue)
+            {
+                distanceA = Math.Abs(pixel.X - DoubleXToPixelX(_markerAx.Value, lastRender));
+            }
+
+            if (_markerBx.HasValue)
+            {
+                distanceB = Math.Abs(pixel.X - DoubleXToPixelX(_markerBx.Value, lastRender));
+            }
+
+            DragTarget best = DragTarget.NONE;
+            double bestDistance = _markerGrabTolerancePx;
+
+            if (distanceA.HasValue && distanceA.Value < bestDistance)
+            {
+                bestDistance = distanceA.Value;
+                best = DragTarget.MARKER_A;
+            }
+            if (distanceB.HasValue && distanceB.Value < bestDistance)
+            {
+                best = DragTarget.MARKER_B;
+            }
+
+            _dragTarget = best;
+            return _dragTarget != DragTarget.NONE;
+        }
+
+        public void UpdateMarkerDrag(Pixel pixel)
+        {
+            if (_dragTarget == DragTarget.NONE)
+            {
+                return;
+            }
+
+            var coordinates = _mauiPlot.Plot.GetCoordinates(pixel);
+
+            _lockLine.X = coordinates.X;
+
+            switch (_dragTarget)
+            {
+                case DragTarget.MARKER_A when _markerA is not null:
+                    _markerA.X = coordinates.X;
+                    _markerAx = coordinates.X;
+                    break;
+                case DragTarget.MARKER_B when _markerB is not null:
+                    _markerB.X = coordinates.X;
+                    _markerBx = coordinates.X;
+                    break;
+            }
+
+            UpdateCursorLabel(pixel);
+            RebuildCalculationSpan();
+            _mauiPlot.Refresh();
+        }
+
+        public void EndMarkerDrag()
+        {
+            _dragTarget = DragTarget.NONE;
+        }
 
         public void PlaceRangeMarker()
         {
@@ -66,13 +143,8 @@ namespace TRION_SDK_UI.Models
                 _markerB.LineStyle.Pattern = LinePattern.Dashed;
                 _markerBx = x;
             }
-            if (_markerAx.HasValue && _markerBx.HasValue)
-            {
-                _calculationSpan = _plot.Add.HorizontalSpan(_markerAx.Value, 
-                                                            _markerBx.Value, 
-                                                            ScottPlot.Colors.Cyan.WithAlpha(0.2));
-            }
 
+            RebuildCalculationSpan();
             _mauiPlot.Refresh();
         }
 
@@ -91,9 +163,11 @@ namespace TRION_SDK_UI.Models
             if (_calculationSpan != null)
             {
                 _plot.Remove(_calculationSpan);
+                _calculationSpan = null;
             }
             _markerAx = null;
             _markerBx = null;
+            _dragTarget = DragTarget.NONE;
             _mauiPlot.Refresh();
         }
 
@@ -226,11 +300,18 @@ namespace TRION_SDK_UI.Models
             if (pointerPos is null) return;
 
             var cursorPixel = new Pixel(pointerPos.Value.X, pointerPos.Value.Y);
+            LastCursorPixel = cursorPixel;
             var cursorCoordinates = _mauiPlot.Plot.GetCoordinates(cursorPixel);
             var lastRender = _mauiPlot.Plot.LastRender;
 
             _lastCursorCoordinates = cursorCoordinates;
             _hasCursor = true;
+
+            if (_dragTarget != DragTarget.NONE)
+            {
+                UpdateMarkerDrag(cursorPixel);
+                return;
+            }
 
             if (IsScrollLocked)
             {
@@ -326,24 +407,7 @@ namespace TRION_SDK_UI.Models
 
             _cursorLabelText.Text = $"{nearestLogger.LegendText}\nX: {nearestPoint.X:F3}\nY: {nearestPoint.Y:F3}";
 
-            double labelX = cursorPixel.X + _cursorLabelOffsetX;
-            double labelY = cursorPixel.Y + _cursorLabelOffsetY;
-
-            double maxLabelX = _mauiPlot.Width - _cursorLabel.Width - 4;
-            double maxLabelY = _mauiPlot.Height - _cursorLabel.Height - 4;
-
-            if (maxLabelX > 0 && labelX > maxLabelX)
-            {
-                labelX = maxLabelX;
-            }
-            if (maxLabelY > 0 && labelY > maxLabelY)
-            {
-                labelY = maxLabelY;
-            }
-
-            _cursorLabel.TranslationX = labelX;
-            _cursorLabel.TranslationY = labelY;
-
+            UpdateCursorLabel(cursorPixel);
             _mauiPlot.Refresh();
         }
         public void RenderLine(Pixel cursorPixel, Coordinates cursorCoordinates)
@@ -351,8 +415,14 @@ namespace TRION_SDK_UI.Models
             _lockLine.X = cursorCoordinates.X;
             UpdateValuesAtLockLine();
 
-            double labelX = cursorPixel.X + _cursorLabelOffsetX;
-            double labelY = cursorPixel.Y + _cursorLabelOffsetY;
+            UpdateCursorLabel(cursorPixel);
+            _mauiPlot.Refresh();
+        }
+
+        private void UpdateCursorLabel(Pixel targetPixel)
+        {
+            double labelX = targetPixel.X + _cursorLabelOffsetX;
+            double labelY = targetPixel.Y + _cursorLabelOffsetY;
 
             double maxLabelX = _mauiPlot.Width - _cursorLabel.Width - 4;
             double maxLabelY = _mauiPlot.Height - _cursorLabel.Height - 4;
@@ -367,8 +437,6 @@ namespace TRION_SDK_UI.Models
 
             _cursorLabel.TranslationX = labelX;
             _cursorLabel.TranslationY = labelY;
-
-            _mauiPlot.Refresh();
         }
 
         private DataLogger GerOrCreateDataLogger(string channelKey)
@@ -416,6 +484,31 @@ namespace TRION_SDK_UI.Models
             dataLogger.ManageAxisLimits = followLatest;
             var (ySamples, xSamples) = ConvertSamplesToXYArrays(samples);
             dataLogger.Add(xSamples, ySamples);
+        }
+
+        private double DoubleXToPixelX(double dataX, RenderDetails lastRender)
+        {
+            var dataRect = lastRender.DataRect;
+            var xRange = _plot.Axes.Bottom.Range;
+            double fraction = (dataX - xRange.Min) / (xRange.Max - xRange.Min);
+            return dataRect.Left + fraction * dataRect.Width;
+        }
+
+        private void RebuildCalculationSpan()
+        {
+            if (_calculationSpan is not null)
+            {
+                _plot.Remove(_calculationSpan);
+                _calculationSpan = null;
+            }
+
+            if (_markerAx.HasValue && _markerBx.HasValue)
+            {
+                _calculationSpan = _plot.Add.HorizontalSpan(
+                    _markerAx.Value,
+                    _markerBx.Value,
+                    ScottPlot.Colors.Cyan.WithAlpha(0.2));
+            }
         }
     }
 }
