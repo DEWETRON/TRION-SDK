@@ -212,5 +212,22 @@ namespace TRION_SDK_UI
                     break;
             }
         }
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            if (BindingContext is MainViewModel vm)
+            {
+                vm.AcquisitionStarting -= VmOnAcquisitionStarted;
+                vm.SamplesBatchAppended -= VmOnSamplesBatchAppended;
+                vm.LogMessages.CollectionChanged -= VmLogMessagesCollectionChanged;
+                vm.PropertyChanged -= VmOnPropertyChanged;
+                vm.PlaceMarkerRequested -= VmOnPlaceMarkerRequested;
+                vm.ClearMarkersRequested -= VmOnClearMarkersRequested;
+                vm.RangeStatsRequested -= VmOnRangeStatsRequested;
+
+                vm.Dispose();
+            }
+        }
     }
 }   
