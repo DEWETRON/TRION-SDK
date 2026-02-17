@@ -269,56 +269,63 @@ public class AcquisitionManager(Enclosure enclosure)
 
             buffer.CheckWrapAround(ref hwReadPos);
 
-            while (!token.IsCancellationRequested)
+            try
             {
-                (error, var rawAvailable) = TrionApi.DeWeGetParam_i32(_board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
-                Utils.CheckErrorCode(error, $"Failed to get available samples {_board.Id}");
-
-                if (rawAvailable <= adcDelay)
+                while (!token.IsCancellationRequested)
                 {
-                    await Task.Delay(1, token);
-                    continue;
-                }
+                    (error, var rawAvailable) = TrionApi.DeWeGetParam_i32(_board.Id, TrionCommand.BUFFER_0_AVAIL_NO_SAMPLE);
+                    Utils.CheckErrorCode(error, $"Failed to get available samples {_board.Id}");
 
-                var processableSamples = rawAvailable - adcDelay;
-                var basePtr = hwReadPos;
-                var analogPtr = hwReadPos + ((long)adcDelay * scanSize);
-
-                for (int c = 0; c < _channelBuffers.Length; ++c)
-                {
-                    var list = _channelBuffers[c];
-                    list.Clear();
-                    if (list.Capacity < processableSamples) 
+                    if (rawAvailable <= adcDelay)
                     {
-                        list.Capacity = processableSamples;
+                        await Task.Delay(1, token);
+                        continue;
                     }
-                }
 
-                for (int i = 0; i < processableSamples; ++i)
-                {
-                    buffer.CheckWrapAround(ref basePtr);
-                    buffer.CheckWrapAround(ref analogPtr);
+                    var processableSamples = rawAvailable - adcDelay;
+                    var basePtr = hwReadPos;
+                    var analogPtr = hwReadPos + ((long)adcDelay * scanSize);
 
-                    ProcessScan(basePtr, analogPtr);
-
-                    basePtr += scanSize;
-                    analogPtr += scanSize;
-                }
-
-                hwReadPos = basePtr;
-                buffer.CheckWrapAround(ref hwReadPos);
-
-                for (int i = 0; i < processableSamples; ++i)
-                {
-                    var elapsedSeconds = (double)(sampleIndex + i) / _board.SamplingRate;
-                    for (int c = 0; c < _channelKeys.Length; ++c)
+                    for (int c = 0; c < _channelBuffers.Length; ++c)
                     {
-                        sampleQueues[_channelKeys[c]].Enqueue(new Sample(_channelBuffers[c][i], elapsedSeconds));
+                        var list = _channelBuffers[c];
+                        list.Clear();
+                        if (list.Capacity < processableSamples) 
+                        {
+                            list.Capacity = processableSamples;
+                        }
                     }
-                }
-                sampleIndex += processableSamples;
 
-                TrionApi.DeWeSetParam_i32(_board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processableSamples);
+                    for (int i = 0; i < processableSamples; ++i)
+                    {
+                        buffer.CheckWrapAround(ref basePtr);
+                        buffer.CheckWrapAround(ref analogPtr);
+
+                        ProcessScan(basePtr, analogPtr);
+
+                        basePtr += scanSize;
+                        analogPtr += scanSize;
+                    }
+
+                    hwReadPos = basePtr;
+                    buffer.CheckWrapAround(ref hwReadPos);
+
+                    for (int i = 0; i < processableSamples; ++i)
+                    {
+                        var elapsedSeconds = (double)(sampleIndex + i) / _board.SamplingRate;
+                        for (int c = 0; c < _channelKeys.Length; ++c)
+                        {
+                            sampleQueues[_channelKeys[c]].Enqueue(new Sample(_channelBuffers[c][i], elapsedSeconds));
+                        }
+                    }
+                    sampleIndex += processableSamples;
+
+                    TrionApi.DeWeSetParam_i32(_board.Id, TrionCommand.BUFFER_0_FREE_NO_SAMPLE, processableSamples);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected during shutdown
             }
         }
 

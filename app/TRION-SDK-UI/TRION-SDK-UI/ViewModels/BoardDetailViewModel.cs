@@ -133,7 +133,7 @@ public sealed class BoardDetailViewModel : BaseViewModel
                 CommitPropertyChange(() =>
                 {
                     Board.SetAcqProp("ExtTrigger", value);
-                    Board.OperationMode = value;
+                    Board.ExternalTrigger = value;
                 });
             }
         }
@@ -176,13 +176,15 @@ public sealed class BoardDetailViewModel : BaseViewModel
                 {
                     Board.SetAcqProp("ResolutionAI", value);
                     Board.ResolutionAI = value;
+
+                    var (error, currentValue) = TrionApi.DeWeGetParamStruct_String($"BoardID{Board.Id}/AcqProp", "ResolutionAI");
+                    Utils.CheckErrorCode(error, $"Failed to get ResolutionAI for board {Board.Id}");
+                    if (currentValue != value)
+                    {
+                        MainThread.BeginInvokeOnMainThread(() =>
+                            _ = ShowAlertAsync("ResolutionAI Error", "ResolutionAI not set correctly."));
+                    }
                 });
-            }
-            var (error, currentValue) = TrionApi.DeWeGetParamStruct_String($"BoardID{Board.Id}/AcqProp", "ResolutionAI");
-            Utils.CheckErrorCode(error, $"Failed to get ResolutionAI for board {Board.Id}");
-            if (currentValue != value)
-            {
-                _ = ShowAlertAsync("ResolutionAI Error", "ResolutionAI not set correctly.", string.Empty);
             }
         }
     }

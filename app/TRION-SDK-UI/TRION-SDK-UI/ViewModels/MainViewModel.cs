@@ -1,12 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
-using Trion;
 using TRION_SDK_UI.Models;
 using System.ComponentModel;
 using TRION_SDK_UI.Services;
 using TRION_SDK_UI.POCO;
-using TrionApiUtils;
 
 namespace TRION_SDK_UI.ViewModels;
 public class MainViewModel : BaseViewModel, IDisposable
@@ -67,16 +65,15 @@ public class MainViewModel : BaseViewModel, IDisposable
 
     public bool FollowLatest => !IsScrollLocked;
 
-    public Enclosure MyEnc { get; } = new Enclosure { Name = "MyEnc", Boards = [] };
+    public Enclosure MyEnc => _hardwareService.Enclosure;
 
-    private static readonly string ip_address = "10.0.0.100";
-    private static readonly string mask = "255.255.0.0";
     private readonly Dictionary<string, DigitalMeter> _meterByKey = [];
     private IDispatcherTimer? _uiDrainTimer;
     private EventHandler? _drainTickHandler;
     private readonly TimeSpan _meterUpdatePeriod = TimeSpan.FromMilliseconds(33.3); // 30 Hz
     private DateTime _lastMeterUpdateUtc = DateTime.MinValue;
     private bool _isAcquiring;
+    private readonly HardwareService _hardwareService = new();
     private readonly AcquisitionManager? _acquisitionManager;
     private bool _isScrollLocked;
     private const int MaxSelectableChannels = 8;
@@ -91,44 +88,36 @@ public class MainViewModel : BaseViewModel, IDisposable
         IsAcquiring = false;
         Debug.WriteLine("Started");
         LogMessages.Add("App started.");
-        API.DeWeConfigure(API.Backend.TRIONET);
 
-        var error = TrionApi.DeWeSetParamStruct("trionetapi/config", "Network/IPV4/LocalIP", ip_address);
-        Utils.CheckErrorCode(error, "Failed to set local IP address");
-        
-        error = TrionApi.DeWeSetParamStruct("trionetapi/config", "Network/IPV4/NetMask", mask);
-        Utils.CheckErrorCode(error, "Failed to set subnet mask");
+        var initResult = _hardwareService.Initialize();
 
-        var numberOfBoards = TrionApi.Initialize();
-        if (numberOfBoards < 0)
-        {
-            LogMessages.Add($"Number of simulated Boards found: {Math.Abs(numberOfBoards)}");
-        }
-        else if (numberOfBoards > 0)
-        {
-            LogMessages.Add($"Number of real Boards found: {numberOfBoards}");
-        }
-        else
+        if (initResult.BoardCount == 0)
         {
             LogMessages.Add("No Trion Boards found.");
             _ = ShowAlertAsync("No TRION boards", "No TRION boards were detected. Configure a system and try again.");
             return;
         }
 
-        numberOfBoards = Math.Abs(numberOfBoards);
-        MyEnc.Init(numberOfBoards);
+        LogMessages.Add(initResult.IsSimulated
+            ? $"Number of simulated Boards found: {initResult.BoardCount}"
+            : $"Number of real Boards found: {initResult.BoardCount}");
+
         OnPropertyChanged(nameof(MyEnc));
 
         foreach (var board in MyEnc.Boards)
         {
             LogMessages.Add($"Board: {board.Name} (ID: {board.Id})");
-            foreach (var channel in board.Channels.Where(c => c.Type is Channel.ChannelType.Analog or 
-                                                                        Channel.ChannelType.Digital or 
-                                                                        Channel.ChannelType.Counter))
-            {
-                Channels.Add(channel);
-                channel.PropertyChanged += OnChannelPropertyChanged;
-            }
+        }
+
+        var channels = _hardwareService.GetChannels(
+            Channel.ChannelType.Analog,
+            Channel.ChannelType.Digital,
+            Channel.ChannelType.Counter);
+
+        foreach (var channel in channels)
+        {
+            Channels.Add(channel);
+            channel.PropertyChanged += OnChannelPropertyChanged;
         }
 
         _acquisitionManager = new AcquisitionManager(MyEnc);
@@ -440,7 +429,6 @@ public class MainViewModel : BaseViewModel, IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        TrionApi.DeWeSetParam_i32(0, TrionCommand.CLOSE_BOARD_ALL, 0);
-        TrionApi.Uninitialize();
+        _hardwareService.Dispose();
     }
 }

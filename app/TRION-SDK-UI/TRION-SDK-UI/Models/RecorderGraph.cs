@@ -429,7 +429,6 @@ namespace TRION_SDK_UI.Models
             _cursorLabelText.Text = $"{nearestLogger.LegendText}\nX: {nearestPoint.X:F3}\nY: {nearestPoint.Y:F3}";
 
             UpdateCursorLabel(cursorPixel);
-            _mauiPlot.Refresh();
         }
         public void RenderLine(Pixel cursorPixel, Coordinates cursorCoordinates)
         {
@@ -437,7 +436,6 @@ namespace TRION_SDK_UI.Models
             UpdateValuesAtLockLine();
 
             UpdateCursorLabel(cursorPixel);
-            _mauiPlot.Refresh();
         }
 
         private void UpdateCursorLabel(Pixel targetPixel)
