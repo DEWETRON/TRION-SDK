@@ -88,6 +88,10 @@ namespace TRION_SDK_UI.Models
                 _plot.Remove(_markerB); 
                 _markerB = null; 
             }
+            if (_calculationSpan != null)
+            {
+                _plot.Remove(_calculationSpan);
+            }
             _markerAx = null;
             _markerBx = null;
             _mauiPlot.Refresh();

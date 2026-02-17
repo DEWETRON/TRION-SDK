@@ -203,7 +203,7 @@ public class MainViewModel : BaseViewModel, IDisposable
             return;
         }
 
-        LogMessages.Add("── Range Statistics ──");
+        LogMessages.Add("───── Statistics ─────");
         foreach (var s in stats)
         {
             LogMessages.Add($"  {s.ChannelKey}:  Min={s.Min:F4}  Max={s.Max:F4}  Avg={s.Average:F4}  ({s.SampleCount} samples)");

@@ -51,8 +51,12 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <!-- Plot row -->
+                <RowDefinition Height="Auto"/>
+                <!-- Digital meters -->
+                <RowDefinition Height="Auto"/>
+                <!-- Log header -->
                 <RowDefinition Height="*"/>
-                <!-- ScrollView row -->
+                <!-- Log scroll area -->
             </Grid.RowDefinitions>
 
             <!-- Plot kept separate from ScrollView so wheel / gestures interact with the plot first -->
@@ -83,76 +87,66 @@
                 </Border>
             </Grid>
 
-
-            <!-- Scrollable content: digital meters and log -->
-            <ScrollView Grid.Row="1">
-                <VerticalStackLayout Padding="30,0" Spacing="25">
-
-                    <!-- Digital Meters: laid out as a responsive 3-column grid -->
-                    <CollectionView Grid.Column="2"
-                                    ItemsSource="{Binding DigitalMeters}"
-                                    SelectionMode="None"
-                                    Margin="10,0,0,0"
-                                    HorizontalOptions="Fill">
-                        <CollectionView.ItemsLayout>
-                            <!-- 3 items per row; vertical stacking by rows -->
-                            <GridItemsLayout Orientation="Vertical" Span="3" />
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Margin="4"
-                                        Padding="8,6"
-                                        StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 6">
-                                    <VerticalStackLayout Spacing="2"
-                                                         HorizontalOptions="Center"
-                                                         VerticalOptions="Center">
-                                        <!-- Meter label -->
-                                        <Label Text="{Binding Label}"
-                                               FontSize="12"
-                                               HorizontalTextAlignment="Center" />
-                                        <!-- Numeric value with unit (formatted to 3 decimals) -->
-                                        <Label>
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="{Binding Value, StringFormat='{0:F3}'}" FontAttributes="Bold" />
-                                                    <Span Text=" " />
-                                                    <Span Text="{Binding Unit}" FontSize="10" />
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                            <Label.FontSize>18</Label.FontSize>
-                                            <Label.HorizontalTextAlignment>Center</Label.HorizontalTextAlignment>
-                                        </Label>
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-
-                    <!-- Log header -->
-                    <Label Text="Log"
-                           Style="{StaticResource SubHeadline}"
-                           SemanticProperties.HeadingLevel="Level2"
-                           HorizontalOptions="Start" />
-
-                    <!-- Log messages list: simple vertical text list -->
-                    <CollectionView x:Name="LogView"
-                                    ItemsSource="{Binding LogMessages}"
-                                    HeightRequest="200"
-                                    SelectionMode="None">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="2" />
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Label Text="{Binding .}"
+            <!-- Digital Meters: laid out as a responsive 3-column grid -->
+            <CollectionView Grid.Row="1"
+                            ItemsSource="{Binding DigitalMeters}"
+                            SelectionMode="None"
+                            Margin="40,0,30,0"
+                            HorizontalOptions="Fill">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="4"
+                                Padding="8,6"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 6">
+                            <VerticalStackLayout Spacing="2"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center">
+                                <Label Text="{Binding Label}"
                                        FontSize="12"
-                                       FontFamily="Consolas"
-                                       LineBreakMode="WordWrap" />
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                                       HorizontalTextAlignment="Center" />
+                                <Label>
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding Value, StringFormat='{0:F3}'}" FontAttributes="Bold" />
+                                            <Span Text=" " />
+                                            <Span Text="{Binding Unit}" FontSize="10" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                    <Label.FontSize>18</Label.FontSize>
+                                    <Label.HorizontalTextAlignment>Center</Label.HorizontalTextAlignment>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
+            <!-- Log header -->
+            <Label Grid.Row="2"
+                   Text="Log"
+                   Style="{StaticResource SubHeadline}"
+                   SemanticProperties.HeadingLevel="Level2"
+                   HorizontalOptions="Start"
+                   Padding="30,10,0,0" />
+
+            <!-- Log: ScrollView wrapping a BindableLayout for reliable auto-scroll -->
+            <ScrollView Grid.Row="3"
+                        x:Name="LogScrollView"
+                        Padding="30,0">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding LogMessages}"
+                                     Spacing="2">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding .}"
+                                   FontSize="12"
+                                   FontFamily="Consolas"
+                                   LineBreakMode="WordWrap" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
             </ScrollView>
         </Grid>

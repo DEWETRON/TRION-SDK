@@ -127,10 +127,10 @@ namespace TRION_SDK_UI
         {
             if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is { Count: > 0 })
             {
-                var last = e.NewItems[^1];
-                MainThread.BeginInvokeOnMainThread(() =>
+                MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    LogView?.ScrollTo(last, position: ScrollToPosition.End, animate: true);
+                    await Task.Delay(50);
+                    await LogScrollView.ScrollToAsync(0, LogScrollView.ContentSize.Height, animated: true);
                 });
             }
         }
