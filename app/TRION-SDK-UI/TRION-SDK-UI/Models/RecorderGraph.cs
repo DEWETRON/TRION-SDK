@@ -124,26 +124,28 @@ namespace TRION_SDK_UI.Models
                 _calculationSpan = null;
             }
 
-            double x = _lockLine.X;
+            ClearRangeMarkers();
 
-            if (!_markerAx.HasValue || _markerBx.HasValue)
-            {
-                ClearRangeMarkers();
-                _markerA = _plot.Add.VerticalLine(x);
-                _markerA.LineWidth = 2;
-                _markerA.LineStyle.Color = ScottPlot.Colors.Cyan;
-                _markerA.LineStyle.Pattern = LinePattern.Dashed;
-                _markerAx = x;
-            }
-            else
-            {
-                _markerB = _plot.Add.VerticalLine(x);
-                _markerB.LineWidth = 2;
-                _markerB.LineStyle.Color = ScottPlot.Colors.Cyan;
-                _markerB.LineStyle.Pattern = LinePattern.Dashed;
-                _markerBx = x;
-            }
+            var limits = _plot.Axes.GetLimits();
+            var xMin = limits.Left;
+            var xRange = _plot.Axes.Bottom.Range;
+            var currentSpan = xRange.Span;
 
+            var markerAStartPosition = xMin + (currentSpan * 1 / 3);
+            var markerBStartPosition = xMin + (currentSpan * 2 / 3);
+
+            _markerA = _plot.Add.VerticalLine(markerAStartPosition);
+            _markerA.LineWidth = 2;
+            _markerA.LineStyle.Color = ScottPlot.Colors.Cyan;
+            _markerA.LineStyle.Pattern = LinePattern.Dashed;
+            _markerAx = markerAStartPosition;
+
+            _markerB = _plot.Add.VerticalLine(markerBStartPosition);
+            _markerB.LineWidth = 2;
+            _markerB.LineStyle.Color = ScottPlot.Colors.Cyan;
+            _markerB.LineStyle.Pattern = LinePattern.Dashed;
+            _markerBx = markerBStartPosition;
+            
             RebuildCalculationSpan();
             _mauiPlot.Refresh();
         }
