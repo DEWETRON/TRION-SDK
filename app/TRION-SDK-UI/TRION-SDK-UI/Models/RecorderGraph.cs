@@ -5,25 +5,21 @@ using TRION_SDK_UI.POCO;
 
 namespace TRION_SDK_UI.Models
 {
-    public class RecorderGraph(MauiPlot mauiPlot, 
-                               Border cursorLabel, 
-                               Microsoft.Maui.Controls.Label cursorLabelText,
-                               VerticalLine lockLine,
-                               Crosshair crossHair)
+    public class RecorderGraph
     {
-        private readonly Plot _plot = mauiPlot.Plot;
-        private readonly Border _cursorLabel = cursorLabel;
-        private readonly MauiPlot _mauiPlot = mauiPlot;
+        private readonly Plot _plot;
+        private readonly Border _cursorLabel;
+        private readonly MauiPlot _mauiPlot;
         private readonly Dictionary<string, ScottPlot.Color> _lineColors = [];
         private readonly Dictionary<string, DataLogger> _loggers = [];
-        private readonly Microsoft.Maui.Controls.Label _cursorLabelText = cursorLabelText;
+        private readonly Microsoft.Maui.Controls.Label _cursorLabelText;
         private readonly ScottPlot.Palettes.Category10 _palette = new();
         private const double _cursorLabelOffsetX = 14;
         private const double _cursorLabelOffsetY = 14;
         private const double _viewWidthSeconds = 2.2;
         private const double _markerGrabTolerancePx = 12;
-        private VerticalLine _lockLine = lockLine;
-        private Crosshair _crosshair = crossHair;
+        private VerticalLine _lockLine;
+        private Crosshair _crosshair;
         private Coordinates _lastCursorCoordinates;
         private bool _hasCursor;
         private VerticalLine? _markerA;
@@ -33,12 +29,28 @@ namespace TRION_SDK_UI.Models
         private HorizontalSpan? _calculationSpan;
         private enum DragTarget { NONE, MARKER_A, MARKER_B }
         private DragTarget _dragTarget = DragTarget.NONE;
-        
-        
-        public double StartWidth { get; set; }
+        private bool AnyDataPresent() => _loggers.Values.Any(l => l.Data.Coordinates.Count != 0);
+
+
         public bool IsScrollLocked;
         public bool IsDraggingMarker => _dragTarget != DragTarget.NONE;
         public Pixel LastCursorPixel { get; private set; }
+
+        public RecorderGraph(MauiPlot mauiPlot,
+                             Border cursorLabel,
+                             Microsoft.Maui.Controls.Label cursorLabelText,
+                             VerticalLine lockLine,
+                             Crosshair crossHair)
+        {
+            _mauiPlot = mauiPlot;
+            _plot = mauiPlot.Plot;
+            _cursorLabel = cursorLabel;
+            _cursorLabelText = cursorLabelText;
+            _lockLine = lockLine;
+            _crosshair = crossHair;
+
+            SetLockCrossVisibility();
+        }
 
         public bool TryBeginMarkerDrag(Pixel pixel)
         {
@@ -75,12 +87,12 @@ namespace TRION_SDK_UI.Models
             }
 
             _dragTarget = best;
-            return _dragTarget != DragTarget.NONE;
+            return DragTarget.NONE != _dragTarget;
         }
 
         public void UpdateMarkerDrag(Pixel pixel)
         {
-            if (_dragTarget == DragTarget.NONE)
+            if (DragTarget.NONE == _dragTarget)
             {
                 return;
             }
@@ -219,7 +231,6 @@ namespace TRION_SDK_UI.Models
             return results;
         }
 
-
         public void SetLockLineX()
         {
             if (IsScrollLocked)
@@ -228,11 +239,17 @@ namespace TRION_SDK_UI.Models
             }
         }
 
+
         public void SetLockCrossVisibility()
         {
             _crosshair ??= _mauiPlot.Plot.Add.Crosshair(0, 0);
             _lockLine ??= _mauiPlot.Plot.Add.VerticalLine(0);
             _cursorLabel.IsVisible = true;
+            if (false == AnyDataPresent())
+            {
+                HideLockCross();
+                return;
+            }
             if (IsScrollLocked)
             {
                 _lockLine.IsVisible = true;
@@ -270,14 +287,12 @@ namespace TRION_SDK_UI.Models
 
             foreach (var key in keys)
             {
-                _ = GerOrCreateDataLogger(key);
+                _ = GetOrCreateDataLogger(key);
             }
 
             _crosshair = _plot.Add.Crosshair(0, 0);
-            _crosshair.IsVisible = !IsScrollLocked && _cursorLabel.IsVisible;
-
             _lockLine = _plot.Add.VerticalLine(0);
-            _lockLine.IsVisible = IsScrollLocked && _cursorLabel.IsVisible;
+            SetLockCrossVisibility();
 
             if (Application.Current is not null)
             {
@@ -309,7 +324,7 @@ namespace TRION_SDK_UI.Models
             _lastCursorCoordinates = cursorCoordinates;
             _hasCursor = true;
 
-            if (_dragTarget != DragTarget.NONE)
+            if (DragTarget.NONE != _dragTarget)
             {
                 UpdateMarkerDrag(cursorPixel);
                 return;
@@ -372,6 +387,8 @@ namespace TRION_SDK_UI.Models
             var nearestPoint = DataPoint.None;
             DataLogger? nearestLogger = null;
             var bestDistance = double.MaxValue;
+
+            SetLockCrossVisibility();
 
             foreach (var logger in _loggers.Values)
             {
@@ -441,7 +458,7 @@ namespace TRION_SDK_UI.Models
             _cursorLabel.TranslationY = labelY;
         }
 
-        private DataLogger GerOrCreateDataLogger(string channelKey)
+        private DataLogger GetOrCreateDataLogger(string channelKey)
         {
            if (_loggers.TryGetValue(channelKey, out var existing))
             {
@@ -482,7 +499,7 @@ namespace TRION_SDK_UI.Models
 
         public void AddSamples(Sample[] samples, string channelKey, bool followLatest)
         {
-            var dataLogger = GerOrCreateDataLogger(channelKey);
+            var dataLogger = GetOrCreateDataLogger(channelKey);
             dataLogger.ManageAxisLimits = followLatest;
             var (ySamples, xSamples) = ConvertSamplesToXYArrays(samples);
             dataLogger.Add(xSamples, ySamples);

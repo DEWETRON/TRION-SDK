@@ -11,6 +11,7 @@ namespace TRION_SDK_UI
     public partial class MainPage : ContentPage
     {
         private readonly RecorderGraph _recorder;
+        public double StartWidth { get; set; }
 
         void OnPointerEntered(object sender, PointerEventArgs e)
         {
@@ -204,10 +205,10 @@ namespace TRION_SDK_UI
             switch (e.StatusType)
             {
                 case GestureStatus.Started:
-                    _recorder.StartWidth = SidebarColumn.Width.Value;
+                    StartWidth = SidebarColumn.Width.Value;
                     break;
                 case GestureStatus.Running:
-                    double newWidth = _recorder.StartWidth - e.TotalX;
+                    double newWidth = StartWidth - e.TotalX;
                     if (newWidth < 100) newWidth = 100;
                     if (newWidth > 400) newWidth = 400;
                     SidebarColumn.Width = new GridLength(newWidth);
