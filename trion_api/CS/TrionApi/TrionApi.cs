@@ -1,23 +1,21 @@
-using System;
 using Trion;
-
 
 public class TrionApi
 {
     public static int Initialize()
     {
         // Configure the TRION API backend (choose TRION or TRIONET as needed)
-        Trion.API.DeWeConfigure(Trion.API.Backend.TRION);
+        // should be done separate?
+        // Trion.API.DeWeConfigure(Trion.API.Backend.TRION);
 
         // Call DeWeDriverInit on startup
-        int nNoOfBoards;
-        TrionError nErrorCode = Trion.API.DeWeDriverInit(out nNoOfBoards);
+        TrionError nErrorCode = Trion.API.DeWeDriverInit(out int nNoOfBoards);
 
         // Optional: handle error or log result
         if (nErrorCode != TrionError.NONE)
         {
             // Handle error (e.g., log, show message, etc.)
-            System.Diagnostics.Debug.WriteLine($"TRION API Init failed: {Trion.API.DeWeErrorConstantToString(nErrorCode)}");
+            System.Diagnostics.Debug.WriteLine($"TRION API Init failed: {API.DeWeErrorConstantToString(nErrorCode)}");
         }
         else
         {
@@ -31,7 +29,7 @@ public class TrionApi
         var error = TrionApi.DeWeSetParam_i32(0, Trion.TrionCommand.CLOSE_BOARD_ALL, 0);
         if (error != TrionError.NONE)
         {
-            System.Diagnostics.Debug.WriteLine($"TRION API CloseBoards failed: {Trion.API.DeWeErrorConstantToString(error)}");
+            System.Diagnostics.Debug.WriteLine($"TRION API CloseBoards failed");
         }
     }
 
@@ -40,7 +38,7 @@ public class TrionApi
         TrionError nErrorCode = Trion.API.DeWeDriverDeInit();
         if (nErrorCode != TrionError.NONE)
         {
-            System.Diagnostics.Debug.WriteLine($"TRION API Uninit failed: {Trion.API.DeWeErrorConstantToString(nErrorCode)}");
+            System.Diagnostics.Debug.WriteLine($"TRION API Uninit failed:");
         }
         else
         {
@@ -49,39 +47,39 @@ public class TrionApi
     }
 
 
-    public static (Trion.TrionError error, Int32 value) DeWeGetParam_i32(Int32 nBoardNo, Trion.TrionCommand nCommandId)
+    public static (TrionError error, Int32 value) DeWeGetParam_i32(Int32 nBoardNo, TrionCommand nCommandId)
     {
         Int32 value = 0;
-        Trion.TrionError error = Trion.API.DeWeGetParam_i32(nBoardNo, nCommandId, out value);
+        Trion.TrionError error = API.DeWeGetParam_i32(nBoardNo, nCommandId, out value);
         return (error, value);
     }
 
-    public static Trion.TrionError DeWeSetParam_i32(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int32 value)
+    public static TrionError DeWeSetParam_i32(Int32 nBoardNo, TrionCommand nCommandId, Int32 value)
     {
-        Trion.TrionError error = Trion.API.DeWeSetParam_i32(nBoardNo, nCommandId, value);
+        TrionError error = API.DeWeSetParam_i32(nBoardNo, nCommandId, value);
         return (error);
     }
 
-    public static (Trion.TrionError error, Int64 value) DeWeGetParam_i64(Int32 nBoardNo, Trion.TrionCommand nCommandId)
+    public static (TrionError error, Int64 value) DeWeGetParam_i64(Int32 nBoardNo, TrionCommand nCommandId)
     {
         Int64 value = 0;
-        Trion.TrionError error = Trion.API.DeWeGetParam_i64(nBoardNo, nCommandId, out value);
+        TrionError error = API.DeWeGetParam_i64(nBoardNo, nCommandId, out value);
         return (error, value);
     }
 
-    public static Trion.TrionError DeWeSetParam_i64(Int32 nBoardNo, Trion.TrionCommand nCommandId, Int64 value)
+    public static TrionError DeWeSetParam_i64(Int32 nBoardNo, TrionCommand nCommandId, Int64 value)
     {
-        Trion.TrionError error = Trion.API.DeWeSetParam_i64(nBoardNo, nCommandId, value);
-        return (error);
+        TrionError error = API.DeWeSetParam_i64(nBoardNo, nCommandId, value);
+        return error;
     }
 
 
-    public static (Trion.TrionError error, string value) DeWeGetParamStruct_String(string target, string item)
+    public static (TrionError error, string value) DeWeGetParamStruct_String(string target, string item)
     {
         // First, get the required buffer size
-        Trion.TrionError error = Trion.API.DeWeGetParamStruct_strLEN(target, item, out uint requiredLength);
+        TrionError error = Trion.API.DeWeGetParamStruct_strLEN(target, item, out uint requiredLength);
 
-        if (error != Trion.TrionError.NONE) // Assuming None represents success
+        if (error != TrionError.NONE) // Assuming None represents success
         {
             return (error, string.Empty);
         }
