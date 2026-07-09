@@ -133,6 +133,31 @@ DeWePxiUnload()
 
 See [trion/python](https://github.com/DEWETRON/TRION-SDK/tree/master/trion/python) for available examples.
 
+
+# Python package
+
+Install build package
+```
+pip install build
+```
+
+Build the package
+```
+python -m build
+Successfully built trion_sdk-7.5.0.tar.gz and trion_sdk-7.5.0-py3-none-any.whl
+```
+
+For package maintainer only:
+```
+pip install twine
+```
+
+Upload to PyPI
+You will need an access token.
+```
+py -m twine upload dist/*
+```
+
 # Contact
 
 **Company Information**
