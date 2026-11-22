@@ -149,15 +149,15 @@ namespace Trion
 
                     _dewe_error_constant_to_string = TrionNET_x86.API.DeWeErrorConstantToString;
 
-                    return Trion.TrionError.NONE;
+                    return TrionError.NONE;
                 }
             }
 
-            return Trion.TrionError.API_NOT_LOADED;
+            return TrionError.API_NOT_LOADED;
         }
 
 
-        public static Trion.TrionError DeWeDriverInit(out Int32 nNumOfBoard)
+        public static TrionError DeWeDriverInit(out Int32 nNumOfBoard)
         {
             nNumOfBoard = 0;
             if (_dewe_driver_init != null)
